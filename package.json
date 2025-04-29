@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-//    "build:production": "yarn build",
+    "build:production": "npm run build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "echo \"Tests are not configured yet\" && exit 0"
   },
   "dependencies": {
     "react": "^19.0.0",
