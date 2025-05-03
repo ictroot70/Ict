@@ -1,7 +1,8 @@
 export default function SingUp() {
-  return (
-    <>
-      <h2>SingUp Page</h2>
-    </>
-  );
+    return (
+        <main>
+            <h1>Hello SingUp!</h1>
+        </main>
+
+    )
 }

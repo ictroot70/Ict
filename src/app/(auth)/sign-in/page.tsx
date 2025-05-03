@@ -1,7 +1,8 @@
 export default function SingIn() {
-  return (
-    <>
-      <h2>SingIn Page</h2>
-    </>
-  );
+    return (
+        <main>
+            <h1>Hello SingIn!</h1>
+        </main>
+
+    )
 }

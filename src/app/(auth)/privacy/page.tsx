@@ -1,7 +1,8 @@
 export default function Privacy() {
-  return (
-    <>
-      <h2>Privacy Page</h2>
-    </>
-  );
+    return (
+        <main>
+            <h1>Hello Privacy!</h1>
+        </main>
+
+    )
 }
