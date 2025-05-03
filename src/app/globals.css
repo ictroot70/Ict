@@ -43,10 +43,20 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  padding: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
+}
+
+.head {
+  display: flex;
+  border: 1px solid silver;
+  width: 100%;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
 }
