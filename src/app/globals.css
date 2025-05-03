@@ -1,4 +1,13 @@
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
+
+
 :root {
+  --font-family: "Inter", "Roboto", sans-serif;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -12,6 +21,7 @@
 
 html,
 body {
+  font-family: var(--font-family), Arial, sans-serif;
   max-width: 100vw;
   overflow-x: hidden;
 }
@@ -33,10 +43,20 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+  padding: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
+}
+
+.head {
+  display: flex;
+  border: 1px solid silver;
+  width: 100%;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
 }
