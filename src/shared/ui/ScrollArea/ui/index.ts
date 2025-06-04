@@ -1,0 +1,1 @@
+export {ScrollAreaRadix} from '@ictroot/ui-kit'
