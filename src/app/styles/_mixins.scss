@@ -1,0 +1,69 @@
+@mixin screen-size(
+  $width: null,
+  $height: null,
+  $max-width: null,
+  $max-height: null,
+  $min-width: null,
+  $min-height: null
+) {
+  width: $width;
+  min-width: $min-width;
+  max-width: $max-width;
+  height: $height;
+  min-height: $min-height;
+  max-height: $max-height;
+}
+
+@mixin typography-with-color(
+  $fontSize: null,
+  $fontWeight: null,
+  $lineHeight: null,
+  $color: currentcolor
+) {
+  margin: 0;
+
+  font-size: $fontSize;
+  font-weight: $fontWeight;
+  line-height: $lineHeight;
+  color: $color;
+}
+
+@mixin typography-without-color($fontSize: null, $fontWeight: null, $lineHeight: null) {
+  margin: 0;
+  font-size: $fontSize;
+  font-weight: $fontWeight;
+  line-height: $lineHeight;
+}
+
+/// Миксин для создания flex-контейнера.
+/// @param {String} $display - Тип display (по умолчанию flex).
+/// @param {String | null} $align - Вертикальное выравнивание (align-items).
+/// @param {String | null} $justify - Горизонтальное выравнивание (justify-content).
+/// @param {String | null} $direction - Направление (row, column и т.д.).
+/// @param {String | null} $gap - Расстояние между элементами.
+/// @param {String | null} $wrap - Перенос flex-элементов.
+/// @param {Number | null} $flex-shrink - shrink-фактор для элементов.
+@mixin display-flex(
+  $display: flex,
+  $align: null,
+  $justify: null,
+  $direction: null,
+  $gap: null,
+  $wrap: null,
+  $flex-shrink: null
+) {
+  display: $display;
+  align-items: $align;
+  justify-content: $justify;
+  flex-flow: $direction $wrap;
+  gap: $gap;
+  flex-shrink: $flex-shrink;
+}
+
+@mixin box-sizing($type) {
+  box-sizing: $type;
+}
+
+@mixin checkbox-shadow($color) {
+  box-shadow: 0 0 7px 2px $color;
+}
