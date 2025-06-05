@@ -1,0 +1,67 @@
+.wrapper {
+  padding: 1.5rem;
+  width: 378px;
+}
+
+.title {
+  text-align: center;
+}
+
+.oauthProviders {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  width: 100%;
+  margin-top: 0.875rem;
+  margin-bottom: 1.5rem;
+  a {
+    padding: 0;
+    min-width: auto;
+  }
+}
+
+.form {
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+
+  .passwordField + button {
+    padding: 0;
+  }
+}
+
+.agreement {
+  padding: 6px 0px 6px 6px;
+  div:first-child {
+    width: 24px;
+    height: 24px;
+  }
+
+  p,
+  a {
+    font-size: var(--font-size-xs);
+  }
+  a {
+    color: var(--color-primary-300);
+  }
+  p {
+    span {
+      display: none;
+    }
+  }
+
+  margin-bottom: 0.75rem;
+}
+
+.hasAccount {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
