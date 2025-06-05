@@ -1,0 +1,15 @@
+@use 'sass:math';
+
+@function px-to-unit($px-value, $target-unit: 'rem') {
+  $base-size: 16; // Default base font size in px
+
+  @if $target-unit == 'rem' {
+    @return math.div($px-value, $base-size) + rem;
+  } @else if $target-unit == 'em' {
+    @return math.div($px-value, $base-size) + em;
+  } @else {
+    @error "Unsupported target  unit '#{$target-unit}' !!!! Must be either 'rem' or 'em'";
+  }
+
+  @return $px-value;
+}
