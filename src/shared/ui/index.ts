@@ -10,5 +10,3 @@ export * from './ScrollArea'
 export * from './Tabs'
 export * from './TextArea'
 export * from './Typography'
-
-
