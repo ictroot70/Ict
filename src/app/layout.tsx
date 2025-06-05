@@ -1,27 +1,26 @@
-import "./globals.css";
-import {ReactNode} from 'react';
-import { Inter } from "next/font/google";
-import Header from '@/app/common/components/header/Header';
+import './styles/index.scss'
+
+import { ReactNode } from 'react'
+import { Inter } from 'next/font/google'
+import Header from '@/app/common/components/header/Header'
 
 const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-family",
-    display: "swap",
-});
-
+  subsets: ['latin'],
+  variable: '--font-family',
+  display: 'swap',
+})
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: ReactNode;
+  children,
+}: Readonly<{
+  children: ReactNode
 }>) {
-    return (
-        <html lang="en">
-        <body className={`${inter.variable}`}>
-        <Header/>
+  return (
+    <html lang="en">
+      <body className={`${inter.variable}`}>
+        <Header />
         <main>{children}</main>
-
-        </body>
-        </html>
-    );
+      </body>
+    </html>
+  )
 }
