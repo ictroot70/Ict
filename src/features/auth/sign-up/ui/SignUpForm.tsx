@@ -1,10 +1,12 @@
 'use client'
 
-import s from './SignUpForm.module.scss'
-
+import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { Button, Card, Typography } from '@/shared'
 import { GitHub, Google } from '@ictroot/ui-kit'
-import { Card, Button, CheckboxRadix, Input, Typography } from '@/shared'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import s from './SignUpForm.module.scss'
 
 const labelContent = (
   <>
@@ -20,9 +22,23 @@ const labelContent = (
 )
 
 export const SignUpForm = () => {
-  const [isChecked, setChecked] = useState(false)
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      username: '',
+      email: '',
+      password: '',
+      passwordConfirm: '',
+      agreement: false,
+    },
+  })
 
+  const [isChecked, setChecked] = useState(false)
   const handlerCheckbox = () => setChecked(prev => !prev)
+
+  const onSubmitHandler = (data: any) => {
+    console.log(data)
+    reset()
+  }
 
   return (
     <Card className={s.wrapper}>
@@ -37,19 +53,37 @@ export const SignUpForm = () => {
           <GitHub size={36} color="var(--color-light-100)" />
         </Button>
       </div>
-      <form action="" className={s.form} autoComplete="off">
+      <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
         <div className={s.fields}>
-          <Input id="username" inputType="text" label="Username" placeholder="Your username..." />
-          <Input id="email" inputType="text" label="Email" placeholder="Your email..." />
-          <Input
+          <ControlledInput
+            id="username"
+            name="username"
+            control={control}
+            inputType="text"
+            label="Username"
+            placeholder="Your username..."
+          />
+          <ControlledInput
+            id="email"
+            name="email"
+            control={control}
+            inputType="text"
+            label="Email"
+            placeholder="Your email..."
+          />
+          <ControlledInput
             id="password"
+            name="password"
+            control={control}
             inputType="hide-able"
             label="Password"
             placeholder="***************"
             className={s.passwordField}
           />
-          <Input
+          <ControlledInput
             id="passwordConfirm"
+            name="passwordConfirm"
+            control={control}
             inputType="hide-able"
             label="Password confirmation"
             placeholder="***************"
@@ -57,7 +91,9 @@ export const SignUpForm = () => {
           />
         </div>
 
-        <CheckboxRadix
+        <ControlledCheckbox
+          name="agreement"
+          control={control}
           label={labelContent}
           className={s.agreement}
           checked={isChecked}
