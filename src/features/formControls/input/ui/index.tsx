@@ -6,6 +6,7 @@ import { Input } from '@/shared'
 import { OmitControllerFieldProps } from '@/shared/lib'
 
 interface InputProps extends ComponentPropsWithoutRef<'input'> {
+  id?: string
   label?: string
   error?: string
   placeholder?: string
