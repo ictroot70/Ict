@@ -1,10 +1,10 @@
 'use client'
 
 import s from './SignUpForm.module.scss'
-import '@ictroot/ui-kit/style.css'
 
 import { GitHub, Google } from '@ictroot/ui-kit'
 import { Card, Button, CheckboxRadix, Input, Typography } from '@/shared'
+import { useState } from 'react'
 
 const labelContent = (
   <>
@@ -20,16 +20,20 @@ const labelContent = (
 )
 
 export const SignUpForm = () => {
+  const [isChecked, setChecked] = useState(false)
+
+  const handlerCheckbox = () => setChecked(prev => !prev)
+
   return (
     <Card className={s.wrapper}>
       <Typography variant="h1" className={s.title}>
         Sign Up
       </Typography>
       <div className={s.oauthProviders}>
-        <Button as="a" variant="text">
+        <Button as="a" href="#google" variant="text">
           <Google size={36} />
         </Button>
-        <Button as="a" variant="text">
+        <Button as="a" href="#github" variant="text">
           <GitHub size={36} color="var(--color-light-100)" />
         </Button>
       </div>
@@ -53,14 +57,19 @@ export const SignUpForm = () => {
           />
         </div>
 
-        <CheckboxRadix label={labelContent} className={s.agreement} />
+        <CheckboxRadix
+          label={labelContent}
+          className={s.agreement}
+          checked={isChecked}
+          onClick={handlerCheckbox}
+        />
         <Button variant="primary" fullWidth>
           Sign Up
         </Button>
       </form>
       <div className={s.hasAccount}>
         <Typography variant="regular_16">Do you have an account?</Typography>
-        <Button as="a" variant="text" fullWidth>
+        <Button as="a" href="#signIn" variant="text" fullWidth>
           Sign In
         </Button>
       </div>
