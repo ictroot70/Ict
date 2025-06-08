@@ -1,0 +1,29 @@
+.emailConfirmedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  height: 95vh;
+}
+
+.h1 {
+  margin-bottom: 19px;
+}
+
+.text {
+margin-bottom: 54px;
+}
+
+.link {
+  display: flex;
+  justify-content: center;
+  //background-color: cornflowerblue;
+  background-color: var(--color-primary-500);
+  border-radius: 2px;
+
+  width: 182px;
+  //padding: 6px;
+
+  margin-bottom: 70px;
+}

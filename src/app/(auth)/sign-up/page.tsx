@@ -1,8 +1,14 @@
+import {EmailConfirmed} from "@/features/auth/email-confirmed/ui/EmailConfirmed";
+import {EmailExpired} from "@/features/auth/email-expired/ui/EmailExpired";
+
 export default function SingUp() {
     return (
-        <main>
-            <h1>Hello SingUp!</h1>
-        </main>
+        // <EmailConfirmed/>
+        <EmailExpired/>
+        // <main>
+        //     <h1>Hello SingUp!</h1>
+            // <EmailConfirmed/>
+        // </main>
 
     )
 }
