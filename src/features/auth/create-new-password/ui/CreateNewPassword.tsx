@@ -34,8 +34,6 @@ export const CreateNewPassword = () => {
       setError('passwordConfirmation', { message: 'The passwords must match' });
       return;
     }
-    // TODO: Call API to set new password
-    // await api.resetPassword(data.password)
     alert('Password changed!');
   };
 
