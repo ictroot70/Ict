@@ -29,6 +29,7 @@ export const EmailExpired = () => {
                                  control={control}
                                  label={'Email'}
                                  placeholder={'Epam@epam.com'}
+                                 className={s.input}
                 />
 
                 <Button className={s.button} type="submit">
