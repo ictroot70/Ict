@@ -1,8 +1,8 @@
 'use client'
 import React from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { ControlledInput } from '@/features/formControls/input/ui';
-import { Button, ErrorMessage, Typography, LabelRadix } from '@/shared/ui';
+import {SubmitHandler, useForm} from 'react-hook-form';
+import {ControlledInput} from '@/features/formControls/input/ui';
+import {Button, ErrorMessage, Typography, LabelRadix} from '@/shared/ui';
 import styles from './CreateNewPassword.module.scss';
 
 interface FormValues {
@@ -14,7 +14,7 @@ export const CreateNewPassword = () => {
     const {
         handleSubmit,
         control,
-        formState: { errors, isSubmitting },
+        formState: {errors, isSubmitting},
         watch,
     } = useForm<FormValues>({
         mode: 'onTouched',
@@ -51,7 +51,7 @@ export const CreateNewPassword = () => {
                     error={errors.password?.message}
                     rules={{
                         required: 'Password is required',
-                        maxLength: { value: 20, message: 'Password must be at most 20 characters' },
+                        maxLength: {value: 20, message: 'Password must be at most 20 characters'},
                     }}
                 />
                 <ControlledInput<FormValues>
@@ -66,19 +66,19 @@ export const CreateNewPassword = () => {
                     error={errors.passwordConfirmation?.message}
                     rules={{
                         required: 'Password confirmation is required',
-                        maxLength: { value: 20, message: 'Password must be at most 20 characters' },
+                        maxLength: {value: 20, message: 'Password must be at most 20 characters'},
                         validate: value => value === password || 'The passwords must match',
                     }}
                 />
                 {errors.passwordConfirmation && (
-                    <ErrorMessage message={errors.passwordConfirmation.message || ''} className={styles.createNewPasswordLabel} />
+                    <ErrorMessage message={errors.passwordConfirmation.message || ''} className={styles.createNewPasswordLabel}/>
                 )}
                 <LabelRadix className={styles.createNewPasswordLabel}>
                     Your password must be between 6 and 20 characters
                 </LabelRadix>
                 <Button type="submit" disabled={isSubmitting}>
                     <Typography variant={'h3'}>
-                        Create new password
+                    Create new password
                     </Typography>
                 </Button>
             </form>
