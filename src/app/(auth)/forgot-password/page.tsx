@@ -1,9 +1,9 @@
-import CreateNewPasswordForm from "@/features/auth/create-new-password/ui/CreateNewPasswordForm";
+import ForgotPasswordForm from "@/features/auth/forgot-password/ui/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
   return (
     <>
-      <CreateNewPasswordForm/>
+      <ForgotPasswordForm/>
     </>
   );
 }

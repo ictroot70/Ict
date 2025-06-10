@@ -1,61 +1,98 @@
-'use client'
+'use client';
 
-import s from './CreateNewPasswordForm.module.scss'
-import '@ictroot/ui-kit/style.css'
-import { Card, Input, Button, Typography, Recaptcha } from '@/shared'
-import { useState } from 'react'
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { Card, Button, Typography } from '@/shared';
+import { ControlledInput } from '@/features/formControls/input/ui';
+import s from './CreateNewPasswordForm.module.scss';
+import '@ictroot/ui-kit/style.css';
+
+interface FormData {
+    password: string;
+    confirmPassword: string;
+}
 
 export default function CreateNewPasswordForm() {
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [error, setError] = useState('')
+    const methods = useForm<FormData>({
+        mode: 'onChange',
+    });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-
-        if (password !== confirmPassword) {
-            setError('The passwords must match')
-            return
-        }
-
-        setError('')
-    }
+    const onSubmit = (data: FormData) => {
+        console.log('New password created:', data.password);
+    };
 
     return (
-        <Card className={s.wrapper}>
-            <Typography variant={'h1'} className={s.title}>
-                Create New Password
-            </Typography>
-            <form onSubmit={handleSubmit}>
-                <Input
-                    inputType={'hide-able'}
-                    label={'New password'}
-                    placeholder={'Enter your password'}
-                    className={s.input}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <span className={s.indentation} aria-hidden="true">&nbsp;</span>
-                <Input
-                    inputType={'hide-able'}
-                    placeholder={'Enter your password'}
-                    label={'Password confirmation'}
-                    value={confirmPassword}
-                    error={error}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-                <Typography variant={'regular_14'} className={s.text}>
-                    Your password must be between 6 and 20 characters
+        <FormProvider {...methods}>
+            <Card className={s.wrapper}>
+                <Typography variant={'h1'} className={s.title}>
+                    Create New Password
                 </Typography>
+                <FormContent onSubmit={onSubmit} />
+            </Card>
+        </FormProvider>
+    );
+}
 
-                <Button
-                    type="submit"
-                    fullWidth={true}
-                    className={s.button}
-                >
-                    Create new password
-                </Button>
-            </form>
-        </Card>
-    )
+function FormContent({ onSubmit }: { onSubmit: (data: FormData) => void }) {
+    const {
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useFormContext<FormData>();
+
+    const password = watch('password');
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <div className={s.wrap}>
+                <ControlledInput
+                    name="password"
+                    inputType="hide-able"
+                    label="New password"
+                    placeholder="Enter your password"
+                    className={s.input}
+                    rules={{
+                        required: 'Password is required',
+                        minLength: {
+                            value: 6,
+                            message: 'Password must be at least 6 characters',
+                        },
+                        maxLength: {
+                            value: 20,
+                            message: 'Password must be no more than 20 characters',
+                        },
+                    }}
+                />
+                <ControlledInput
+                    name="confirmPassword"
+                    inputType="hide-able"
+                    placeholder="Confirm your password"
+                    label="Password confirmation"
+                    className={s.input}
+                    rules={{
+                        required: 'Please confirm your password',
+                        validate: (value) =>
+                            value === password || 'The passwords must match',
+                    }}
+                />
+            </div>
+
+            {errors.confirmPassword && (
+                <Typography variant="regular_14" color="error">
+                    {errors.confirmPassword.message}
+                </Typography>
+            )}
+
+            <Typography variant={'regular_14'} className={s.text}>
+                Your password must be between 6 and 20 characters
+            </Typography>
+
+            <Button
+                type="submit"
+                fullWidth={true}
+                className={s.button}
+            >
+                Create new password
+            </Button>
+        </form>
+    );
 }

@@ -1,92 +1,74 @@
-'use client'
+'use client';
 
-import s from './ForgotPasswordForm.module.scss'
-import '@ictroot/ui-kit/style.css'
-import { Card, Input, Button, Typography, Recaptcha } from '@/shared'
-import { useState, useCallback } from 'react'
+import { useForm } from 'react-hook-form';
+import { Card, Button, Typography, Recaptcha } from '@/shared';
+import { useState, useCallback } from 'react';
+import { ControlledInput } from '@/features/formControls/input/ui';
+import s from './ForgotPasswordForm.module.scss';
+import '@ictroot/ui-kit/style.css';
+
+interface FormData {
+    email: string;
+}
 
 export default function ForgotPasswordForm() {
-    const [email, setEmail] = useState('')
-    const [error, setError] = useState('')
-    const [isSubmitted, setIsSubmitted] = useState(false)
-    const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false)
-    const [showRecaptcha, setShowRecaptcha] = useState(true)
-
-    const validateEmail = (email: string) => {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        return re.test(email)
-    }
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value)
-        if (error) setError('')
-    }
+    const { control, handleSubmit } = useForm<FormData>();
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isRecaptchaVerified, setIsRecaptchaVerified] = useState(false);
+    const [showRecaptcha, setShowRecaptcha] = useState(true);
 
     const handleRecaptchaChange = useCallback((token: string | null) => {
         if (token) {
-            setIsRecaptchaVerified(true)
-            setShowRecaptcha(false) // Скрываем reCAPTCHA после успешной проверки
+            setIsRecaptchaVerified(true);
+            setShowRecaptcha(false);
         } else {
-            setIsRecaptchaVerified(false)
+            setIsRecaptchaVerified(false);
         }
-    }, [])
+    }, []);
 
-    const handleSubmit = () => {
-        if (!email) {
-            setError('User with this email doesn\'t exist')
-            return
-        }
-
-        if (!validateEmail(email)) {
-            setError('Please enter a valid email address')
-            return
-        }
-
-        if (!isRecaptchaVerified) {
-            setError('Please complete the reCAPTCHA')
-            setShowRecaptcha(true)
-            return
-        }
-
-        setError('')
-        setIsSubmitted(true)
-    }
+    const onSubmit = (data: FormData) => {
+        console.log('Form submitted:', data);
+        setIsSubmitted(true);
+    };
 
     return (
         <Card className={s.wrapper}>
             <Typography variant={'h1'} className={s.title}>
                 Forgot Password
             </Typography>
+            <div className={s.wrap}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <ControlledInput
+                        control={control}
+                        name="email"
+                        inputType="text"
+                        label="Email"
+                        placeholder="Enter your email"
+                    />
 
-            <Input
-                inputType={'text'}
-                label={'Email'}
-                placeholder={'Enter your email'}
-                value={email}
-                onChange={handleChange}
-                error={error}
-            />
+                    <Typography variant={'regular_14'} className={s.text}>
+                        Enter your email address and we will send you further instructions
+                    </Typography>
 
-            <Typography variant={'regular_14'} className={s.text}>
-                Enter your email address and we will send you further instructions
-            </Typography>
-            {!showRecaptcha && (
-                <Typography variant={'regular_14'} className={s.text2}>
-                    The link has been sent by email.
-                    If you don’t receive an email send link again
-                </Typography>
-            )}
-            <Button
-                fullWidth={true}
-                onClick={handleSubmit}
-                disabled={isSubmitted}
-            >
-                Send Link
-            </Button>
-            <span className={s.indentation} aria-hidden="true">&nbsp;</span>
-            <Button as={'a'} variant={'text'} fullWidth={true}>
-                Back to Sign In
-            </Button>
+                    {!showRecaptcha && (
+                        <Typography variant={'regular_14'} className={s.text2}>
+                            The link has been sent by email.
+                            If you don't receive an email send link again
+                        </Typography>
+                    )}
+
+                    <Button
+                        type="submit"
+                        fullWidth={true}
+                        disabled={isSubmitted}
+                    >
+                        Send Link
+                    </Button>
+                </form>
+                <Button as={'a'} variant={'text'} fullWidth={true}>
+                    Back to Sign In
+                </Button>
+            </div>
 
             {showRecaptcha && (
                 <Recaptcha
@@ -95,5 +77,5 @@ export default function ForgotPasswordForm() {
                 />
             )}
         </Card>
-    )
+    );
 }
