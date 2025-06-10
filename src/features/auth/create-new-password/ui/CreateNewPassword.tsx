@@ -63,16 +63,16 @@ export const CreateNewPassword = () => {
                     required
                     minLength={6}
                     maxLength={20}
-                    error={errors.passwordConfirmation?.message || ''}
+                    error={errors.passwordConfirmation?.message}
                     rules={{
                         required: 'Password confirmation is required',
                         maxLength: {value: 20, message: 'Password must be at most 20 characters'},
                         validate: value => value === password || 'The passwords must match',
                     }}
                 />
-                {/* {errors.passwordConfirmation && (
+                {errors.passwordConfirmation && (
                     <ErrorMessage message={errors.passwordConfirmation.message || ''} className={styles.createNewPasswordLabel}/>
-                )} */}
+                )}
                 <LabelRadix className={styles.createNewPasswordLabel}>
                     Your password must be between 6 and 20 characters
                 </LabelRadix>
