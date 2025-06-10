@@ -1,1 +1,1 @@
-export {Alert} from '@ictroot/ui-kit'
+export { Alert } from '@ictroot/ui-kit'

@@ -14,7 +14,7 @@
     "@eslint/eslintrc": "^3",
     "@fontsource/inter": "^5.2.5",
     "@fontsource/roboto": "^5.2.5",
-    "@ictroot/ui-kit": "0.0.1-beta.1",
+    "@ictroot/ui-kit": "^0.0.1-beta.1",
     "@reduxjs/toolkit": "2.7.0",
     "@types/node": "^20",
     "@types/react": "^19",

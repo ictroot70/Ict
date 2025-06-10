@@ -1,6 +1,6 @@
 'use client'
 import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google } from '@ictroot/ui-kit'
+// import { GitHub, Google } from '@ictroot/ui-kit'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { useForm } from 'react-hook-form'

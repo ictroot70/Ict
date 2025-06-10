@@ -7,6 +7,7 @@ export default function Header() {
       <Link href="/sign-in">SingIn</Link>
       <Link href="/sign-up">SingUp</Link>
       <Link href="/privacy">Privacy</Link>
+      <Link href="/forgotpassword">forgotpassword</Link>
     </header>
   )
 }

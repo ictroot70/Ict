@@ -3,7 +3,7 @@
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google } from '@ictroot/ui-kit'
+// import { GitHub, Google } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import s from './SignUpForm.module.scss'
@@ -47,10 +47,10 @@ export const SignUpForm = () => {
       </Typography>
       <div className={s.oauthProviders}>
         <Button as="a" href="#google" variant="text">
-          <Google size={36} />
+          {/* <Google size={36} /> */}
         </Button>
         <Button as="a" href="#github" variant="text">
-          <GitHub size={36} color="var(--color-light-100)" />
+          {/* <GitHub size={36} color="var(--color-light-100)" /> */}
         </Button>
       </div>
       <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
