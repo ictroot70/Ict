@@ -1,5 +1,5 @@
 import "./globals.css";
-import {ReactNode} from 'react';
+import { ReactNode } from 'react';
 import { Inter } from "next/font/google";
 import Header from '@/app/common/components/header/Header';
 
@@ -11,17 +11,17 @@ const inter = Inter({
 
 
 export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
+    children,
+}: Readonly<{
     children: ReactNode;
 }>) {
     return (
         <html lang="en">
-        <body className={`${inter.variable}`}>
-        <Header/>
-        <main>{children}</main>
+            <body className={`${inter.variable}`}>
+                <Header />
+                <main>{children}</main>
 
-        </body>
+            </body>
         </html>
     );
 }
