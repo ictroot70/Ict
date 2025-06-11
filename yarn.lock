@@ -4159,7 +4159,7 @@ react-dom@^19.0.0:
   dependencies:
     scheduler "^0.26.0"
 
-react-google-recaptcha@3.1.0:
+react-google-recaptcha@3.1.0, react-google-recaptcha@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/react-google-recaptcha/-/react-google-recaptcha-3.1.0.tgz#44aaab834495d922b9d93d7d7a7fb2326315b4ab"
   integrity sha512-cYW2/DWas8nEKZGD7SCu9BSuVz8iOcOLHChHyi7upUuVhkpkhYG/6N3KDiTQ3XAiZ2UAZkfvYKMfAHOzBOcGEg==
