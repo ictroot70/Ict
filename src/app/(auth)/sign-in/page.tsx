@@ -1,8 +1,5 @@
-export default function SingIn() {
-    return (
-        <main>
-            <h1>Hello SingIn!</h1>
-        </main>
+import { SignInForm } from '@/features/auth/sign-in/ui/SignInForm'
 
-    )
+export default function SingIn() {
+  return <SignInForm />
 }
