@@ -1,7 +1,9 @@
-export default function ForgotPasswordForm() {
+import ForgotPasswordForm from "@/features/auth/forgot-password/ui/ForgotPasswordForm";
+
+export default function ForgotPasswordPage() {
   return (
     <>
-      <h2>Forgot Password Page</h2>
+      <ForgotPasswordForm/>
     </>
   );
 }
