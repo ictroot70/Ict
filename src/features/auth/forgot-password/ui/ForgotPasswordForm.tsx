@@ -18,14 +18,13 @@ interface ServerError {
 }
 
 export default function ForgotPasswordForm() {
-    const recaptchaSiteKey = "6Lc_1VwrAAAAAKNTI8kyAOPu1lSIfRu1XJHMGnmk";
+    const recaptchaSiteKey = "6Lc_1VwrAAAAAKNTI8kyAOPu1lSIfRu1XJHMGnmk"; // будет перенесен в env - создал 2 ключа для локал хоста и нашего ip()
     const {
         control,
         handleSubmit,
         formState: { isSubmitting, isValid, errors },
         setError,
         clearErrors,
-        watch,
         setValue
     } = useForm<FormData>({
         mode: 'onChange',
@@ -64,6 +63,7 @@ export default function ForgotPasswordForm() {
     };
 
     const onSubmit = async (data: FormData) => {
+        if (isSubmitting) return;
         if (!isRecaptchaVerified || !data.recaptchaToken) {
             setError('recaptchaToken', { type: 'manual', message: 'Please complete the reCAPTCHA' });
             return;
