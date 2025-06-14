@@ -14,6 +14,7 @@
     "@eslint/eslintrc": "^3",
     "@fontsource/inter": "^5.2.5",
     "@fontsource/roboto": "^5.2.5",
+    "@hookform/resolvers": "^5.1.1",
     "@ictroot/ui-kit": "0.0.1-beta.1",
     "@reduxjs/toolkit": "2.7.0",
     "@types/node": "^20",
@@ -28,7 +29,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "7.56.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "zod": "^3.25.64"
   },
   "devDependencies": {
     "@it-incubator/eslint-config": "^1.0.4",
