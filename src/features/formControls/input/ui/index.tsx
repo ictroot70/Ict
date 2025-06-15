@@ -3,7 +3,6 @@
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 import { ComponentPropsWithoutRef, ReactElement } from 'react'
 import { Input } from '@/shared'
-import { OmitControllerFieldProps } from '@/shared/lib'
 
 interface InputProps extends ComponentPropsWithoutRef<'input'> {
   id?: string
@@ -13,10 +12,10 @@ interface InputProps extends ComponentPropsWithoutRef<'input'> {
   inputType: 'text' | 'hide-able' | 'search'
   disabled?: boolean
   required?: boolean
-}
+} // This type we use the pantry do not export its original, it is temporary!
 
 type ControlledInputProps<T extends FieldValues> = UseControllerProps<T> &
-  OmitControllerFieldProps<InputProps>
+  Omit<InputProps, 'onChange' | 'value'>
 export const ControlledInput = <T extends FieldValues>({
   control,
   name,
@@ -25,7 +24,9 @@ export const ControlledInput = <T extends FieldValues>({
   const {
     field,
     fieldState: { error },
-  } = useController({ control, name })
+  } = useController({ control, name})
 
   return <Input {...rest} {...field} error={error?.message} />
 }
+
+ControlledInput.displayName = 'ControlledInput'
