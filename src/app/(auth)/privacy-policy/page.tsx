@@ -1,7 +1,7 @@
-export default function TermsService() {
+import { InfoPage, privacyPolicyText } from '@/shared/components/InfoPage'
+
+export default function PrivacyPolicy() {
   return (
-    <>
-      <h2>Terms of Service Page</h2>
-    </>
-  );
+    <InfoPage title="Privacy Policy" content={privacyPolicyText} backButtonText="Back to Sign Up" />
+  )
 }

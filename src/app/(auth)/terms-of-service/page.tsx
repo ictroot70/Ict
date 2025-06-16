@@ -1,7 +1,11 @@
+import { InfoPage, termsOfServiceText } from '@/shared/components/InfoPage'
+
 export default function TermsService() {
   return (
-    <>
-      <h2>Terms of Service Page</h2>
-    </>
-  );
+    <InfoPage
+      title="Terms of Service"
+      content={termsOfServiceText}
+      backButtonText="Back to Sign Up"
+    />
+  )
 }
