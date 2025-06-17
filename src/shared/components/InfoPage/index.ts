@@ -1,5 +1,5 @@
 import { InfoPage } from './ui/InfoPage'
-import { privacyPolicyText } from './assets/privacyPolicyText'
-import { termsOfServiceText } from './assets/termsOfServiceText'
+import { PrivacyPolicyContent } from './assets/PrivacyPolicyContent'
+import { TermsOfServiceContent } from './assets/TermsOfServiceContent'
 
-export { InfoPage, privacyPolicyText, termsOfServiceText }
+export { InfoPage, PrivacyPolicyContent, TermsOfServiceContent }
