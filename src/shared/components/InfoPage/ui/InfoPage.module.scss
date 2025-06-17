@@ -1,2 +1,37 @@
-.root {
+.container {
+  max-width: 1400px;
+  padding: 0 60px;
+}
+
+.wrapper {
+  padding: 1.5rem 0;
+}
+
+.content {
+  text-align: center;
+  padding: 0 98px;
+  margin-top: 1.5rem;
+
+  h2 {
+    margin-bottom: 20px;
+  }
+}
+
+.link {
+  padding-left: 0;
+  padding-right: 6px;
+
+  color: var(--color-light-100);
+  &:hover {
+    color: var(--color-light-700);
+  }
+
+  &:active {
+    color: var(--color-light-900);
+  }
+
+  &:focus-visible {
+    color: var(--color-light-700);
+    outline: 2px solid var(--color-primary-700);
+  }
 }

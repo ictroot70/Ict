@@ -1,33 +1,35 @@
 'use client'
 //import { useRouter } from 'next/router'
-//import s from './InfoPage.module.scss'
+import s from './InfoPage.module.scss'
 import { ArrowBack, Button, Typography } from '@ictroot/ui-kit'
 
 type Props = {
   title: string
-  content: string
+  children: React.ReactNode
   backButtonText?: string
-  backLink?: string
 }
 
-export const InfoPage = ({ title, content, backButtonText = 'Back', backLink }: Props) => {
+export const InfoPage = ({ title, children, backButtonText = 'Back' }: Props) => {
   /* const router = useRouter()
   const handleBack = () => {
     router.back()
   } */
 
   return (
-    <>
-      <Button variant="text" onClick={() => {}}>
-        <ArrowBack />
-        <Typography variant={'regular_14'}>{backButtonText}</Typography>
-      </Button>
+    <div className={s.container}>
+      <div className={s.wrapper}>
+        <Button variant="text" onClick={() => {}} className={s.link}>
+          <ArrowBack />
+          <Typography variant={'regular_14'}>{backButtonText}</Typography>
+        </Button>
 
-      <Typography variant="h1" asChild>
-        <h2>{title}</h2>
-      </Typography>
-
-      <Typography variant="regular_14">{content}</Typography>
-    </>
+        <div className={s.content}>
+          <Typography variant="h1" asChild>
+            <h2>{title}</h2>
+          </Typography>
+          {children}
+        </div>
+      </div>
+    </div>
   )
 }
