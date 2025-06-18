@@ -1,26 +1,29 @@
-import {FieldValues, useController, UseControllerProps} from 'react-hook-form'
-import {CheckboxProps, CheckboxRadix} from '@/shared'
-import {ReactElement} from "react";
-import {OmitControllerFieldProps} from "@/shared/lib";
-
+import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
+import { CheckboxProps, CheckboxRadix } from '@/shared'
+import { ReactElement } from 'react'
 
 type ControlledCheckboxProps<T extends FieldValues> = UseControllerProps<T> &
-    OmitControllerFieldProps<CheckboxProps>
-
+  Omit<CheckboxProps, 'onChange' | 'checked' | 'id'>
 
 export const ControlledCheckbox = <T extends FieldValues>({
-                                                              name,
-                                                              control,
-                                                              ...restProps
-                                                          }: ControlledCheckboxProps<T>): ReactElement => {
-    const {
-        field: {value, onChange, ...fieldRest},
-        fieldState: {error}
-    } = useController({
-        name,
-        control,
-    })
+  name,
+  control,
+  ...restProps
+}: ControlledCheckboxProps<T>): ReactElement => {
+  const {
+    field: { value, onChange },
+    fieldState: { error },
+  } = useController({
+    name,
+    control,
+  })
 
-    return <CheckboxRadix {...restProps} {...fieldRest} errorMessage={error?.message} checked={!!value}
-                          onCheckedChange={onChange}/>
+  return (
+    <CheckboxRadix
+      {...restProps}
+      errorMessage={error?.message}
+      checked={!!value}
+      onCheckedChange={onChange}
+    />
+  )
 }
