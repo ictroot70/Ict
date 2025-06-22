@@ -5,7 +5,7 @@ export const signUpSchema = z.object({
         .string()
         .min(6, 'Minimum number of characters 6')
         .max(30, 'Maximum number of characters 30')
-        .regex(/^[a-zA-Z0-9_-]+$/, 'Username can contain only: 0-9, A-Z, a-z, _, -'),
+        .regex(/^[a-zA-Z0-9_-]*$/, 'Username can contain only: 0-9, A-Z, a-z, _, -'),
 
     email: z
         .string()
@@ -22,8 +22,8 @@ export const signUpSchema = z.object({
 
     passwordConfirm: z.string(),
 
-    agreement: z.boolean().refine(val => val === true, {
-        message: 'I agree to the Terms of Service and Privacy Policy'
+    agreement: z.boolean().refine(val => val, {
+        message: 'You must agree to the Terms of Service and Privacy Policy'
     })
 }).refine(data => data.password === data.passwordConfirm, {
     message: 'Passwords must match',
