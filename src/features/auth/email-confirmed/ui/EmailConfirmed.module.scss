@@ -1,0 +1,23 @@
+.emailConfirmedContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  height: 95vh;
+}
+
+.h1 {
+}
+
+.text {
+}
+
+.link {
+  display: flex;
+  justify-content: center;
+  background-color: var(--color-primary-500);
+  border-radius: 2px;
+
+  width: 182px;
+}
