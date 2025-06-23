@@ -1,45 +1,44 @@
 'use client'
-import * as React from 'react';
-import {Button, Typography} from "@ictroot/ui-kit";
+import * as React from 'react'
+import { Button, Typography } from '@ictroot/ui-kit'
 import Image from 'next/image'
-import img from './../assets/time-management/rafiki.png'
-import s from "./EmailExpired.module.scss";
-import {ControlledInput} from "@/features/formControls/input/ui";
-import {Form, useForm} from "react-hook-form";
-
+import picture from '../assets/icons/rafiki.svg'
+import s from './EmailExpired.module.scss'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { Form, useForm } from 'react-hook-form'
 
 export const EmailExpired = () => {
-    const {control, handleSubmit, reset} = useForm({
-        defaultValues: {
-            email: '',
-        },
-    })
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      email: '',
+    },
+  })
 
-    return (
-        <div className={s.emailExpiredContainer}>
-            <Typography variant={'h1'} className={s.h1}>Email verification link expired</Typography>
-            <Typography variant={'regular_16'} className={s.text}>Looks like the verification link has expired. Not to
-                worry, we can send
-                the link again</Typography>
+  return (
+    <div className={s.wrapper}>
+      <Typography asChild variant={'h1'} className={s.title}>
+        <h2>Email verification link expired</h2>
+      </Typography>
 
-            <Form control={control}>
+      <Typography variant={'regular_16'} className={s.description}>
+        Looks like the verification link has expired. Not to worry, we can send the link again
+      </Typography>
 
-                <ControlledInput name={'email'}
-                                 inputType={'text'}
-                                 control={control}
-                                 label={'Email'}
-                                 placeholder={'Epam@epam.com'}
-                                 className={s.input}
-                />
+      <Form control={control} className={s.form}>
+        <ControlledInput
+          name={'email'}
+          inputType={'text'}
+          control={control}
+          label={'Email'}
+          placeholder={'Epam@epam.com'}
+          className={s.input}
+        />
 
-                <Button className={s.button} type="submit">
-                    <Typography variant={'h3'}>
-                        Resend verification link
-                    </Typography>
-                </Button>
-
-            </Form>
-            <Image src={img} alt="Email verification link expired"/>
-        </div>
-    );
-};
+        <Button className={s.button} type="submit">
+          Resend verification link
+        </Button>
+      </Form>
+      <Image src={picture} alt="Email verification link expired" className={s.image} />
+    </div>
+  )
+}
