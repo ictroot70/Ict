@@ -1,25 +1,29 @@
 'use client'
-import * as React from 'react';
-import Link from "next/link";
-import Image from 'next/image'
-import img from './../assets/sign-up/bro.png'
-import s from './EmailConfirmed.module.scss'
-import { Typography } from '@/shared'
 
+import Image from 'next/image'
+import picture from '../assets/icons/bro.svg'
+import s from './EmailConfirmed.module.scss'
+import { Button, Typography } from '@/shared'
+import { useRouter } from 'next/navigation'
 
 export const EmailConfirmed = () => {
-    return (
-        <div className={s.emailConfirmedContainer}>
-            <Typography variant={'h1'} className={s.h1}>Congratulations!</Typography>
-            <Typography variant={'regular_16'} className={s.text}>Your email has been confirmed</Typography>
+  const router = useRouter()
 
-            <Link href={'/sign-in'} className={s.link}>
-                <Typography variant={'h3'}>
-                    Sign in
-                </Typography>
-            </Link>
+  return (
+    <div className={s.wrapper}>
+      <Typography variant={'h1'} className={s.title} asChild>
+        <h2>Congratulations!</h2>
+      </Typography>
 
-            <Image src={img} alt="Email confirmed"/>
-        </div>
-    );
-};
+      <Typography variant={'regular_16'} className={s.description}>
+        Your email has been confirmed
+      </Typography>
+
+      <Button variant="primary" onClick={() => router.push('/sign-in')} className={s.button}>
+        Sign in
+      </Button>
+
+      <Image src={picture} alt="Email confirmed" className={s.image} />
+    </div>
+  )
+}
