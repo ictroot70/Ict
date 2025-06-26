@@ -6,7 +6,10 @@ import { Button, Card, Typography } from '@/shared'
 import { GitHub, Google } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth'
+import { auth } from '@/shared/config/firebase-config';
 import s from './SignUpForm.module.scss'
+
 
 const labelContent = (
   <>
@@ -40,16 +43,54 @@ export const SignUpForm = () => {
     reset()
   }
 
-  return (
+  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        try {
+            const provider = new GoogleAuthProvider();
+            if (!auth) {
+                throw new Error('Firebase auth not initialized');
+            }
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            console.log('Google auth success', credential);
+        } catch (error: any) {
+            if (error.code === 'auth/cancelled-popup-request') {
+                console.log('User cancelled the popup');
+                return;
+            }
+            console.error('Google auth error:', error);
+        }
+    };
+
+    const handleGitHubSignIn = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        try {
+            const provider = new GithubAuthProvider();
+            if (!auth) {
+                throw new Error('Firebase auth not initialized');
+            }
+            const result = await signInWithPopup(auth, provider);
+            const credential = GithubAuthProvider.credentialFromResult(result);
+            console.log('GitHub auth success', credential);
+        } catch (error: any) {
+            if (error.code === 'auth/cancelled-popup-request') {
+                console.log('User cancelled the popup');
+                return;
+            }
+            console.error('GitHub auth error:', error);
+        }
+    };
+
+    return (
     <Card className={s.wrapper}>
       <Typography variant="h1" className={s.title}>
         Sign Up
       </Typography>
       <div className={s.oauthProviders}>
-        <Button as="a" href="#google" variant="text">
+        <Button as="button"  variant="text" onClick={handleGoogleSignIn}>
           <Google size={36} />
         </Button>
-        <Button as="a" href="#github" variant="text">
+        <Button as="button" variant="text" onClick={handleGitHubSignIn}>
           <GitHub size={36} color="var(--color-light-100)" />
         </Button>
       </div>
