@@ -1,98 +1,129 @@
-'use client';
+'use client'
 
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
-import { Card, Button, Typography } from '@/shared';
-import { ControlledInput } from '@/features/formControls/input/ui';
-import s from './CreateNewPasswordForm.module.scss';
-import '@ictroot/ui-kit/style.css';
+import s from './CreateNewPasswordForm.module.scss'
 
-interface FormData {
-    password: string;
-    confirmPassword: string;
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+import { Card, Button, Typography } from '@/shared'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { newPassword } from '../api/newPassword'
+import { PASSWORD_ALLOWED_CHARACTERS, PASSWORD_REGEX, ROUTES } from '../config/constants'
+import { checkRecoveryCode } from '../api/checkRecoveryCode'
+import ModalPasswordReset from '@/common/components/ModalPasswordReset/ModalPasswordReset'
+
+export const passwordSchema = () => {
+  return z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters' })
+    .max(20, { message: 'Password must be no more than 20 characters' })
+    .regex(PASSWORD_REGEX, {
+      message: `Password must contain: ${PASSWORD_ALLOWED_CHARACTERS}`,
+    })
+    .trim()
 }
+
+export const newPasswordSchema = () => {
+  return z
+    .object({
+      password: passwordSchema(),
+      passwordConfirmation: passwordSchema(),
+    })
+    .refine(values => values.password === values.passwordConfirmation, {
+      message: 'The passwords must match',
+      path: ['passwordConfirmation'],
+    })
+}
+
+type Inputs = z.infer<ReturnType<typeof newPasswordSchema>>
 
 export default function CreateNewPasswordForm() {
-    const methods = useForm<FormData>({
-        mode: 'onChange',
-    });
+  const { control, handleSubmit, reset } = useForm<Inputs>({
+    defaultValues: { password: '', passwordConfirmation: '' },
+    resolver: zodResolver(newPasswordSchema()),
+    mode: 'onBlur',
+  })
 
-    const onSubmit = (data: FormData) => {
-        console.log('New password created:', data.password);
-    };
+  const [isValidating, setIsValidating] = useState(true)
+  const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
 
-    return (
-        <FormProvider {...methods}>
-            <Card className={s.wrapper}>
-                <Typography variant={'h1'} className={s.title}>
-                    Create New Password
-                </Typography>
-                <FormContent onSubmit={onSubmit} />
-            </Card>
-        </FormProvider>
-    );
-}
+  const router = useRouter()
+  const params = useSearchParams()
+  const urlCode = params?.get('code')
+  const urlEmail = params?.get('email')
 
-function FormContent({ onSubmit }: { onSubmit: (data: FormData) => void }) {
-    const {
-        handleSubmit,
-        watch,
-        formState: { errors },
-    } = useFormContext<FormData>();
+  const onSubmit = async ({ password }: Inputs) => {
+    const response = await newPassword({ newPassword: password, recoveryCode: urlCode as string })
+    if (response.ok) {
+      setIsOpenModalWindow(true)
+      reset()
+    } else {
+      /* TODO: Alert с сообщением и(или) router */
+    }
+  }
 
-    const password = watch('password');
+  const handleCloseModalWindow = () => {
+    setIsOpenModalWindow(false)
+    router.push(ROUTES.signIn)
+  }
 
-    return (
-        <form onSubmit={handleSubmit(onSubmit)}>
-            <div className={s.wrap}>
-                <ControlledInput
-                    name="password"
-                    inputType="hide-able"
-                    label="New password"
-                    placeholder="Enter your password"
-                    className={s.input}
-                    rules={{
-                        required: 'Password is required',
-                        minLength: {
-                            value: 6,
-                            message: 'Password must be at least 6 characters',
-                        },
-                        maxLength: {
-                            value: 20,
-                            message: 'Password must be no more than 20 characters',
-                        },
-                    }}
-                />
-                <ControlledInput
-                    name="confirmPassword"
-                    inputType="hide-able"
-                    placeholder="Confirm your password"
-                    label="Password confirmation"
-                    className={s.input}
-                    rules={{
-                        required: 'Please confirm your password',
-                        validate: (value) =>
-                            value === password || 'The passwords must match',
-                    }}
-                />
-            </div>
+  useEffect(() => {
+    const validateRecoveryCode = async () => {
+      try {
+        if (!urlCode || !urlEmail) {
+          router.push(ROUTES.emailExpired)
+          return
+        }
 
-            {errors.confirmPassword && (
-                <Typography variant="regular_14" color="error">
-                    {errors.confirmPassword.message}
-                </Typography>
-            )}
+        const response = await checkRecoveryCode({ recoveryCode: urlCode })
 
-            <Typography variant={'regular_14'} className={s.text}>
-                Your password must be between 6 and 20 characters
-            </Typography>
+        if (response.ok) {
+          setIsValidating(false)
+        } else {
+          router.push(`${ROUTES.emailExpired}?email=${urlEmail}`)
+        }
+      } catch (error) {
+        router.push(ROUTES.emailExpired)
+      }
+    }
 
-            <Button
-                type="submit"
-                fullWidth={true}
-                className={s.button}
-            >
-                Create new password
-            </Button>
+    validateRecoveryCode()
+  }, [urlCode, urlEmail, router])
+
+  if (isValidating) {
+    return null
+  }
+
+  return (
+    <>
+      <Card className={s.wrapper}>
+        <Typography variant="h1" className={s.title}>
+          Create New Password
+        </Typography>
+        <form className={s.wrap} onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+          <ControlledInput
+            control={control}
+            name="password"
+            inputType="hide-able"
+            label="New password"
+            placeholder="Enter your password"
+          />
+          <ControlledInput
+            control={control}
+            name="passwordConfirmation"
+            inputType="hide-able"
+            placeholder="Confirm your password"
+            label="Password confirmation"
+          />
+          <Button type="submit" fullWidth={true} className={s.button}>
+            Create new password
+          </Button>
         </form>
-    );
+      </Card>
+      <ModalPasswordReset isOpen={isOpenModalWindow} onClose={handleCloseModalWindow} />
+    </>
+  )
 }
