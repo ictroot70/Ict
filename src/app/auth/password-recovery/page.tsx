@@ -3,5 +3,5 @@ export default function ForgotPasswordForm() {
     <>
       <h2>Forgot Password Page</h2>
     </>
-  );
+  )
 }

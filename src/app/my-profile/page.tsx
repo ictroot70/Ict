@@ -3,5 +3,5 @@ export default function MyProfile() {
     <>
       <h2>My Profile Page</h2>
     </>
-  );
+  )
 }

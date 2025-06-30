@@ -3,5 +3,5 @@ export default function TermsService() {
     <>
       <h2>Terms of Service Page</h2>
     </>
-  );
+  )
 }

@@ -3,5 +3,5 @@ export default function Favorites() {
     <>
       <h2>Favorites Page</h2>
     </>
-  );
+  )
 }

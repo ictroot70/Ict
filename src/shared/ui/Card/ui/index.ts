@@ -1,1 +1,1 @@
-export {Card} from '@ictroot/ui-kit'
+export { Card } from '@ictroot/ui-kit'

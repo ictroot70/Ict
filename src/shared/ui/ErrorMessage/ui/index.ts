@@ -1,1 +1,1 @@
-export {ErrorMessage} from '@ictroot/ui-kit'
+export { ErrorMessage } from '@ictroot/ui-kit'

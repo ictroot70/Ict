@@ -3,5 +3,5 @@ export default function Messenger() {
     <>
       <h2>Messenger Page</h2>
     </>
-  );
+  )
 }

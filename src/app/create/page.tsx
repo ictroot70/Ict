@@ -3,5 +3,5 @@ export default function CreatePage() {
     <>
       <h2>Create New Publication</h2>
     </>
-  );
+  )
 }

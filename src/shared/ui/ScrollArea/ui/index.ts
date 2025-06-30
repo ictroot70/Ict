@@ -1,1 +1,1 @@
-export {ScrollAreaRadix} from '@ictroot/ui-kit'
+export { ScrollAreaRadix } from '@ictroot/ui-kit'

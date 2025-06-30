@@ -3,5 +3,5 @@ export default function Feed() {
     <>
       <h2>Feed Page</h2>
     </>
-  );
+  )
 }

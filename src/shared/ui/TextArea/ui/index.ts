@@ -1,1 +1,1 @@
-export {TextArea} from '@ictroot/ui-kit'
+export { TextArea } from '@ictroot/ui-kit'

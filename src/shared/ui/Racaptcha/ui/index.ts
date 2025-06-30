@@ -1,1 +1,1 @@
-export {Recaptcha} from '@ictroot/ui-kit'
+export { Recaptcha } from '@ictroot/ui-kit'

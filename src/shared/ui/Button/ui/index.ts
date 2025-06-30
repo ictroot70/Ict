@@ -1,1 +1,1 @@
-export {Button} from '@ictroot/ui-kit'
+export { Button } from '@ictroot/ui-kit'

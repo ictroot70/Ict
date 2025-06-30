@@ -1,1 +1,1 @@
-export {LabelRadix} from '@ictroot/ui-kit'
+export { LabelRadix } from '@ictroot/ui-kit'

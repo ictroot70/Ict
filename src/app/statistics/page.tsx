@@ -3,5 +3,5 @@ export default function Statistics() {
     <>
       <h2>Statistics Page</h2>
     </>
-  );
+  )
 }

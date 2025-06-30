@@ -1,6 +1,6 @@
 .wrapper {
-  padding: 1.5rem;
   width: 378px;
+  padding: 1.5rem;
 }
 
 .title {
@@ -8,10 +8,11 @@
 }
 
 .link {
-  color: var(--color-light-900);
-  text-decoration: none;
   float: right;
   margin-bottom: 1.5rem;
+  color: var(--color-light-900);
+  text-decoration: none;
+
   &:focus-visible {
     outline: 2px solid var(--color-primary-300);
   }
@@ -19,15 +20,21 @@
 
 .oauthProviders {
   display: flex;
+  gap: 60px;
   align-items: center;
   justify-content: center;
-  gap: 60px;
+
   width: 100%;
   margin-top: 0.875rem;
   margin-bottom: 1.5rem;
+
+  & > svg {
+    color: white;
+  }
+
   a {
-    padding: 0;
     min-width: auto;
+    padding: 0;
   }
 }
 
@@ -43,9 +50,10 @@
 }
 
 .hasAccount {
-  margin-top: 18px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 6px;
+  align-items: center;
+
+  margin-top: 18px;
 }
