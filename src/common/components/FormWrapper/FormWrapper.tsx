@@ -12,7 +12,7 @@ type Props = {
 export default function FormWrapper({ title, children }: Props) {
   return (
     <Card className={s.wrapper}>
-      <Typography variant={'h1'} className={s.title}>
+      <Typography variant={'h1'} className={s.title} asChild>
         <h2>{title}</h2>
       </Typography>
       {children}
