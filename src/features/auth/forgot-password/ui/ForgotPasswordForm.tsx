@@ -16,7 +16,7 @@ import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
 
 import { ROUTES } from '@/common/constants/routers'
 
-import { passwordRecoveryResending } from '../../email-expired/ui/api/passwordRecoveryResending'
+import { passwordRecoveryResending } from '../../email-expired/api/passwordRecoveryResending'
 import { passwordRecovery } from '../api/passwordRecovery'
 import { forgotPasswordSchema } from '../config/schemas'
 
