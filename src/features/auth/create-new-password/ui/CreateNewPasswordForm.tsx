@@ -11,33 +11,11 @@ import { ControlledInput } from '@/features/formControls/input/ui'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { newPassword } from '../api/newPassword'
-import { PASSWORD_ALLOWED_CHARACTERS, PASSWORD_REGEX, ROUTES } from '../config/constants'
 import { checkRecoveryCode } from '../api/checkRecoveryCode'
 import ModalPasswordReset from '@/common/components/ModalPasswordReset/ModalPasswordReset'
 import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
-
-export const passwordSchema = () => {
-  return z
-    .string()
-    .min(6, { message: 'Password must be at least 6 characters' })
-    .max(20, { message: 'Password must be no more than 20 characters' })
-    .regex(PASSWORD_REGEX, {
-      message: `Password must contain: ${PASSWORD_ALLOWED_CHARACTERS}`,
-    })
-    .trim()
-}
-
-export const newPasswordSchema = () => {
-  return z
-    .object({
-      password: passwordSchema(),
-      passwordConfirmation: passwordSchema(),
-    })
-    .refine(values => values.password === values.passwordConfirmation, {
-      message: 'The passwords must match',
-      path: ['passwordConfirmation'],
-    })
-}
+import { ROUTES } from '@/common/constants/routers'
+import { newPasswordSchema } from '../config/schemas'
 
 type Inputs = z.infer<ReturnType<typeof newPasswordSchema>>
 
