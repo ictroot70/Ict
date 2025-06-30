@@ -14,11 +14,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { passwordRecoveryResending } from './api/passwordRecoveryResending'
-import { ROUTES } from '../config/constants'
-
-const emailExpiredSchema = z.object({
-  email: z.string().email('Invalid email address').min(1, 'Email is required'),
-})
+import { ROUTES } from '@/common/constants/routers'
+import { emailExpiredSchema } from '../config/schemas'
 
 type Inputs = z.infer<typeof emailExpiredSchema>
 
