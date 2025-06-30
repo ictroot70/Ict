@@ -2,20 +2,21 @@
 
 import s from './ForgotPasswordForm.module.scss'
 
-import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Card, Recaptcha, Typography } from '@/shared'
 import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { Button, Recaptcha, Typography } from '@/shared'
 
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 
-import { passwordRecovery } from '../api/passwordRecovery'
+import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 import { useState } from 'react'
-import { ROUTES } from '../config/constants'
 import { passwordRecoveryResending } from '../../email-expired/ui/api/passwordRecoveryResending'
+import { passwordRecovery } from '../api/passwordRecovery'
+import { ROUTES } from '../config/constants'
 
 const forgotPasswordSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -92,57 +93,53 @@ export default function ForgotPasswordForm() {
 
   return (
     <>
-      <Card className={s.wrapper}>
-        <Typography variant={'h1'} className={s.title}>
-          Forgot Password
-        </Typography>
-        <div className={s.wrap}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <ControlledInput
-              control={control}
-              name="email"
-              inputType="text"
-              label="Email"
-              placeholder="Enter your email"
-            />
-            <Typography variant={'regular_14'} className={s.text}>
-              Enter your email address and we will send you further instructions
+      <FormWrapper title="forgot password">
+        <form onSubmit={handleSubmit(onSubmit)} className={s.form}>
+          <ControlledInput
+            control={control}
+            name="email"
+            inputType="text"
+            label="Email"
+            placeholder="Enter your email"
+          />
+
+          <Typography variant={'regular_14'} className={s.description}>
+            Enter your email address and we will send you further instructions
+          </Typography>
+
+          {isEmailSent && (
+            <Typography variant={'regular_14'} className={s.message}>
+              The link has been sent by email.
+              <br />
+              If you don’t receive an email send link again
             </Typography>
+          )}
 
-            {isEmailSent && (
-              <Typography variant={'regular_14'} className={s.message}>
-                The link has been sent by email.
-                <br />
-                If you don’t receive an email send link again
-              </Typography>
-            )}
+          <Button
+            type="submit"
+            fullWidth
+            disabled={isEmailSent ? !isValid : !isValid || !recaptchaValue}
+            className={s.button}
+          >
+            {isEmailSent ? 'Send Link Again' : 'Send Link'}
+          </Button>
 
-            <Button
-              type="submit"
-              fullWidth
-              disabled={isEmailSent ? !isValid : !isValid || !recaptchaValue}
-              className={s.button}
-            >
-              {isEmailSent ? 'Send Link Again' : 'Send Link'}
-            </Button>
-
-            <Button
-              variant={'text'}
-              fullWidth
-              onClick={() => router.push(ROUTES.signIn)}
-              className={s.button}
-            >
-              Back to Sign In
-            </Button>
-            {!isEmailSent && (
-              <Recaptcha
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
-                onChange={handleRecaptchaChange}
-              />
-            )}
-          </form>
-        </div>
-      </Card>
+          <Button
+            variant={'text'}
+            fullWidth
+            onClick={() => router.push(ROUTES.signIn)}
+            className={s.button}
+          >
+            Back to Sign In
+          </Button>
+          {!isEmailSent && (
+            <Recaptcha
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+              onChange={handleRecaptchaChange}
+            />
+          )}
+        </form>
+      </FormWrapper>
 
       <ModalEmailSent
         email={currentEmail}

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { Card, Button, Typography } from '@/shared'
+import { Button, Typography } from '@/shared'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +14,7 @@ import { newPassword } from '../api/newPassword'
 import { PASSWORD_ALLOWED_CHARACTERS, PASSWORD_REGEX, ROUTES } from '../config/constants'
 import { checkRecoveryCode } from '../api/checkRecoveryCode'
 import ModalPasswordReset from '@/common/components/ModalPasswordReset/ModalPasswordReset'
+import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 
 export const passwordSchema = () => {
   return z
@@ -99,30 +100,34 @@ export default function CreateNewPasswordForm() {
 
   return (
     <>
-      <Card className={s.wrapper}>
-        <Typography variant="h1" className={s.title}>
-          Create New Password
-        </Typography>
-        <form className={s.wrap} onSubmit={handleSubmit(onSubmit)} autoComplete="off">
-          <ControlledInput
-            control={control}
-            name="password"
-            inputType="hide-able"
-            label="New password"
-            placeholder="Enter your password"
-          />
-          <ControlledInput
-            control={control}
-            name="passwordConfirmation"
-            inputType="hide-able"
-            placeholder="Confirm your password"
-            label="Password confirmation"
-          />
+      <FormWrapper title="create new password">
+        <form className={s.form} onSubmit={handleSubmit(onSubmit)} autoComplete="off">
+          <div className={s.inputs}>
+            <ControlledInput
+              control={control}
+              name="password"
+              inputType="hide-able"
+              label="New password"
+              placeholder="Enter your password"
+            />
+            <ControlledInput
+              control={control}
+              name="passwordConfirmation"
+              inputType="hide-able"
+              placeholder="Confirm your password"
+              label="Password confirmation"
+            />
+          </div>
+
+          <Typography variant="regular_14" className={s.description}>
+            Your password must be between 6 and 20 characters
+          </Typography>
+
           <Button type="submit" fullWidth={true} className={s.button}>
             Create new password
           </Button>
         </form>
-      </Card>
+      </FormWrapper>
       <ModalPasswordReset isOpen={isOpenModalWindow} onClose={handleCloseModalWindow} />
     </>
   )
