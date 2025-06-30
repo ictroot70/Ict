@@ -2,26 +2,23 @@
 
 import s from './ForgotPasswordForm.module.scss'
 
-import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
-import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Recaptcha, Typography } from '@/shared'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
-
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-
-import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 import { useState } from 'react'
+
+import { Button, Recaptcha, Typography } from '@/shared'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
+import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
+
+import { ROUTES } from '@/common/constants/routers'
+
 import { passwordRecoveryResending } from '../../email-expired/ui/api/passwordRecoveryResending'
 import { passwordRecovery } from '../api/passwordRecovery'
-import { ROUTES } from '../config/constants'
-
-const forgotPasswordSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  recaptcha: z.string().optional(),
-})
+import { forgotPasswordSchema } from '../config/schemas'
 
 type Inputs = z.infer<typeof forgotPasswordSchema>
 
@@ -118,7 +115,7 @@ export default function ForgotPasswordForm() {
           <Button
             type="submit"
             fullWidth
-            disabled={isEmailSent ? !isValid : !isValid || !recaptchaValue}
+            disabled={!isValid || (!isEmailSent && !recaptchaValue)}
             className={s.button}
           >
             {isEmailSent ? 'Send Link Again' : 'Send Link'}
