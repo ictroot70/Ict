@@ -10,12 +10,12 @@ import { Button, Typography } from '@/shared'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { newPassword } from '../api/newPassword'
-import { checkRecoveryCode } from '../api/checkRecoveryCode'
+
 import ModalPasswordReset from '@/common/components/ModalPasswordReset/ModalPasswordReset'
 import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 import { ROUTES } from '@/common/constants/routers'
 import { newPasswordSchema } from '../config/schemas'
+import { checkRecoveryCode, newPassword } from '../../api'
 
 type Inputs = z.infer<ReturnType<typeof newPasswordSchema>>
 

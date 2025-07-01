@@ -13,9 +13,10 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { passwordRecoveryResending } from '../api/passwordRecoveryResending'
+
 import { ROUTES } from '@/common/constants/routers'
 import { emailExpiredSchema } from '../config/schemas'
+import { passwordRecoveryResending } from '../../api'
 
 type Inputs = z.infer<typeof emailExpiredSchema>
 
