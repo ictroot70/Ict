@@ -23,3 +23,5 @@ export const newPasswordSchema = () => {
       path: ['passwordConfirmation'],
     })
 }
+
+export type CreateNewPasswordInputs = z.infer<ReturnType<typeof newPasswordSchema>>
