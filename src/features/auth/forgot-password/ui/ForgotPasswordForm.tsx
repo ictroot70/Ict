@@ -2,96 +2,34 @@
 
 import s from './ForgotPasswordForm.module.scss'
 
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { useState } from 'react'
 
-import { Button, Recaptcha, Typography } from '@/shared'
-import { ControlledInput } from '@/features/formControls/input/ui'
 import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { Button, Recaptcha, Typography } from '@/shared'
 
 import { ROUTES } from '@/common/constants/routers'
-
-import { passwordRecoveryResending } from '../../email-expired/api/passwordRecoveryResending'
-import { passwordRecovery } from '../api/passwordRecovery'
-import { forgotPasswordSchema } from '../config/schemas'
-
-type Inputs = z.infer<typeof forgotPasswordSchema>
+import { useForgotPassword } from '../lib/hooks/useForgotPassword'
 
 export default function ForgotPasswordForm() {
-  const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
-  const [currentEmail, setCurrentEmail] = useState('')
-  const [isEmailSent, setIsEmailSent] = useState(false)
-
+  const router = useRouter()
   const {
     control,
     handleSubmit,
-    reset,
-    watch,
-    setValue,
-    setError,
-    formState: { isValid },
-  } = useForm<Inputs>({
-    defaultValues: { email: '', recaptcha: '' },
-    resolver: zodResolver(forgotPasswordSchema),
-    mode: 'onBlur',
-  })
-
-  const router = useRouter()
-  const recaptchaValue = watch('recaptcha')
-
-  const onSubmit = async ({ email, recaptcha }: Inputs) => {
-    if (isEmailSent) {
-      const response = await passwordRecoveryResending({
-        email,
-        baseUrl: window.location.origin + ROUTES.createNewPassword,
-      })
-      if (response.ok) {
-        setCurrentEmail(email)
-        setIsOpenModalWindow(true)
-      } else {
-        setError('email', { type: 'custom', message: "User with this email doesn't exist" })
-      }
-    } else {
-      if (!recaptcha) {
-        setError('recaptcha', { type: 'custom', message: 'Please complete the reCAPTCHA' })
-        return
-      }
-
-      const response = await passwordRecovery({
-        email,
-        recaptcha,
-        baseUrl: window.location.origin + ROUTES.createNewPassword,
-      })
-
-      if (response.ok) {
-        setCurrentEmail(email)
-        setIsOpenModalWindow(true)
-        setIsEmailSent(true)
-        reset()
-      } else {
-        setError('email', { type: 'custom', message: "User with this email doesn't exist" })
-      }
-    }
-  }
-
-  const handleRecaptchaChange = async (token: string = '') => {
-    setValue('recaptcha', token, { shouldValidate: true })
-  }
-
-  const handleCloseModalWindow = () => {
-    setIsOpenModalWindow(false)
-    setCurrentEmail('')
-  }
+    isValid,
+    recaptchaValue,
+    isEmailSent,
+    isOpenModalWindow,
+    currentEmail,
+    handleRecaptchaChange,
+    handleCloseModalWindow,
+  } = useForgotPassword()
 
   return (
     <>
       <FormWrapper title="forgot password">
-        <form onSubmit={handleSubmit(onSubmit)} className={s.form}>
+        <form onSubmit={handleSubmit} className={s.form}>
           <ControlledInput
             control={control}
             name="email"
