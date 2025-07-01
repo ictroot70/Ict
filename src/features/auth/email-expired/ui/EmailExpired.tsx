@@ -7,52 +7,18 @@ import { Typography, Button } from '@/shared'
 import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
 
 import picture from '../assets/icons/rafiki.svg'
-import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
 import { ControlledInput } from '@/features/formControls/input/ui'
-
-import { ROUTES } from '@/common/constants/routers'
-import { emailExpiredSchema } from '../config/schemas'
-import { passwordRecoveryResending } from '../../api'
-
-type Inputs = z.infer<typeof emailExpiredSchema>
+import { useEmailExpired } from '../lib/hooks/useEmailExpired'
 
 export const EmailExpired = () => {
-  const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
-  const [currentEmail, setCurrentEmail] = useState('')
-
-  const params = useSearchParams()
-  const urlEmail = params?.get('email')
-
-  const { control, reset, handleSubmit } = useForm<Inputs>({
-    resolver: zodResolver(emailExpiredSchema),
-    defaultValues: {
-      email: urlEmail || '',
-    },
-  })
-
-  const onSubmit = async ({ email }: Inputs) => {
-    const response = await passwordRecoveryResending({
-      email,
-      baseUrl: window.location.origin + ROUTES.createNewPassword,
-    })
-
-    if (response.ok) {
-      setCurrentEmail(email)
-      setIsOpenModalWindow(true)
-    } else {
-      /* TODO: Alert с сообщением и(или) router */
-    }
-    reset()
-  }
-
-  const handleCloseModalWindow = () => {
-    setIsOpenModalWindow(false)
-    setCurrentEmail('')
-  }
+  const {
+    control,
+    handleSubmit,
+    isOpenModalWindow,
+    currentEmail,
+    urlEmail,
+    handleCloseModalWindow,
+  } = useEmailExpired()
 
   return (
     <>
@@ -66,7 +32,7 @@ export const EmailExpired = () => {
             Looks like the verification link has expired. Not to worry, we can send the link again
           </Typography>
 
-          <form onSubmit={handleSubmit(onSubmit)} className={s.form}>
+          <form onSubmit={handleSubmit} className={s.form}>
             {!urlEmail && (
               <ControlledInput
                 control={control}
