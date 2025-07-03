@@ -1,12 +1,13 @@
 'use client'
 import '@ictroot/ui-kit/style.css'
+
 import './globals.css'
 
 import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
-import Header from '@/app/common/components/header/Header'
+import Header from '@/widgets/Header/Header'
 import StoreProvider from '@/app/StoreProvider'
-import { ToastProvider } from '@ictroot/ui-kit'
+import { ToastProvider } from '@/shared/ui/Toast/ui'
 
 const inter = Inter({
   subsets: ['latin'],

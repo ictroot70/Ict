@@ -3,7 +3,7 @@
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google } from '@ictroot/ui-kit'
+import { GitHub, Google, Recaptcha } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import s from './SignUpForm.module.scss'
@@ -96,8 +96,6 @@ export const SignUpForm = () => {
           control={control}
           label={labelContent}
           className={s.agreement}
-          checked={isChecked}
-          onClick={handlerCheckbox}
         />
         <Button variant="primary" fullWidth>
           Sign Up

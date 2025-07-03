@@ -1,10 +1,12 @@
 import { Action, combineSlices, configureStore, ThunkAction } from '@reduxjs/toolkit'
-import { ictApi } from '@/services/ict.api'
+import { authApi } from '@/features/auth/api/authApi'
+import { publicUsersApi } from '@/entities/user/api/publicUsersApi'
 
 export const makeStore = () => {
   return configureStore({
-    reducer: combineSlices(ictApi),
-    middleware: getDefaultMiddleware => getDefaultMiddleware().concat(ictApi.middleware),
+    reducer: combineSlices(authApi, publicUsersApi),
+    middleware: getDefaultMiddleware =>
+      getDefaultMiddleware().concat(authApi.middleware, publicUsersApi.middleware),
     devTools: true,
   })
 }

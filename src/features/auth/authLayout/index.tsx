@@ -1,7 +1,7 @@
 import { PropsWithChildren, useEffect } from 'react'
-import { useMeQuery } from '@/services/ict.api'
 import { useRouter } from 'next/navigation'
 import { Loading } from '@/shared'
+import { useMeQuery } from '@/features/auth/api/authApi'
 
 export function RequireAuth({ children }: PropsWithChildren) {
   const { isLoading, isError, isSuccess } = useMeQuery()

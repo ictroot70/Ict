@@ -1,7 +1,3 @@
-export interface GetPublicUsers {
-  totalCount: number
-}
-
 export interface LoginRequest {
   email: string
   password: string

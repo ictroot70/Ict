@@ -6,8 +6,9 @@ import type {
 } from '@reduxjs/toolkit/query'
 import { fetchBaseQuery } from '@reduxjs/toolkit/query'
 import { Mutex } from 'async-mutex'
-import { authTokenStorage, isBrowser } from '@/utils/storage'
-import { RefreshTokenResponse } from '@/services/ict.types'
+import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import { isBrowser } from '@/shared/environment/is-browser'
+import { RefreshTokenResponse } from '@/shared/api/api.types'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
@@ -61,8 +62,9 @@ export const baseQueryWithReauth: BaseQueryFn<
           console.log(result)
         } else {
           authTokenStorage.clear()
-          // Можно сделать logout, редирект, или показать сообщение
+          // you can make logout, redirect, or show the message
           console.warn('Invalid refresh token. Logging out.')
+
           return refreshResult.error
             ? { error: refreshResult.error }
             : { error: { status: 401, data: 'Unauthorized' } }
