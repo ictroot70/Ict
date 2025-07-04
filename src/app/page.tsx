@@ -1,8 +1,7 @@
 'use client'
 
-import { useGetPublicUsersQuery, useMeQuery } from '@/services/ict.api'
-import { SignInForm } from '@/features/auth'
-import { Loading } from '@/shared'
+import { Loading } from '@/shared/ui'
+import { useGetPublicUsersQuery } from '@/entities/user/api/publicUsersApi'
 
 export default function Home() {
   const { isLoading, isError, error, data: counter, isSuccess } = useGetPublicUsersQuery()

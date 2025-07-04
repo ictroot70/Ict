@@ -1,4 +1,1 @@
-export * from './api'
-export * from './config'
-export * from './model'
-export * from './ui'
+export { TextArea } from '@ictroot/ui-kit'

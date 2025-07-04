@@ -1,4 +1,2 @@
-export * from './api'
-export * from './config'
-export * from './model'
-export * from './ui'
+export { Typography } from '@ictroot/ui-kit'
+export type { TypographyVariant } from '@ictroot/ui-kit'

@@ -1,4 +1,2 @@
-export * from './api'
-export * from './config'
-export * from './model'
-export * from './ui'
+export { CheckboxRadix } from '@ictroot/ui-kit'
+export type { CheckboxProps } from '@ictroot/ui-kit'

@@ -4,9 +4,9 @@ import './globals.css'
 
 import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
-import Header from '@/app/common/components/header/Header'
 import StoreProvider from '@/app/StoreProvider'
 import { ToastProvider } from '@ictroot/ui-kit'
+import {AppHeader} from '@/widgets/Header'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -29,7 +29,7 @@ export default function RootLayout({
             maxToasts={3}
             enableHoverPause
           >
-            <Header />
+            <AppHeader />
             <main>{children}</main>
           </ToastProvider>
         </StoreProvider>

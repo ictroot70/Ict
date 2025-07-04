@@ -2,7 +2,7 @@
 
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Card, Typography } from '@/shared'
+import { Button, Card, Typography } from '@/shared/ui'
 import { GitHub, Google } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'

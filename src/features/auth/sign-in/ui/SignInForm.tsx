@@ -1,6 +1,6 @@
 'use client'
-import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google, ToastContainer } from '@ictroot/ui-kit'
+import { Button, Card, Typography } from '@/shared/ui'
+import { GitHub, Google } from '@/shared/ui'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useToastContext } from '@/shared/lib/providers/toasr'
@@ -9,10 +9,10 @@ import { ControlledInput } from '@/features/formControls/input/ui'
 import { useForm } from 'react-hook-form'
 import s from './SignInForm.module.scss'
 import Link from 'next/link'
-import { useLoginMutation, useMeQuery } from '@/services/ict.api'
 
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
+import { useLoginMutation, useMeQuery } from '@/features/auth/api/authApi'
 
 export const signInSchema = z.object({
   email: z
