@@ -96,7 +96,6 @@ export const SignUpForm = () => {
           control={control}
           label={labelContent}
           className={s.agreement}
-          checked={isChecked}
           onClick={handlerCheckbox}
         />
         <Button variant="primary" fullWidth>

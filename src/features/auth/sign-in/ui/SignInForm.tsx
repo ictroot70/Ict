@@ -14,11 +14,6 @@ import { useLoginMutation, useMeQuery } from '@/services/ict.api'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 
-// export const USERNAME_PATTERN = /^[a-zA-Z0-9_-]+$/
-//
-// export const PASSWORD_PATTERN =
-//   /^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~])[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]{6,20}$/
-
 export const signInSchema = z.object({
   email: z
     .string()
@@ -64,27 +59,6 @@ export const SignInForm = () => {
     logIn(data)
       .unwrap()
       .then(async data => {
-        // const tokenPayload = data.accessToken.split('.')[1]
-        // console.log('tokenPayload', tokenPayload)
-
-        // const decodedPayload = atob(tokenPayload)
-
-        // console.log('decodedPayload', decodedPayload)
-        // let parsed
-        // try {
-        //   parsed = JSON.parse(decodedPayload)
-        // } catch (e) {
-        //   parsed = {}
-        //   console.error(e)
-        // }
-        // let userId
-
-        // if (parsed?.userId) {
-        //   userId = parsed.userId
-        // } else {
-        //   userId = meRes?.data?.id
-        // }
-
         const jwtDecoded = jwtDecode<{ userId: string }>(data.accessToken)
 
         console.log('jwtDecoded', jwtDecoded.userId)
