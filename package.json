@@ -15,7 +15,7 @@
     "@fontsource/inter": "^5.2.5",
     "@fontsource/roboto": "^5.2.5",
     "@hookform/resolvers": "^5.1.1",
-    "@ictroot/ui-kit": "^0.0.1-beta.1",
+    "@ictroot/ui-kit": "0.0.2-beta.3",
     "@reduxjs/toolkit": "2.7.0",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -37,6 +37,7 @@
     "@it-incubator/eslint-config": "^1.0.4",
     "@it-incubator/prettier-config": "^0.1.2",
     "@it-incubator/stylelint-config": "^2.0.0",
+    "@types/react-google-recaptcha": "^2.1.9",
     "sass": "^1.87.0",
     "stylelint": "^16.19.1"
   }
