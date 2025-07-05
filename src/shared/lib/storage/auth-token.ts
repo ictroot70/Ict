@@ -1,4 +1,4 @@
-import { AUTH_STORAGE_KEYS } from '@/shared/constant/auth'
+import { AUTH_STORAGE_KEYS } from '@/shared/constant/authStorageKeys'
 
 export const authTokenStorage = {
   setAccessToken(token: string) {

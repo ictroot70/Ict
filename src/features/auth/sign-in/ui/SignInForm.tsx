@@ -1,94 +1,29 @@
 'use client'
-import { Button, Card, Typography } from '@/shared/ui'
-import { GitHub, Google } from '@/shared/ui'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useToastContext } from '@/shared/lib/providers/toasr'
+
+import { Button, Card, GitHub, Google, Typography } from '@ictroot/ui-kit'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { useForm } from 'react-hook-form'
 import s from './SignInForm.module.scss'
 import Link from 'next/link'
+import { Control, FieldErrors } from 'react-hook-form'
+import { ReactElement } from 'react'
+import { LoginFields } from '@/features/auth/sign-in/model/validation'
 
-import { useRouter } from 'next/navigation'
-import { jwtDecode } from 'jwt-decode'
-import { useLoginMutation, useMeQuery } from '@/features/auth/api/authApi'
-
-export const signInSchema = z.object({
-  email: z
-    .string()
-    .min(3, { message: 'Email is required' })
-    .email({ message: 'This is not a valid email.' }),
-  password: z.string(),
-})
-type LoginFields = z.infer<typeof signInSchema>
-
-type LoginFormProps = {
-  onSubmit: (data: LoginFields) => void
-  errorMessage: string
-  // onSignInGoogle: () => void
-  // onSignInGithub: () => void
+export type SignInFormProps = {
+  control: Control<LoginFields>
+  formState: {
+    errors: FieldErrors<LoginFields>
+    isDirty: boolean
+    isValid: boolean
+  }
+  onSubmit: () => void
+  isLoading: boolean
+  onSignInGoogle?: () => void
+  onSignInGithub?: () => void
 }
 
-export const SignInForm = () => {
-  // const { onSubmit, errorMessage } = props
-  const router = useRouter()
-  const [logIn, { isLoading, data, isError, error, isSuccess, status }] = useLoginMutation()
-  const meRes = useMeQuery()
-  const { showToast } = useToastContext()
-  console.log('data', data)
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<LoginFields>({
-    defaultValues: {
-      email: 'smbat15@gmail.com',
-      password: '120259Asem!',
-    },
-    mode: 'onBlur',
-    shouldFocusError: true,
-    shouldUnregister: true,
-    reValidateMode: 'onChange',
-    criteriaMode: 'all',
-    resolver: zodResolver(signInSchema),
-  })
-
-  const onSubmitHandler = handleSubmit(data => {
-    logIn(data)
-      .unwrap()
-      .then(async data => {
-        const jwtDecoded = jwtDecode<{ userId: string }>(data.accessToken)
-
-        console.log('jwtDecoded', jwtDecoded.userId)
-        const userId = jwtDecoded?.userId ?? meRes?.data?.id
-        console.log('userId', userId)
-        localStorage.setItem('access_token', data.accessToken)
-
-        showToast({
-          type: 'success',
-          title: 'Welcome!',
-          message: 'You have successfully signed in.',
-          duration: 4000,
-        })
-
-        router.replace(`/public-users/profile/${userId}`)
-        router.refresh()
-      })
-      .catch(err => {
-        console.log('err', err)
-        const message = err?.data?.messages || 'Something went wrong'
-        console.log('message', message)
-        showToast({
-          type: 'error',
-          message,
-          duration: 5000,
-        })
-      })
-
-    reset()
-  })
+export const SignInForm = (props: SignInFormProps): ReactElement => {
+  const { control, formState, onSubmit, isLoading, onSignInGoogle, onSignInGithub } = props
 
   return (
     <Card className={s.wrapper}>
@@ -96,21 +31,21 @@ export const SignInForm = () => {
         Sign In
       </Typography>
       <div className={s.oauthProviders}>
-        <Link href="#google">
+        <button onClick={onSignInGoogle} type="button">
           <Google size={36} />
-        </Link>
-        <Link href="#github">
+        </button>
+        <button onClick={onSignInGithub} type="button">
           <GitHub size={36} />
-        </Link>
+        </button>
       </div>
-      <form className={s.form} autoComplete="on" noValidate onSubmit={onSubmitHandler}>
+      <form className={s.form} autoComplete="on" noValidate onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput
             name="email"
             control={control}
             id="email"
             inputType="text"
-            error={errors.email?.message}
+            error={formState.errors.email?.message}
             label="Email"
             placeholder="Your email..."
             required
@@ -120,7 +55,7 @@ export const SignInForm = () => {
             control={control}
             id="password"
             inputType="hide-able"
-            error={errors.password?.message}
+            error={formState.errors.password?.message}
             label="Password"
             placeholder="***************"
             className={s.passwordField}
@@ -133,8 +68,11 @@ export const SignInForm = () => {
             Forgot Password
           </Link>
         </Typography>
-
-        <Button disabled={isLoading} variant="primary" fullWidth>
+        <Button
+          disabled={!formState.isValid || !formState.isDirty || isLoading}
+          variant="primary"
+          fullWidth
+        >
           {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
