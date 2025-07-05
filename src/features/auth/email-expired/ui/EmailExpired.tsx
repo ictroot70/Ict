@@ -1,13 +1,12 @@
 'use client'
 
-import s from './EmailExpired.module.scss'
 import Image from 'next/image'
+import s from './EmailExpired.module.scss'
 
-import { Typography, Button } from '@/shared'
-import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
+import { Button, ModalWithButton, Typography } from '@/shared'
 
-import picture from '../assets/icons/rafiki.svg'
 import { ControlledInput } from '@/features/formControls/input/ui'
+import picture from '../assets/icons/rafiki.svg'
 import { useEmailExpired } from '../lib/hooks/useEmailExpired'
 
 export const EmailExpired = () => {
@@ -52,8 +51,9 @@ export const EmailExpired = () => {
         </div>
         <Image src={picture} alt="Email verification link expired" className={s.image} />
       </div>
-      <ModalEmailSent
-        email={currentEmail}
+      <ModalWithButton
+        title="Email sent"
+        message={`We have sent a link to confirm your email to ${currentEmail}`}
         isOpen={isOpenModalWindow}
         onClose={handleCloseModalWindow}
       />

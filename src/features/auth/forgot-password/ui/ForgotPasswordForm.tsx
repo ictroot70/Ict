@@ -5,9 +5,8 @@ import s from './ForgotPasswordForm.module.scss'
 import { useRouter } from 'next/navigation'
 
 import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
-import ModalEmailSent from '@/common/components/ModalEmailSent/ModalEmailSent'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Recaptcha, Typography } from '@/shared'
+import { Button, ModalWithButton, Recaptcha, Typography } from '@/shared'
 
 import { ROUTES } from '@/common/constants/routers'
 import { useForgotPassword } from '../lib/hooks/useForgotPassword'
@@ -69,15 +68,16 @@ export default function ForgotPasswordForm() {
           </Button>
           {!isEmailSent && (
             <Recaptcha
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
+              sitekey={`${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
               onChange={handleRecaptchaChange}
             />
           )}
         </form>
       </FormWrapper>
 
-      <ModalEmailSent
-        email={currentEmail}
+      <ModalWithButton
+        title="Email sent"
+        message={`We have sent a link to confirm your email to ${currentEmail}`}
         isOpen={isOpenModalWindow}
         onClose={handleCloseModalWindow}
       />

@@ -2,9 +2,8 @@
 
 import s from './CreateNewPasswordForm.module.scss'
 
-import { Button, Typography } from '@/shared'
+import { Button, ModalWithButton, Typography } from '@/shared'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import ModalPasswordReset from '@/common/components/ModalPasswordReset/ModalPasswordReset'
 import FormWrapper from '@/common/components/FormWrapper/FormWrapper'
 import { useCreateNewPassword } from '../lib/hooks/useCreateNewPassword'
 
@@ -46,7 +45,13 @@ export default function CreateNewPasswordForm() {
           </Button>
         </form>
       </FormWrapper>
-      <ModalPasswordReset isOpen={isOpenModalWindow} onClose={handleCloseModalWindow} />
+
+      <ModalWithButton
+        title="Password restored"
+        message="Great news! Your password has been successfully recovered and reset. You can now sign in to your account using your new password."
+        isOpen={isOpenModalWindow}
+        onClose={handleCloseModalWindow}
+      />
     </>
   )
 }

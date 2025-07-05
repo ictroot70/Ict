@@ -64,8 +64,12 @@ export const useForgotPassword = () => {
     }
   }
 
-  const handleRecaptchaChange = (token: string = '') => {
-    setValue('recaptcha', token, { shouldValidate: true })
+  const handleRecaptchaChange = (token: string | null) => {
+    if (token) {
+      setValue('recaptcha', token, { shouldValidate: true })
+    } else {
+      setError('recaptcha', { type: 'custom', message: 'Verification error' })
+    }
   }
 
   const handleCloseModalWindow = () => {
