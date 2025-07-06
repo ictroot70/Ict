@@ -1,0 +1,36 @@
+.wrapper {
+  display: flex;
+  min-height: calc(100vh - 60px);
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.25rem;
+}
+
+.title {
+  margin-bottom: 1.25rem;
+}
+
+.description {
+  text-align: center;
+  max-width: 18.5rem;
+  margin-bottom: 2rem;
+}
+
+.form {
+  max-width: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.25rem;
+}
+
+.image {
+  max-width: 100%;
+}
