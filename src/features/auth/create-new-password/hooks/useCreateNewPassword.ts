@@ -3,12 +3,15 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { newPasswordSchema, CreateNewPasswordInputs } from '../../config/schemas'
 import { ROUTES } from '@/shared/constant/routes'
-import { checkRecoveryCode } from '../../api/checkRecoveryCode'
-import { newPassword } from '../../api/newPassword'
+
+import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
+import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth/api/authApi'
 
 export const useCreateNewPassword = () => {
+  const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
+  const [newPassword] = useNewPasswordMutation()
+
   const { control, handleSubmit, reset } = useForm<CreateNewPasswordInputs>({
     defaultValues: { password: '', passwordConfirmation: '' },
     resolver: zodResolver(newPasswordSchema()),
@@ -25,21 +28,16 @@ export const useCreateNewPassword = () => {
 
   useEffect(() => {
     const validateRecoveryCode = async () => {
-      try {
-        if (!urlCode || !urlEmail) {
-          router.push(ROUTES.AUTH.EMAIL_EXPIRED)
-          return
-        }
-
-        const response = await checkRecoveryCode({ recoveryCode: urlCode })
-
-        if (response.ok) {
-          setIsValidating(false)
-        } else {
-          router.push(`${ROUTES.AUTH.EMAIL_EXPIRED}?email=${urlEmail}`)
-        }
-      } catch (error) {
+      if (!urlCode || !urlEmail) {
         router.push(ROUTES.AUTH.EMAIL_EXPIRED)
+        return
+      }
+      try {
+        await checkRecoveryCode({ recoveryCode: urlCode }).unwrap()
+        setIsValidating(false)
+      } catch (error) {
+        //TODO: handle error properly
+        router.push(`${ROUTES.AUTH.EMAIL_EXPIRED}?email=${urlEmail}`)
       }
     }
 
@@ -47,12 +45,13 @@ export const useCreateNewPassword = () => {
   }, [urlCode, urlEmail, router])
 
   const onSubmit = async ({ password }: CreateNewPasswordInputs) => {
-    const response = await newPassword({ newPassword: password, recoveryCode: urlCode as string })
-    if (response.ok) {
+    try {
+      await newPassword({ newPassword: password, recoveryCode: urlCode as string }).unwrap()
       setIsOpenModalWindow(true)
       reset()
-    } else {
-      // TODO: Handle error (show toast or setError)
+    } catch (error) {
+      //TODO: handle error properly
+      console.error('Resending failed:', error)
     }
   }
 

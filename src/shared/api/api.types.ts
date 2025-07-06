@@ -35,3 +35,12 @@ export interface PasswordRecoveryRequest {
   recaptcha: string
   baseUrl: string
 }
+
+export interface CheckRecoveryCodeRequest {
+  recoveryCode: string
+}
+
+export interface NewPasswordRequest {
+  newPassword: string
+  recoveryCode: string
+}

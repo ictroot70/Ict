@@ -7,6 +7,8 @@ import {
   RefreshTokenResponse,
   PasswordRecoveryResendingRequest,
   PasswordRecoveryRequest,
+  CheckRecoveryCodeRequest,
+  NewPasswordRequest,
 } from '@/shared/api/api.types'
 
 export const authApi = createApi({
@@ -65,9 +67,23 @@ export const authApi = createApi({
     }),
     passwordRecovery: builder.mutation<void, PasswordRecoveryRequest>({
       query: body => ({
-        body,
-        method: 'POST',
         url: `/v1/auth/password-recovery`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    checkRecoveryCode: builder.mutation<void, CheckRecoveryCodeRequest>({
+      query: body => ({
+        url: `/v1/auth/check-recovery-code`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    newPassword: builder.mutation<void, NewPasswordRequest>({
+      query: body => ({
+        url: `/v1/auth/new-password`,
+        method: 'POST',
+        body,
       }),
     }),
   }),
@@ -82,4 +98,6 @@ export const {
   useLogoutMutation,
   usePasswordRecoveryResendingMutation,
   usePasswordRecoveryMutation,
+  useCheckRecoveryCodeMutation,
+  useNewPasswordMutation,
 } = authApi
