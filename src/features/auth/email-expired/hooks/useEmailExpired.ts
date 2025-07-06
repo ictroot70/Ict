@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useSearchParams } from 'next/navigation'
 
 import { ROUTES } from '@/shared/constant/routes'
-import { EmailExpiredInputs, emailExpiredSchema } from '../../config/schemas'
+import { EmailExpiredInputs, emailExpiredSchema } from '../model/schemas/emailExpiredSchema'
 import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
 
 export const useEmailExpired = () => {

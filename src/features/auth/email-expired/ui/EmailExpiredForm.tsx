@@ -7,7 +7,7 @@ import { Button, ModalWithButton, Typography } from '@/shared/ui'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
 import picture from '../assets/icons/rafiki.svg'
-import { useEmailExpired } from '../lib/hooks/useEmailExpired'
+import { useEmailExpired } from '../hooks/useEmailExpired'
 
 export const EmailExpiredForm = () => {
   const {
