@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
 
-import { usePasswordRecovery } from '../lib/hooks/usePasswordRecovery'
+import { usePasswordRecovery } from '../hooks/usePasswordRecovery'
 import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
 import { ROUTES } from '@/shared/constant/routes'
 

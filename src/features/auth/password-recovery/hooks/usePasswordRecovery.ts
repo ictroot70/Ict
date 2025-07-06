@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { ROUTES } from '@/shared/constant/routes'
-import { ForgotPasswordInputs, forgotPasswordSchema } from '../../config/schemas'
+import { ForgotPasswordInputs, forgotPasswordSchema } from '../model/schemas/forgotPasswordSchema'
 import {
   usePasswordRecoveryMutation,
   usePasswordRecoveryResendingMutation,
