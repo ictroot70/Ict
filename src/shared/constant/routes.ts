@@ -3,9 +3,10 @@ export const ROUTES = {
     LOGIN: '/auth/login',
     REGISTRATION: '/auth/registration',
     LOGOUT: '/auth/logout',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    CREATE_NEW_PASSWORD: '/auth/create-new-password',
+    PASSWORD_RECOVERY: '/auth/password-recovery',
+    CREATE_NEW_PASSWORD: '/auth/new-password',
     NEW_PASSWORD: '/auth/new-password',
+    EMAIL_EXPIRED: '/auth/email-expired',
   },
   PUBLIC_USERS: {
     PROFILE: '/public-users/profile',
