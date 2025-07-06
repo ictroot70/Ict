@@ -24,3 +24,8 @@ export interface MeResponse {
   name: string
   isBlocked: boolean
 }
+
+export interface passwordRecoveryResendingRequest {
+  email: string
+  baseUrl: string
+}

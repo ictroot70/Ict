@@ -1,7 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
-import { LoginRequest, MeResponse, RefreshTokenResponse } from '@/shared/api/api.types'
+import {
+  LoginRequest,
+  MeResponse,
+  RefreshTokenResponse,
+  passwordRecoveryResendingRequest,
+} from '@/shared/api/api.types'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -48,9 +53,24 @@ export const authApi = createApi({
         }
       },
     }),
+    passwordRecoveryResending: builder.mutation<void, passwordRecoveryResendingRequest>({
+      query: body => {
+        return {
+          url: '/v1/auth/password-recovery-resending',
+          method: 'POST',
+          body,
+        }
+      },
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLoginMutation, useMeQuery, useLazyMeQuery, useLogoutMutation } = authApi
+export const {
+  useLoginMutation,
+  useMeQuery,
+  useLazyMeQuery,
+  useLogoutMutation,
+  usePasswordRecoveryResendingMutation,
+} = authApi

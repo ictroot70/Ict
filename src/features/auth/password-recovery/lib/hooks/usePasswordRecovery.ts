@@ -5,12 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ROUTES } from '@/shared/constant/routes'
 import { ForgotPasswordInputs, forgotPasswordSchema } from '../../config/schemas'
 import { passwordRecovery } from '../../api/passwordRecovery'
-import { passwordRecoveryResending } from '@/features/auth/email-expired/api/passwordRecoveryResending'
+import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
   const [currentEmail, setCurrentEmail] = useState('')
   const [isEmailSent, setIsEmailSent] = useState(false)
+  const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
 
   const {
     control,
@@ -41,12 +42,11 @@ export const usePasswordRecovery = () => {
   }
 
   const handleResendEmail = async (email: string, baseUrl: string) => {
-    const response = await passwordRecoveryResending({ email, baseUrl })
-
-    if (response.ok) {
+    try {
+      await passwordRecoveryResending({ email, baseUrl }).unwrap()
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
-    } else {
+    } catch (error) {
       setError('email', { type: 'custom', message: "User with this email doesn't exist" })
     }
   }

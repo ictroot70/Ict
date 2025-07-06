@@ -5,11 +5,12 @@ import { useSearchParams } from 'next/navigation'
 
 import { ROUTES } from '@/shared/constant/routes'
 import { EmailExpiredInputs, emailExpiredSchema } from '../../config/schemas'
-import { passwordRecoveryResending } from '../../api/passwordRecoveryResending'
+import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
 
 export const useEmailExpired = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
   const [currentEmail, setCurrentEmail] = useState('')
+  const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
 
   const params = useSearchParams()
   const urlEmail = params?.get('email')
@@ -28,18 +29,18 @@ export const useEmailExpired = () => {
   })
 
   const onSubmit = async ({ email }: EmailExpiredInputs) => {
-    const response = await passwordRecoveryResending({
-      email,
-      baseUrl: window.location.origin + ROUTES.AUTH.CREATE_NEW_PASSWORD,
-    })
-
-    if (response.ok) {
+    try {
+      await passwordRecoveryResending({
+        email,
+        baseUrl: window.location.origin + ROUTES.AUTH.CREATE_NEW_PASSWORD,
+      }).unwrap()
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
-    } else {
-      // TODO: Handle error (show toast or setError)
+      reset()
+    } catch (error) {
+      console.error('Resending failed:', error)
+      // TODO: Show toast
     }
-    reset()
   }
 
   const handleCloseModalWindow = () => {
@@ -47,9 +48,11 @@ export const useEmailExpired = () => {
     setCurrentEmail('')
   }
 
+  const submitHandler = handleSubmit(onSubmit)
+
   return {
     control,
-    handleSubmit: handleSubmit(onSubmit),
+    handleSubmit: submitHandler,
     isValid,
     isOpenModalWindow,
     currentEmail,
