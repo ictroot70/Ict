@@ -38,8 +38,8 @@ export const useEmailExpired = () => {
       setIsOpenModalWindow(true)
       reset()
     } catch (error) {
+      //TODO: handle error properly
       console.error('Resending failed:', error)
-      // TODO: Show toast
     }
   }
 

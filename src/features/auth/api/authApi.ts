@@ -5,7 +5,8 @@ import {
   LoginRequest,
   MeResponse,
   RefreshTokenResponse,
-  passwordRecoveryResendingRequest,
+  PasswordRecoveryResendingRequest,
+  PasswordRecoveryRequest,
 } from '@/shared/api/api.types'
 
 export const authApi = createApi({
@@ -53,7 +54,7 @@ export const authApi = createApi({
         }
       },
     }),
-    passwordRecoveryResending: builder.mutation<void, passwordRecoveryResendingRequest>({
+    passwordRecoveryResending: builder.mutation<void, PasswordRecoveryResendingRequest>({
       query: body => {
         return {
           url: '/v1/auth/password-recovery-resending',
@@ -61,6 +62,13 @@ export const authApi = createApi({
           body,
         }
       },
+    }),
+    passwordRecovery: builder.mutation<void, PasswordRecoveryRequest>({
+      query: body => ({
+        body,
+        method: 'POST',
+        url: `/v1/auth/password-recovery`,
+      }),
     }),
   }),
 })
@@ -73,4 +81,5 @@ export const {
   useLazyMeQuery,
   useLogoutMutation,
   usePasswordRecoveryResendingMutation,
+  usePasswordRecoveryMutation,
 } = authApi

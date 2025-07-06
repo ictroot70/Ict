@@ -25,7 +25,13 @@ export interface MeResponse {
   isBlocked: boolean
 }
 
-export interface passwordRecoveryResendingRequest {
+export interface PasswordRecoveryResendingRequest {
   email: string
+  baseUrl: string
+}
+
+export interface PasswordRecoveryRequest {
+  email: string
+  recaptcha: string
   baseUrl: string
 }

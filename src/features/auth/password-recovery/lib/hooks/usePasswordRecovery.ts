@@ -4,14 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { ROUTES } from '@/shared/constant/routes'
 import { ForgotPasswordInputs, forgotPasswordSchema } from '../../config/schemas'
-import { passwordRecovery } from '../../api/passwordRecovery'
-import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
+import {
+  usePasswordRecoveryMutation,
+  usePasswordRecoveryResendingMutation,
+} from '@/features/auth/api/authApi'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
   const [currentEmail, setCurrentEmail] = useState('')
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
+  const [passwordRecovery] = usePasswordRecoveryMutation()
 
   const {
     control,
@@ -30,13 +33,13 @@ export const usePasswordRecovery = () => {
   const recaptchaValue = watch('recaptcha')
 
   const handleInitialRequest = async (email: string, recaptcha: string, baseUrl: string) => {
-    const response = await passwordRecovery({ email, recaptcha, baseUrl })
-
-    if (response.ok) {
+    try {
+      await passwordRecovery({ email, recaptcha, baseUrl }).unwrap()
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
       reset()
-    } else {
+    } catch (error) {
+      //TODO: handle error properly
       setError('email', { type: 'custom', message: "User with this email doesn't exist" })
     }
   }
@@ -47,6 +50,7 @@ export const usePasswordRecovery = () => {
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
     } catch (error) {
+      //TODO: handle error properly
       setError('email', { type: 'custom', message: "User with this email doesn't exist" })
     }
   }
