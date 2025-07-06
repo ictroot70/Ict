@@ -1,3 +1,5 @@
-export default function CreateNewPasswordPage() {
-  return <div>Create new password</div>
+import { CreateNewPasswordForm } from '@/features/auth/create-new-password/ui/CreateNewPasswordForm'
+
+export default function NewPassword() {
+  return <CreateNewPasswordForm />
 }
