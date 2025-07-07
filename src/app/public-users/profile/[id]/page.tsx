@@ -1,5 +1,5 @@
 'use client'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { RequireAuth } from '@/features/auth/authLayout'
 
 export default function Profile() {

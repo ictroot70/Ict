@@ -5,7 +5,7 @@ import { useGetMyProfileQuery } from '@/entities/profile/api/profile.api'
 
 export default function Profile() {
   const params = useParams()
-  const { isLoading, data } = useGetMyProfileQuery()
+  const { data } = useGetMyProfileQuery()
   const userId = params?.id
   console.log('userId', userId)
   return (
