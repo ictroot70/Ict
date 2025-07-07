@@ -44,3 +44,12 @@ export interface NewPasswordRequest {
   newPassword: string
   recoveryCode: string
 }
+
+export interface ApiErrorResponse {
+  statusCode: number
+  messages: Array<{
+    message: string
+    field: string
+  }>
+  error: string
+}
