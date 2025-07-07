@@ -8,6 +8,8 @@ import {
   usePasswordRecoveryMutation,
   usePasswordRecoveryResendingMutation,
 } from '@/features/auth/api/authApi'
+import { useErrorToast } from '@/shared/lib/hooks'
+import { ApiErrorResponse } from '@/shared/api/api.types'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
@@ -15,6 +17,7 @@ export const usePasswordRecovery = () => {
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
   const [passwordRecovery] = usePasswordRecoveryMutation()
+  const { showErrorToast } = useErrorToast()
 
   const {
     control,
@@ -32,40 +35,47 @@ export const usePasswordRecovery = () => {
 
   const recaptchaValue = watch('recaptcha')
 
-  const handleInitialRequest = async (email: string, recaptcha: string, baseUrl: string) => {
+  const handlePasswordRecovery = async (email: string, baseUrl: string, recaptcha?: string) => {
     try {
-      await passwordRecovery({ email, recaptcha, baseUrl }).unwrap()
-      setCurrentEmail(email)
-      setIsOpenModalWindow(true)
-      reset()
-    } catch (error) {
-      //TODO: handle error properly
-      setError('email', { type: 'custom', message: "User with this email doesn't exist" })
-    }
-  }
+      if (recaptcha) {
+        await passwordRecovery({ email, recaptcha, baseUrl }).unwrap()
+        reset()
+      } else {
+        await passwordRecoveryResending({ email, baseUrl }).unwrap()
+      }
 
-  const handleResendEmail = async (email: string, baseUrl: string) => {
-    try {
-      await passwordRecoveryResending({ email, baseUrl }).unwrap()
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
-    } catch (error) {
-      //TODO: handle error properly
-      setError('email', { type: 'custom', message: "User with this email doesn't exist" })
+    } catch (error: unknown) {
+      if (typeof error === 'object' && error !== null && 'data' in error) {
+        const apiError = (error as { data: ApiErrorResponse }).data
+        if (apiError.messages) {
+          apiError.messages.forEach(err => {
+            if (err.field === 'email') {
+              setError('email', { type: 'custom', message: err.message })
+            }
+          })
+          return
+        }
+      }
+      showErrorToast()
     }
   }
 
   const handleFormSubmit = async ({ email, recaptcha }: ForgotPasswordInputs) => {
-    const baseUrl = window.location.origin + ROUTES.AUTH.CREATE_NEW_PASSWORD
-
-    if (isEmailSent) {
-      await handleResendEmail(email, baseUrl)
-    } else {
-      if (recaptcha === undefined) {
-        setError('recaptcha', { type: 'custom', message: 'Please complete the reCAPTCHA' })
-        return
+    const baseUrl = window.location.origin + ROUTES.AUTH.NEW_PASSWORD
+    try {
+      if (isEmailSent) {
+        await handlePasswordRecovery(email, baseUrl)
+      } else {
+        if (recaptcha === undefined) {
+          setError('recaptcha', { type: 'custom', message: 'Please complete the reCAPTCHA' })
+          return
+        }
+        await handlePasswordRecovery(email, baseUrl, recaptcha)
       }
-      await handleInitialRequest(email, recaptcha, baseUrl)
+    } catch {
+      showErrorToast()
     }
   }
 
