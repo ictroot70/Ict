@@ -19,7 +19,7 @@ export interface BadRequestResponse {
 }
 
 export interface MeResponse {
-  id: string
+  userId: string
   email: string
   name: string
   isBlocked: boolean

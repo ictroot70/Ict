@@ -1,15 +1,20 @@
-import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } from '@/shared/ui'
+import { BellOutline, Button, Header, RussiaFlag, Select, Typography, UkFlag } from '@/shared/ui'
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toasr'
+import {
+  generateUsersEditProfilePath,
+  generateUsersProfilePath,
+} from '@/shared/constant/route.helpers'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
   const router = useRouter()
   const { showToast } = useToastContext()
 
-  const { data: user, isLoading, isError, isSuccess } = useMeQuery()
+  const { data: user, isLoading, isSuccess } = useMeQuery()
+  const userId = user?.userId
   const isAuthorized = isSuccess && user
   const handleLogout = async () => {
     try {
@@ -41,10 +46,10 @@ export const AppHeader = () => {
       height={'70px'}
     >
       {/* TODO: This is a temporary header(these buttons should be removed in the future)*/}
-      <Button as={Link} href="/public-users/profile/2908" variant="secondary">
+      <Button as={Link} href={generateUsersProfilePath(userId)} variant="secondary">
         My Profile
       </Button>
-      <Button as={Link} href="/public-users/profile/2908/edit" variant="secondary">
+      <Button as={Link} href={generateUsersEditProfilePath(userId)} variant="secondary">
         Edit Profile
       </Button>
       <Button variant="primary" onClick={handleLogout}>

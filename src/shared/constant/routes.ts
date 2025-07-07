@@ -11,5 +11,8 @@ export const ROUTES = {
     PROFILE: '/public-users/profile',
     EDIT_PROFILE: '/public-users/profile/:id/edit',
   },
-  MY_PROFILE: '/my-profile',
+  PROFILE: {
+    MY: '/users/profile',
+    EDIT: '/users/profile/:id/edit',
+  },
 } as const
