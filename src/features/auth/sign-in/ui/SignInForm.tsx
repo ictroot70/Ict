@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Control, FieldErrors } from 'react-hook-form'
 import { ReactElement } from 'react'
 import { LoginFields } from '@/features/auth/sign-in/model/validation'
+import { ROUTES } from '@/shared/constant/routes'
 
 export type SignInFormProps = {
   control: Control<LoginFields>
@@ -64,7 +65,7 @@ export const SignInForm = (props: SignInFormProps): ReactElement => {
         </div>
 
         <Typography variant="regular_14" asChild>
-          <Link href="/auth/new-password" className={s.link}>
+          <Link href={ROUTES.AUTH.PASSWORD_RECOVERY} className={s.link}>
             Forgot Password
           </Link>
         </Typography>
