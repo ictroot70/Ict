@@ -2,7 +2,7 @@ import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } f
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toasr'
+import { useToastContext } from '@/shared/lib/providers/toast'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()

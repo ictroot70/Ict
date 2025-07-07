@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 
 import { useLoginMutation, useMeQuery } from '@/features/auth/api/authApi'
-import { useToastContext } from '@/shared/lib/providers/toasr'
+import { useToastContext } from '@/shared/lib/providers/toast'
 import { generatePublicUserProfilePath } from '@/shared/constant/route.helpers'
 import { signInSchema, type LoginFields } from '@/features/auth/sign-in/model/validation'
 
