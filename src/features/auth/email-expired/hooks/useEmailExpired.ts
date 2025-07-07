@@ -6,11 +6,13 @@ import { useSearchParams } from 'next/navigation'
 import { ROUTES } from '@/shared/constant/routes'
 import { EmailExpiredInputs, emailExpiredSchema } from '../model/schemas/emailExpiredSchema'
 import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
+import { useErrorToast } from '@/shared/lib/hooks'
 
 export const useEmailExpired = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
   const [currentEmail, setCurrentEmail] = useState('')
   const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
+  const { showErrorToast } = useErrorToast()
 
   const params = useSearchParams()
   const urlEmail = params?.get('email')
@@ -32,14 +34,13 @@ export const useEmailExpired = () => {
     try {
       await passwordRecoveryResending({
         email,
-        baseUrl: window.location.origin + ROUTES.AUTH.CREATE_NEW_PASSWORD,
+        baseUrl: window.location.origin + ROUTES.AUTH.NEW_PASSWORD,
       }).unwrap()
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
       reset()
-    } catch (error) {
-      //TODO: handle error properly
-      console.error('Resending failed:', error)
+    } catch {
+      showErrorToast()
     }
   }
 
