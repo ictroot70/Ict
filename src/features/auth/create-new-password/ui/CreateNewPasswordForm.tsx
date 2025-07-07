@@ -2,7 +2,7 @@
 
 import s from './CreateNewPasswordForm.module.scss'
 
-import { Button, ModalWithButton, Typography, FormWrapper } from '@/shared/ui'
+import { Button, ModalWithButton, Typography, FormWrapper, Loading } from '@/shared/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { useCreateNewPassword } from '../hooks/useCreateNewPassword'
 
@@ -11,7 +11,7 @@ export function CreateNewPasswordForm() {
     useCreateNewPassword()
 
   if (isValidating) {
-    return null
+    return <Loading />
   }
 
   return (
