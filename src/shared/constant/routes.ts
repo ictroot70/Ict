@@ -4,7 +4,6 @@ export const ROUTES = {
     REGISTRATION: '/auth/registration',
     LOGOUT: '/auth/logout',
     PASSWORD_RECOVERY: '/auth/password-recovery',
-    CREATE_NEW_PASSWORD: '/auth/new-password',
     NEW_PASSWORD: '/auth/new-password',
     EMAIL_EXPIRED: '/auth/email-expired',
   },
