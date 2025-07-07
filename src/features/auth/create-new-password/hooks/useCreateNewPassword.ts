@@ -5,8 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 import { ROUTES } from '@/shared/constant/routes'
 
-import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
 import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth/api/authApi'
+import { useErrorToast } from '@/shared/lib/hooks'
+import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
@@ -20,6 +21,7 @@ export const useCreateNewPassword = () => {
 
   const [isValidating, setIsValidating] = useState(true)
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
+  const { showErrorToast } = useErrorToast()
 
   const router = useRouter()
   const params = useSearchParams()
@@ -29,14 +31,13 @@ export const useCreateNewPassword = () => {
   useEffect(() => {
     const validateRecoveryCode = async () => {
       if (!urlCode || !urlEmail) {
-        router.push(ROUTES.AUTH.EMAIL_EXPIRED)
+        router.push(ROUTES.AUTH.LOGIN)
         return
       }
       try {
         await checkRecoveryCode({ recoveryCode: urlCode }).unwrap()
         setIsValidating(false)
-      } catch (error) {
-        //TODO: handle error properly
+      } catch {
         router.push(`${ROUTES.AUTH.EMAIL_EXPIRED}?email=${urlEmail}`)
       }
     }
@@ -49,9 +50,10 @@ export const useCreateNewPassword = () => {
       await newPassword({ newPassword: password, recoveryCode: urlCode as string }).unwrap()
       setIsOpenModalWindow(true)
       reset()
-    } catch (error) {
-      //TODO: handle error properly
-      console.error('Resending failed:', error)
+    } catch {
+      showErrorToast({
+        message: 'Password change failed. Please try again or request a new reset link.',
+      })
     }
   }
 
