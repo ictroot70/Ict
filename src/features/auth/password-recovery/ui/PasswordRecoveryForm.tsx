@@ -2,16 +2,14 @@
 
 import s from './PasswordRecoveryForm.module.scss'
 
-import { useRouter } from 'next/navigation'
-
 import { ControlledInput } from '@/features/formControls/input/ui'
 
-import { usePasswordRecovery } from '../hooks/usePasswordRecovery'
-import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
 import { ROUTES } from '@/shared/constant/routes'
+import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
+import Link from 'next/link'
+import { usePasswordRecovery } from '../hooks/usePasswordRecovery'
 
 export function PasswordRecoveryForm() {
-  const router = useRouter()
   const {
     control,
     handleSubmit,
@@ -58,9 +56,10 @@ export function PasswordRecoveryForm() {
           </Button>
 
           <Button
+            as={Link}
             variant={'text'}
             fullWidth
-            onClick={() => router.push(ROUTES.AUTH.LOGIN)}
+            href={ROUTES.AUTH.LOGIN}
             className={s.button}
           >
             Back to Sign In
