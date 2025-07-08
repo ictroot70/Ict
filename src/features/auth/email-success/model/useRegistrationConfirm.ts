@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useConfirmRegistrationMutation } from "@/features/auth/api/authApi";
 import { useToastContext } from '@/shared/lib/providers/toasr'
+import { ROUTES } from '@/shared/constant/routes'
+import { generateLoginConfirmedPath } from '@/shared/constant/route.helpers'
 
 export function useRegistrationConfirm() {
   const params = useSearchParams();
@@ -21,7 +23,7 @@ export function useRegistrationConfirm() {
             message: 'Your email has been successfully confirmed.',
             duration: 4000,
           });
-          router.replace('/auth/login?confirmed=1');
+          router.replace(generateLoginConfirmedPath());
         })
         .catch(() => {
           showToast({
@@ -30,7 +32,7 @@ export function useRegistrationConfirm() {
             message: 'Confirmation link expired or invalid.',
             duration: 4000,
           });
-          router.replace('/auth/email-expired');
+          router.replace(ROUTES.AUTH.EMAIL_EXPIRED);
         });
     }
   }, [code, confirmRegistration, router]);

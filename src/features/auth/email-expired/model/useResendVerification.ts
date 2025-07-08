@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useToastContext } from '@/shared/lib/providers/toasr'
+import { ROUTES } from '@/shared/constant/routes'
+import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
+import { useResendEmailVerificationMutation } from '@/features/auth/api/authApi'
 
 export function useResendVerification() {
+  const [resendEmailVerification, { isLoading }] = useResendEmailVerificationMutation()
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const { handleSubmit, control, formState: { errors } } = useForm<{ email: string }>({
@@ -11,45 +15,31 @@ export function useResendVerification() {
   const { showToast } = useToastContext();
 
   const onSubmit = async ({ email }: { email: string }) => {
-    setServerError("");
-    setSuccessMessage("");
+    setServerError("")
+    setSuccessMessage("")
     try {
-      const response = await fetch("https://inctagram.work/api/v1/auth/registration-email-resending", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          baseUrl: window.location.origin + '/auth/registration-confirmation',
-        })
-      });
-      if (response.ok && response.status === 204) {
-        setSuccessMessage("We have sent a link to confirm your email to " + email);
-        showToast({
-          type: 'success',
-          title: 'Email sent',
-          message: `We have sent a link to confirm your email to ${email}`,
-          duration: 4000,
-        });
-      } else {
-        const result = await response.json();
-        setServerError(result.messages?.[0]?.message || "Failed to resend verification link.");
-        showToast({
-          type: 'error',
-          title: 'Error',
-          message: (result.messages?.[0]?.message || "Failed to resend verification link."),
-          duration: 4000,
-        });
-      }
-    } catch (e) {
-      setServerError("Network error. Please try again.");
+      await resendEmailVerification({
+        email,
+        baseUrl: window.location.origin + ROUTES.AUTH.REGISTRATION_CONFIRM,
+      }).unwrap()
+      setSuccessMessage(REGISTRATION_MESSAGES.SENT_LINK(email))
+      showToast({
+        type: 'success',
+        title: 'Email sent',
+        message: REGISTRATION_MESSAGES.SENT_LINK(email),
+        duration: 4000,
+      })
+    } catch (error: any) {
+      const msg: string = error?.data?.messages?.[0]?.message || REGISTRATION_MESSAGES.NO_RESEND_LINK
+      setServerError(msg)
       showToast({
         type: 'error',
         title: 'Error',
-        message: "Network error. Please try again.",
+        message: msg,
         duration: 4000,
-      });
+      })
     }
-  };
+  }
 
   return {
     handleSubmit: handleSubmit(onSubmit),
@@ -59,5 +49,6 @@ export function useResendVerification() {
     setServerError,
     successMessage,
     setSuccessMessage,
-  };
+    isLoading,
+  }
 }

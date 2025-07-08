@@ -7,6 +7,7 @@ export const ROUTES = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     CREATE_NEW_PASSWORD: '/auth/create-new-password',
     NEW_PASSWORD: '/auth/new-password',
+    EMAIL_EXPIRED: '/auth/email-expired',
   },
   PUBLIC_USERS: {
     PROFILE: '/public-users/profile',
