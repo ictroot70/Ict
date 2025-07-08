@@ -58,9 +58,16 @@ export const authApi = createApi({
         body,
       }),
     }),
+    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+      query: (body) => ({
+        url: 'v1/auth/registration-confirmation',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLoginMutation, useMeQuery, useLazyMeQuery, useLogoutMutation, useSignupMutation } = authApi
+export const { useLoginMutation, useMeQuery, useLazyMeQuery, useLogoutMutation, useSignupMutation, useConfirmRegistrationMutation } = authApi

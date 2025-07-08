@@ -13,6 +13,7 @@ import {useSignupMutation} from "@/features/auth/api/authApi";
 import {RegistrationErrorResponse} from "@/shared/api/api.types";
 import {REGISTRATION_MESSAGES} from "@/shared/constant/registrationMessages";
 import {useRouter} from "next/navigation";
+import {ROUTES} from "@/shared/constant/routes";
 
 const labelContent = (
   <>
@@ -62,14 +63,14 @@ export const SignUpForm = () => {
               userName: data.username,
               email: data.email,
               password: data.password,
-              baseUrl: window.location.origin + "/registration-confirm"
+              baseUrl: window.location.origin + '/registration-confirmation'
           }).unwrap()
 
 
 
           setSuccessMessage(
               result?.message ||
-              `Registration successful! We have sent a confirmation code to ${data.email}. Please check your email.`
+              `We have sent a link to confirm your email to ${data.email}`
           )
           localStorage.setItem('lastRegistrationEmail', data.email);
           reset()
@@ -106,6 +107,7 @@ export const SignUpForm = () => {
 
   if (successMessage) {
       const router = useRouter();
+      const email = localStorage.getItem('lastRegistrationEmail');
       return (
           <Modal
               open={!!successMessage}
