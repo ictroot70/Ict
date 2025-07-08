@@ -3,17 +3,11 @@
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { Button, Card, Typography } from '@/shared/ui'
-import {GitHub, Google, Modal} from '@ictroot/ui-kit'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { GitHub, Google, Modal } from '@ictroot/ui-kit'
 import s from './SignUpForm.module.scss'
-import {zodResolver} from "@hookform/resolvers/zod";
-import {SignUpFormData, signUpSchema} from "@/features/auth/sign-up/lib/validation/validationSchemas";
-import {useSignupMutation} from "@/features/auth/api/authApi";
-import {RegistrationErrorResponse} from "@/shared/api/api.types";
-import {REGISTRATION_MESSAGES} from "@/shared/constant/registrationMessages";
-import {useRouter} from "next/navigation";
-import {ROUTES} from "@/shared/constant/routes";
+import { useSignUp } from '../model/useSignUp'
+import { useWatch } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 
 const labelContent = (
   <>
@@ -29,107 +23,48 @@ const labelContent = (
 )
 
 export const SignUpForm = () => {
-    const [signup, { isLoading }] = useSignupMutation()
+  const {
+    form,
+    onSubmit,
+    isAgreementChecked,
+    isLoading,
+    serverError,
+    isSuccess,
+    setIsSuccess,
+  } = useSignUp()
 
-    const [successMessage, setSuccessMessage] = useState('')
-    const [serverError, setServerError] = useState('')
+  const { control, formState: { errors, isValid } } = form
+  const email = useWatch({ control, name: 'email' })
+  const router = useRouter()
 
-    const {
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors, isValid },
-        setError,
-        watch
-    } = useForm<SignUpFormData>({
-        resolver: zodResolver(signUpSchema),
-        mode: 'onBlur',
-        defaultValues: {
-            username: '',
-            email: '',
-            password: '',
-            passwordConfirm: '',
-            agreement: false,
-        },
-    })
-
-    const isAgreementChecked = watch('agreement')
-
-  const onSubmitHandler = async (data: SignUpFormData) => {
-      setServerError('')
-      try {
-
-          const result = await signup({
-              userName: data.username,
-              email: data.email,
-              password: data.password,
-              baseUrl: window.location.origin + '/registration-confirmation'
-          }).unwrap()
-
-
-
-          setSuccessMessage(
-              result?.message ||
-              `We have sent a link to confirm your email to ${data.email}`
-          )
-          localStorage.setItem('lastRegistrationEmail', data.email);
-          reset()
-      } catch (error) {
-          const apiError = error as { status: number; data: RegistrationErrorResponse };
-          if (apiError && apiError.status === 400 && apiError.data?.messages) {
-              apiError.data.messages.forEach((err) => {
-                  if (err.field === 'userName' || err.field === 'username') {
-                      setError('username', {
-                          type: 'server',
-                          message: REGISTRATION_MESSAGES.USERNAME_EXISTS,
-                      })
-                  } else if (err.field === 'password') {
-                      setError('password', {
-                          type: 'server',
-                          message: err.message,
-                      })
-                  } else if (err.field === 'email') {
-                      setError('email', {
-                          type: 'server',
-                          message: REGISTRATION_MESSAGES.EMAIL_EXISTS,
-                      })
-                  }
-              })
-          } else if (apiError && apiError.status === 429) {
-              setServerError('Too many requests. Please wait a moment and try again.')
-          } else {
-              setServerError(
-                  `Registration failed. Server returned status: ${apiError?.status || 'unknown'}`
-              )
-          }
-      }
+  const handleModalClose = () => {
+    setIsSuccess(false)
+    form.reset()                // <--- вот сюда!
+    router.replace('/auth/login')
   }
 
-  if (successMessage) {
-      const router = useRouter();
-      const email = localStorage.getItem('lastRegistrationEmail');
-      return (
-          <Modal
-              open={!!successMessage}
-              onClose={() => setSuccessMessage('')}
-              modalTitle="Registration Successful!"
-              width={400}
-          >
-              <Typography variant="regular_16" style={{ marginBottom: 24 }}>
-                  {successMessage}
-              </Typography>
-              <Button
-                  fullWidth
-                  variant="primary"
-                  onClick={() => {
-                      setSuccessMessage('');
-                      router.replace('/auth/login')
-                  }}
-              >
-                  OK
-              </Button>
-          </Modal>
-      )
+  if (isSuccess) {
+    return (
+      <Modal
+        open={isSuccess}
+        onClose={handleModalClose}
+        modalTitle="Email sent"
+        width={378}
+        height={228}
+      >
+        <Typography variant="regular_16" style={{ margin: "0 0 18px" }}>
+          We have sent a link to confirm your email to <br />
+          <b>{email}</b>
+        </Typography>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button style={{ minWidth: 120, fontSize: 16, fontWeight: 600 }}
+                onClick={handleModalClose}
+        >
+          OK
+        </Button>
+        </div>
+      </Modal>
+    )
   }
 
   return (
@@ -145,7 +80,7 @@ export const SignUpForm = () => {
           <GitHub size={36} color="var(--color-light-100)" />
         </Button>
       </div>
-      <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
+      <form className={s.form} autoComplete="off" onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput
             id="username"
@@ -193,21 +128,21 @@ export const SignUpForm = () => {
           label={labelContent}
           className={s.agreement}
         />
-          {serverError && (
-              <div className={s.serverError}>
-                  <Typography variant="regular_14" color="error">
-                      {serverError}
-                  </Typography>
-              </div>
-          )}
-          <Button
-              type="submit"
-              variant="primary"
-              fullWidth
-              disabled={!isValid || !isAgreementChecked || isLoading}
-          >
-              {isLoading ? 'Signing Up...' : 'Sign Up'}
-          </Button>
+        {serverError && (
+          <div className={s.serverError}>
+            <Typography variant="regular_14" color="error">
+              {serverError}
+            </Typography>
+          </div>
+        )}
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          disabled={!isValid || !isAgreementChecked || isLoading}
+        >
+          {isLoading ? 'Signing Up...' : 'Sign Up'}
+        </Button>
       </form>
       <div className={s.hasAccount}>
         <Typography variant="regular_16">Do you have an account?</Typography>
