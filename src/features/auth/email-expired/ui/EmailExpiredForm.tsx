@@ -14,6 +14,7 @@ export const EmailExpiredForm = () => {
     control,
     handleSubmit,
     isOpenModalWindow,
+    isSubmitting,
     currentEmail,
     urlEmail,
     handleCloseModalWindow,
@@ -44,7 +45,7 @@ export const EmailExpiredForm = () => {
 
             {urlEmail && <input type="hidden" {...control.register('email')} />}
 
-            <Button className={s.button} type="submit" fullWidth>
+            <Button className={s.button} type="submit" fullWidth disabled={isSubmitting}>
               {urlEmail ? 'Resend link' : 'Resend verification link'}
             </Button>
           </form>

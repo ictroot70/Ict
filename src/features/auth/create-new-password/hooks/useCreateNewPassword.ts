@@ -13,7 +13,12 @@ export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
   const [newPassword] = useNewPasswordMutation()
 
-  const { control, handleSubmit, reset } = useForm<CreateNewPasswordInputs>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<CreateNewPasswordInputs>({
     defaultValues: { password: '', passwordConfirmation: '' },
     resolver: zodResolver(newPasswordSchema()),
     mode: 'onBlur',
@@ -66,6 +71,7 @@ export const useCreateNewPassword = () => {
     control,
     handleSubmit: handleSubmit(onSubmit),
     isValidating,
+    isSubmitting,
     isOpenModalWindow,
     handleCloseModalWindow,
   }

@@ -21,7 +21,7 @@ export const useEmailExpired = () => {
     control,
     handleSubmit,
     reset,
-    formState: { isValid },
+    formState: { isSubmitting },
   } = useForm<EmailExpiredInputs>({
     resolver: zodResolver(emailExpiredSchema),
     defaultValues: {
@@ -54,7 +54,7 @@ export const useEmailExpired = () => {
   return {
     control,
     handleSubmit: submitHandler,
-    isValid,
+    isSubmitting,
     isOpenModalWindow,
     currentEmail,
     urlEmail,

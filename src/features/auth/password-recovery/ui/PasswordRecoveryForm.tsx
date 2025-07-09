@@ -16,6 +16,7 @@ export function PasswordRecoveryForm() {
     isValid,
     recaptchaValue,
     isEmailSent,
+    isSubmitting,
     isOpenModalWindow,
     currentEmail,
     handleRecaptchaChange,
@@ -49,7 +50,7 @@ export function PasswordRecoveryForm() {
           <Button
             type="submit"
             fullWidth
-            disabled={!isValid || (!isEmailSent && !recaptchaValue)}
+            disabled={!isValid || (!isEmailSent && !recaptchaValue) || isSubmitting}
             className={s.button}
           >
             {isEmailSent ? 'Send Link Again' : 'Send Link'}

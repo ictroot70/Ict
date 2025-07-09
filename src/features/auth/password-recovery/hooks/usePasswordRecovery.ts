@@ -26,7 +26,7 @@ export const usePasswordRecovery = () => {
     watch,
     setValue,
     setError,
-    formState: { isValid },
+    formState: { isValid, isSubmitting },
   } = useForm<ForgotPasswordInputs>({
     defaultValues: { email: '', recaptcha: '' },
     resolver: zodResolver(forgotPasswordSchema),
@@ -99,6 +99,7 @@ export const usePasswordRecovery = () => {
     isValid,
     recaptchaValue,
     isEmailSent,
+    isSubmitting,
     isOpenModalWindow,
     currentEmail,
     handleRecaptchaChange,

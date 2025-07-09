@@ -7,8 +7,14 @@ import { ControlledInput } from '@/features/formControls/input/ui'
 import { useCreateNewPassword } from '../hooks/useCreateNewPassword'
 
 export function CreateNewPasswordForm() {
-  const { control, handleSubmit, isValidating, isOpenModalWindow, handleCloseModalWindow } =
-    useCreateNewPassword()
+  const {
+    control,
+    handleSubmit,
+    isValidating,
+    isSubmitting,
+    isOpenModalWindow,
+    handleCloseModalWindow,
+  } = useCreateNewPassword()
 
   if (isValidating) {
     return <Loading />
@@ -39,7 +45,7 @@ export function CreateNewPasswordForm() {
             Your password must be between 6 and 20 characters
           </Typography>
 
-          <Button type="submit" fullWidth={true} className={s.button}>
+          <Button type="submit" fullWidth={true} className={s.button} disabled={isSubmitting}>
             Create new password
           </Button>
         </form>
