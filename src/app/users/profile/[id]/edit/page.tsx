@@ -1,5 +1,6 @@
 'use client'
-import { RequireAuth } from '@/features/auth/authLayout'
+
+import { RequireAuth } from '@/features/auth/ui'
 
 function EditProfile() {
   return (

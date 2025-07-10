@@ -1,6 +1,6 @@
 'use client'
 import { useParams } from 'next/navigation'
-import { RequireAuth } from '@/features/auth/authLayout'
+import { RequireAuth } from '@/features/auth/ui'
 
 export default function Profile() {
   const params = useParams()

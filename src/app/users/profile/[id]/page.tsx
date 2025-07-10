@@ -1,7 +1,7 @@
 'use client'
 import { useParams } from 'next/navigation'
-import { RequireAuth } from '@/features/auth/authLayout'
 import { useGetMyProfileQuery } from '@/entities/profile/api/profile.api'
+import { RequireAuth } from '@/features/auth/ui'
 
 export default function Profile() {
   const params = useParams()

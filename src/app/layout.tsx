@@ -3,7 +3,7 @@ import './globals.css'
 
 import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
-import StoreProvider from '@/app/StoreProvider'
+import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastProvider } from '@ictroot/ui-kit'
 import { AppHeader } from '@/widgets/Header'
 
