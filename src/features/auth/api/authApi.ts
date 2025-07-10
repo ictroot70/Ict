@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { LoginRequest, MeResponse, RefreshTokenResponse } from '@/shared/api/api.types'
+import { API_ROUTES } from '@/shared/api/api-routes'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -10,7 +11,7 @@ export const authApi = createApi({
   endpoints: builder => ({
     login: builder.mutation<RefreshTokenResponse, LoginRequest>({
       query: body => ({
-        url: '/v1/auth/login',
+        url: API_ROUTES.AUTH.LOGIN,
         method: 'POST',
         body,
         credentials: 'include',
@@ -21,7 +22,7 @@ export const authApi = createApi({
     me: builder.query<MeResponse, void>({
       query: () => {
         return {
-          url: '/v1/auth/me',
+          url: API_ROUTES.AUTH.ME,
         }
       },
       providesTags: ['Me'],
@@ -32,7 +33,7 @@ export const authApi = createApi({
     logout: builder.mutation<void, void>({
       query: () => {
         return {
-          url: '/v1/auth/logout',
+          url: API_ROUTES.AUTH.LOGOUT,
           method: 'POST',
           credentials: 'include',
         }

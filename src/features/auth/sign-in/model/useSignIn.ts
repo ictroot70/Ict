@@ -6,13 +6,10 @@ import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 
 import { useLoginMutation } from '@/features/auth/api/authApi'
-import { useToastContext } from '@/shared/lib/providers/toasr'
-import {
-  generateUsersEditProfilePath,
-  generateUsersProfilePath,
-} from '@/shared/constant/route.helpers'
-import { signInSchema, type LoginFields } from '@/features/auth/sign-in/model/validation'
+import { useToastContext } from '@/shared/lib/providers/toaster'
+import { type LoginFields, signInSchema } from '@/features/auth/sign-in/model/validation'
 import { useLazyGetMyProfileQuery } from '@/entities/profile/api/profile.api'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useSignIn = () => {
   const router = useRouter()
@@ -49,10 +46,10 @@ export const useSignIn = () => {
         duration: 4000,
       })
 
-      if (!profile?.firstName) {
-        router.replace(generateUsersEditProfilePath(userId))
+      if (profile?.firstName) {
+        router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
       } else {
-        router.replace(generateUsersProfilePath(userId))
+        router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
       }
 
       router.refresh()

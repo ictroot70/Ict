@@ -11,7 +11,7 @@ export const APP_ROUTES = {
   },
 
   PROFILE: {
-    MY: '/users/profile',
+    MY: (id: string) => `/users/profile/${id}`,
     EDIT: (id: string) => `/users/profile/${id}/edit`,
   },
 

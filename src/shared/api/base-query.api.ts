@@ -9,6 +9,7 @@ import { Mutex } from 'async-mutex'
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { isBrowser } from '@/shared/environment/is-browser'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import { API_ROUTES } from '@/shared/api/api-routes'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
@@ -48,7 +49,7 @@ export const baseQueryWithReauth: BaseQueryFn<
       const release = await mutex.acquire()
       try {
         const refreshResult = (await baseQuery(
-          { url: '/v1/auth/update-tokens', method: 'POST', credentials: 'include' },
+          { url: API_ROUTES.AUTH.UPDATE_TOKENS, method: 'POST', credentials: 'include' },
           api,
           extraOptions
         )) as QueryReturnValue<unknown, FetchBaseQueryError>

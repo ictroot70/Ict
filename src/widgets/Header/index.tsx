@@ -2,11 +2,8 @@ import { BellOutline, Button, Header, RussiaFlag, Select, Typography, UkFlag } f
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toasr'
-import {
-  generateUsersEditProfilePath,
-  generateUsersProfilePath,
-} from '@/shared/constant/route.helpers'
+import { useToastContext } from '@/shared/lib/providers/toaster'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
@@ -25,7 +22,7 @@ export const AppHeader = () => {
         message: 'You have been logged out successfully',
         duration: 5000,
       })
-      router.replace('/auth/login')
+      router.replace(APP_ROUTES.AUTH.LOGIN)
     } catch (e) {
       console.error('Logout failed', e)
       showToast({
@@ -39,17 +36,17 @@ export const AppHeader = () => {
   return (
     <Header
       logo={
-        <Link href={'/'}>
+        <Link href={APP_ROUTES.ROOT}>
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
       }
       height={'70px'}
     >
       {/* TODO: This is a temporary header(these buttons should be removed in the future)*/}
-      <Button as={Link} href={generateUsersProfilePath(userId)} variant="secondary">
+      <Button as={Link} href={APP_ROUTES.PROFILE.MY(userId || '')} variant="secondary">
         My Profile
       </Button>
-      <Button as={Link} href={generateUsersEditProfilePath(userId)} variant="secondary">
+      <Button as={Link} href={APP_ROUTES.PROFILE.EDIT(userId || '')} variant="secondary">
         Edit Profile
       </Button>
       <Button variant="primary" onClick={handleLogout}>
@@ -80,10 +77,10 @@ export const AppHeader = () => {
               gap: '24px',
             }}
           >
-            <Button as={Link} href="/auth/login" variant={'text'}>
+            <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
               Log in
             </Button>
-            <Button as={Link} href="/auth/registration">
+            <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION} variant={'primary'}>
               Sing up
             </Button>
           </div>
