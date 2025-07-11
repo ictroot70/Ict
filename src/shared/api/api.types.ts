@@ -53,3 +53,12 @@ export interface ApiErrorResponse {
   }>
   error: string
 }
+
+export type RegistrationErrorResponse = {
+  statusCode: number
+  messages: {
+    message: string
+    field: string
+  }[]
+  error: string
+}

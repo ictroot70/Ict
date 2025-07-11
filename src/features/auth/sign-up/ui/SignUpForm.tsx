@@ -3,10 +3,11 @@
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import { Button, Card, Typography } from '@/shared/ui'
-import { GitHub, Google } from '@ictroot/ui-kit'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { GitHub, Google, Modal } from '@ictroot/ui-kit'
 import s from './SignUpForm.module.scss'
+import { useSignUp } from '../model/useSignUp'
+import { useWatch } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 
 const labelContent = (
   <>
@@ -22,22 +23,48 @@ const labelContent = (
 )
 
 export const SignUpForm = () => {
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      agreement: false,
-    },
-  })
+  const {
+    form,
+    onSubmit,
+    isAgreementChecked,
+    isLoading,
+    serverError,
+    isSuccess,
+    setIsSuccess,
+  } = useSignUp()
 
-  const [isChecked, setChecked] = useState(false)
-  const handlerCheckbox = () => setChecked(prev => !prev)
+  const { control, formState: { errors, isValid } } = form
+  const email = useWatch({ control, name: 'email' })
+  const router = useRouter()
 
-  const onSubmitHandler = (data: any) => {
-    console.log(data)
-    reset()
+  const handleModalClose = () => {
+    setIsSuccess(false)
+    form.reset()                // <--- вот сюда!
+    router.replace('/auth/login')
+  }
+
+  if (isSuccess) {
+    return (
+      <Modal
+        open={isSuccess}
+        onClose={handleModalClose}
+        modalTitle="Email sent"
+        width={378}
+        height={228}
+      >
+        <Typography variant="regular_16" style={{ margin: "0 0 18px" }}>
+          We have sent a link to confirm your email to <br />
+          <b>{email}</b>
+        </Typography>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button style={{ minWidth: 120, fontSize: 16, fontWeight: 600 }}
+                onClick={handleModalClose}
+        >
+          OK
+        </Button>
+        </div>
+      </Modal>
+    )
   }
 
   return (
@@ -53,7 +80,7 @@ export const SignUpForm = () => {
           <GitHub size={36} color="var(--color-light-100)" />
         </Button>
       </div>
-      <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
+      <form className={s.form} autoComplete="off" onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput
             id="username"
@@ -62,6 +89,7 @@ export const SignUpForm = () => {
             inputType="text"
             label="Username"
             placeholder="Your username..."
+            error={errors.username?.message}
           />
           <ControlledInput
             id="email"
@@ -70,6 +98,7 @@ export const SignUpForm = () => {
             inputType="text"
             label="Email"
             placeholder="Your email..."
+            error={errors.email?.message}
           />
           <ControlledInput
             id="password"
@@ -79,6 +108,7 @@ export const SignUpForm = () => {
             label="Password"
             placeholder="***************"
             className={s.passwordField}
+            error={errors.password?.message}
           />
           <ControlledInput
             id="passwordConfirm"
@@ -88,6 +118,7 @@ export const SignUpForm = () => {
             label="Password confirmation"
             placeholder="***************"
             className={s.passwordField}
+            error={errors.passwordConfirm?.message}
           />
         </div>
 
@@ -96,15 +127,26 @@ export const SignUpForm = () => {
           control={control}
           label={labelContent}
           className={s.agreement}
-          onClick={handlerCheckbox}
         />
-        <Button variant="primary" fullWidth>
-          Sign Up
+        {serverError && (
+          <div className={s.serverError}>
+            <Typography variant="regular_14" color="error">
+              {serverError}
+            </Typography>
+          </div>
+        )}
+        <Button
+          type="submit"
+          variant="primary"
+          fullWidth
+          disabled={!isValid || !isAgreementChecked || isLoading}
+        >
+          {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
       <div className={s.hasAccount}>
         <Typography variant="regular_16">Do you have an account?</Typography>
-        <Button as="a" href="#signIn" variant="text" fullWidth>
+        <Button as="a" href="/auth/login" variant="text" fullWidth>
           Sign In
         </Button>
       </div>

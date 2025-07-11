@@ -1,3 +1,12 @@
+import ResendVerificationPage from '@/features/auth/email-expired/ui/ResendVerificationPage'
+
+export default function Page() {
+  return <ResendVerificationPage />
+}
+
+/* 
+password recovery
+
 'use client'
 
 import { EmailExpiredForm } from '@/features/auth/email-expired/ui/EmailExpiredForm'
@@ -10,4 +19,5 @@ export default function EmailExpired() {
       <EmailExpiredForm />
     </Suspense>
   )
-}
+} 
+*/

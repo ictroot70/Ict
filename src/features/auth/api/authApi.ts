@@ -56,6 +56,30 @@ export const authApi = createApi({
         }
       },
     }),
+    signup: builder.mutation<
+      { message?: string },
+      { userName: string; email: string; password: string; baseUrl: string }
+    >({
+      query: body => ({
+        url: 'v1/auth/registration',
+        method: 'POST',
+        body,
+      }),
+    }),
+    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+      query: body => ({
+        url: 'v1/auth/registration-confirmation',
+        method: 'POST',
+        body,
+      }),
+    }),
+    resendEmailVerification: builder.mutation<void, { email: string; baseUrl: string }>({
+      query: body => ({
+        url: '/v1/auth/registration-email-resending',
+        method: 'POST',
+        body,
+      }),
+    }),
     passwordRecoveryResending: builder.mutation<void, PasswordRecoveryResendingRequest>({
       query: body => {
         return {
@@ -96,6 +120,9 @@ export const {
   useMeQuery,
   useLazyMeQuery,
   useLogoutMutation,
+  useSignupMutation,
+  useConfirmRegistrationMutation,
+  useResendEmailVerificationMutation,
   usePasswordRecoveryResendingMutation,
   usePasswordRecoveryMutation,
   useCheckRecoveryCodeMutation,

@@ -2,6 +2,7 @@ export const ROUTES = {
   AUTH: {
     LOGIN: '/auth/login',
     REGISTRATION: '/auth/registration',
+    REGISTRATION_CONFIRM: '/auth/registration-confirmation',
     LOGOUT: '/auth/logout',
     PASSWORD_RECOVERY: '/auth/password-recovery',
     NEW_PASSWORD: '/auth/new-password',
