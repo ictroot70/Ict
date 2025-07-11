@@ -1,22 +1,19 @@
 'use client'
 
-
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toasr'
 import { useSignupMutation } from '@/features/auth/api/authApi'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
 import { SignUpFormData, signUpSchema } from '@/features/auth/sign-up/model/validationSchemas'
 import { ROUTES } from '@/shared/constant/routes'
+import { useToastContext } from '@/shared/lib/providers/toast'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
-  const router = useRouter()
   const { showToast } = useToastContext()
   const [serverError, setServerError] = useState('')
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -41,19 +38,16 @@ export const useSignUp = () => {
         password: data.password,
         baseUrl: window.location.origin + ROUTES.AUTH.REGISTRATION_CONFIRM,
       }).unwrap()
-      setIsSuccess(true);
+      setIsSuccess(true)
 
       showToast({
         type: 'success',
         title: 'Registration successful!',
-        message:
-          result?.message ||
-          `We have sent a link to confirm your email to ${data.email}`,
+        message: result?.message || `We have sent a link to confirm your email to ${data.email}`,
         duration: 4000,
       })
 
       localStorage.setItem('lastRegistrationEmail', data.email)
-
     } catch (error: any) {
       const apiError = error as { status: number; data?: any }
       if (apiError && apiError.status === 400 && apiError.data?.messages) {

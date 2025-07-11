@@ -1,6 +1,13 @@
-import EmailConfirmedPage from "@/features/auth/email-success/ui/EmailConfirmedPage";
+'use client'
 
-export default function Page() {
-  return <EmailConfirmedPage />;
+import EmailConfirmed from '@/features/auth/email-success/ui/EmailConfirmed'
+import { Loading } from '@/shared/ui'
+import { Suspense } from 'react'
+
+export default function RegistrationConfirmation() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <EmailConfirmed />
+    </Suspense>
+  )
 }
-
