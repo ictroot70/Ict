@@ -46,6 +46,7 @@ export const usePasswordRecovery = () => {
 
       setCurrentEmail(email)
       setIsOpenModalWindow(true)
+      setIsEmailSent(true)
     } catch (error: unknown) {
       if (typeof error === 'object' && error !== null && 'data' in error) {
         const apiError = (error as { data: ApiErrorResponse }).data
@@ -90,7 +91,6 @@ export const usePasswordRecovery = () => {
   const handleCloseModalWindow = () => {
     setIsOpenModalWindow(false)
     setCurrentEmail('')
-    setIsEmailSent(true)
   }
 
   return {
