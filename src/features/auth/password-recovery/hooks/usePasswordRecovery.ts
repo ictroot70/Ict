@@ -30,7 +30,7 @@ export const usePasswordRecovery = () => {
   } = useForm<ForgotPasswordInputs>({
     defaultValues: { email: '', recaptcha: '' },
     resolver: zodResolver(forgotPasswordSchema),
-    mode: 'onBlur',
+    mode: 'onTouched',
   })
 
   const recaptchaValue = watch('recaptcha')
