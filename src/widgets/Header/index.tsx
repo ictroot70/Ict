@@ -1,16 +1,19 @@
-import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } from '@/shared/ui'
+import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag, Modal } from '@/shared/ui'
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toast'
+import { useState } from 'react'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
   const router = useRouter()
   const { showToast } = useToastContext()
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-  const { data: user, isLoading, isError, isSuccess } = useMeQuery()
+  const { data: user, isLoading, isSuccess } = useMeQuery()
   const isAuthorized = isSuccess && user
+
   const handleLogout = async () => {
     try {
       await logout().unwrap()
@@ -29,8 +32,11 @@ export const AppHeader = () => {
         message: e || 'Something went wrong',
         duration: 5000,
       })
+    } finally {
+      setShowLogoutModal(false)
     }
   }
+
   return (
     <Header
       logo={
@@ -47,10 +53,32 @@ export const AppHeader = () => {
       <Button as={Link} href="/public-users/profile/2908/edit" variant="secondary">
         Edit Profile
       </Button>
-      <Button variant="primary" onClick={handleLogout}>
+      <Button variant="primary" onClick={() => setShowLogoutModal(true)}>
         Logout
       </Button>
-      {/*End of temporary header*/}
+
+      <Modal
+        open={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        modalTitle="Confirm Logout"
+        width="400px"
+        height="auto"
+      >
+        <div style={{ padding: '20px', textAlign: 'center' }}>
+          <Typography variant="bold_16" style={{ marginBottom: '20px' }}>
+            Are you sure you want to logout?
+          </Typography>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <Button variant="secondary" onClick={() => setShowLogoutModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleLogout}>
+              Yes, Logout
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <button type={'button'} onClick={() => alert('notification')}>
           <BellOutline size={24} />
