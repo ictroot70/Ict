@@ -1,4 +1,4 @@
-import { useToastContext } from '@/shared/lib/providers/toast'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 
 export function useErrorToast() {
   const { showToast } = useToastContext()
