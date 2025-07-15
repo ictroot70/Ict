@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useConfirmRegistrationMutation } from '@/features/auth/api/authApi'
-import { ROUTES } from '@/shared/constant/routes'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export function useRegistrationConfirm() {
   const [isValidating, setIsValidating] = useState(true)
@@ -15,14 +15,14 @@ export function useRegistrationConfirm() {
   useEffect(() => {
     const validateConfirmationCode = async () => {
       if (!urlCode) {
-        router.push(ROUTES.AUTH.LOGIN)
+        router.push(APP_ROUTES.AUTH.LOGIN)
         return
       }
       try {
         await confirmRegistration({ confirmationCode: urlCode }).unwrap()
         setIsValidating(false)
       } catch {
-        router.push(`${ROUTES.AUTH.EMAIL_EXPIRED}`)
+        router.push(`${APP_ROUTES.AUTH.EMAIL_EXPIRED}`)
       }
     }
 

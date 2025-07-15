@@ -4,7 +4,7 @@ import s from './PasswordRecoveryForm.module.scss'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
 
-import { ROUTES } from '@/shared/constant/routes'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
 import Link from 'next/link'
 import { usePasswordRecovery } from '../hooks/usePasswordRecovery'
@@ -60,7 +60,7 @@ export function PasswordRecoveryForm() {
             as={Link}
             variant={'text'}
             fullWidth
-            href={ROUTES.AUTH.LOGIN}
+            href={APP_ROUTES.AUTH.LOGIN}
             className={s.button}
           >
             Back to Sign In

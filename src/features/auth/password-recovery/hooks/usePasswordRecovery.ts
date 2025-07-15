@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { ROUTES } from '@/shared/constant/routes'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { ForgotPasswordInputs, forgotPasswordSchema } from '../model/schemas/forgotPasswordSchema'
 import {
   usePasswordRecoveryMutation,
@@ -64,7 +64,7 @@ export const usePasswordRecovery = () => {
   }
 
   const handleFormSubmit = async ({ email, recaptcha }: ForgotPasswordInputs) => {
-    const baseUrl = window.location.origin + ROUTES.AUTH.NEW_PASSWORD
+    const baseUrl = window.location.origin + APP_ROUTES.AUTH.NEW_PASSWORD
     try {
       if (isEmailSent) {
         await handlePasswordRecovery(email, baseUrl)

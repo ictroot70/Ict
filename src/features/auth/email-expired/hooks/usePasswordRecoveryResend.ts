@@ -1,8 +1,8 @@
 import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
-import { ROUTES } from '@/shared/constant/routes'
 import { useSearchParams } from 'next/navigation'
 import { useBaseEmailResend } from './useBaseEmailResend'
 import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const usePasswordRecoveryResend = () => {
   const params = useSearchParams()
@@ -16,7 +16,7 @@ export const usePasswordRecoveryResend = () => {
     try {
       await passwordRecoveryResending({
         email,
-        baseUrl: window.location.origin + ROUTES.AUTH.NEW_PASSWORD,
+        baseUrl: window.location.origin + APP_ROUTES.AUTH.NEW_PASSWORD,
       }).unwrap()
       handleSuccess(email)
     } catch {

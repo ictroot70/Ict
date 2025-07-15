@@ -1,9 +1,8 @@
-// features/auth/hooks/useEmailVerificationResend.ts
 import { useResendEmailVerificationMutation } from '@/features/auth/api/authApi'
-import { ROUTES } from '@/shared/constant/routes'
 import { ApiErrorResponse } from '@/shared/api/api.types'
 import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
 import { useBaseEmailResend } from './useBaseEmailResend'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useEmailVerificationResend = () => {
   const [resendEmailVerification, { isLoading }] = useResendEmailVerificationMutation()
@@ -15,7 +14,7 @@ export const useEmailVerificationResend = () => {
     try {
       await resendEmailVerification({
         email,
-        baseUrl: window.location.origin + ROUTES.AUTH.REGISTRATION_CONFIRM,
+        baseUrl: window.location.origin + APP_ROUTES.AUTH.REGISTRATION_CONFIRM,
       }).unwrap()
       handleSuccess(email)
     } catch (error: unknown) {

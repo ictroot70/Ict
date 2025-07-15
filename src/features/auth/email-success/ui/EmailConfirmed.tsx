@@ -3,7 +3,7 @@ import s from './EmailConfirmed.module.scss'
 import Image from 'next/image'
 import picture from '../assets/icons/bro.svg'
 
-import { ROUTES } from '@/shared/constant/routes'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { Button, Loading, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
@@ -25,7 +25,7 @@ export default function EmailConfirmed() {
         <Typography variant="regular_16" className={s.description}>
           Your email has been confirmed
         </Typography>
-        <Button as={Link} href={ROUTES.AUTH.LOGIN} variant="primary" className={s.button}>
+        <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant="primary" className={s.button}>
           Sign In
         </Button>
       </div>
