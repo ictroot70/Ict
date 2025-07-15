@@ -3,8 +3,9 @@ import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toaster'
-import { Modal } from '@ictroot/ui-kit'
+import { Modal } from '@/shared/ui'
 import { useState } from 'react'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
@@ -24,7 +25,7 @@ export const AppHeader = () => {
         message: 'You have been logged out successfully',
         duration: 5000,
       })
-      router.replace('/auth/login')
+      router.replace(APP_ROUTES.AUTH.LOGIN)
     } catch (e) {
       console.error('Logout failed', e)
       showToast({
@@ -41,7 +42,7 @@ export const AppHeader = () => {
   return (
     <Header
       logo={
-        <Link href={'/'}>
+        <Link href={APP_ROUTES.ROOT}>
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
       }
@@ -81,7 +82,7 @@ export const AppHeader = () => {
       </Modal>
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <button type={'button'} onClick={() => alert('notification')}>
+        <button title='Notification' type={'button'} onClick={() => alert('notification')}>
           <BellOutline size={24} />
         </button>
         <div style={{ marginInline: '45px 36px', width: '163px' }}>
@@ -104,10 +105,10 @@ export const AppHeader = () => {
               gap: '24px',
             }}
           >
-            <Button as={Link} href="/auth/login" variant={'text'}>
+            <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
               Log in
             </Button>
-            <Button as={Link} href="/auth/registration">
+            <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION}>
               Sing up
             </Button>
           </div>
