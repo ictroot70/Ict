@@ -1,0 +1,19 @@
+.oauthProviders {
+  display: flex;
+  gap: 60px;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  margin-top: 0.875rem;
+  margin-bottom: 1.5rem;
+
+  & > svg {
+    color: white;
+  }
+
+  a {
+    min-width: auto;
+    padding: 0;
+  }
+}

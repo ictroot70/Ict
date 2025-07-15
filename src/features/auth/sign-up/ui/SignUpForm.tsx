@@ -23,23 +23,19 @@ const labelContent = (
 )
 
 export const SignUpForm = () => {
-  const {
-    form,
-    onSubmit,
-    isAgreementChecked,
-    isLoading,
-    serverError,
-    isSuccess,
-    setIsSuccess,
-  } = useSignUp()
+  const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
+    useSignUp()
 
-  const { control, formState: { errors, isValid } } = form
+  const {
+    control,
+    formState: { errors, isValid },
+  } = form
   const email = useWatch({ control, name: 'email' })
   const router = useRouter()
 
   const handleModalClose = () => {
     setIsSuccess(false)
-    form.reset()                // <--- вот сюда!
+    form.reset() // <--- вот сюда!
     router.replace('/auth/login')
   }
 
@@ -52,16 +48,17 @@ export const SignUpForm = () => {
         width={378}
         height={228}
       >
-        <Typography variant="regular_16" style={{ margin: "0 0 18px" }}>
+        <Typography variant="regular_16" style={{ margin: '0 0 18px' }}>
           We have sent a link to confirm your email to <br />
           <b>{email}</b>
         </Typography>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button style={{ minWidth: 120, fontSize: 16, fontWeight: 600 }}
-                onClick={handleModalClose}
-        >
-          OK
-        </Button>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            style={{ minWidth: 120, fontSize: 16, fontWeight: 600 }}
+            onClick={handleModalClose}
+          >
+            OK
+          </Button>
         </div>
       </Modal>
     )

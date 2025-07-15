@@ -1,8 +1,17 @@
-import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag, Modal } from '@/shared/ui'
+import {
+  Button,
+  Header,
+  Typography,
+  BellOutline,
+  RussiaFlag,
+  Select,
+  UkFlag,
+  Modal,
+} from '@/shared/ui'
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toast'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 import { useState } from 'react'
 
 export const AppHeader = () => {
@@ -65,7 +74,7 @@ export const AppHeader = () => {
         height="auto"
       >
         <div style={{ padding: '20px', textAlign: 'center' }}>
-          <Typography variant="bold_16" style={{ marginBottom: '20px' }}>
+          <Typography variant="regular_16" style={{ marginBottom: '20px' }}>
             Are you sure you want to logout?
           </Typography>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>

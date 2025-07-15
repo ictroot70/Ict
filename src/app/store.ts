@@ -1,12 +1,17 @@
 import { Action, combineSlices, configureStore, ThunkAction } from '@reduxjs/toolkit'
 import { authApi } from '@/features/auth/api/authApi'
 import { publicUsersApi } from '@/entities/user/api/publicUsersApi'
+import { profileApi } from '@/entities/profile/api/profile.api'
 
 export const makeStore = () => {
   return configureStore({
-    reducer: combineSlices(authApi, publicUsersApi),
+    reducer: combineSlices(authApi, publicUsersApi, profileApi),
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(authApi.middleware, publicUsersApi.middleware),
+      getDefaultMiddleware().concat(
+        authApi.middleware,
+        publicUsersApi.middleware,
+        profileApi.middleware
+      ),
     devTools: true,
   })
 }

@@ -1,4 +1,5 @@
 'use client'
+
 import { RequireAuth } from '@/features/auth/ui'
 
 function EditProfile() {

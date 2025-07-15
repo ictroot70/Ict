@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Card, GitHub, Google, Typography } from '@ictroot/ui-kit'
+import { Button, Card, OAuthIcons, Typography } from '@/shared/ui'
 
 import { ControlledInput } from '@/features/formControls/input/ui'
 import s from './SignInForm.module.scss'
@@ -31,14 +31,8 @@ export const SignInForm = (props: SignInFormProps): ReactElement => {
       <Typography variant="h1" className={s.title}>
         Sign In
       </Typography>
-      <div className={s.oauthProviders}>
-        <button onClick={onSignInGoogle} type="button">
-          <Google size={36} />
-        </button>
-        <button onClick={onSignInGithub} type="button">
-          <GitHub size={36} />
-        </button>
-      </div>
+      <OAuthIcons onSignInGoogle={onSignInGoogle} onSignInGithub={onSignInGithub} />
+
       <form className={s.form} autoComplete="on" noValidate onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput

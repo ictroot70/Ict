@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
 import { SignUpFormData, signUpSchema } from '@/features/auth/sign-up/model/validationSchemas'
 import { ROUTES } from '@/shared/constant/routes'
-import { useToastContext } from '@/shared/lib/providers/toast'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
@@ -17,7 +17,7 @@ export const useSignUp = () => {
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    mode: 'onBlur',
+    mode: 'onTouched',
     defaultValues: {
       username: '',
       email: '',
