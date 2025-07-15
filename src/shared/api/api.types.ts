@@ -24,3 +24,12 @@ export interface MeResponse {
   name: string
   isBlocked: boolean
 }
+
+export type RegistrationErrorResponse = {
+  statusCode: number
+  messages: {
+    message: string
+    field: string
+  }[]
+  error: string
+}

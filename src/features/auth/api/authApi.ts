@@ -2,7 +2,6 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { LoginRequest, MeResponse, RefreshTokenResponse } from '@/shared/api/api.types'
-import { API_ROUTES } from '@/shared/api/api-routes'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -11,7 +10,7 @@ export const authApi = createApi({
   endpoints: builder => ({
     login: builder.mutation<RefreshTokenResponse, LoginRequest>({
       query: body => ({
-        url: API_ROUTES.AUTH.LOGIN,
+        url: '/v1/auth/login',
         method: 'POST',
         body,
         credentials: 'include',
@@ -22,7 +21,7 @@ export const authApi = createApi({
     me: builder.query<MeResponse, void>({
       query: () => {
         return {
-          url: API_ROUTES.AUTH.ME,
+          url: '/v1/auth/me',
         }
       },
       providesTags: ['Me'],
@@ -33,7 +32,7 @@ export const authApi = createApi({
     logout: builder.mutation<void, void>({
       query: () => {
         return {
-          url: API_ROUTES.AUTH.LOGOUT,
+          url: '/v1/auth/logout',
           method: 'POST',
           credentials: 'include',
         }
@@ -49,9 +48,41 @@ export const authApi = createApi({
         }
       },
     }),
+    signup: builder.mutation<
+      { message?: string },
+      { userName: string; email: string; password: string; baseUrl: string }
+    >({
+      query: body => ({
+        url: 'v1/auth/registration',
+        method: 'POST',
+        body,
+      }),
+    }),
+    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+      query: body => ({
+        url: 'v1/auth/registration-confirmation',
+        method: 'POST',
+        body,
+      }),
+    }),
+    resendEmailVerification: builder.mutation<void, { email: string; baseUrl: string }>({
+      query: body => ({
+        url: '/v1/auth/registration-email-resending',
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useLoginMutation, useMeQuery, useLazyMeQuery, useLogoutMutation } = authApi
+export const {
+  useLoginMutation,
+  useMeQuery,
+  useLazyMeQuery,
+  useLogoutMutation,
+  useSignupMutation,
+  useConfirmRegistrationMutation,
+  useResendEmailVerificationMutation,
+} = authApi

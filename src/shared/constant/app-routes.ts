@@ -3,11 +3,14 @@ export const APP_ROUTES = {
 
   AUTH: {
     LOGIN: '/auth/login',
+    LOGIN_CONFIRMED: '/auth/login?confirmed=1',
     REGISTRATION: '/auth/registration',
+    REGISTRATION_CONFIRM: '/auth/registration-confirmation',
     LOGOUT: '/auth/logout',
     FORGOT_PASSWORD: '/auth/forgot-password',
     CREATE_NEW_PASSWORD: '/auth/create-new-password',
     NEW_PASSWORD: '/auth/new-password',
+    EMAIL_EXPIRED: '/auth/email-expired',
   },
 
   PROFILE: {
