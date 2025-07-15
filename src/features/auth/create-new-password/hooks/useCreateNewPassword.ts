@@ -3,11 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { ROUTES } from '@/shared/constant/routes'
-
 import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth/api/authApi'
 import { useErrorToast } from '@/shared/lib/hooks'
 import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
@@ -36,14 +35,15 @@ export const useCreateNewPassword = () => {
   useEffect(() => {
     const validateRecoveryCode = async () => {
       if (!urlCode || !urlEmail) {
-        router.push(ROUTES.AUTH.LOGIN)
+        router.push(APP_ROUTES.AUTH.LOGIN)
         return
       }
       try {
         await checkRecoveryCode({ recoveryCode: urlCode }).unwrap()
+        localStorage.removeItem('access_token')
         setIsValidating(false)
       } catch {
-        router.push(`${ROUTES.AUTH.EMAIL_EXPIRED}?email=${urlEmail}`)
+        router.push(`${APP_ROUTES.AUTH.EMAIL_EXPIRED}?email=${urlEmail}`)
       }
     }
 
@@ -64,7 +64,7 @@ export const useCreateNewPassword = () => {
 
   const handleCloseModalWindow = () => {
     setIsOpenModalWindow(false)
-    router.push(ROUTES.AUTH.LOGIN)
+    router.push(APP_ROUTES.AUTH.LOGIN)
   }
 
   return {
