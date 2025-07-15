@@ -5,16 +5,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
 
-import { useLoginMutation, useMeQuery } from '@/features/auth/api/authApi'
-import { useToastContext } from '@/shared/lib/providers/toasr'
-import { generatePublicUserProfilePath } from '@/shared/constant/route.helpers'
-import { signInSchema, type LoginFields } from '@/features/auth/sign-in/model/validation'
+import { useLoginMutation } from '@/features/auth/api/authApi'
+import { useToastContext } from '@/shared/lib/providers/toaster'
+import { type LoginFields, signInSchema } from '@/features/auth/sign-in/model/validation'
+import { useLazyGetMyProfileQuery } from '@/entities/profile/api/profile.api'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useSignIn = () => {
   const router = useRouter()
   const { showToast } = useToastContext()
   const [logIn, { isLoading }] = useLoginMutation()
-  const meRes = useMeQuery()
+  const [triggerProfile] = useLazyGetMyProfileQuery()
 
   const form = useForm<LoginFields>({
     defaultValues: {
@@ -22,6 +23,7 @@ export const useSignIn = () => {
       password: '',
     },
     mode: 'onBlur',
+    reValidateMode: 'onBlur',
     resolver: zodResolver(signInSchema),
   })
 
@@ -29,9 +31,13 @@ export const useSignIn = () => {
     try {
       const response = await logIn(data).unwrap()
       const decoded = jwtDecode<{ userId: string }>(response.accessToken)
-      const userId = decoded?.userId || meRes.data?.id
+      const userId = decoded?.userId
 
       localStorage.setItem('access_token', response.accessToken)
+
+      const profile = await triggerProfile().unwrap()
+
+      console.log('profile', profile)
 
       showToast({
         type: 'success',
@@ -40,12 +46,20 @@ export const useSignIn = () => {
         duration: 4000,
       })
 
-      router.replace(generatePublicUserProfilePath(userId))
+      if (profile?.firstName) {
+        router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
+      } else {
+        router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
+      }
+
       router.refresh()
     } catch (error: any) {
-      const message = error?.data?.messages || 'Something went wrong'
+      const message =
+        error?.data?.messages || 'The email or password are incorrect. Try again please'
+
       showToast({
         type: 'error',
+        title: 'Login Failed',
         message,
         duration: 5000,
       })

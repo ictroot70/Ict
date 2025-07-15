@@ -2,7 +2,7 @@ import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } f
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toasr'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 import { Modal } from '@ictroot/ui-kit'
 import { useState } from 'react'
 
@@ -66,7 +66,7 @@ export const AppHeader = () => {
         height="auto"
       >
         <div style={{ padding: '20px', textAlign: 'center' }}>
-          <Typography variant="body1" style={{ marginBottom: '20px' }}>
+          <Typography variant="regular_16" style={{ marginBottom: '20px' }}>
             Are you sure you want to logout?
           </Typography>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
@@ -92,7 +92,7 @@ export const AppHeader = () => {
               { value: 'en', label: 'English', icon: <UkFlag /> },
               { value: 'rus', label: 'Russian', icon: <RussiaFlag /> },
             ]}
-            onValueChange={() => { }}
+            onValueChange={() => {}}
           />
         </div>
         {!isLoading && !isAuthorized && (

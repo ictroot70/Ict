@@ -1,22 +1,26 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useToastContext } from '@/shared/lib/providers/toasr'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 import { ROUTES } from '@/shared/constant/routes'
 import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
 import { useResendEmailVerificationMutation } from '@/features/auth/api/authApi'
 
 export function useResendVerification() {
   const [resendEmailVerification, { isLoading }] = useResendEmailVerificationMutation()
-  const [serverError, setServerError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const { handleSubmit, control, formState: { errors } } = useForm<{ email: string }>({
-    defaultValues: { email: "" }
-  });
-  const { showToast } = useToastContext();
+  const [serverError, setServerError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<{ email: string }>({
+    defaultValues: { email: '' },
+  })
+  const { showToast } = useToastContext()
 
   const onSubmit = async ({ email }: { email: string }) => {
-    setServerError("")
-    setSuccessMessage("")
+    setServerError('')
+    setSuccessMessage('')
     try {
       await resendEmailVerification({
         email,
@@ -30,7 +34,8 @@ export function useResendVerification() {
         duration: 4000,
       })
     } catch (error: any) {
-      const msg: string = error?.data?.messages?.[0]?.message || REGISTRATION_MESSAGES.NO_RESEND_LINK
+      const msg: string =
+        error?.data?.messages?.[0]?.message || REGISTRATION_MESSAGES.NO_RESEND_LINK
       setServerError(msg)
       showToast({
         type: 'error',

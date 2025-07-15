@@ -1,14 +1,13 @@
 'use client'
 import { useParams } from 'next/navigation'
-import { RequireAuth } from '@/features/auth/authLayout'
-import s from './Profile.module.scss'
+import { RequireAuth } from '@/features/auth/ui'
 
 export default function Profile() {
   const params = useParams()
   const userId = params?.id
   return (
     <RequireAuth>
-      <div className={s.profile}>
+      <div>
         <h1>My Profile</h1>
         <p>My id is: {userId}</p>
       </div>
