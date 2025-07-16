@@ -45,6 +45,7 @@
     "@it-incubator/eslint-config": "^1.0.4",
     "@it-incubator/prettier-config": "^0.1.2",
     "@it-incubator/stylelint-config": "^2.0.0",
+    "@types/react-google-recaptcha": "^2.1.9",
     "prettier": "3.5.3",
     "sass": "^1.87.0",
     "stylelint": "^16.19.1"

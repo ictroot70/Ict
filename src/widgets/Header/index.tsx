@@ -1,9 +1,17 @@
-import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } from '@/shared/ui'
+import {
+  Button,
+  Header,
+  Typography,
+  BellOutline,
+  RussiaFlag,
+  Select,
+  UkFlag,
+  Modal,
+} from '@/shared/ui'
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toaster'
-import { Modal } from '@ictroot/ui-kit'
 import { useState } from 'react'
 
 export const AppHeader = () => {
@@ -12,7 +20,7 @@ export const AppHeader = () => {
   const { showToast } = useToastContext()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-  const { data: user, isLoading, isError, isSuccess } = useMeQuery()
+  const { data: user, isLoading, isSuccess } = useMeQuery()
   const isAuthorized = isSuccess && user
 
   const handleLogout = async () => {

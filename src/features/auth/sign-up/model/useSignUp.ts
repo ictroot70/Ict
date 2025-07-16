@@ -1,25 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toaster'
 import { useSignupMutation } from '@/features/auth/api/authApi'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
 import { SignUpFormData, signUpSchema } from '@/features/auth/sign-up/model/validationSchemas'
 import { ROUTES } from '@/shared/constant/routes'
+import { useToastContext } from '@/shared/lib/providers/toaster'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
-  const router = useRouter()
   const { showToast } = useToastContext()
   const [serverError, setServerError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    mode: 'onBlur',
+    mode: 'onTouched',
     defaultValues: {
       username: '',
       email: '',
