@@ -1,11 +1,11 @@
-import { Button, Header, Typography, BellOutline, RussiaFlag, Select, UkFlag } from '@/shared/ui'
+import { BellOutline, Button, Header, RussiaFlag, Select, Typography, UkFlag } from '@/shared/ui'
 import Link from 'next/link'
 import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
 import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toaster'
-import { Modal } from '@/shared/ui'
 import { useState } from 'react'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { LogoutModal } from '@/widgets/Header/LogoutModal'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
@@ -13,7 +13,8 @@ export const AppHeader = () => {
   const { showToast } = useToastContext()
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
-  const { data: user, isLoading, isError, isSuccess } = useMeQuery()
+  const { data: user, isLoading, isSuccess } = useMeQuery()
+
   const isAuthorized = isSuccess && user
 
   const handleLogout = async () => {
@@ -39,6 +40,18 @@ export const AppHeader = () => {
     }
   }
 
+  const handleCancelLogout = () => {
+    setShowLogoutModal(false)
+    showToast({
+      type: 'info',
+      title: '',
+      message: user?.email
+        ? `Logout cancelled for user ${user.email}`
+        : "User with this email doesn't exist",
+      duration: 4000,
+    })
+  }
+
   return (
     <Header
       logo={
@@ -59,30 +72,36 @@ export const AppHeader = () => {
         Logout
       </Button>
 
-      <Modal
+      <LogoutModal
         open={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
-        modalTitle="Confirm Logout"
-        width="400px"
-        height="auto"
-      >
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <Typography variant="regular_16" style={{ marginBottom: '20px' }}>
-            Are you sure you want to logout?
-          </Typography>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-            <Button variant="secondary" onClick={() => setShowLogoutModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleLogout}>
-              Yes, Logout
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        onClose={handleCancelLogout}
+        onConfirm={handleLogout}
+        userEmail={user?.email || ''}
+      />
+      {/*<Modal*/}
+      {/*  open={showLogoutModal}*/}
+      {/*  onClose={() => setShowLogoutModal(false)}*/}
+      {/*  modalTitle="Confirm Logout"*/}
+      {/*  width="400px"*/}
+      {/*  height="auto"*/}
+      {/*>*/}
+      {/*  <div style={{ padding: '20px', textAlign: 'center' }}>*/}
+      {/*    <Typography variant="regular_16" style={{ marginBottom: '20px' }}>*/}
+      {/*      Are you really want to log out of your account <strong>{user?.email}</strong> ?*/}
+      {/*    </Typography>*/}
+      {/*    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>*/}
+      {/*      <Button variant="secondary" onClick={handleCancelLogout}>*/}
+      {/*        No*/}
+      {/*      </Button>*/}
+      {/*      <Button variant="primary" onClick={handleLogout}>*/}
+      {/*        Yes*/}
+      {/*      </Button>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*</Modal>*/}
 
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <button title='Notification' type={'button'} onClick={() => alert('notification')}>
+        <button title="Notification" type={'button'} onClick={() => alert('notification')}>
           <BellOutline size={24} />
         </button>
         <div style={{ marginInline: '45px 36px', width: '163px' }}>
