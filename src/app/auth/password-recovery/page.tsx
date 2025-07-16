@@ -1,7 +1,10 @@
-export default function ForgotPasswordForm() {
+'use client'
+import { PasswordRecoveryForm } from '@/features/auth/password-recovery/ui/PasswordRecoveryForm'
+
+export default function PasswordRecovery() {
   return (
     <>
-      <h2>Forgot Password Page</h2>
+      <PasswordRecoveryForm />
     </>
   )
 }

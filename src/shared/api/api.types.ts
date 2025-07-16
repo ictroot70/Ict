@@ -25,6 +25,35 @@ export interface MeResponse {
   isBlocked: boolean
 }
 
+export interface PasswordRecoveryResendingRequest {
+  email: string
+  baseUrl: string
+}
+
+export interface PasswordRecoveryRequest {
+  email: string
+  recaptcha: string
+  baseUrl: string
+}
+
+export interface CheckRecoveryCodeRequest {
+  recoveryCode: string
+}
+
+export interface NewPasswordRequest {
+  newPassword: string
+  recoveryCode: string
+}
+
+export interface ApiErrorResponse {
+  statusCode: number
+  messages: Array<{
+    message: string
+    field: string
+  }>
+  error: string
+}
+
 export type RegistrationErrorResponse = {
   statusCode: number
   messages: {

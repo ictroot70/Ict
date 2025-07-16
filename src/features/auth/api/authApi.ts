@@ -1,7 +1,15 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
-import { LoginRequest, MeResponse, RefreshTokenResponse } from '@/shared/api/api.types'
+import {
+  LoginRequest,
+  MeResponse,
+  RefreshTokenResponse,
+  PasswordRecoveryResendingRequest,
+  PasswordRecoveryRequest,
+  CheckRecoveryCodeRequest,
+  NewPasswordRequest,
+} from '@/shared/api/api.types'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -72,6 +80,36 @@ export const authApi = createApi({
         body,
       }),
     }),
+    passwordRecoveryResending: builder.mutation<void, PasswordRecoveryResendingRequest>({
+      query: body => {
+        return {
+          url: '/v1/auth/password-recovery-resending',
+          method: 'POST',
+          body,
+        }
+      },
+    }),
+    passwordRecovery: builder.mutation<void, PasswordRecoveryRequest>({
+      query: body => ({
+        url: `/v1/auth/password-recovery`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    checkRecoveryCode: builder.mutation<void, CheckRecoveryCodeRequest>({
+      query: body => ({
+        url: `/v1/auth/check-recovery-code`,
+        method: 'POST',
+        body,
+      }),
+    }),
+    newPassword: builder.mutation<void, NewPasswordRequest>({
+      query: body => ({
+        url: `/v1/auth/new-password`,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
@@ -85,4 +123,8 @@ export const {
   useSignupMutation,
   useConfirmRegistrationMutation,
   useResendEmailVerificationMutation,
+  usePasswordRecoveryResendingMutation,
+  usePasswordRecoveryMutation,
+  useCheckRecoveryCodeMutation,
+  useNewPasswordMutation,
 } = authApi
