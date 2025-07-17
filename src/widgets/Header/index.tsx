@@ -116,7 +116,7 @@ export const AppHeader = () => {
               Log in
             </Button>
             <Button as={Link} href="/auth/registration">
-              Sing up
+              Sing Up
             </Button>
           </div>
         )}
