@@ -78,7 +78,7 @@ export function PasswordRecoveryForm() {
         title="Email sent"
         message={`We have sent a link to confirm your email to ${currentEmail}`}
         isOpen={isOpenModalWindow}
-        onClose={handleCloseModalWindow}
+        onCloseAction={handleCloseModalWindow}
       />
     </>
   )

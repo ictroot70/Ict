@@ -9,15 +9,15 @@ interface Props {
   title: string
   message: string
   isOpen: boolean
-  onClose: () => void
+  onCloseAction: () => void
 }
 
-export const ModalWithButton = ({ title, message, isOpen, onClose }: Props) => {
+export const ModalWithButton = ({ title, message, isOpen, onCloseAction }: Props) => {
   return (
-    <Modal open={isOpen} onClose={onClose} modalTitle={title} className={s.modal}>
+    <Modal open={isOpen} onClose={onCloseAction} modalTitle={title} className={s.modal}>
       <div className={s.content}>
         <Typography variant="regular_16">{message}</Typography>
-        <Button onClick={onClose}>OK</Button>
+        <Button onClick={onCloseAction}>OK</Button>
       </div>
     </Modal>
   )

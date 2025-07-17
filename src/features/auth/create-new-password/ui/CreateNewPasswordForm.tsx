@@ -55,7 +55,7 @@ export function CreateNewPasswordForm() {
         title="Password restored"
         message="Great news! Your password has been successfully recovered and reset. You can now sign in to your account using your new password."
         isOpen={isOpenModalWindow}
-        onClose={handleCloseModalWindow}
+        onCloseAction={handleCloseModalWindow}
       />
     </>
   )

@@ -65,7 +65,7 @@ export const EmailExpiredForm = () => {
         title="Email sent"
         message={`We have sent a link to ${urlEmail ? 'recover your password' : 'confirm your email'} to ${currentEmail}`}
         isOpen={isOpenModalWindow}
-        onClose={handleCloseModalWindow}
+        onCloseAction={handleCloseModalWindow}
       />
     </>
   )
