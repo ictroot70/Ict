@@ -1,0 +1,17 @@
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.authButtons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.languageSelect {
+  margin-inline: 45px 36px;
+  width: 163px;
+}

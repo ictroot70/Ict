@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useToastContext } from '@/shared/lib/providers/toaster'
 import { useState } from 'react'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { LogoutModal } from '@/widgets/Header/LogoutModal'
+import { ActionConfirmModal } from '@/shared/ui/Modal/ActionConfirmModal/ActionConfirmModal'
+
+import styles from './AppHeader.module.scss'
 
 export const AppHeader = () => {
   const [logout] = useLogoutMutation()
@@ -15,25 +17,26 @@ export const AppHeader = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   const { data: user, isLoading, isSuccess } = useMeQuery()
-
   const isAuthorized = isSuccess && user
 
   const handleLogout = async () => {
     try {
       await logout().unwrap()
       showToast({
-        type: 'success',
-        title: 'Success',
-        message: 'You have been logged out successfully',
+        type: 'info',
+        title: '',
+        message: `You have been logged out`,
         duration: 5000,
       })
       router.replace(APP_ROUTES.AUTH.LOGIN)
     } catch (e) {
-      console.error('Logout failed', e)
+      const message = e instanceof Error ? e.message : 'Something went wrong'
+
+      console.error('Logout failed', message)
       showToast({
         type: 'error',
         title: 'Error',
-        message: e || 'Something went wrong',
+        message: message,
         duration: 5000,
       })
     } finally {
@@ -72,68 +75,55 @@ export const AppHeader = () => {
       <Button variant="primary" onClick={() => setShowLogoutModal(true)}>
         Logout
       </Button>
-
-      <LogoutModal
+      <ActionConfirmModal
         open={showLogoutModal}
         onClose={handleCancelLogout}
-        onConfirm={handleLogout}
-        userEmail={user?.email || ''}
+        title={'Log Out'}
+        message={'Are you really want to log out of your account'}
+        highlightedText={user?.email || ''}
+        confirmButton={{
+          label: 'Yes',
+          onClick: handleLogout,
+        }}
+        cancelButton={{
+          label: 'No',
+          onClick: handleCancelLogout,
+        }}
       />
-      {/*<Modal*/}
-      {/*  open={showLogoutModal}*/}
-      {/*  onClose={() => setShowLogoutModal(false)}*/}
-      {/*  modalTitle="Confirm Logout"*/}
-      {/*  width="400px"*/}
-      {/*  height="auto"*/}
-      {/*>*/}
-      {/*  <div style={{ padding: '20px', textAlign: 'center' }}>*/}
-      {/*    <Typography variant="regular_16" style={{ marginBottom: '20px' }}>*/}
-      {/*      Are you really want to log out of your account <strong>{user?.email}</strong> ?*/}
-      {/*    </Typography>*/}
-      {/*    <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>*/}
-      {/*      <Button variant="secondary" onClick={handleCancelLogout}>*/}
-      {/*        No*/}
-      {/*      </Button>*/}
-      {/*      <Button variant="primary" onClick={handleLogout}>*/}
-      {/*        Yes*/}
-      {/*      </Button>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</Modal>*/}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <button title="Notification" type={'button'} onClick={() => alert('notification')}>
+      <div className={styles.headerControls}>
+        <button title="Notification" type="button" onClick={() => alert('notification')}>
           <BellOutline size={24} />
         </button>
-        <div style={{ marginInline: '45px 36px', width: '163px' }}>
-          <Select
-            defaultValue={'en'}
-            placeholder={'Select...'}
-            items={[
-              { value: 'en', label: 'English', icon: <UkFlag /> },
-              { value: 'rus', label: 'Russian', icon: <RussiaFlag /> },
-            ]}
-            onValueChange={() => {}}
-          />
-        </div>
-        {!isLoading && !isAuthorized && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: '24px',
-            }}
-          >
-            <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
-              Log in
-            </Button>
-            <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION}>
-              Sing up
-            </Button>
-          </div>
-        )}
+
+        <LanguageSelect />
+        {!isLoading && !isAuthorized && <AuthButtons />}
       </div>
     </Header>
   )
 }
+
+const AuthButtons = () => (
+  <div className={styles.authButtons}>
+    <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
+      Log in
+    </Button>
+    <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION}>
+      Sign up
+    </Button>
+  </div>
+)
+
+const LanguageSelect = () => (
+  <div className={styles.languageSelect}>
+    <Select
+      defaultValue={'en'}
+      placeholder={'Select...'}
+      items={[
+        { value: 'en', label: 'English', icon: <UkFlag /> },
+        { value: 'rus', label: 'Russian', icon: <RussiaFlag /> },
+      ]}
+      onValueChange={() => {}}
+    />
+  </div>
+)
