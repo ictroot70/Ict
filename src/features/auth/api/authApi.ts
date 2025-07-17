@@ -10,6 +10,7 @@ import {
   CheckRecoveryCodeRequest,
   NewPasswordRequest,
 } from '@/shared/api/api.types'
+import { API_ROUTES } from '@/shared/api/api-routes'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -61,7 +62,7 @@ export const authApi = createApi({
       { userName: string; email: string; password: string; baseUrl: string }
     >({
       query: body => ({
-        url: 'v1/auth/registration',
+        url: API_ROUTES.AUTH.REGISTRATION,
         method: 'POST',
         body,
       }),

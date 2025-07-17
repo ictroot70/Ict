@@ -35,7 +35,7 @@ export const SignUpForm = () => {
 
   const handleModalClose = () => {
     setIsSuccess(false)
-    form.reset() // <--- вот сюда!
+    form.reset()
     router.replace('/auth/login')
   }
 
