@@ -1,15 +1,15 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import s from './OAuthIcons.module.scss'
+import { GitHub, Google } from '@/shared/ui'
 
 type OAuthIconsProps = {
   onSignInGoogle?: () => void
   onSignInGithub?: () => void
 }
 
-const Google = dynamic(() => import('@/shared/ui').then(m => m.Google), { ssr: false })
-const GitHub = dynamic(() => import('@/shared/ui').then(m => m.GitHub), { ssr: false })
+// const Google = dynamic(() => import('@/shared/ui').then(m => m.Google), { ssr: false })
+// const GitHub = dynamic(() => import('@/shared/ui').then(m => m.GitHub), { ssr: false })
 
 export const OAuthIcons = ({ onSignInGoogle, onSignInGithub }: OAuthIconsProps) => (
   <div className={s.oauthProviders}>
