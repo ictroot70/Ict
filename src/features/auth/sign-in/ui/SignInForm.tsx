@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { Control, FieldErrors } from 'react-hook-form'
 import { ReactElement } from 'react'
 import { LoginFields } from '@/features/auth/sign-in/model/validation'
-import { ROUTES } from '@/shared/constant/routes'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export type SignInFormProps = {
   control: Control<LoginFields>
@@ -59,7 +59,7 @@ export const SignInForm = (props: SignInFormProps): ReactElement => {
         </div>
 
         <Typography variant="regular_14" asChild>
-          <Link href={ROUTES.AUTH.PASSWORD_RECOVERY} className={s.link}>
+          <Link href={APP_ROUTES.AUTH.PASSWORD_RECOVERY} className={s.link}>
             Forgot Password
           </Link>
         </Typography>
@@ -73,7 +73,7 @@ export const SignInForm = (props: SignInFormProps): ReactElement => {
       </form>
       <div className={s.hasAccount}>
         <Typography variant="regular_16">Don’t have an account?</Typography>
-        <Button as={Link} href="/auth/registration" variant="text" fullWidth>
+        <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION} variant="text" fullWidth>
           Sign Up
         </Button>
       </div>
