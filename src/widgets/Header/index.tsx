@@ -22,6 +22,7 @@ export const AppHeader = () => {
 
   return (
     <Header
+      className={styles.header}
       logo={
         <Link href={APP_ROUTES.ROOT}>
           <Typography variant={'h1'}>ICTRoot</Typography>
