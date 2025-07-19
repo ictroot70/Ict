@@ -10,7 +10,7 @@ export default function Home() {
     return <Loading />
   }
   if (isError) {
-    console.error('ME query error:', error)
+    console.log('ME query error:', error)
     return <div>Something went wrong</div>
   }
   if (!counter) {
