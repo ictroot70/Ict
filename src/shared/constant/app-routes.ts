@@ -7,10 +7,12 @@ export const APP_ROUTES = {
     REGISTRATION: '/auth/registration',
     REGISTRATION_CONFIRM: '/auth/registration-confirmation',
     LOGOUT: '/auth/logout',
+    PASSWORD_RECOVERY: '/auth/password-recovery',
     FORGOT_PASSWORD: '/auth/forgot-password',
-    CREATE_NEW_PASSWORD: '/auth/create-new-password',
     NEW_PASSWORD: '/auth/new-password',
     EMAIL_EXPIRED: '/auth/email-expired',
+    GITHUB_LOGIN: '/auth/github/login',
+    GOOGLE_LOGIN: '/auth/google/login',
   },
 
   PROFILE: {
