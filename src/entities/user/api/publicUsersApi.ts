@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { GetPublicUsers } from '@/entities/user/model/user.types'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
+import { API_ROUTES } from '@/shared/api/api-routes'
 
 export const publicUsersApi = createApi({
   reducerPath: 'publicUsersApi',
@@ -8,7 +9,7 @@ export const publicUsersApi = createApi({
   endpoints: builder => ({
     getPublicUsers: builder.query<GetPublicUsers, void>({
       query: () => ({
-        url: '/v1/public-user',
+        url: API_ROUTES.PUBLIC_USER.COUNT,
       }),
     }),
   }),
