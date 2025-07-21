@@ -1,7 +1,7 @@
 'use client'
 import { useParams } from 'next/navigation'
 import { useGetMyProfileQuery } from '@/entities/profile/api/profile.api'
-import { RequireAuth } from '@/features/auth/ui'
+import { AuthGuard } from '@/shared/guards'
 
 export default function Profile() {
   const params = useParams()
@@ -9,9 +9,8 @@ export default function Profile() {
   const userId = params?.id
   console.log('userId', userId)
   return (
-    <RequireAuth>
-
-      {isSuccess &&  (
+    <AuthGuard>
+      {isSuccess && (
         <div>
           <h1>My Profile</h1>
           <p>My id is: {userId}</p>
@@ -23,6 +22,6 @@ export default function Profile() {
           <p>My region is: {data?.region}</p>
         </div>
       )}
-    </RequireAuth>
+    </AuthGuard>
   )
 }

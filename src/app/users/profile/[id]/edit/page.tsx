@@ -1,6 +1,6 @@
 'use client'
 
-import { RequireAuth } from '@/features/auth/ui'
+import { AuthGuard } from '@/shared/guards'
 
 function EditProfile() {
   return (
@@ -12,8 +12,8 @@ function EditProfile() {
 
 export default function Page() {
   return (
-    <RequireAuth>
+    <AuthGuard>
       <EditProfile />
-    </RequireAuth>
+    </AuthGuard>
   )
 }

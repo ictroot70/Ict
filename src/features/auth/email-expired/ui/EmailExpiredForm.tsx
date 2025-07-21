@@ -6,9 +6,11 @@ import s from './EmailExpiredForm.module.scss'
 import { Button, ModalWithButton, Typography } from '@/shared/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
 import picture from '../assets/icons/rafiki.svg'
-import { usePasswordRecoveryResend } from '../hooks/usePasswordRecoveryResend'
-import { useEmailVerificationResend } from '../hooks/useEmailVerificationResend'
 import { useSearchParams } from 'next/navigation'
+import {
+  useEmailVerificationResend,
+  usePasswordRecoveryResend,
+} from '@/features/auth/email-expired'
 
 export const EmailExpiredForm = () => {
   const params = useSearchParams()

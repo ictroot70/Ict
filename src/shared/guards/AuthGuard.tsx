@@ -5,7 +5,7 @@ import { useMeQuery } from '@/features/auth/api/authApi'
 import { Loading } from '@/shared/ui'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 
-export function RequireAuth({ children }: PropsWithChildren) {
+export function AuthGuard({ children }: PropsWithChildren) {
   const { data, isLoading, isError } = useMeQuery()
   const router = useRouter()
 

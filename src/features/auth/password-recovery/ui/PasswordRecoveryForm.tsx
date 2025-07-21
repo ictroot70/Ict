@@ -7,7 +7,7 @@ import { ControlledInput } from '@/features/formControls/input/ui'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
 import Link from 'next/link'
-import { usePasswordRecovery } from '../hooks/usePasswordRecovery'
+import { usePasswordRecovery } from '@/features/auth/password-recovery'
 
 export function PasswordRecoveryForm() {
   const {

@@ -4,7 +4,7 @@ import s from './CreateNewPasswordForm.module.scss'
 
 import { Button, ModalWithButton, Typography, FormWrapper, Loading } from '@/shared/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { useCreateNewPassword } from '../hooks/useCreateNewPassword'
+import { useCreateNewPassword } from '@/features/auth/create-new-password'
 
 export function CreateNewPasswordForm() {
   const {

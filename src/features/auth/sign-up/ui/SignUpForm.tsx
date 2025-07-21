@@ -5,10 +5,10 @@ import { ControlledInput } from '@/features/formControls/input/ui'
 import { Button, Card, Typography } from '@/shared/ui'
 import { GitHub, Google, Modal } from '@ictroot/ui-kit'
 import s from './SignUpForm.module.scss'
-import { useSignUp } from '../model/useSignUp'
 import { useWatch } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { useSignUp } from '@/features/auth'
 
 const labelContent = (
   <>

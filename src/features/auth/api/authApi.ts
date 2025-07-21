@@ -2,14 +2,15 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import {
+  CheckRecoveryCodeRequest,
   LoginRequest,
   MeResponse,
-  RefreshTokenResponse,
-  PasswordRecoveryResendingRequest,
-  PasswordRecoveryRequest,
-  CheckRecoveryCodeRequest,
   NewPasswordRequest,
+  PasswordRecoveryRequest,
+  PasswordRecoveryResendingRequest,
+  RefreshTokenResponse,
 } from '@/shared/api/api.types'
+import { API_ROUTES } from '@/shared/api/api-routes'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
@@ -18,7 +19,7 @@ export const authApi = createApi({
   endpoints: builder => ({
     login: builder.mutation<RefreshTokenResponse, LoginRequest>({
       query: body => ({
-        url: '/v1/auth/login',
+        url: API_ROUTES.AUTH.LOGIN,
         method: 'POST',
         body,
         credentials: 'include',
@@ -29,7 +30,7 @@ export const authApi = createApi({
     me: builder.query<MeResponse, void>({
       query: () => {
         return {
-          url: '/v1/auth/me',
+          url: API_ROUTES.AUTH.ME,
         }
       },
       providesTags: ['Me'],
@@ -40,7 +41,7 @@ export const authApi = createApi({
     logout: builder.mutation<void, void>({
       query: () => {
         return {
-          url: '/v1/auth/logout',
+          url: API_ROUTES.AUTH.LOGOUT,
           method: 'POST',
           credentials: 'include',
         }
@@ -61,21 +62,21 @@ export const authApi = createApi({
       { userName: string; email: string; password: string; baseUrl: string }
     >({
       query: body => ({
-        url: 'v1/auth/registration',
+        url: API_ROUTES.AUTH.REGISTRATION,
         method: 'POST',
         body,
       }),
     }),
     confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
       query: body => ({
-        url: 'v1/auth/registration-confirmation',
+        url: API_ROUTES.AUTH.REGISTRATION_CONFIRMATION,
         method: 'POST',
         body,
       }),
     }),
     resendEmailVerification: builder.mutation<void, { email: string; baseUrl: string }>({
       query: body => ({
-        url: '/v1/auth/registration-email-resending',
+        url: API_ROUTES.AUTH.REGISTRATION_EMAIL_RESENDING,
         method: 'POST',
         body,
       }),
@@ -83,7 +84,7 @@ export const authApi = createApi({
     passwordRecoveryResending: builder.mutation<void, PasswordRecoveryResendingRequest>({
       query: body => {
         return {
-          url: '/v1/auth/password-recovery-resending',
+          url: API_ROUTES.AUTH.PASSWORD_RECOVERY_RESENDING,
           method: 'POST',
           body,
         }
@@ -91,21 +92,21 @@ export const authApi = createApi({
     }),
     passwordRecovery: builder.mutation<void, PasswordRecoveryRequest>({
       query: body => ({
-        url: `/v1/auth/password-recovery`,
+        url: API_ROUTES.AUTH.PASSWORD_RECOVERY,
         method: 'POST',
         body,
       }),
     }),
     checkRecoveryCode: builder.mutation<void, CheckRecoveryCodeRequest>({
       query: body => ({
-        url: `/v1/auth/check-recovery-code`,
+        url: API_ROUTES.AUTH.CHECK_RECOVERY_CODE,
         method: 'POST',
         body,
       }),
     }),
     newPassword: builder.mutation<void, NewPasswordRequest>({
       query: body => ({
-        url: `/v1/auth/new-password`,
+        url: API_ROUTES.AUTH.NEW_PASSWORD,
         method: 'POST',
         body,
       }),
@@ -113,12 +114,9 @@ export const authApi = createApi({
   }),
 })
 
-// Export hooks for usage in functional components, which are
-// auto-generated based on the defined endpoints
 export const {
   useLoginMutation,
   useMeQuery,
-  useLazyMeQuery,
   useLogoutMutation,
   useSignupMutation,
   useConfirmRegistrationMutation,
