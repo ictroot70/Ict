@@ -18,6 +18,7 @@ interface ActionConfirmModalProps {
   confirmButton: ModalButtonProps
   cancelButton?: ModalButtonProps
   checkbox?: boolean
+  question?: boolean
 
   width?: string
   height?: string
@@ -32,6 +33,7 @@ export const ActionConfirmModal = ({
   confirmButton,
   cancelButton,
   checkbox,
+  question,
   width = '438px',
   height = '240px',
 }: ActionConfirmModalProps): ReactElement => (
@@ -39,7 +41,15 @@ export const ActionConfirmModal = ({
     <div>
       <Typography variant="regular_16" className={styles.text}>
         {message}
-        <span className={styles.userEmail}> “{highlightedText}”</span>?
+        {highlightedText ? (
+          question ? (
+            <>
+              <span className={styles.userEmail}> “{highlightedText}”</span>?
+            </>
+          ) : (
+            <> {highlightedText}</>
+          )
+        ) : null}
       </Typography>
       <div className={checkbox ? styles.checkbox : ''}>
         {checkbox && <CheckboxRadix label="I agree" onChange={() => {}} />}
@@ -50,7 +60,7 @@ export const ActionConfirmModal = ({
               onClick={confirmButton.onClick}
               fullWidth={confirmButton.fullWidth}
             >
-              {confirmButton.label}
+              <Typography variant={'h3'}>{confirmButton.label}</Typography>
             </Button>
           )}
           {cancelButton && (
@@ -59,7 +69,7 @@ export const ActionConfirmModal = ({
               onClick={cancelButton?.onClick}
               fullWidth={cancelButton?.fullWidth}
             >
-              {cancelButton?.label}
+              <Typography variant={'h3'}>{cancelButton.label}</Typography>
             </Button>
           )}
         </div>
