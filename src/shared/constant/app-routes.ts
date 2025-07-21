@@ -14,6 +14,10 @@ export const APP_ROUTES = {
     GITHUB_LOGIN: '/auth/github/login',
     GOOGLE_LOGIN: '/auth/google/login',
   },
+  PUBLIC: {
+    TERMS: '/public/terms-of-service',
+    PRIVACY: '/public/privacy-policy',
+  },
 
   PROFILE: {
     MY: (id: string) => `/users/profile/${id}`,
@@ -38,11 +42,6 @@ export const APP_ROUTES = {
   NOTIFICATIONS: {
     LIST: '/notifications',
     DETAIL: (id: string) => `/notifications/${id}`,
-  },
-
-  PUBLIC: {
-    TERMS: '/terms-of-service',
-    PRIVACY: '/privacy-policy',
   },
 
   SUBSCRIPTIONS: {
