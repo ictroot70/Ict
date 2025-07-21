@@ -2,34 +2,14 @@
 
 import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Card, Typography } from '@/shared/ui'
-import { GitHub, Google, Modal } from '@ictroot/ui-kit'
+import { Button, Card, OAuthIcons, Typography } from '@/shared/ui'
 import s from './SignUpForm.module.scss'
 import { useWatch } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { useSignUp } from '@/features/auth'
-
-const labelContent = (
-  <>
-    I agree to the&nbsp;
-    <a
-      href={APP_ROUTES.PUBLIC.TERMS}
-      rel={'noopener noreferrer'}
-      onClick={e => e.stopPropagation()}
-    >
-      Terms of Service
-    </a>
-    &nbsp;and&nbsp;
-    <a
-      href={APP_ROUTES.PUBLIC.PRIVACY}
-      rel={'noopener noreferrer'}
-      onClick={e => e.stopPropagation()}
-    >
-      Privacy Policy
-    </a>
-  </>
-)
+import { AgreementLabel } from '@/features/auth/sign-up/ui/AgreementLabel'
+import { SignUpConfirmModal } from '@/features/auth/sign-up/ui/SignUpConfirmModal'
 
 export const SignUpForm = () => {
   const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
@@ -49,28 +29,7 @@ export const SignUpForm = () => {
   }
 
   if (isSuccess) {
-    return (
-      <Modal
-        open={isSuccess}
-        onClose={handleModalClose}
-        modalTitle="Email sent"
-        width={378}
-        height={228}
-      >
-        <Typography variant="regular_16" style={{ margin: '0 0 18px' }}>
-          We have sent a link to confirm your email to <br />
-          <b>{email}</b>
-        </Typography>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button
-            style={{ minWidth: 120, fontSize: 16, fontWeight: 600 }}
-            onClick={handleModalClose}
-          >
-            OK
-          </Button>
-        </div>
-      </Modal>
-    )
+    return <SignUpConfirmModal open={isSuccess} onClose={handleModalClose} userEmail={email} />
   }
 
   return (
@@ -79,12 +38,10 @@ export const SignUpForm = () => {
         Sign Up
       </Typography>
       <div className={s.oauthProviders}>
-        <Button as="a" href="#google" variant="text">
-          <Google size={36} />
-        </Button>
-        <Button as="a" href="#github" variant="text">
-          <GitHub size={36} color="var(--color-light-100)" />
-        </Button>
+        <OAuthIcons
+          onSignInGoogle={() => console.log('Google login')}
+          onSignInGithub={() => console.log('GitHub login')}
+        />
       </div>
       <form className={s.form} autoComplete="off" onSubmit={onSubmit}>
         <div className={s.fields}>
@@ -131,7 +88,7 @@ export const SignUpForm = () => {
         <ControlledCheckbox
           name="agreement"
           control={control}
-          label={labelContent}
+          label={AgreementLabel}
           className={s.agreement}
         />
         {serverError && (

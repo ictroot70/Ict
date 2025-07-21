@@ -6,8 +6,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
 import { SignUpFormData, signUpSchema } from '@/features/auth/sign-up/model/validationSchemas'
-import { ROUTES } from '@/shared/constant/routes'
 import { useToastContext } from '@/shared/lib/providers/toaster'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
@@ -36,7 +36,7 @@ export const useSignUp = () => {
         userName: data.username,
         email: data.email,
         password: data.password,
-        baseUrl: window.location.origin + ROUTES.AUTH.REGISTRATION_CONFIRM,
+        baseUrl: window.location.origin + APP_ROUTES.AUTH.REGISTRATION_CONFIRM,
       }).unwrap()
       setIsSuccess(true)
 
