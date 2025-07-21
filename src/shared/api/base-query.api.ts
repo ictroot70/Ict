@@ -63,7 +63,7 @@ export const baseQueryWithReauth: BaseQueryFn<
           console.log(result)
         } else {
           authTokenStorage.clear()
-          // Можно сделать logout, редирект, или показать сообщение
+          // you can make logout, redirect, or show the message
           console.warn('Invalid refresh token. Logging out.')
           return refreshResult.error
             ? { error: refreshResult.error }
