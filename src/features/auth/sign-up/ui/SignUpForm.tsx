@@ -8,17 +8,26 @@ import s from './SignUpForm.module.scss'
 import { useSignUp } from '../model/useSignUp'
 import { useWatch } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 const labelContent = (
   <>
-    I agree to the{' '}
-    <a href={''} rel={'noopener noreferrer'} onClick={e => e.stopPropagation()}>
+    I agree to the&nbsp;
+    <a
+      href={APP_ROUTES.PUBLIC.TERMS}
+      rel={'noopener noreferrer'}
+      onClick={e => e.stopPropagation()}
+    >
       Terms of Service
-    </a>{' '}
-    and{' '}
-    <a href={''} rel={'noopener noreferrer'} onClick={e => e.stopPropagation()}>
+    </a>
+    &nbsp;and&nbsp;
+    <a
+      href={APP_ROUTES.PUBLIC.PRIVACY}
+      rel={'noopener noreferrer'}
+      onClick={e => e.stopPropagation()}
+    >
       Privacy Policy
-    </a>{' '}
+    </a>
   </>
 )
 
@@ -35,8 +44,8 @@ export const SignUpForm = () => {
 
   const handleModalClose = () => {
     setIsSuccess(false)
-    form.reset() // <--- вот сюда!
-    router.replace('/auth/login')
+    form.reset()
+    router.replace(APP_ROUTES.AUTH.LOGIN)
   }
 
   if (isSuccess) {
@@ -143,7 +152,7 @@ export const SignUpForm = () => {
       </form>
       <div className={s.hasAccount}>
         <Typography variant="regular_16">Do you have an account?</Typography>
-        <Button as="a" href="/auth/login" variant="text" fullWidth>
+        <Button as="a" href={APP_ROUTES.AUTH.LOGIN} variant="text" fullWidth>
           Sign In
         </Button>
       </div>
