@@ -26,7 +26,7 @@ export function useRegistrationConfirm() {
       }
     }
 
-    validateConfirmationCode()
+    void validateConfirmationCode()
   }, [urlCode, router])
 
   return {

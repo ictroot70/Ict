@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { ForgotPasswordInputs, forgotPasswordSchema } from '../model/schemas/forgotPasswordSchema'
 import {
   usePasswordRecoveryMutation,
   usePasswordRecoveryResendingMutation,
 } from '@/features/auth/api/authApi'
 import { useErrorToast } from '@/shared/lib/hooks'
 import { ApiErrorResponse } from '@/shared/api/api.types'
+import { ForgotPasswordInputs, forgotPasswordSchema } from '@/features/auth/password-recovery'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
