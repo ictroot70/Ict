@@ -28,27 +28,30 @@ export const AppHeader = () => {
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
       }
-      height={'70px'}
     >
       {/* TODO: This is a temporary header(these buttons should be removed in the future)*/}
-      {!isLoading && isAuthorized && (
-        <Button variant="primary" onClick={() => setShowLogoutModal(true)}>
-          Logout
-        </Button>
+      {!isLoading && (
+        <>
+          <LogoutModal
+            open={showLogoutModal}
+            onConfirm={handleLogout}
+            onClose={handleCancelLogout}
+            userEmail={user?.email}
+          />
+
+          <div className={styles.headerControls}>
+            <NotificationButton />
+            <LanguageSelect />
+            {isAuthorized ? (
+              <Button variant="primary" onClick={() => setShowLogoutModal(true)}>
+                Logout
+              </Button>
+            ) : (
+              <AuthButtons />
+            )}
+          </div>
+        </>
       )}
-
-      <LogoutModal
-        open={showLogoutModal}
-        onConfirm={handleLogout}
-        onClose={handleCancelLogout}
-        userEmail={user?.email}
-      />
-
-      <div className={styles.headerControls}>
-        <NotificationButton />
-        <LanguageSelect />
-        {!isLoading && !isAuthorized && <AuthButtons />}
-      </div>
     </Header>
   )
 }

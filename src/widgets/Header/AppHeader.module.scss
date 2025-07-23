@@ -1,8 +1,14 @@
 .header {
   position: fixed;
+  min-height: 60px;
+  padding: 0.75rem 2rem;
   z-index: 100;
   top: 0;
   left: 0;
+}
+
+body[data-scroll-locked] .header {
+  padding-right: calc(var(--removed-body-scroll-bar-size, 0px) + 2rem);
 }
 
 .headerControls {
