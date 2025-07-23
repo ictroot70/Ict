@@ -6,6 +6,7 @@ import { Inter } from 'next/font/google'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastProvider } from '@ictroot/ui-kit'
 import { AppHeader } from '@/widgets/Header'
+import { useScrollRestoration } from '@/shared/lib/hooks/useScrollRestoration'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -18,6 +19,7 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode
 }>) {
+  useScrollRestoration()
   return (
     <html lang="en">
       <body className={`${inter.variable}`}>
