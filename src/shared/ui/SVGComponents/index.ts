@@ -1,1 +1,1 @@
-export { GitHub, Google, BellOutline, RussiaFlag, Select, UkFlag } from '@ictroot/ui-kit'
+export { GitHub, Google, BellOutline, RussiaFlag, Select, UkFlag, ArrowBack } from '@ictroot/ui-kit'
