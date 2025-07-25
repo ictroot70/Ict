@@ -11,6 +11,7 @@ import { useLogoutHandler } from '@/widgets/Header/hooks/useLogoutHandler'
 import { NotificationButton } from '@/widgets/Header/components/NotificationButton/NotificationButton'
 import { LanguageSelect } from '@/widgets/Header/components/LanguageSelect/LanguageSelect'
 import { AuthButtons } from '@/widgets/Header/components/AuthButtons/AuthButtons'
+import { Header_v2 } from '@/shared/ui/Header_v2/Header_v2'
 
 export const AppHeader = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -21,14 +22,14 @@ export const AppHeader = () => {
   const { handleLogout, handleCancelLogout } = useLogoutHandler(() => setShowLogoutModal(false))
 
   return (
-    <Header
+    <Header_v2
       className={styles.header}
       logo={
         <Link href={APP_ROUTES.ROOT}>
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
       }
-      height={'70px'}
+      // height={'60px'}
     >
       {/* TODO: This is a temporary header(these buttons should be removed in the future)*/}
       {!isLoading && isAuthorized && (
@@ -49,6 +50,6 @@ export const AppHeader = () => {
         <LanguageSelect />
         {!isLoading && !isAuthorized && <AuthButtons />}
       </div>
-    </Header>
+    </Header_v2>
   )
 }
