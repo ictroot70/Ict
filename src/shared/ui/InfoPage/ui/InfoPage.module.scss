@@ -1,12 +1,8 @@
 .container {
   width: 100%;
-  max-width: 1218px;
+  max-width: 1220px;
   padding: 0 2rem;
   margin: 0 auto;
-
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
 }
 
 .wrapper {

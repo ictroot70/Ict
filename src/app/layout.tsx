@@ -5,8 +5,9 @@ import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastProvider } from '@ictroot/ui-kit'
-import { AppHeader } from '@/widgets/Header'
+//import { AppHeader } from '@/widgets/Header'
 import { useScrollRestoration } from '@/shared/lib/hooks/useScrollRestoration'
+import { Header_v3 } from '@/widgets/Header_v3'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -30,7 +31,7 @@ export default function RootLayout({
             maxToasts={3}
             enableHoverPause
           >
-            <AppHeader />
+            <Header_v3 />
             <main>{children}</main>
           </ToastProvider>
         </StoreProvider>
