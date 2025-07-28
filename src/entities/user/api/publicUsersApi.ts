@@ -7,7 +7,7 @@ export const publicUsersApi = createApi({
   reducerPath: 'publicUsersApi',
   baseQuery: baseQueryWithReauth,
   endpoints: builder => ({
-    getPublicUsers: builder.query<GetPublicUsers, void>({
+    getPublicUsersCounter: builder.query<GetPublicUsers, void>({
       query: () => ({
         url: API_ROUTES.PUBLIC_USER.COUNT,
       }),
@@ -15,4 +15,4 @@ export const publicUsersApi = createApi({
   }),
 })
 
-export const { useGetPublicUsersQuery } = publicUsersApi
+export const { useGetPublicUsersCounterQuery } = publicUsersApi
