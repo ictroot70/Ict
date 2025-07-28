@@ -19,12 +19,12 @@ export interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
   height?: CSSProperties['height']
   background?: CSSProperties['background']
 }
-
+//TODO: This is a temporary header(in the future we will use it from our library)
 export const Header_v2 = forwardRef<ComponentRef<'header'>, HeaderProps>(
   (props, ref): ReactElement => {
     const {
       isAuthorized = false,
-      maxWidth,
+      maxWidth = '1280px',
       height = '60px',
       logo,
       background = 'var(--color-dark-700)',
