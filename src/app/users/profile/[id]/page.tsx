@@ -2,12 +2,14 @@
 import { useParams } from 'next/navigation'
 import { useGetMyProfileQuery } from '@/entities/profile/api/profile.api'
 import { AuthGuard } from '@/shared/guards'
+import { Loading } from '@/shared/ui'
 
 export default function Profile() {
   const params = useParams()
   const { data, isSuccess } = useGetMyProfileQuery()
   const userId = params?.id
   console.log('userId', userId)
+
   return (
     <AuthGuard>
       {isSuccess && (

@@ -37,12 +37,12 @@ export const SignUpForm = () => {
       <Typography variant="h1" className={s.title}>
         Sign Up
       </Typography>
-      <div className={s.oauthProviders}>
-        <OAuthIcons
-          onSignInGoogle={() => console.log('Google login')}
-          onSignInGithub={() => console.log('GitHub login')}
-        />
-      </div>
+
+      <OAuthIcons
+        onSignInGoogle={() => console.log('Google login')}
+        onSignInGithub={() => console.log('GitHub login')}
+      />
+
       <form className={s.form} autoComplete="off" onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput
