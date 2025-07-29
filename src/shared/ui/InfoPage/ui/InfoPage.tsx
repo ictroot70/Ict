@@ -23,19 +23,17 @@ export const InfoPage: React.FC<Props> = ({ title, children, backButtonText = 'B
     }
   }
   return (
-    <div className={s.container}>
-      <div className={s.wrapper}>
-        <Button variant={'text'} onClick={handleBack} className={s.link} aria-label={'Go back'}>
-          <ArrowBack />
-          <Typography variant={'regular_14'}>{backButtonText}</Typography>
-        </Button>
+    <div className={s.wrapper}>
+      <Button variant={'text'} onClick={handleBack} className={s.link} aria-label={'Go back'}>
+        <ArrowBack />
+        <Typography variant={'regular_14'}>{backButtonText}</Typography>
+      </Button>
 
-        <div className={s.content}>
-          <Typography variant={'h1'} asChild>
-            <h2>{title}</h2>
-          </Typography>
-          {children}
-        </div>
+      <div className={s.content}>
+        <Typography variant={'h1'} asChild>
+          <h2>{title}</h2>
+        </Typography>
+        {children}
       </div>
     </div>
   )

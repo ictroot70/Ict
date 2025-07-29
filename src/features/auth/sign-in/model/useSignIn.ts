@@ -22,8 +22,8 @@ export const useSignIn = () => {
       email: '',
       password: '',
     },
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     resolver: zodResolver(signInSchema),
   })
 

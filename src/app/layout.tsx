@@ -82,7 +82,6 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode
 }>) {
-  useScrollRestoration()
   return (
     <html lang="en">
       <body className={`${inter.variable}`}>
