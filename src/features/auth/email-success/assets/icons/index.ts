@@ -1,1 +1,1 @@
-export * from './bro.svg'
+export { default as Bro } from './bro.svg'

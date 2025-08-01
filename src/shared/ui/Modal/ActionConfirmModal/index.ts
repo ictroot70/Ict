@@ -1,2 +1,1 @@
-export { Modal } from '@ictroot/ui-kit'
 export { ActionConfirmModal } from './ActionConfirmModal'

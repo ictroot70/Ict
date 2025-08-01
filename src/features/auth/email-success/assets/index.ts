@@ -1,1 +1,1 @@
-export * from './icons'
+export { Bro } from './icons'
