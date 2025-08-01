@@ -1,21 +1,19 @@
 'use client'
-import { useParams } from 'next/navigation'
-import { useGetMyProfileQuery } from '@/entities/profile/api/profile.api'
-import { AuthGuard } from '@/shared/guards'
-import { Loading } from '@/shared/ui'
 
-export default function Profile() {
-  const params = useParams()
+import { ReactElement } from 'react'
+
+import { useGetMyProfileQuery } from '@/entities/profile/api'
+import { AuthGuard } from '@/shared/guards'
+
+export const ProfileClient = (): ReactElement => {
   const { data, isSuccess } = useGetMyProfileQuery()
-  const userId = params?.id
-  console.log('userId', userId)
 
   return (
     <AuthGuard>
       {isSuccess && (
         <div>
           <h1>My Profile</h1>
-          <p>My id is: {userId}</p>
+          <p>My id is: {data?.id}</p>
           <p>My userName is: {data?.userName}</p>
           <p>My firstName is: {data?.firstName}</p>
           <p>My lastName is: {data?.lastName}</p>
