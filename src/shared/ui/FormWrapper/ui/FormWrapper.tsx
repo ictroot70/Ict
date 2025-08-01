@@ -1,8 +1,10 @@
 'use client'
 
 import { ReactNode } from 'react'
-import s from './FormWrapper.module.scss'
+
 import { Card, Typography } from '@ictroot/ui-kit'
+
+import s from './FormWrapper.module.scss'
 
 type Props = {
   title: string
