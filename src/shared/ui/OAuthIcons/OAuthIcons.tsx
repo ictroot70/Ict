@@ -1,7 +1,8 @@
 'use client'
 
-import s from './OAuthIcons.module.scss'
 import { GitHub, Google } from '@/shared/ui'
+
+import s from './OAuthIcons.module.scss'
 
 type OAuthIconsProps = {
   onSignInGoogle?: () => void
@@ -13,10 +14,10 @@ type OAuthIconsProps = {
 
 export const OAuthIcons = ({ onSignInGoogle, onSignInGithub }: OAuthIconsProps) => (
   <div className={s.oauthProviders}>
-    <button onClick={onSignInGoogle} type="button">
+    <button onClick={onSignInGoogle} type={'button'}>
       <Google size={36} />
     </button>
-    <button onClick={onSignInGithub} type="button">
+    <button onClick={onSignInGithub} type={'button'}>
       <GitHub size={36} />
     </button>
   </div>
