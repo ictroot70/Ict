@@ -1,27 +1,29 @@
-import type {
+import { RefreshTokenResponse } from '@/shared/api/api.types'
+import { API_ROUTES } from '@/shared/api/api-routes'
+import { isBrowser } from '@/shared/environment/is-browser'
+import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import {
   BaseQueryFn,
   FetchArgs,
   FetchBaseQueryError,
   QueryReturnValue,
+  fetchBaseQuery,
 } from '@reduxjs/toolkit/query'
-import { fetchBaseQuery } from '@reduxjs/toolkit/query'
 import { Mutex } from 'async-mutex'
-import { RefreshTokenResponse } from '@/shared/api/api.types'
-import { isBrowser } from '@/shared/environment/is-browser'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
-import { API_ROUTES } from '@/shared/api/api-routes'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
   prepareHeaders: headers => {
     let token
+
     if (isBrowser()) {
       token = authTokenStorage.getAccessToken()
     }
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
+
     return headers
   },
 })
@@ -42,11 +44,13 @@ export const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   await mutex.waitForUnlock()
   let result = await baseQuery(args, api, extraOptions)
-  console.log(result)
+
+  // console.log(result)
   if (result.error && result.error.status === 401) {
     // checking whether the mutex is locked
     if (!mutex.isLocked()) {
       const release = await mutex.acquire()
+
       try {
         const refreshResult = (await baseQuery(
           { url: API_ROUTES.AUTH.UPDATE_TOKENS, method: 'POST', credentials: 'include' },
@@ -60,11 +64,12 @@ export const baseQueryWithReauth: BaseQueryFn<
           // retry the initial query
           result = await baseQuery(args, api, extraOptions)
 
-          console.log(result)
+          // console.log(result)
         } else {
           authTokenStorage.clear()
           // you can make logout, redirect, or show the message
           console.warn('Invalid refresh token. Logging out.')
+
           return refreshResult.error
             ? { error: refreshResult.error }
             : { error: { status: 401, data: 'Unauthorized' } }
@@ -79,5 +84,6 @@ export const baseQueryWithReauth: BaseQueryFn<
       result = await baseQuery(args, api, extraOptions)
     }
   }
+
   return result
 }
