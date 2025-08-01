@@ -1,7 +1,6 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
-import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import {
+  API_ROUTES,
+  baseQueryWithReauth,
   CheckRecoveryCodeRequest,
   LoginRequest,
   MeResponse,
@@ -9,8 +8,9 @@ import {
   PasswordRecoveryRequest,
   PasswordRecoveryResendingRequest,
   RefreshTokenResponse,
-} from '@/shared/api/api.types'
-import { API_ROUTES } from '@/shared/api/api-routes'
+} from '@/shared/api'
+import { authTokenStorage } from '@/shared/lib'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
