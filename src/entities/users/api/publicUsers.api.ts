@@ -1,7 +1,7 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import { GetPublicUsers } from '@/entities/user/model/user.types'
-import { baseQueryWithReauth } from '@/shared/api/base-query.api'
+import { GetPublicUsers } from '@/entities/users/model'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { baseQueryWithReauth } from '@/shared/api/base-query.api'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
 export const publicUsersApi = createApi({
   reducerPath: 'publicUsersApi',
