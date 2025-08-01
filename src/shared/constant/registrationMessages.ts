@@ -7,4 +7,4 @@ export const REGISTRATION_MESSAGES = {
   NO_RESEND_LINK: 'Failed to resend verification link',
   NETWORK_ERROR: 'Network error. Please try again.',
   SENT_LINK: (email: string) => `We have sent a link to confirm your email to ${email}`,
-}
+} as const
