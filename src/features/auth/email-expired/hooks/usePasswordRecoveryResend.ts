@@ -1,8 +1,9 @@
-import { usePasswordRecoveryResendingMutation } from '@/features/auth/api/authApi'
+import { usePasswordRecoveryResendingMutation } from '@/features/auth'
+import { APP_ROUTES } from '@/shared/constant'
 import { useSearchParams } from 'next/navigation'
-import { useBaseEmailResend } from './useBaseEmailResend'
+
 import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { useBaseEmailResend } from './useBaseEmailResend'
 
 export const usePasswordRecoveryResend = () => {
   const params = useSearchParams()

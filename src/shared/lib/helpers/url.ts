@@ -11,5 +11,6 @@ export const buildPathWithQuery = (
   })
 
   const queryString = params.toString()
+
   return queryString ? `${path}?${queryString}` : path
 }

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+
+import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth'
+import { APP_ROUTES } from '@/shared/constant'
+import { useErrorToast } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth/api/authApi'
-import { useErrorToast } from '@/shared/lib/hooks'
 import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
@@ -36,6 +37,7 @@ export const useCreateNewPassword = () => {
     const validateRecoveryCode = async () => {
       if (!urlCode || !urlEmail) {
         router.push(APP_ROUTES.AUTH.LOGIN)
+
         return
       }
       try {
@@ -47,8 +49,8 @@ export const useCreateNewPassword = () => {
       }
     }
 
-    validateRecoveryCode()
-  }, [urlCode, urlEmail, router])
+    void validateRecoveryCode()
+  }, [urlCode, urlEmail, router, checkRecoveryCode])
 
   const onSubmit = async ({ password }: CreateNewPasswordInputs) => {
     try {

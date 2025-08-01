@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+
+import { useErrorToast } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useErrorToast } from '@/shared/lib/hooks'
+
 import { EmailExpiredInputs, emailExpiredSchema } from '../model/schemas/emailExpiredSchema'
 
 export const useBaseEmailResend = (defaultEmail = '') => {
