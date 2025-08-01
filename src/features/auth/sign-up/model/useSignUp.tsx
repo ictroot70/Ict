@@ -1,17 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignupMutation } from '@/features/auth/api/authApi'
 import { useForm } from 'react-hook-form'
+
+import { SignUpFormData, signUpSchema, useSignupMutation } from '@/features/auth'
+import { APP_ROUTES, REGISTRATION_MESSAGES } from '@/shared/constant'
+import { Alert } from '@/shared/ui'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { REGISTRATION_MESSAGES } from '@/shared/constant/registrationMessages'
-import { SignUpFormData, signUpSchema } from '@/features/auth/sign-up/model/validationSchemas'
-import { useToastContext } from '@/shared/lib/providers/toaster'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { toast } from 'react-toastify/unstyled'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
-  const { showToast } = useToastContext()
+
   const [serverError, setServerError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
 
@@ -38,18 +38,26 @@ export const useSignUp = () => {
         password: data.password,
         baseUrl: window.location.origin + APP_ROUTES.AUTH.REGISTRATION_CONFIRM,
       }).unwrap()
+
       setIsSuccess(true)
 
-      showToast({
-        type: 'success',
-        title: 'Registration successful!',
-        message: result?.message || `We have sent a link to confirm your email to ${data.email}`,
-        duration: 4000,
-      })
+      toast(
+        <Alert
+          typographyVariant={'regular_16'}
+          type={'success'}
+          title={'Registration successful!'}
+          message={result?.message || `We have sent a link to confirm your email to ${data.email}`}
+        />,
+        {
+          autoClose: 5000,
+          type: 'success',
+        }
+      )
 
       localStorage.setItem('lastRegistrationEmail', data.email)
     } catch (error: any) {
       const apiError = error as { status: number; data?: any }
+
       if (apiError && apiError.status === 400 && apiError.data?.messages) {
         apiError.data.messages.forEach((err: any) => {
           if (err.field === 'userName' || err.field === 'username') {
@@ -76,12 +84,18 @@ export const useSignUp = () => {
           `Registration failed. Server returned status: ${apiError?.status || 'unknown'}`
         )
       }
-      showToast({
-        type: 'error',
-        title: 'Registration error',
-        message: serverError || 'Registration failed',
-        duration: 5000,
-      })
+      toast(
+        <Alert
+          typographyVariant={'regular_16'}
+          type={'error'}
+          title={'Registration error'}
+          message={serverError || 'Registration failed'}
+        />,
+        {
+          autoClose: 5000,
+          type: 'error',
+        }
+      )
     }
   })
 

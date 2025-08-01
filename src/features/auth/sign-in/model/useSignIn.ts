@@ -1,19 +1,18 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
+
+import { useLazyGetMyProfileQuery } from '@/entities/profile'
+import { useLoginMutation } from '@/features/auth'
+import { type LoginFields, signInSchema } from '@/features/auth/sign-in/model/validation'
+import { APP_ROUTES } from '@/shared/constant'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
-
-import { useLoginMutation } from '@/features/auth/api/authApi'
-import { useToastContext } from '@/shared/lib/providers/toaster'
-import { type LoginFields, signInSchema } from '@/features/auth/sign-in/model/validation'
-import { useLazyGetMyProfileQuery } from '@/entities/profile/api/profile.api'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { toast } from 'react-toastify/unstyled'
 
 export const useSignIn = () => {
   const router = useRouter()
-  const { showToast } = useToastContext()
   const [logIn, { isLoading }] = useLoginMutation()
   const [triggerProfile] = useLazyGetMyProfileQuery()
 
@@ -22,8 +21,8 @@ export const useSignIn = () => {
       email: '',
       password: '',
     },
-    mode: 'onBlur',
-    reValidateMode: 'onBlur',
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
     resolver: zodResolver(signInSchema),
   })
 
@@ -37,14 +36,7 @@ export const useSignIn = () => {
 
       const profile = await triggerProfile().unwrap()
 
-      console.log('profile', profile)
-
-      showToast({
-        type: 'success',
-        title: 'Welcome!',
-        message: 'You have successfully signed in.',
-        duration: 4000,
-      })
+      toast.success('You have successfully signed in.', { autoClose: 5000 })
 
       if (profile?.firstName) {
         router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
@@ -52,17 +44,12 @@ export const useSignIn = () => {
         router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
       }
 
-      router.refresh()
+      // router.refresh()
     } catch (error: any) {
       const message =
         error?.data?.messages || 'The email or password are incorrect. Try again please'
 
-      showToast({
-        type: 'error',
-        title: 'Login Failed',
-        message,
-        duration: 5000,
-      })
+      toast.error(message, { autoClose: 5000 })
     }
 
     form.reset()

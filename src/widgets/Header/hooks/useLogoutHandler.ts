@@ -1,48 +1,32 @@
-import { useLogoutMutation, useMeQuery } from '@/features/auth/api/authApi'
-import { useRouter } from 'next/navigation'
-import { useToastContext } from '@/shared/lib/providers/toaster'
+'use client'
+import { useLogoutMutation, useMeQuery } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify/unstyled'
+
+import 'react-toastify/ReactToastify.css'
 
 export const useLogoutHandler = (onClose: () => void) => {
   const [logout] = useLogoutMutation()
   const router = useRouter()
-  const { showToast } = useToastContext()
   const { data: user } = useMeQuery()
 
   const handleLogout = async () => {
     try {
       await logout().unwrap()
-      showToast({
-        type: 'info',
-        title: '',
-        message: `You have been logged out`,
-        duration: 5000,
-      })
       router.replace(APP_ROUTES.AUTH.LOGIN)
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Something went wrong'
+
       console.error('Logout failed', message)
-      showToast({
-        type: 'error',
-        title: 'Error',
-        message,
-        duration: 5000,
-      })
     } finally {
       onClose()
     }
   }
 
-  const handleCancelLogout = () => {
+  const handleCancelLogout = (alert: React.ReactNode) => {
     onClose()
-    showToast({
-      type: 'info',
-      title: '',
-      message: user?.email
-        ? `Logout cancelled for user ${user.email}`
-        : "User with this email doesn't exist",
-      duration: 4000,
-    })
+    toast(alert)
   }
 
   return { handleLogout, handleCancelLogout, user }
