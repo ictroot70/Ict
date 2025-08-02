@@ -1,8 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
-
 import { ToastProvider } from '@ictroot/ui-kit'
+import { ReactNode } from 'react'
 
 export function ClientToastProvider({ children }: { children: ReactNode }) {
   return (

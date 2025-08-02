@@ -1,5 +1,5 @@
-import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { isBrowser } from '@/shared/environment/is-browser'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {

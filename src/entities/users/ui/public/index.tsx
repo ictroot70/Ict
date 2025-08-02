@@ -1,11 +1,13 @@
 'use client'
 import { useGetPublicUsersCounterQuery } from '@/entities/users/api'
-import { Loading, Typography, Card } from '@/shared/ui'
+import { Loading } from '@/shared/composites'
+import { Card, Typography } from '@/shared/ui'
 
 import styles from './Public.module.scss'
 
+
 export function Public() {
-  const { isLoading, isError, error, data } = useGetPublicUsersCounterQuery()
+  const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
 
   if (isLoading) {
     return <Loading />

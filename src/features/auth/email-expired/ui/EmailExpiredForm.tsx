@@ -1,6 +1,7 @@
 import { RafikiImage, useEmailVerificationResend, usePasswordRecoveryResend } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
-import { Button, ModalWithButton, Typography } from '@/shared/ui'
+import { ModalWithButton } from '@/shared/composites'
+import { Button, Typography } from '@/shared/ui'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 

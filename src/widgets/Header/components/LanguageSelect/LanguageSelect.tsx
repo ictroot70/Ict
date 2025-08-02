@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 import { RussiaFlag, Select, UkFlag } from '@/shared/ui'
+import { useEffect, useState } from 'react'
 
 import styles from './LanguageSelect.module.scss'
 

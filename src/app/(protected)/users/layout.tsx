@@ -1,7 +1,6 @@
 'use client'
-import { PropsWithChildren, ReactElement } from 'react'
-
 import { ScrollAreaRadix } from '@/shared/ui'
+import { PropsWithChildren, ReactElement } from 'react'
 
 import styles from './UsersLayout.module.scss'
 

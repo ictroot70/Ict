@@ -1,17 +1,18 @@
-import { usePasswordRecoveryResendingMutation } from '@/features/auth'
+import {
+  EmailExpiredInputs,
+  useBaseEmailResend,
+  usePasswordRecoveryResendingMutation,
+} from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
+import { showToastAlert } from '@/shared/lib'
 import { useSearchParams } from 'next/navigation'
-
-import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
-import { useBaseEmailResend } from './useBaseEmailResend'
 
 export const usePasswordRecoveryResend = () => {
   const params = useSearchParams()
   const urlEmail = params?.get('email') || ''
   const [passwordRecoveryResending, { isLoading }] = usePasswordRecoveryResendingMutation()
 
-  const { handleSuccess, showErrorToast, handleCloseModalWindow, ...formMethods } =
-    useBaseEmailResend(urlEmail)
+  const { handleSuccess, handleCloseModalWindow, ...formMethods } = useBaseEmailResend(urlEmail)
 
   const handleSubmit = formMethods.handleSubmit(async ({ email }: EmailExpiredInputs) => {
     try {
@@ -21,7 +22,11 @@ export const usePasswordRecoveryResend = () => {
       }).unwrap()
       handleSuccess(email)
     } catch {
-      showErrorToast()
+      showToastAlert({
+        message: 'An unexpected error occurred. Please try again later',
+        duration: 5000,
+        type: 'error',
+      })
     }
   })
 

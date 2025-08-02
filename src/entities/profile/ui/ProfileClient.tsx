@@ -1,17 +1,15 @@
 'use client'
 
+import { useGetMyProfileQuery } from '@/entities/profile'
 import { ReactElement } from 'react'
-
-import { useGetMyProfileQuery } from '@/entities/profile/api'
-import { AuthGuard } from '@/shared/guards'
 
 export const ProfileClient = (): ReactElement => {
   const { data, isSuccess } = useGetMyProfileQuery()
 
   return (
-    <AuthGuard>
+    <>
       {isSuccess && (
-        <div>
+        <div className={'profile'}>
           <h1>My Profile</h1>
           <p>My id is: {data?.id}</p>
           <p>My userName is: {data?.userName}</p>
@@ -22,6 +20,6 @@ export const ProfileClient = (): ReactElement => {
           <p>My region is: {data?.region}</p>
         </div>
       )}
-    </AuthGuard>
+    </>
   )
 }

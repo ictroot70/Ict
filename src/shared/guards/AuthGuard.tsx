@@ -1,11 +1,10 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
-
 import { useMeQuery } from '@/features/auth'
+import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
-import { Loading } from '@/shared/ui'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { ReactNode, useEffect } from 'react'
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { data, isLoading, isError, isFetching } = useMeQuery()

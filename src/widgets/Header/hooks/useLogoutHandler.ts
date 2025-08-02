@@ -1,10 +1,8 @@
 'use client'
 import { useLogoutMutation, useMeQuery } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { showToastAlert } from '@/shared/lib'
 import { useRouter } from 'next/navigation'
-import { toast } from 'react-toastify/unstyled'
-
-import 'react-toastify/ReactToastify.css'
 
 export const useLogoutHandler = (onClose: () => void) => {
   const [logout] = useLogoutMutation()
@@ -24,9 +22,12 @@ export const useLogoutHandler = (onClose: () => void) => {
     }
   }
 
-  const handleCancelLogout = (alert: React.ReactNode) => {
+  const handleCancelLogout = () => {
     onClose()
-    toast(alert)
+    showToastAlert({
+      message: "User with this email doesn't exist",
+      type: 'info',
+    })
   }
 
   return { handleLogout, handleCancelLogout, user }

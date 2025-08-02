@@ -1,13 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-
 import { SignUpFormData, signUpSchema, useSignupMutation } from '@/features/auth'
 import { APP_ROUTES, REGISTRATION_MESSAGES } from '@/shared/constant'
-import { Alert } from '@/shared/ui'
+import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'react-toastify/unstyled'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
@@ -41,18 +39,11 @@ export const useSignUp = () => {
 
       setIsSuccess(true)
 
-      toast(
-        <Alert
-          typographyVariant={'regular_16'}
-          type={'success'}
-          title={'Registration successful!'}
-          message={result?.message || `We have sent a link to confirm your email to ${data.email}`}
-        />,
-        {
-          autoClose: 5000,
-          type: 'success',
-        }
-      )
+      showToastAlert({
+        message: result?.message || `We have sent a link to confirm your email to ${data.email}`,
+        duration: 5000,
+        type: 'success',
+      })
 
       localStorage.setItem('lastRegistrationEmail', data.email)
     } catch (error: any) {
@@ -84,18 +75,11 @@ export const useSignUp = () => {
           `Registration failed. Server returned status: ${apiError?.status || 'unknown'}`
         )
       }
-      toast(
-        <Alert
-          typographyVariant={'regular_16'}
-          type={'error'}
-          title={'Registration error'}
-          message={serverError || 'Registration failed'}
-        />,
-        {
-          autoClose: 5000,
-          type: 'error',
-        }
-      )
+      showToastAlert({
+        message: serverError || 'Registration failed',
+        duration: 5000,
+        type: 'error',
+      })
     }
   })
 

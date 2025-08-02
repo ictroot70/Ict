@@ -2,9 +2,11 @@
 
 import { usePasswordRecovery } from '@/features/auth/password-recovery'
 import { ControlledInput } from '@/features/formControls/input/ui'
+import { FormWrapper, ModalWithButton } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
+import { Button, Recaptcha, Typography } from '@/shared/ui'
 import Link from 'next/link'
+
 import s from './PasswordRecoveryForm.module.scss'
 
 export function PasswordRecoveryForm() {

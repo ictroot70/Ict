@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-
-import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth'
+import {
+  CreateNewPasswordInputs,
+  newPasswordSchema,
+  useCheckRecoveryCodeMutation,
+  useNewPasswordMutation,
+} from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
-import { useErrorToast } from '@/shared/lib'
+import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-
-import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
@@ -26,7 +28,6 @@ export const useCreateNewPassword = () => {
 
   const [isValidating, setIsValidating] = useState(true)
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
-  const { showErrorToast } = useErrorToast()
 
   const router = useRouter()
   const params = useSearchParams()
@@ -58,8 +59,10 @@ export const useCreateNewPassword = () => {
       setIsOpenModalWindow(true)
       reset()
     } catch {
-      showErrorToast({
+      showToastAlert({
         message: 'Password change failed. Please try again or request a new reset link.',
+        duration: 5000,
+        type: 'error',
       })
     }
   }

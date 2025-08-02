@@ -1,14 +1,14 @@
 'use client'
-import { useState } from 'react'
-
 import { useMeQuery } from '@/features/auth'
-import { Alert, Button, Header_v2, Typography } from '@/shared/ui'
+import { Header_v2 } from '@/shared/composites'
+import { Button, Typography } from '@/shared/ui'
 import Link from 'next/link'
-
-import styles from './AppHeader.module.scss'
+import { useState } from 'react'
 
 import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
 import { useHomeLink, useLogoutHandler } from './hooks'
+
+import styles from './AppHeader.module.scss'
 
 export const AppHeader = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -18,14 +18,10 @@ export const AppHeader = () => {
   const { handleLogout, handleCancelLogout } = useLogoutHandler(() => setShowLogoutModal(false))
   const homeLink = useHomeLink()
 
-  const confirmLogout = () =>
-    handleCancelLogout(
-      <Alert typographyVariant={'regular_16'} type={'warning'} message={'Logout canceled'} />
-    )
+  const confirmLogout = () => handleCancelLogout()
 
   if (isError) {
     console.log('Failed to fetch user', isError)
-    // return null
   }
 
   return (

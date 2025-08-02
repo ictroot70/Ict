@@ -1,4 +1,4 @@
-import { PASSWORD_ALLOWED_CHARACTERS, PASSWORD_REGEX } from '@/shared/constant/password'
+import { PASSWORD_ALLOWED_CHARACTERS, PASSWORD_REGEX } from '@/shared/constant'
 import { z } from 'zod'
 
 export const passwordSchema = () => {

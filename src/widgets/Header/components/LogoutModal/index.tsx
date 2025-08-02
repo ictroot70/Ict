@@ -1,4 +1,4 @@
-import { ActionConfirmModal } from '@/shared/ui'
+import { ActionConfirmModal } from '@/shared/composites'
 
 type Props = {
   open: boolean

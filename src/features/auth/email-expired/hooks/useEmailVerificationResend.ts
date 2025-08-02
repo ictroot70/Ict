@@ -1,15 +1,16 @@
-import { useResendEmailVerificationMutation } from '@/features/auth'
+import {
+  EmailExpiredInputs,
+  useBaseEmailResend,
+  useResendEmailVerificationMutation,
+} from '@/features/auth'
 import { ApiErrorResponse } from '@/shared/api'
 import { APP_ROUTES } from '@/shared/constant'
-
-import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
-import { useBaseEmailResend } from './useBaseEmailResend'
+import { showToastAlert } from '@/shared/lib'
 
 export const useEmailVerificationResend = () => {
   const [resendEmailVerification, { isLoading }] = useResendEmailVerificationMutation()
 
-  const { handleSuccess, showErrorToast, handleCloseModalWindow, setError, ...formMethods } =
-    useBaseEmailResend()
+  const { handleSuccess, handleCloseModalWindow, setError, ...formMethods } = useBaseEmailResend()
 
   const handleSubmit = formMethods.handleSubmit(async ({ email }: EmailExpiredInputs) => {
     try {
@@ -32,7 +33,11 @@ export const useEmailVerificationResend = () => {
           return
         }
       }
-      showErrorToast()
+      showToastAlert({
+        message: 'An unexpected error occurred. Please try again later',
+        duration: 5000,
+        type: 'error',
+      })
     }
   })
 

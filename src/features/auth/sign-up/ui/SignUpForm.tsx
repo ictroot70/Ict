@@ -1,17 +1,18 @@
 'use client'
 
-import { useWatch } from 'react-hook-form'
-
 import { useSignUp } from '@/features/auth'
 import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
+import { OAuthIcons } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
-import { Button, Card, OAuthIcons, Typography } from '@/shared/ui'
-import { useRouter } from 'next/navigation'
+import { Button, Card, Typography } from '@/shared/ui'
 import Link from 'next/link'
-import s from './SignUpForm.module.scss'
+import { useRouter } from 'next/navigation'
+import { useWatch } from 'react-hook-form'
 
 import { AgreementLabel } from './AgreementLabel'
 import { SignUpConfirmModal } from './SignUpConfirmModal'
+
+import styles from './SignUpForm.module.scss'
 
 export const SignUpForm = () => {
   const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
@@ -35,15 +36,15 @@ export const SignUpForm = () => {
   }
 
   return (
-    <Card className={s.wrapper}>
-      <Typography variant={'h1'} className={s.title}>
+    <Card className={styles.wrapper}>
+      <Typography variant={'h1'} className={styles.title}>
         Sign Up
       </Typography>
 
       <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
 
-      <form className={s.form} autoComplete={'off'} onSubmit={onSubmit}>
-        <div className={s.fields}>
+      <form className={styles.form} autoComplete={'off'} onSubmit={onSubmit}>
+        <div className={styles.fields}>
           <ControlledInput
             id={'username'}
             name={'username'}
@@ -69,7 +70,7 @@ export const SignUpForm = () => {
             inputType={'hide-able'}
             label={'Password'}
             placeholder={'***************'}
-            className={s.passwordField}
+            className={styles.passwordField}
             error={errors.password?.message}
           />
           <ControlledInput
@@ -79,7 +80,7 @@ export const SignUpForm = () => {
             inputType={'hide-able'}
             label={'Password confirmation'}
             placeholder={'***************'}
-            className={s.passwordField}
+            className={styles.passwordField}
             error={errors.passwordConfirm?.message}
           />
         </div>
@@ -88,10 +89,10 @@ export const SignUpForm = () => {
           name={'agreement'}
           control={control}
           label={AgreementLabel}
-          className={s.agreement}
+          className={styles.agreement}
         />
         {serverError && (
-          <div className={s.serverError}>
+          <div className={styles.serverError}>
             <Typography variant={'regular_14'} color={'error'}>
               {serverError}
             </Typography>
@@ -106,7 +107,7 @@ export const SignUpForm = () => {
           {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
-      <div className={s.hasAccount}>
+      <div className={styles.hasAccount}>
         <Typography variant={'regular_16'}>Do you have an account?</Typography>
         {/*Todo: need add asChild later*/}
         <Button variant={'text'} fullWidth>

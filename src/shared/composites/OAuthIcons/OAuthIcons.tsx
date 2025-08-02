@@ -2,7 +2,7 @@
 
 import { GitHub, Google } from '@/shared/ui'
 
-import s from './OAuthIcons.module.scss'
+import styles from './OAuthIcons.module.scss'
 
 type OAuthIconsProps = {
   onSignInGoogle?: () => void
@@ -13,7 +13,7 @@ type OAuthIconsProps = {
 // const GitHub = dynamic(() => import('@/shared/ui').then(m => m.GitHub), { ssr: false })
 
 export const OAuthIcons = ({ onSignInGoogle, onSignInGithub }: OAuthIconsProps) => (
-  <div className={s.oauthProviders}>
+  <div className={styles.oauthProviders}>
     <button onClick={onSignInGoogle} type={'button'}>
       <Google size={36} />
     </button>

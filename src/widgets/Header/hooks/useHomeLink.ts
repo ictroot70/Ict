@@ -1,7 +1,6 @@
-import { useMemo } from 'react'
-
 import { useMeQuery } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { useMemo } from 'react'
 
 export const useHomeLink = () => {
   const { data: user, isLoading, isSuccess } = useMeQuery()

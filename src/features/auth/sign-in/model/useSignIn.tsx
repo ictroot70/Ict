@@ -1,15 +1,13 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
-
 import { useLazyGetMyProfileQuery } from '@/entities/profile'
-import { useLoginMutation } from '@/features/auth'
-import { type LoginFields, signInSchema } from '@/features/auth/sign-in/model/validation'
+import { type LoginFields, signInSchema, useLoginMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
+import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
-import { toast } from 'react-toastify/unstyled'
+import { useForm } from 'react-hook-form'
 
 export const useSignIn = () => {
   const router = useRouter()
@@ -36,23 +34,21 @@ export const useSignIn = () => {
 
       const profile = await triggerProfile().unwrap()
 
-      toast.success('You have successfully signed in.', { autoClose: 5000 })
-
       if (profile?.firstName) {
         router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
       } else {
         router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
       }
-
-      // router.refresh()
     } catch (error: any) {
       const message =
         error?.data?.messages || 'The email or password are incorrect. Try again please'
 
-      toast.error(message, { autoClose: 5000 })
+      showToastAlert({
+        message,
+        type: 'error',
+        duration: 4000,
+      })
     }
-
-    form.reset()
   })
 
   return {

@@ -1,6 +1,5 @@
-import { ReactElement } from 'react'
-
 import { GuestGuard } from '@/shared/guards'
+import { ReactElement } from 'react'
 
 import styles from './PublicLayout.module.scss'
 

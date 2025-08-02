@@ -1,3 +1,4 @@
+import { clsx } from 'clsx'
 import {
   ComponentPropsWithoutRef,
   ComponentRef,
@@ -7,11 +8,9 @@ import {
   ReactNode,
 } from 'react'
 
-import { clsx } from 'clsx'
-
 import styles from './Header_v2.module.scss'
 
-export interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
+export interface Header_v2Props extends ComponentPropsWithoutRef<'header'> {
   isAuthorized?: boolean
   logo?: ReactNode
   classNameForLogo?: string
@@ -20,7 +19,7 @@ export interface HeaderProps extends ComponentPropsWithoutRef<'header'> {
   background?: CSSProperties['background']
 }
 //TODO: This is a temporary header(in the future we will use it from our library)
-export const Header_v2 = forwardRef<ComponentRef<'header'>, HeaderProps>(
+export const Header_v2 = forwardRef<ComponentRef<'header'>, Header_v2Props>(
   (props, ref): ReactElement => {
     const {
       isAuthorized = false,

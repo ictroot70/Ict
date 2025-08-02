@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
-
 import { useConfirmRegistrationMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function useRegistrationConfirm() {
   const [isValidating, setIsValidating] = useState(true)

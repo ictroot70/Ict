@@ -2,7 +2,8 @@
 
 import { useCreateNewPassword } from '@/features/auth/create-new-password'
 import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, ModalWithButton, Typography, FormWrapper, Loading } from '@/shared/ui'
+import { FormWrapper, Loading, ModalWithButton } from '@/shared/composites'
+import { Button, Typography } from '@/shared/ui'
 
 import s from './CreateNewPasswordForm.module.scss'
 
