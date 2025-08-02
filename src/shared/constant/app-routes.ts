@@ -14,9 +14,10 @@ export const APP_ROUTES = {
     GITHUB_LOGIN: '/auth/github/login',
     GOOGLE_LOGIN: '/auth/google/login',
   },
-  PUBLIC: {
-    TERMS: '/public/terms-of-service',
-    PRIVACY: '/public/privacy-policy',
+
+  LEGAL: {
+    TERMS: '/legal/terms-of-service',
+    PRIVACY: '/legal/privacy-policy',
   },
 
   PROFILE: {
