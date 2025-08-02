@@ -1,7 +1,7 @@
-import { Action, combineSlices, configureStore, ThunkAction } from '@reduxjs/toolkit'
-import { authApi } from '@/features/auth/api/authApi'
-import { publicUsersApi } from '@/entities/user/api/publicUsersApi'
 import { profileApi } from '@/entities/profile/api/profile.api'
+import { publicUsersApi } from '@/entities/users/api'
+import { authApi } from '@/features/auth'
+import { Action, combineSlices, configureStore, ThunkAction } from '@reduxjs/toolkit'
 
 export const makeStore = () => {
   return configureStore({

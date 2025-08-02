@@ -1,1 +1,1 @@
-export * from './icons'
+export { RafikiImage } from './icons'

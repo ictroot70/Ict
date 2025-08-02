@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import {
+  CreateNewPasswordInputs,
+  newPasswordSchema,
+  useCheckRecoveryCodeMutation,
+  useNewPasswordMutation,
+} from '@/features/auth'
+import { APP_ROUTES } from '@/shared/constant'
+import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-
-import { useCheckRecoveryCodeMutation, useNewPasswordMutation } from '@/features/auth/api/authApi'
-import { useErrorToast } from '@/shared/lib/hooks'
-import { CreateNewPasswordInputs, newPasswordSchema } from '../model/schemas/newPasswordSchema'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
@@ -25,7 +28,6 @@ export const useCreateNewPassword = () => {
 
   const [isValidating, setIsValidating] = useState(true)
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
-  const { showErrorToast } = useErrorToast()
 
   const router = useRouter()
   const params = useSearchParams()
@@ -36,6 +38,7 @@ export const useCreateNewPassword = () => {
     const validateRecoveryCode = async () => {
       if (!urlCode || !urlEmail) {
         router.push(APP_ROUTES.AUTH.LOGIN)
+
         return
       }
       try {
@@ -47,8 +50,8 @@ export const useCreateNewPassword = () => {
       }
     }
 
-    validateRecoveryCode()
-  }, [urlCode, urlEmail, router])
+    void validateRecoveryCode()
+  }, [urlCode, urlEmail, router, checkRecoveryCode])
 
   const onSubmit = async ({ password }: CreateNewPasswordInputs) => {
     try {
@@ -56,8 +59,10 @@ export const useCreateNewPassword = () => {
       setIsOpenModalWindow(true)
       reset()
     } catch {
-      showErrorToast({
+      showToastAlert({
         message: 'Password change failed. Please try again or request a new reset link.',
+        duration: 5000,
+        type: 'error',
       })
     }
   }

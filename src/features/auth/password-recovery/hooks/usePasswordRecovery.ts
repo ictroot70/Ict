@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-
-import { APP_ROUTES } from '@/shared/constant/app-routes'
 import {
   usePasswordRecoveryMutation,
   usePasswordRecoveryResendingMutation,
-} from '@/features/auth/api/authApi'
-import { useErrorToast } from '@/shared/lib/hooks'
-import { ApiErrorResponse } from '@/shared/api/api.types'
-import { ForgotPasswordInputs, forgotPasswordSchema } from '@/features/auth/password-recovery'
+  ForgotPasswordInputs,
+  forgotPasswordSchema,
+} from '@/features/auth'
+import { ApiErrorResponse } from '@/shared/api'
+import { APP_ROUTES } from '@/shared/constant'
+import { showToastAlert } from '@/shared/lib'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
@@ -17,7 +17,6 @@ export const usePasswordRecovery = () => {
   const [isEmailSent, setIsEmailSent] = useState(false)
   const [passwordRecoveryResending] = usePasswordRecoveryResendingMutation()
   const [passwordRecovery] = usePasswordRecoveryMutation()
-  const { showErrorToast } = useErrorToast()
 
   const {
     control,
@@ -50,33 +49,45 @@ export const usePasswordRecovery = () => {
     } catch (error: unknown) {
       if (typeof error === 'object' && error !== null && 'data' in error) {
         const apiError = (error as { data: ApiErrorResponse }).data
+
         if (apiError.messages) {
           apiError.messages.forEach(err => {
             if (err.field === 'email') {
               setError('email', { type: 'custom', message: err.message })
             }
           })
+
           return
         }
       }
-      showErrorToast()
+      showToastAlert({
+        message: 'An unexpected error occurred. Please try again later',
+        duration: 5000,
+        type: 'error',
+      })
     }
   }
 
   const handleFormSubmit = async ({ email, recaptcha }: ForgotPasswordInputs) => {
     const baseUrl = window.location.origin + APP_ROUTES.AUTH.NEW_PASSWORD
+
     try {
       if (isEmailSent) {
         await handlePasswordRecovery(email, baseUrl)
       } else {
         if (recaptcha === undefined) {
           setError('recaptcha', { type: 'custom', message: 'Please complete the reCAPTCHA' })
+
           return
         }
         await handlePasswordRecovery(email, baseUrl, recaptcha)
       }
     } catch {
-      showErrorToast()
+      showToastAlert({
+        message: 'An unexpected error occurred. Please try again later',
+        duration: 5000,
+        type: 'error',
+      })
     }
   }
 

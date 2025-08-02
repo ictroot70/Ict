@@ -1,13 +1,13 @@
 'use client'
 
-import s from './PasswordRecoveryForm.module.scss'
-
-import { ControlledInput } from '@/features/formControls/input/ui'
-
-import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { Button, FormWrapper, ModalWithButton, Recaptcha, Typography } from '@/shared/ui'
-import Link from 'next/link'
 import { usePasswordRecovery } from '@/features/auth/password-recovery'
+import { ControlledInput } from '@/features/formControls/input/ui'
+import { FormWrapper, ModalWithButton } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { Button, Recaptcha, Typography } from '@/shared/ui'
+import Link from 'next/link'
+
+import s from './PasswordRecoveryForm.module.scss'
 
 export function PasswordRecoveryForm() {
   const {
@@ -25,14 +25,14 @@ export function PasswordRecoveryForm() {
 
   return (
     <>
-      <FormWrapper title="forgot password">
+      <FormWrapper title={'forgot password'}>
         <form onSubmit={handleSubmit} className={s.form}>
           <ControlledInput
             control={control}
-            name="email"
-            inputType="text"
-            label="Email"
-            placeholder="Enter your email"
+            name={'email'}
+            inputType={'text'}
+            label={'Email'}
+            placeholder={'Enter your email'}
           />
 
           <Typography variant={'regular_14'} className={s.description}>
@@ -48,22 +48,16 @@ export function PasswordRecoveryForm() {
           )}
 
           <Button
-            type="submit"
+            type={'submit'}
             fullWidth
             disabled={!isValid || (!isEmailSent && !recaptchaValue) || isSubmitting}
             className={s.button}
           >
             {isEmailSent ? 'Send Link Again' : 'Send Link'}
           </Button>
-
-          <Button
-            as={Link}
-            variant={'text'}
-            fullWidth
-            href={APP_ROUTES.AUTH.LOGIN}
-            className={s.button}
-          >
-            Back to Sign In
+          {/*Todo: later need add asChild for button*/}
+          <Button variant={'text'} fullWidth className={s.button}>
+            <Link href={APP_ROUTES.AUTH.LOGIN}>Back to Sign In</Link>
           </Button>
           {!isEmailSent && (
             <Recaptcha
@@ -75,7 +69,7 @@ export function PasswordRecoveryForm() {
       </FormWrapper>
 
       <ModalWithButton
-        title="Email sent"
+        title={'Email sent'}
         message={`We have sent a link to confirm your email to ${currentEmail}`}
         isOpen={isOpenModalWindow}
         onClose={handleCloseModalWindow}

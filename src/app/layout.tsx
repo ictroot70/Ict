@@ -1,13 +1,15 @@
-import './globals.css'
-
-import { ReactNode } from 'react'
-import { Inter } from 'next/font/google'
 import StoreProvider from '@/app/providers/StoreProvider'
-import { AppHeader } from '@/widgets/Header'
-import { AppProviders } from '@/widgets/Providers'
+import { ToastWrapper } from '@/app/providers/ToastWrapper'
 import { RootLayoutClient } from '@/app/RootLayoutClient'
+import { AppHeader } from '@/widgets/Header'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import { ReactNode } from 'react'
 
-export const metadata = {
+import './globals.css'
+import 'react-toastify/ReactToastify.css'
+
+export const metadata: Metadata = {
   title: 'Ictroot — Modern Social Platform',
   description:
     'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
@@ -47,7 +49,7 @@ export const metadata = {
     locale: 'en_US',
     type: 'website',
   },
-
+  metadataBase: new URL('https://ictroot.uk'),
   robots: {
     index: true,
     follow: true,
@@ -67,7 +69,6 @@ export const metadata = {
       },
     ],
   },
-
   manifest: '/site.webmanifest',
 }
 
@@ -83,13 +84,13 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang={'en'}>
       <body className={`${inter.variable}`}>
         <StoreProvider>
-          <AppProviders>
-            <AppHeader />
+          <AppHeader />
+          <ToastWrapper>
             <RootLayoutClient>{children}</RootLayoutClient>
-          </AppProviders>
+          </ToastWrapper>
         </StoreProvider>
       </body>
     </html>

@@ -1,15 +1,14 @@
 'use client'
-import s from './EmailConfirmed.module.scss'
+import { Bro, useRegistrationConfirm } from '@/features/auth'
+import { Loading } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { Button, Typography } from '@/shared/ui'
 import Image from 'next/image'
-import picture from '../assets/icons/bro.svg'
-
-import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { Button, Loading, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
-import { useRegistrationConfirm } from '@/features/auth/email-success/model/useRegistrationConfirm'
+import styles from './EmailConfirmed.module.scss'
 
-export default function EmailConfirmed() {
+export const EmailConfirmed = () => {
   const { isValidating } = useRegistrationConfirm()
 
   if (isValidating) {
@@ -17,19 +16,20 @@ export default function EmailConfirmed() {
   }
 
   return (
-    <div className={s.wrapper}>
-      <div className={s.content}>
-        <Typography variant="h1" className={s.title} asChild>
+    <div className={styles.wrapper}>
+      <div className={styles.content}>
+        <Typography variant={'h1'} className={styles.title} asChild>
           <h2> Congratulations!</h2>
         </Typography>
-        <Typography variant="regular_16" className={s.description}>
+        <Typography variant={'regular_16'} className={styles.description}>
           Your email has been confirmed
         </Typography>
-        <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant="primary" className={s.button}>
-          Sign In
+        {/*Todo: later need add asChild for button*/}
+        <Button variant={'primary'} className={styles.button}>
+          <Link href={APP_ROUTES.AUTH.LOGIN}>Sign In</Link>
         </Button>
       </div>
-      <Image src={picture} alt="Email confirmed" className={s.image} />
+      <Image src={Bro} alt={'Email confirmed'} className={styles.image} />
     </div>
   )
 }

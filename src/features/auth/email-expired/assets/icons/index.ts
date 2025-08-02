@@ -1,1 +1,1 @@
-export * from './rafiki.svg'
+export { default as RafikiImage } from './rafiki.svg'

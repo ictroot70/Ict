@@ -1,14 +1,16 @@
-import { useResendEmailVerificationMutation } from '@/features/auth/api/authApi'
-import { ApiErrorResponse } from '@/shared/api/api.types'
-import { EmailExpiredInputs } from '../model/schemas/emailExpiredSchema'
-import { useBaseEmailResend } from './useBaseEmailResend'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
+import {
+  EmailExpiredInputs,
+  useBaseEmailResend,
+  useResendEmailVerificationMutation,
+} from '@/features/auth'
+import { ApiErrorResponse } from '@/shared/api'
+import { APP_ROUTES } from '@/shared/constant'
+import { showToastAlert } from '@/shared/lib'
 
 export const useEmailVerificationResend = () => {
   const [resendEmailVerification, { isLoading }] = useResendEmailVerificationMutation()
 
-  const { handleSuccess, showErrorToast, handleCloseModalWindow, setError, ...formMethods } =
-    useBaseEmailResend()
+  const { handleSuccess, handleCloseModalWindow, setError, ...formMethods } = useBaseEmailResend()
 
   const handleSubmit = formMethods.handleSubmit(async ({ email }: EmailExpiredInputs) => {
     try {
@@ -20,16 +22,22 @@ export const useEmailVerificationResend = () => {
     } catch (error: unknown) {
       if (typeof error === 'object' && error !== null && 'data' in error) {
         const apiError = (error as { data: ApiErrorResponse }).data
+
         if (apiError.messages) {
           apiError.messages.forEach(err => {
             if (err.field === 'email') {
               setError('email', { type: 'custom', message: err.message })
             }
           })
+
           return
         }
       }
-      showErrorToast()
+      showToastAlert({
+        message: 'An unexpected error occurred. Please try again later',
+        duration: 5000,
+        type: 'error',
+      })
     }
   })
 

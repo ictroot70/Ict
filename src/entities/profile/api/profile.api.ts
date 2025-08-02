@@ -1,7 +1,7 @@
-import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { ProfileUpdateDto, ProfileViewModel } from '@/entities/profile/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { baseQueryWithReauth } from '@/shared/api/base-query.api'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
 export const profileApi = createApi({
   reducerPath: 'profileApi',

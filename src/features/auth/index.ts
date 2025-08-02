@@ -1,2 +1,7 @@
 export * from './sign-in'
 export * from './sign-up'
+export * from './email-expired'
+export * from './email-success'
+export * from './password-recovery'
+export * from './create-new-password'
+export * from './api'

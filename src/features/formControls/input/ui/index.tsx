@@ -1,9 +1,8 @@
 'use client'
 
-import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
-
-import { ComponentPropsWithoutRef, ReactElement } from 'react'
 import { Input } from '@/shared/ui'
+import { ComponentPropsWithoutRef, ReactElement } from 'react'
+import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 
 interface InputProps extends ComponentPropsWithoutRef<'input'> {
   id?: string

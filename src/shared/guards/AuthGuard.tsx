@@ -1,26 +1,28 @@
 'use client'
-import { PropsWithChildren, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useMeQuery } from '@/features/auth/api/authApi'
-import { Loading } from '@/shared/ui'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
 
-export function AuthGuard({ children }: PropsWithChildren) {
-  const { data, isLoading, isError } = useMeQuery()
+import { useMeQuery } from '@/features/auth'
+import { Loading } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { usePathname, useRouter } from 'next/navigation'
+import { ReactNode, useEffect } from 'react'
+
+export function AuthGuard({ children }: { children: ReactNode }) {
+  const { data, isLoading, isError, isFetching } = useMeQuery()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (isError) {
-      router.replace(APP_ROUTES.AUTH.LOGIN)
+      router.replace(`${APP_ROUTES.AUTH.LOGIN}?from=${encodeURIComponent(pathname)}`)
     }
-  }, [isError, router])
+  }, [isError, router, pathname])
 
-  if (isLoading || !data) {
+  if (isLoading || isFetching) {
     return <Loading />
   }
-  if (isError) {
+  if (isError || !data) {
     return null
   }
 
-  return <div className="container">{children}</div>
+  return <>{children}</>
 }

@@ -1,15 +1,18 @@
 'use client'
 
-import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
-import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Card, OAuthIcons, Typography } from '@/shared/ui'
-import s from './SignUpForm.module.scss'
-import { useWatch } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { useSignUp } from '@/features/auth'
-import { AgreementLabel } from '@/features/auth/sign-up/ui/AgreementLabel'
-import { SignUpConfirmModal } from '@/features/auth/sign-up/ui/SignUpConfirmModal'
+import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
+import { OAuthIcons } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { Button, Card, Typography } from '@/shared/ui'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useWatch } from 'react-hook-form'
+
+import { AgreementLabel } from './AgreementLabel'
+import { SignUpConfirmModal } from './SignUpConfirmModal'
+
+import styles from './SignUpForm.module.scss'
 
 export const SignUpForm = () => {
   const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
@@ -33,84 +36,82 @@ export const SignUpForm = () => {
   }
 
   return (
-    <Card className={s.wrapper}>
-      <Typography variant="h1" className={s.title}>
+    <Card className={styles.wrapper}>
+      <Typography variant={'h1'} className={styles.title}>
         Sign Up
       </Typography>
 
-      <OAuthIcons
-        onSignInGoogle={() => console.log('Google login')}
-        onSignInGithub={() => console.log('GitHub login')}
-      />
+      <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
 
-      <form className={s.form} autoComplete="off" onSubmit={onSubmit}>
-        <div className={s.fields}>
+      <form className={styles.form} autoComplete={'off'} onSubmit={onSubmit}>
+        <div className={styles.fields}>
           <ControlledInput
-            id="username"
-            name="username"
+            id={'username'}
+            name={'username'}
             control={control}
-            inputType="text"
-            label="Username"
-            placeholder="Your username..."
+            inputType={'text'}
+            label={'Username'}
+            placeholder={'Your username...'}
             error={errors.username?.message}
           />
           <ControlledInput
-            id="email"
-            name="email"
+            id={'email'}
+            name={'email'}
             control={control}
-            inputType="text"
-            label="Email"
-            placeholder="Your email..."
+            inputType={'text'}
+            label={'Email'}
+            placeholder={'Your email...'}
             error={errors.email?.message}
           />
           <ControlledInput
-            id="password"
-            name="password"
+            id={'password'}
+            name={'password'}
             control={control}
-            inputType="hide-able"
-            label="Password"
-            placeholder="***************"
-            className={s.passwordField}
+            inputType={'hide-able'}
+            label={'Password'}
+            placeholder={'***************'}
+            className={styles.passwordField}
             error={errors.password?.message}
           />
           <ControlledInput
-            id="passwordConfirm"
-            name="passwordConfirm"
+            id={'passwordConfirm'}
+            name={'passwordConfirm'}
             control={control}
-            inputType="hide-able"
-            label="Password confirmation"
-            placeholder="***************"
-            className={s.passwordField}
+            inputType={'hide-able'}
+            label={'Password confirmation'}
+            placeholder={'***************'}
+            className={styles.passwordField}
             error={errors.passwordConfirm?.message}
           />
         </div>
 
         <ControlledCheckbox
-          name="agreement"
+          name={'agreement'}
           control={control}
           label={AgreementLabel}
-          className={s.agreement}
+          className={styles.agreement}
         />
         {serverError && (
-          <div className={s.serverError}>
-            <Typography variant="regular_14" color="error">
+          <div className={styles.serverError}>
+            <Typography variant={'regular_14'} color={'error'}>
               {serverError}
             </Typography>
           </div>
         )}
         <Button
-          type="submit"
-          variant="primary"
+          type={'submit'}
+          variant={'primary'}
           fullWidth
           disabled={!isValid || !isAgreementChecked || isLoading}
         >
           {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
-      <div className={s.hasAccount}>
-        <Typography variant="regular_16">Do you have an account?</Typography>
-        <Button as="a" href={APP_ROUTES.AUTH.LOGIN} variant="text" fullWidth>
-          Sign In
+      <div className={styles.hasAccount}>
+        <Typography variant={'regular_16'}>Do you have an account?</Typography>
+        {/*Todo: need add asChild later*/}
+        <Button variant={'text'} fullWidth>
+          <Link href={APP_ROUTES.AUTH.LOGIN}>Sign In</Link>
         </Button>
       </div>
     </Card>

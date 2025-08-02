@@ -1,13 +1,11 @@
+import { EmailExpiredInputs, emailExpiredSchema } from '@/features/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useErrorToast } from '@/shared/lib/hooks'
-import { EmailExpiredInputs, emailExpiredSchema } from '../model/schemas/emailExpiredSchema'
 
 export const useBaseEmailResend = (defaultEmail = '') => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
   const [currentEmail, setCurrentEmail] = useState('')
-  const { showErrorToast } = useErrorToast()
 
   const formMethods = useForm<EmailExpiredInputs>({
     resolver: zodResolver(emailExpiredSchema),
@@ -32,6 +30,5 @@ export const useBaseEmailResend = (defaultEmail = '') => {
     currentEmail,
     handleSuccess,
     handleCloseModalWindow,
-    showErrorToast,
   }
 }

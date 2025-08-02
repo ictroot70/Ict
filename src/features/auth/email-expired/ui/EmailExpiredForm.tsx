@@ -1,23 +1,20 @@
-'use client'
-
+import { RafikiImage, useEmailVerificationResend, usePasswordRecoveryResend } from '@/features/auth'
+import { ControlledInput } from '@/features/formControls'
+import { ModalWithButton } from '@/shared/composites'
+import { Button, Typography } from '@/shared/ui'
 import Image from 'next/image'
-import s from './EmailExpiredForm.module.scss'
-
-import { Button, ModalWithButton, Typography } from '@/shared/ui'
-import { ControlledInput } from '@/features/formControls/input/ui'
-import picture from '../assets/icons/rafiki.svg'
 import { useSearchParams } from 'next/navigation'
-import {
-  useEmailVerificationResend,
-  usePasswordRecoveryResend,
-} from '@/features/auth/email-expired'
+
+import s from './EmailExpiredForm.module.scss'
 
 export const EmailExpiredForm = () => {
   const params = useSearchParams()
   const urlEmail = params?.get('email')
 
-  const hook = urlEmail ? usePasswordRecoveryResend() : useEmailVerificationResend()
+  const passwordRecovery = usePasswordRecoveryResend()
+  const emailVerification = useEmailVerificationResend()
 
+  const hook = urlEmail ? passwordRecovery : emailVerification
   const {
     control,
     handleSubmit,
@@ -47,24 +44,24 @@ export const EmailExpiredForm = () => {
             {!urlEmail && (
               <ControlledInput
                 control={control}
-                name="email"
-                inputType="text"
-                label="Email"
-                placeholder="Enter your email"
+                name={'email'}
+                inputType={'text'}
+                label={'Email'}
+                placeholder={'Enter your email'}
               />
             )}
 
-            {urlEmail && <input type="hidden" {...control.register('email')} />}
+            {urlEmail && <input type={'hidden'} {...control.register('email')} />}
 
-            <Button className={s.button} type="submit" fullWidth disabled={isSubmitting}>
+            <Button className={s.button} type={'submit'} fullWidth disabled={isSubmitting}>
               {urlEmail ? 'Resend recovery link' : 'Resend verification link'}
             </Button>
           </form>
         </div>
-        <Image src={picture} alt="Link expired" className={s.image} />
+        <Image src={RafikiImage} alt={'Link expired'} className={s.image} />
       </div>
       <ModalWithButton
-        title="Email sent"
+        title={'Email sent'}
         message={`We have sent a link to ${urlEmail ? 'recover your password' : 'confirm your email'} to ${currentEmail}`}
         isOpen={isOpenModalWindow}
         onClose={handleCloseModalWindow}
