@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+
 import {
   usePasswordRecoveryMutation,
   usePasswordRecoveryResendingMutation,
@@ -8,8 +11,6 @@ import { ApiErrorResponse } from '@/shared/api'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 
 export const usePasswordRecovery = () => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)

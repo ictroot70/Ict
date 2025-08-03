@@ -1,5 +1,7 @@
 'use client'
 
+import { useForm } from 'react-hook-form'
+
 import { useLazyGetMyProfileQuery } from '@/entities/profile'
 import { type LoginFields, signInSchema, useLoginMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
@@ -7,7 +9,6 @@ import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
 
 export const useSignIn = () => {
   const router = useRouter()

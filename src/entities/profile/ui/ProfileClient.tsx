@@ -1,7 +1,8 @@
 'use client'
 
-import { useGetMyProfileQuery } from '@/entities/profile'
 import { ReactElement } from 'react'
+
+import { useGetMyProfileQuery } from '@/entities/profile'
 
 export const ProfileClient = (): ReactElement => {
   const { data, isSuccess } = useGetMyProfileQuery()

@@ -1,7 +1,8 @@
 'use client'
 
-import { Button, Modal, Typography } from '@/shared/ui'
 import React from 'react'
+
+import { Button, Modal, Typography } from '@/shared/ui'
 
 import s from './ModalWithButton.module.scss'
 

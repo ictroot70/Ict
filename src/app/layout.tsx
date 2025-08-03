@@ -1,10 +1,12 @@
+import type { Metadata } from 'next'
+
+import { ReactNode } from 'react'
+
+import { RootLayoutClient } from '@/app/RootLayoutClient'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
-import { RootLayoutClient } from '@/app/RootLayoutClient'
 import { AppHeader } from '@/widgets/Header'
-import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { ReactNode } from 'react'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'

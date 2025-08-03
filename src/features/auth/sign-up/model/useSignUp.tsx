@@ -1,11 +1,12 @@
 'use client'
 
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+
 import { SignUpFormData, signUpSchema, useSignupMutation } from '@/features/auth'
 import { APP_ROUTES, REGISTRATION_MESSAGES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()

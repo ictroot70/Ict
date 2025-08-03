@@ -1,9 +1,10 @@
 'use client'
 
+import { ReactNode, useEffect, useMemo } from 'react'
+
 import { useMeQuery } from '@/features/auth'
 import { Loading } from '@/shared/composites'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useEffect, useMemo } from 'react'
 
 type GuardMode = 'auth' | 'guest'
 

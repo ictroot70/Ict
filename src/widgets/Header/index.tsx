@@ -1,13 +1,16 @@
 'use client'
+import { ReactElement, useState } from 'react'
+
+import { useMeQuery } from '@/features/auth'
 import { Button, Header, Typography } from '@/shared/ui'
 import Link from 'next/link'
-import { useState } from 'react'
 
 import s from './AppHeader.module.scss'
-import { useMeQuery } from '@/features/auth'
-import { useHomeLink, useLogoutHandler } from './hooks'
+
 import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
-export const AppHeader = () => {
+import { useHomeLink, useLogoutHandler } from './hooks'
+
+export const AppHeader = (): ReactElement => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()
   const isAuthorized = isSuccess && Boolean(user)
@@ -24,15 +27,18 @@ export const AppHeader = () => {
   const handleOpenLogout = () => setShowLogoutModal(true)
 
   const renderAuthControls = () => {
-    if (isLoading) return null
+    if (isLoading) {
+      return null
+    }
 
     return (
       <div className={s.headerControls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
         <AuthBtn>
+          {/* TODO: This is a temporary header(Logout button should be removed in the future)*/}
           {isAuthorized && (
-            <Button variant="primary" onClick={handleOpenLogout}>
+            <Button variant={'primary'} onClick={handleOpenLogout}>
               Logout
             </Button>
           )}
@@ -42,7 +48,6 @@ export const AppHeader = () => {
   }
 
   return (
-    // TODO: This is a temporary header(these buttons should be removed in the future)
     <>
       {isAuthorized && (
         <LogoutModal

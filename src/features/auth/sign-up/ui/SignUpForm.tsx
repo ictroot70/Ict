@@ -1,5 +1,7 @@
 'use client'
 
+import { useWatch } from 'react-hook-form'
+
 import { useSignUp } from '@/features/auth'
 import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
 import { OAuthIcons } from '@/shared/composites'
@@ -7,12 +9,11 @@ import { APP_ROUTES } from '@/shared/constant'
 import { Button, Card, Typography } from '@/shared/ui'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useWatch } from 'react-hook-form'
+
+import styles from './SignUpForm.module.scss'
 
 import { AgreementLabel } from './AgreementLabel'
 import { SignUpConfirmModal } from './SignUpConfirmModal'
-
-import styles from './SignUpForm.module.scss'
 
 export const SignUpForm = () => {
   const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =

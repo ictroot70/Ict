@@ -1,18 +1,26 @@
 'use client'
 
-import s from './InfoPage.module.scss'
+import { ReactElement, ReactNode } from 'react'
+
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { ArrowBack, Button, Typography } from '@/shared/ui'
 import { useRouter } from 'next/navigation'
 
+import s from './InfoPage.module.scss'
+
 type Props = {
   title: string
-  children: React.ReactNode
+  children: ReactNode
   backButtonText?: string
   link?: string
 }
 
-export const InfoPage: React.FC<Props> = ({ title, children, backButtonText = 'Back', link }) => {
+export const InfoPage = ({
+  title,
+  children,
+  backButtonText = 'Back',
+  link,
+}: Props): ReactElement => {
   const router = useRouter()
 
   const handleBack = () => {
@@ -22,6 +30,7 @@ export const InfoPage: React.FC<Props> = ({ title, children, backButtonText = 'B
       router.push(APP_ROUTES.ROOT)
     }
   }
+
   return (
     <div className={s.wrapper}>
       <Button variant={'text'} onClick={handleBack} className={s.link} aria-label={'Go back'}>

@@ -1,7 +1,8 @@
-import { EmailExpiredInputs, emailExpiredSchema } from '@/features/auth'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+
+import { EmailExpiredInputs, emailExpiredSchema } from '@/features/auth'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export const useBaseEmailResend = (defaultEmail = '') => {
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)

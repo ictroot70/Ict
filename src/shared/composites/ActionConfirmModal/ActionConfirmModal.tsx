@@ -1,5 +1,6 @@
-import { Button, CheckboxRadix, Modal, Typography, Variant } from '@/shared/ui'
 import { ReactElement } from 'react'
+
+import { Button, CheckboxRadix, Modal, Typography, Variant } from '@/shared/ui'
 
 import styles from './ActionConfirmModal.module.scss'
 

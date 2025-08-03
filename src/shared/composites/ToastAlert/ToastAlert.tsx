@@ -1,7 +1,8 @@
 'use client'
 
-import { Alert, AlertType, variantType, useProgressBar } from '@/shared/ui'
 import { ToastContentProps } from 'react-toastify'
+
+import { Alert, AlertType, variantType, useProgressBar } from '@/shared/ui'
 
 import styles from './ToastAlert.module.scss'
 

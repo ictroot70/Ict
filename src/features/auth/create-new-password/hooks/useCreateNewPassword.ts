@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+
 import {
   CreateNewPasswordInputs,
   newPasswordSchema,
@@ -8,8 +11,6 @@ import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
 
 export const useCreateNewPassword = () => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()

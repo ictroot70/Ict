@@ -1,4 +1,3 @@
-import { clsx } from 'clsx'
 import {
   ComponentPropsWithoutRef,
   ComponentRef,
@@ -7,6 +6,8 @@ import {
   ReactElement,
   ReactNode,
 } from 'react'
+
+import { clsx } from 'clsx'
 
 import styles from './Header_v2.module.scss'
 

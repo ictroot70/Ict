@@ -1,5 +1,6 @@
 import { showToastAlert } from '@/shared/lib'
 import { BellOutline } from '@/shared/ui'
+
 import s from '../../AppHeader.module.scss'
 
 export const NotificationButton = () => (

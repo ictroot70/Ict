@@ -1,7 +1,8 @@
 'use client'
 
-import { Card, Typography } from '@ictroot/ui-kit'
 import { ReactNode } from 'react'
+
+import { Card, Typography } from '@ictroot/ui-kit'
 
 import s from './FormWrapper.module.scss'
 

@@ -1,10 +1,11 @@
 'use client'
 
+import { ReactNode, useEffect, useState } from 'react'
+
 import { useMeQuery } from '@/features/auth'
 import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 import { useRouter } from 'next/navigation'
-import { ReactNode, useEffect, useState } from 'react'
 
 export function GuestGuard({ children }: { children: ReactNode }) {
   const { data, isLoading, isFetching } = useMeQuery()
