@@ -1,112 +1,118 @@
 'use client'
 
-import { ControlledCheckbox } from '@/features/formControls/checkbox/ui'
-import { ControlledInput } from '@/features/formControls/input/ui'
-import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google } from '@ictroot/ui-kit'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import s from './SignUpForm.module.scss'
+import { useWatch } from 'react-hook-form'
 
-const labelContent = (
-  <>
-    I agree to the{' '}
-    <a href={''} rel={'noopener noreferrer'} onClick={e => e.stopPropagation()}>
-      Terms of Service
-    </a>{' '}
-    and{' '}
-    <a href={''} rel={'noopener noreferrer'} onClick={e => e.stopPropagation()}>
-      Privacy Policy
-    </a>{' '}
-  </>
-)
+import { useSignUp } from '@/features/auth'
+import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
+import { OAuthIcons } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { Button, Card, Typography } from '@/shared/ui'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+import styles from './SignUpForm.module.scss'
+
+import { AgreementLabel } from './AgreementLabel'
+import { SignUpConfirmModal } from './SignUpConfirmModal'
 
 export const SignUpForm = () => {
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      agreement: false,
-    },
-  })
+  const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
+    useSignUp()
 
-  const [isChecked, setChecked] = useState(false)
-  const handlerCheckbox = () => setChecked(prev => !prev)
+  const {
+    control,
+    formState: { errors, isValid },
+  } = form
+  const email = useWatch({ control, name: 'email' })
+  const router = useRouter()
 
-  const onSubmitHandler = (data: any) => {
-    console.log(data)
-    reset()
+  const handleModalClose = () => {
+    setIsSuccess(false)
+    form.reset()
+    router.replace(APP_ROUTES.AUTH.LOGIN)
+  }
+
+  if (isSuccess) {
+    return <SignUpConfirmModal open={isSuccess} onClose={handleModalClose} userEmail={email} />
   }
 
   return (
-    <Card className={s.wrapper}>
-      <Typography variant="h1" className={s.title}>
+    <Card className={styles.wrapper}>
+      <Typography variant={'h1'} className={styles.title}>
         Sign Up
       </Typography>
-      <div className={s.oauthProviders}>
-        <Button as="a" href="#google" variant="text">
-          <Google size={36} />
-        </Button>
-        <Button as="a" href="#github" variant="text">
-          <GitHub size={36} color="var(--color-light-100)" />
-        </Button>
-      </div>
-      <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
-        <div className={s.fields}>
+
+      <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
+
+      <form className={styles.form} autoComplete={'off'} onSubmit={onSubmit}>
+        <div className={styles.fields}>
           <ControlledInput
-            id="username"
-            name="username"
+            id={'username'}
+            name={'username'}
             control={control}
-            inputType="text"
-            label="Username"
-            placeholder="Your username..."
+            inputType={'text'}
+            label={'Username'}
+            placeholder={'Your username...'}
+            error={errors.username?.message}
           />
           <ControlledInput
-            id="email"
-            name="email"
+            id={'email'}
+            name={'email'}
             control={control}
-            inputType="text"
-            label="Email"
-            placeholder="Your email..."
+            inputType={'text'}
+            label={'Email'}
+            placeholder={'Your email...'}
+            error={errors.email?.message}
           />
           <ControlledInput
-            id="password"
-            name="password"
+            id={'password'}
+            name={'password'}
             control={control}
-            inputType="hide-able"
-            label="Password"
-            placeholder="***************"
-            className={s.passwordField}
+            inputType={'hide-able'}
+            label={'Password'}
+            placeholder={'***************'}
+            className={styles.passwordField}
+            error={errors.password?.message}
           />
           <ControlledInput
-            id="passwordConfirm"
-            name="passwordConfirm"
+            id={'passwordConfirm'}
+            name={'passwordConfirm'}
             control={control}
-            inputType="hide-able"
-            label="Password confirmation"
-            placeholder="***************"
-            className={s.passwordField}
+            inputType={'hide-able'}
+            label={'Password confirmation'}
+            placeholder={'***************'}
+            className={styles.passwordField}
+            error={errors.passwordConfirm?.message}
           />
         </div>
 
         <ControlledCheckbox
-          name="agreement"
+          name={'agreement'}
           control={control}
-          label={labelContent}
-          className={s.agreement}
-          checked={isChecked}
-          onClick={handlerCheckbox}
+          label={AgreementLabel}
+          className={styles.agreement}
         />
-        <Button variant="primary" fullWidth>
-          Sign Up
+        {serverError && (
+          <div className={styles.serverError}>
+            <Typography variant={'regular_14'} color={'error'}>
+              {serverError}
+            </Typography>
+          </div>
+        )}
+        <Button
+          type={'submit'}
+          variant={'primary'}
+          fullWidth
+          disabled={!isValid || !isAgreementChecked || isLoading}
+        >
+          {isLoading ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
-      <div className={s.hasAccount}>
-        <Typography variant="regular_16">Do you have an account?</Typography>
-        <Button as="a" href="#signIn" variant="text" fullWidth>
-          Sign In
+      <div className={styles.hasAccount}>
+        <Typography variant={'regular_16'}>Do you have an account?</Typography>
+        {/*Todo: need add asChild later*/}
+        <Button variant={'text'} fullWidth>
+          <Link href={APP_ROUTES.AUTH.LOGIN}>Sign In</Link>
         </Button>
       </div>
     </Card>

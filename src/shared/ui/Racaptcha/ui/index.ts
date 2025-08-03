@@ -1,1 +1,0 @@
-export {Recaptcha} from '@ictroot/ui-kit'

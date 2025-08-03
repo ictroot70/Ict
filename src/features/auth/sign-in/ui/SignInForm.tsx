@@ -1,72 +1,69 @@
 'use client'
-import { Button, Card, Typography } from '@/shared'
-import { GitHub, Google } from '@ictroot/ui-kit'
 
-import { ControlledInput } from '@/features/formControls/input/ui'
-import { useForm } from 'react-hook-form'
+import { ReactElement } from 'react'
+
+import { useSignIn } from '@/features/auth'
+import { ControlledInput } from '@/features/formControls'
+import { OAuthIcons } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { Button, Card, Typography } from '@/shared/ui'
+import Link from 'next/link'
+
 import s from './SignInForm.module.scss'
 
-export const SignInForm = () => {
-  const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      email: '',
-      password: '',
+export const SignInForm = (): ReactElement => {
+  const {
+    form: {
+      control,
+      formState: { errors, isDirty, isValid },
     },
-  })
-
-  const onSubmitHandler = (data: any) => {
-    console.log(data)
-    reset()
-  }
+    onSubmit,
+    isLoading,
+  } = useSignIn()
 
   return (
     <Card className={s.wrapper}>
-      <Typography variant="h1" className={s.title}>
+      <Typography variant={'h1'} className={s.title}>
         Sign In
       </Typography>
-      <div className={s.oauthProviders}>
-        <Button as="a" variant="text" href="#google">
-          <Google size={36} />
-        </Button>
-        <Button as="a" variant="text" href="#github">
-          <GitHub size={36} color="var(--color-light-100)" />
-        </Button>
-      </div>
-      <form className={s.form} autoComplete="off" onSubmit={handleSubmit(onSubmitHandler)}>
+      <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
+
+      <form className={s.form} autoComplete={'on'} noValidate onSubmit={onSubmit}>
         <div className={s.fields}>
           <ControlledInput
-            name="email"
+            name={'email'}
             control={control}
-            id="email"
-            inputType="text"
-            label="Email"
-            placeholder="Your email..."
+            id={'email'}
+            inputType={'text'}
+            error={errors.email?.message}
+            label={'Email'}
+            placeholder={'Your email...'}
           />
           <ControlledInput
-            name="password"
+            name={'password'}
             control={control}
-            id="password"
-            inputType="hide-able"
-            label="Password"
-            placeholder="***************"
+            id={'password'}
+            inputType={'hide-able'}
+            error={errors.password?.message}
+            label={'Password'}
+            placeholder={'***************'}
             className={s.passwordField}
           />
         </div>
 
-        <Typography variant="regular_14" asChild>
-          <a href="#" className={s.link}>
+        <Typography variant={'regular_14'} asChild>
+          <Link href={APP_ROUTES.AUTH.PASSWORD_RECOVERY} className={s.link}>
             Forgot Password
-          </a>
+          </Link>
         </Typography>
-
-        <Button variant="primary" fullWidth>
-          Sign In
+        <Button disabled={!isValid || !isDirty || isLoading} variant={'primary'} fullWidth>
+          {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
       <div className={s.hasAccount}>
-        <Typography variant="regular_16">Don’t have an account?</Typography>
-        <Button as="a" variant="text" fullWidth href="#sign-up">
-          Sign Up
+        <Typography variant={'regular_16'}>Don’t have an account?</Typography>
+        <Button variant={'text'} fullWidth>
+          <Link href={APP_ROUTES.AUTH.REGISTRATION}>Sign Up</Link>
         </Button>
       </div>
     </Card>
