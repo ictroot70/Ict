@@ -1,4 +1,2 @@
-export * from './api'
-export * from './config'
-export * from './model'
-export * from './ui'
+export { Alert, useProgressBar } from '@ictroot/ui-kit'
+export type { AlertType, variantType } from '@ictroot/ui-kit'

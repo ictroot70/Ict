@@ -7,24 +7,6 @@
   text-align: center;
 }
 
-.oauthProviders {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 60px;
-  width: 100%;
-  margin-top: 0.875rem;
-  margin-bottom: 1.5rem;
-  a {
-    padding: 0;
-    line-height: 0;
-    min-width: auto;
-  }
-}
-
-.form {
-}
-
 .fields {
   display: flex;
   flex-direction: column;

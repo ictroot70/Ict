@@ -1,4 +1,2 @@
-export * from './api'
-export * from './config'
-export * from './model'
-export * from './ui'
+export { Button } from '@ictroot/ui-kit'
+export type { Variant } from '@ictroot/ui-kit'

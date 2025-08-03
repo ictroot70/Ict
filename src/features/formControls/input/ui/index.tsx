@@ -1,8 +1,9 @@
 'use client'
 
-import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 import { ComponentPropsWithoutRef, ReactElement } from 'react'
-import { Input } from '@/shared'
+import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
+
+import { Input } from '@/shared/ui'
 
 interface InputProps extends ComponentPropsWithoutRef<'input'> {
   id?: string
@@ -15,7 +16,8 @@ interface InputProps extends ComponentPropsWithoutRef<'input'> {
 } // This type we use the pantry do not export its original, it is temporary!
 
 type ControlledInputProps<T extends FieldValues> = UseControllerProps<T> &
-  Omit<InputProps, 'onChange' | 'value'>
+  Omit<InputProps, 'value' | 'onChange' | 'onBlur'>
+
 export const ControlledInput = <T extends FieldValues>({
   control,
   name,
@@ -24,9 +26,9 @@ export const ControlledInput = <T extends FieldValues>({
   const {
     field,
     fieldState: { error },
-  } = useController({ control, name})
+  } = useController({ control, name })
 
-  return <Input {...rest} {...field} error={error?.message} />
+  return <Input {...field} {...rest} error={error?.message} />
 }
 
 ControlledInput.displayName = 'ControlledInput'
