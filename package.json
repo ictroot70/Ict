@@ -1,7 +1,7 @@
 {
   "name": "ict",
   "version": "0.1.0",
-  "private": true,
+  "private": "false",
   "scripts": {
     "turbo": "next dev --turbopack",
     "dev": "next dev",
