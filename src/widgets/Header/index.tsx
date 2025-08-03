@@ -1,15 +1,12 @@
 'use client'
-import { useMeQuery } from '@/features/auth'
-import { Header_v2 } from '@/shared/composites'
-import { Button, Typography } from '@/shared/ui'
+import { Button, Header, Typography } from '@/shared/ui'
 import Link from 'next/link'
 import { useState } from 'react'
 
-import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
+import s from './AppHeader.module.scss'
+import { useMeQuery } from '@/features/auth'
 import { useHomeLink, useLogoutHandler } from './hooks'
-
-import styles from './AppHeader.module.scss'
-
+import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
 export const AppHeader = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()
@@ -24,34 +21,46 @@ export const AppHeader = () => {
     console.log('Failed to fetch user', isError)
   }
 
+  const handleOpenLogout = () => setShowLogoutModal(true)
+
+  const renderAuthControls = () => {
+    if (isLoading) return null
+
+    return (
+      <div className={s.headerControls}>
+        {isAuthorized && <NotificationButton />}
+        <LanguageSelect />
+        <AuthBtn>
+          {isAuthorized && (
+            <Button variant="primary" onClick={handleOpenLogout}>
+              Logout
+            </Button>
+          )}
+        </AuthBtn>
+      </div>
+    )
+  }
+
   return (
     // TODO: This is a temporary header(these buttons should be removed in the future)
-    <Header_v2
-      isAuthorized={isAuthorized}
-      className={styles.header}
-      logo={
-        <Link href={homeLink}>
-          <Typography variant={'h1'}>ICTRoot</Typography>
-        </Link>
-      }
-    >
-      {!isLoading && isAuthorized && (
-        <Button variant={'primary'} onClick={() => setShowLogoutModal(true)}>
-          Logout
-        </Button>
+    <>
+      {isAuthorized && (
+        <LogoutModal
+          open={showLogoutModal}
+          onConfirm={handleLogout}
+          onClose={confirmLogout}
+          userEmail={user?.email}
+        />
       )}
-      <LogoutModal
-        open={showLogoutModal}
-        onConfirm={handleLogout}
-        onClose={confirmLogout}
-        userEmail={user?.email}
-      />
-      <div className={styles.headerControls}>
-        {!isLoading && isAuthorized && <NotificationButton />}
 
-        <LanguageSelect />
-        {!isLoading && !isAuthorized && <AuthBtn />}
-      </div>
-    </Header_v2>
+      <Header isAuthorized={isAuthorized} className={s.header}>
+        <div className={s.container}>
+          <Link href={homeLink}>
+            <Typography variant={'h1'}>ICTRoot</Typography>
+          </Link>
+          {renderAuthControls()}
+        </div>
+      </Header>
+    </>
   )
 }

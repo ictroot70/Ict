@@ -1,7 +1,17 @@
+'use client'
+
+import { TermsOfServiceContent } from '@/features/legal/components'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { InfoPage } from '@/shared/ui/InfoPage'
+
 export default function TermsService() {
   return (
-    <>
-      <h2>Terms of Service Page</h2>
-    </>
+    <InfoPage
+      title="Terms of Service"
+      backButtonText="Back to Sign Up"
+      link={APP_ROUTES.AUTH.REGISTRATION}
+    >
+      <TermsOfServiceContent />
+    </InfoPage>
   )
 }

@@ -1,9 +1,8 @@
 'use client'
 
-import { APP_ROUTES } from '@/shared/constant'
-import { Typography, InfoPage } from '@/shared/ui'
+import { Typography } from '@/shared/ui'
 
-const TermsOfServiceContent = () => {
+export const TermsOfServiceContent = () => {
   return (
     <>
       <Typography variant="regular_14">
@@ -81,17 +80,5 @@ const TermsOfServiceContent = () => {
         ornare. Feugiat nibh sed pulvinar proin.
       </Typography>
     </>
-  )
-}
-
-export default function TermsService() {
-  return (
-    <InfoPage
-      title="Terms of Service"
-      backButtonText="Back to Sign Up"
-      link={APP_ROUTES.AUTH.REGISTRATION}
-    >
-      <TermsOfServiceContent />
-    </InfoPage>
   )
 }

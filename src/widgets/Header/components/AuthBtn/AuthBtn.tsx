@@ -4,15 +4,25 @@ import Link from 'next/link'
 
 import styles from './AuthBtn.module.scss'
 
-export const AuthBtn = () => (
-  <div className={styles.authButtons}>
-    {/* Todo: later need ad asChild*/}
-    <Button variant={'text'}>
-      <Link href={APP_ROUTES.AUTH.LOGIN}>Log in</Link>
-    </Button>
-    {/*Todo: later need ad asChild*/}
-    <Button>
-      <Link href={APP_ROUTES.AUTH.REGISTRATION}>Sign up</Link>
-    </Button>
-  </div>
-)
+type Props = {
+  children?: React.ReactNode
+}
+
+export const AuthBtn = ({ children }: Props) => {
+  if (children) {
+    return <div className={styles.authButtons}>{children}</div>
+  }
+
+  return (
+    <div className={styles.authButtons}>
+      {/* Todo: later need ad asChild*/}
+      <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
+        Log in
+      </Button>
+      {/* Todo: later need ad asChild*/}
+      <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION}>
+        Sign up
+      </Button>
+    </div>
+  )
+}
