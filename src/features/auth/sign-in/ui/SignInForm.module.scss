@@ -1,0 +1,39 @@
+.wrapper {
+  width: 378px;
+  padding: 1.5rem;
+}
+
+.title {
+  text-align: center;
+}
+
+.link {
+  float: right;
+  margin-bottom: 1.5rem;
+  color: var(--color-light-900);
+  text-decoration: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-300);
+  }
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.25rem;
+
+  .passwordField + button {
+    padding: 0;
+  }
+}
+
+.hasAccount {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+
+  margin-top: 18px;
+}

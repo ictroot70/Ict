@@ -1,0 +1,1 @@
+export { RafikiImage } from './icons'
