@@ -1,0 +1,20 @@
+.wrapper {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
+.userEmail {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-m);
+  line-height: var(--line-height-m);
+}
+.text {
+  margin-bottom: 30px;
+}
+.checkbox {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}

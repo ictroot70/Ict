@@ -1,0 +1,17 @@
+.header {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--color-dark-300);
+  background-color: var(--color-dark-700);
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding-block: 12px;
+
+  padding-inline: clamp(15px, calc(15px + (45 * ((100vw - 768px) / 512))), 60px);
+}
