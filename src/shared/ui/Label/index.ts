@@ -1,1 +1,0 @@
-export { LabelRadix } from '@ictroot/ui-kit'

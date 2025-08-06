@@ -1,1 +1,0 @@
-export { EmailConfirmed } from './EmailConfirmed'
