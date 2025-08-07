@@ -21,7 +21,7 @@ export const AppHeader = (): ReactElement => {
   const confirmLogout = () => handleCancelLogout()
 
   if (isError) {
-    // TODO: Add error handling later if needed
+    // TODO: Add error handling later if needed!
     console.log('Failed to fetch user', isError)
   }
 
