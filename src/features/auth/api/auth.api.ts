@@ -2,6 +2,8 @@ import {
   API_ROUTES,
   baseQueryWithReauth,
   CheckRecoveryCodeRequest,
+  GoogleAuthRequest,
+  GoogleAuthResponse,
   LoginRequest,
   MeResponse,
   NewPasswordRequest,
@@ -111,6 +113,13 @@ export const authApi = createApi({
         body,
       }),
     }),
+    googleAuth: builder.mutation<GoogleAuthResponse, GoogleAuthRequest>({
+      query: body => ({
+        url: API_ROUTES.AUTH.GOOGLE_LOGIN,
+        method: 'POST',
+        body,
+      }),
+    }),
   }),
 })
 
@@ -125,4 +134,5 @@ export const {
   usePasswordRecoveryMutation,
   useCheckRecoveryCodeMutation,
   useNewPasswordMutation,
+  useGoogleAuthMutation,
 } = authApi
