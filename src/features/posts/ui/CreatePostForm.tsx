@@ -1,33 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import styles from "./CreatePostForm.module.scss";
+import { useCreatePost } from "@/features/posts/model/useCreatePost";
 
 export const CreatePostForm = () => {
-  const [description, setDescription] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-
-    const files = Array.from(e.target.files);
-    setImages(files);
-
-    // создаём ссылки для предпросмотра
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(urls);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // заглушка для API
-    setTimeout(() => {
-      console.log("Пост создан:", { description, images });
-      alert("Пост успешно создан (mock)!");
-    }, 1000);
-  };
+  const {
+    description,
+    setDescription,
+    previewUrls,
+    errors,
+    handleFileChange,
+    handleSubmit,
+  } = useCreatePost();
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -55,6 +39,16 @@ export const CreatePostForm = () => {
           />
         ))}
       </div>
+
+      {errors.length > 0 && (
+        <div className={styles.errorContainer}>
+          {errors.map((err, i) => (
+            <p key={i} className={styles.error}>
+              {err}
+            </p>
+          ))}
+        </div>
+      )}
 
       <button type="submit" className={styles.button}>
         Создать пост
