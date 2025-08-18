@@ -1,0 +1,29 @@
+.wrapper {
+  padding: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.createLink {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 12px;
+  background: #2563eb;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+
+  &:hover {
+    background: #1d4ed8;
+  }
+}
+
+.postsList {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+}
