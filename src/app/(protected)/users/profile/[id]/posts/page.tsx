@@ -11,12 +11,12 @@ export default function PostsPage() {
     <div className={styles.wrapper}>
       <h1 className={styles.title}>Посты</h1>
 
-      {/* Ссылка на создание поста */}
+
       <Link href={`/users/profile/${id}/posts/create`} className={styles.createLink}>
         ➕ Создать пост
       </Link>
 
-      {/* Заглушка списка */}
+
       <div className={styles.postsList}>
         <p>Здесь будет список постов (mock)</p>
       </div>

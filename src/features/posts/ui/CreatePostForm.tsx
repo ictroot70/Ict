@@ -1,7 +1,9 @@
 "use client";
 
 import styles from "./CreatePostForm.module.scss";
-import { useCreatePost } from "@/features/posts/model/useCreatePost";
+
+import { PostImagePreview } from "@/entities/posts/ui/PostImagePreview";
+import { useCreatePost } from '@/features/posts/model/useCreatePost'
 
 export const CreatePostForm = () => {
   const {
@@ -11,6 +13,7 @@ export const CreatePostForm = () => {
     errors,
     handleFileChange,
     handleSubmit,
+    removePreview,
   } = useCreatePost();
 
   return (
@@ -30,12 +33,11 @@ export const CreatePostForm = () => {
       />
 
       <div className={styles.previewContainer}>
-        {previewUrls.map((url, i) => (
-          <img
-            key={i}
-            src={url}
-            alt={`preview-${i}`}
-            className={styles.previewImage}
+        {previewUrls.map((image) => (
+          <PostImagePreview
+            key={image.id}
+            image={image}
+            onRemove={removePreview}
           />
         ))}
       </div>
