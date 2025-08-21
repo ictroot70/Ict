@@ -1,10 +1,10 @@
+/** @prettier */
+
 'use client'
-import { useGetPublicUsersCounterQuery } from '@/entities/users/api'
+import { useGetPublicPostsQuery, useGetPublicUsersCounterQuery } from '@/entities/users/api'
 import { Loading } from '@/shared/composites'
-import { Card, Typography } from '@/shared/ui'
 
-import styles from './Public.module.scss'
-
+import { UsersCounter } from './UsersCounter/UsersCounter'
 
 export function Public() {
   const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
@@ -18,26 +18,19 @@ export function Public() {
   if (!data) {
     return null
   }
-  const rawCount = data.totalCount.toString()
-  const minLength = 6
-  const paddedCount = rawCount.padStart(Math.max(minLength, rawCount.length), '0')
-  const digits = paddedCount.split('')
+
+  const { data: posts } = useGetPublicPostsQuery({ pageSize: 4 })
+
+  console.log(posts)
 
   return (
-    <>
-      <section className={styles.registeredUsersSection}>
-        <h2>Registered users:</h2>
-        <Card className={styles.counter}>
-          <div className={styles.digitsWrapper}>
-            {digits.map((digit, index) => (
-              <Typography variant={'h2'} className={styles.digitBox} key={index}>
-                {digit}
-              </Typography>
-            ))}
-          </div>
-        </Card>
-
-      </section>
-    </>
+    <div className="container">
+      <UsersCounter totalCount={data.totalCount} />
+      <div className="posts">
+        {/*   {posts?.map(post => {
+          return <PublicPost key={post.id} post={post} />
+        })} */}
+      </div>
+    </div>
   )
 }
