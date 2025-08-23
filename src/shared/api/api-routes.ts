@@ -37,13 +37,13 @@ export const API_ROUTES = {
 
   POSTS: {
     BASE: '/v1/posts',
-    BY_ID: (postId: string) => `/v1/posts/id/${postId}`,
+    BY_ID: (postId: number) => `/v1/posts/id/${postId}`,
     IMAGE: '/v1/posts/image',
     DELETE_IMAGE: (uploadId: string) => `/v1/posts/image/${uploadId}`,
-    USER_POSTS: (userId: string, endCursorPostId: string) =>
+    USER_POSTS: (userId: number, endCursorPostId: number) =>
       `/v1/posts/user/${userId}/${endCursorPostId}`,
     PARAM: (param: string) => `/v1/posts/${param}`,
-    BY_POST_ID: (postId: string) => `/v1/posts/${postId}`,
+    BY_POST_ID: (postId: number) => `/v1/posts/${postId}`,
     COMMENTS: (postId: string) => `/v1/posts/${postId}/comments`,
     COMMENT_ANSWERS: (postId: string, commentId: string) =>
       `/v1/posts/${postId}/comments/${commentId}/answers`,
@@ -51,7 +51,7 @@ export const API_ROUTES = {
       `/v1/posts/${postId}/comments/${commentId}/answers/${answerId}/likes`,
     COMMENT_LIKES: (postId: string, commentId: string) =>
       `/v1/posts/${postId}/comments/${commentId}/likes`,
-    LIKE_STATUS_POST: (postId: string) => `/v1/posts/${postId}/like-status`,
+    LIKE_STATUS_POST: (postId: number) => `/v1/posts/${postId}/like-status`,
     POST_LIKES: (postId: string) => `/v1/posts/${postId}/likes`,
 
     // Comments and Answers
