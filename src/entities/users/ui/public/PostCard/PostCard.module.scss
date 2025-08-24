@@ -1,0 +1,78 @@
+/** @prettier */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  max-width: 234px;
+  height: 391px;
+}
+
+.imageContainer {
+  position: relative;
+  flex-grow: 1;
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  max-height: 240px;
+  transition: max-height 0.3s ease;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.content {
+  overflow: hidden;
+}
+
+.data {
+  color: var(--color-light-900);
+  margin-bottom: 3px;
+}
+
+.messageWrapper {
+  height: 100%;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-dark-300);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-dark-100);
+    border-radius: 2px;
+  }
+}
+
+.message {
+  &Expanded {
+    padding-bottom: 16px;
+  }
+}
+
+.link {
+  padding-left: 3px;
+}

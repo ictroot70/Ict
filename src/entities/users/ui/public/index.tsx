@@ -5,9 +5,11 @@ import { useGetPublicPostsQuery, useGetPublicUsersCounterQuery } from '@/entitie
 import { Loading } from '@/shared/composites'
 
 import { UsersCounter } from './UsersCounter/UsersCounter'
+import { PostCard } from './PostCard/PostCard'
 
 export function Public() {
   const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
+  const { data: posts } = useGetPublicPostsQuery({ pageSize: 4 })
 
   if (isLoading) {
     return <Loading />
@@ -19,14 +21,13 @@ export function Public() {
     return null
   }
 
-  const { data: posts } = useGetPublicPostsQuery({ pageSize: 4 })
-
   console.log(posts)
 
   return (
     <div className="container">
       <UsersCounter totalCount={data.totalCount} />
       <div className="posts">
+        <PostCard />
         {/*   {posts?.map(post => {
           return <PublicPost key={post.id} post={post} />
         })} */}
