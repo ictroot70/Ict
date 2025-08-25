@@ -44,7 +44,7 @@ export const useCreatePost = () => {
     const descError = validateDescription(description);
     if (descError) allErrors.push(descError);
 
-    if (previewUrls.length === 0) {   // 👈 проверяем превью
+    if (previewUrls.length === 0) {
       allErrors.push("Добавьте хотя бы одно изображение");
     }
 
