@@ -4,7 +4,6 @@
   flex-direction: column;
   gap: 0.75rem;
   overflow: hidden;
-  max-width: 234px;
   height: 391px;
 }
 
@@ -43,12 +42,12 @@
   overflow: hidden;
 }
 
-.data {
+.time {
   color: var(--color-light-900);
   margin-bottom: 3px;
 }
 
-.messageWrapper {
+.descriptionWrapper {
   height: 100%;
   overflow: auto;
 
@@ -67,7 +66,7 @@
   }
 }
 
-.message {
+.description {
   &Expanded {
     padding-bottom: 16px;
   }

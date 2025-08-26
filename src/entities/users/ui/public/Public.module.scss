@@ -1,4 +1,19 @@
-.registeredUsersSection {
+/** @prettier */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+  max-width: 972px;
+  margin: 0 auto;
+}
+
+.posts {
+  display: grid;
+  gap: 1rem 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));
+}
+
+/* .registeredUsersSection {
   width: 100%;
   height: 72px;
   max-width: 972px;
@@ -38,4 +53,4 @@
   &:not(:first-child) {
     border-left: 1px solid #333;
   }
-}
+} */

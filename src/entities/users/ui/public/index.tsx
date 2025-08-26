@@ -1,15 +1,17 @@
 /** @prettier */
 
 'use client'
-import { useGetPublicPostsQuery, useGetPublicUsersCounterQuery } from '@/entities/users/api'
+
+import s from './Public.module.scss'
+
+import { useGetPublicPostsQuery } from '@/entities/users/api'
 import { Loading } from '@/shared/composites'
 
 import { UsersCounter } from './UsersCounter/UsersCounter'
-import { PostCard } from './PostCard/PostCard'
+import { PublicPost } from './PostCard/PublicPost'
 
 export function Public() {
-  const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
-  const { data: posts } = useGetPublicPostsQuery({ pageSize: 4 })
+  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 16 })
 
   if (isLoading) {
     return <Loading />
@@ -21,16 +23,15 @@ export function Public() {
     return null
   }
 
-  console.log(posts)
+  const { items, totalUsers } = data
 
   return (
-    <div className="container">
-      <UsersCounter totalCount={data.totalCount} />
-      <div className="posts">
-        <PostCard />
-        {/*   {posts?.map(post => {
+    <div className={s.container}>
+      <UsersCounter totalCount={totalUsers || 0} />
+      <div className={s.posts}>
+        {items.map(post => {
           return <PublicPost key={post.id} post={post} />
-        })} */}
+        })}
       </div>
     </div>
   )
