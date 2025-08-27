@@ -8,7 +8,7 @@ import { useGetPublicPostsQuery } from '@/entities/users/api'
 import { Loading } from '@/shared/composites'
 
 import { UsersCounter } from './UsersCounter/UsersCounter'
-import { PublicPost } from './PostCard/PublicPost'
+import { PublicPost } from './PublicPost/PublicPost'
 
 export function Public() {
   const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 16 })
