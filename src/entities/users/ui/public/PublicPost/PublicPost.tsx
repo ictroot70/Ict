@@ -2,21 +2,21 @@
 'use client'
 
 import Image from 'next/image'
-import TimeAgo from 'react-timeago'
 
 import { Typography } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import s from './PublicPost.module.scss'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
+import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 
 type Props = {
   post: PublicPostResponse
 }
 
 export const PublicPost = ({ post }: Props) => {
-  console.log(post)
-
   const { userName, images, avatarOwner, description, createdAt } = post
+
+  const timeAgo = useTimeAgo(createdAt)
 
   const MAX_CHAR_COUNT = 70
 
@@ -42,7 +42,7 @@ export const PublicPost = ({ post }: Props) => {
       </div>
       <div className={s.content}>
         <Typography className={s.time} variant="small_text">
-          <TimeAgo date={createdAt} />
+          {timeAgo}
         </Typography>
         <div className={s.descriptionWrapper}>
           <Typography
