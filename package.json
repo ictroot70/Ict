@@ -38,7 +38,6 @@
     "react-hook-form": "7.56.1",
     "react-i18next": "^15.6.1",
     "react-redux": "^9.2.0",
-    "react-timeago": "^8.3.0",
     "react-toastify": "^11.0.5",
     "zod": "^3.25.67"
   },
