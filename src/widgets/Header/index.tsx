@@ -9,6 +9,7 @@ import s from './AppHeader.module.scss'
 
 import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
 import { useHomeLink, useLogoutHandler } from './hooks'
+import { EditDeletePost } from './components/EditDeletePost/EditDeletePost'
 
 export const AppHeader = (): ReactElement => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -44,6 +45,7 @@ export const AppHeader = (): ReactElement => {
             </Button>
           )}
         </AuthBtn>
+        <EditDeletePost/>
       </div>
     )
   }
