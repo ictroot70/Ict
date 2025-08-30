@@ -1,5 +1,4 @@
 /** @prettier */
-
 'use client'
 
 import s from './Public.module.scss'
@@ -7,11 +6,12 @@ import s from './Public.module.scss'
 import { useGetPublicPostsQuery } from '@/entities/users/api'
 import { Loading } from '@/shared/composites'
 
-import { UsersCounter } from './UsersCounter/UsersCounter'
 import { PublicPost } from './PublicPost/PublicPost'
+import { UsersCounter } from './UsersCounter/UsersCounter'
+import { mockDataPosts } from '../../model/mockDataForPublicPosts'
 
 export function Public() {
-  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 16 })
+  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 12 })
 
   if (isLoading) {
     return <Loading />
@@ -29,6 +29,9 @@ export function Public() {
     <div className={s.container}>
       <UsersCounter totalCount={totalUsers || 0} />
       <div className={s.posts}>
+        {mockDataPosts.map((item, index) => {
+          return <PublicPost key={index} post={item} />
+        })}
         {items.map(post => {
           return <PublicPost key={post.id} post={post} />
         })}
@@ -36,3 +39,7 @@ export function Public() {
     </div>
   )
 }
+
+/* 
+
+*/

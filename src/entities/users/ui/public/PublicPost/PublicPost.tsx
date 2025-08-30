@@ -2,12 +2,12 @@
 'use client'
 
 import Image from 'next/image'
-
 import { Typography } from '@ictroot/ui-kit'
 import { useState } from 'react'
 import s from './PublicPost.module.scss'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
+import Carousel from './Carousel/Carousel'
 
 type Props = {
   post: PublicPostResponse
@@ -29,17 +29,27 @@ export const PublicPost = ({ post }: Props) => {
 
   return (
     <div className={s.wrapper}>
-      <div
-        className={`${s.imageContainer} ${isExpanded ? s.imageContainerExpanded : s.imageContainerCollapsed}`}
-      >
-        <Image src={images[0].url} alt="Картинка" fill className={s.image} />
+      <div className={s.imageContainer}>
+        {images.length > 1 ? (
+          <Carousel slides={images} />
+        ) : (
+          <Image src={images[0].url} alt="Image" fill className={s.image} />
+        )}
       </div>
+
       <div className={s.user}>
         <div className={s.avatar}>
-          <Image src={avatarOwner ?? '/avatar-default.svg'} alt="Аватар" fill className={s.image} />
+          <Image
+            src={avatarOwner ?? '/avatar-default.svg'}
+            alt="User avatar"
+            width={36}
+            height={36}
+            className={s.image}
+          />
         </div>
         <Typography variant="h3">{userName}</Typography>
       </div>
+
       <div className={s.content}>
         <Typography className={s.time} variant="small_text">
           {timeAgo}
@@ -52,17 +62,17 @@ export const PublicPost = ({ post }: Props) => {
             {isExpanded || !isLongDescription
               ? description
               : description.slice(0, MAX_CHAR_COUNT) + '...'}
-            {isLongDescription && (
-              <Typography
-                asChild
-                onClick={toggleDescriptionDisplayHandler}
-                variant="regular_link"
-                className={s.link}
-              >
-                <span>{isExpanded ? 'Hide' : 'ShowMore'}</span>
-              </Typography>
-            )}
           </Typography>
+          {isLongDescription && (
+            <Typography
+              asChild
+              onClick={toggleDescriptionDisplayHandler}
+              variant="regular_link"
+              className={s.link}
+            >
+              <button>{isExpanded ? 'Hide' : 'ShowMore'}</button>
+            </Typography>
+          )}
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ export type GetPublicPostsResponse = {
 }
 
 export type PublicPostResponse = {
-  avatarOwner: string
+  avatarOwner?: string
   avatarWhoLikes: string[]
   createdAt: string
   description: string
@@ -22,8 +22,8 @@ export type PublicPostResponse = {
 }
 
 export type Owner = {
-  firstName: string
-  lastName: string
+  firstName: null | string
+  lastName: null | string
 }
 
 export type UserImage = {

@@ -3,19 +3,19 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  overflow: hidden;
   height: 391px;
+  overflow: hidden;
 }
 
 .imageContainer {
   position: relative;
   flex-grow: 1;
-  position: relative;
   width: 100%;
   height: auto;
   min-height: 120px;
   max-height: 240px;
   transition: max-height 0.3s ease;
+  overflow: hidden;
 }
 
 .user {
@@ -39,6 +39,8 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -48,6 +50,7 @@
 }
 
 .descriptionWrapper {
+  flex-grow: 1;
   height: 100%;
   overflow: auto;
 
@@ -67,11 +70,15 @@
 }
 
 .description {
-  &Expanded {
-    padding-bottom: 16px;
-  }
+  display: inline;
 }
 
 .link {
-  padding-left: 3px;
+  display: inline;
+  margin-left: 3px;
+  line-height: 1.25;
+
+  &:focus-visible {
+    outline: 1px solid var(--color-primary-700);
+  }
 }
