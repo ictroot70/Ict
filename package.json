@@ -26,6 +26,8 @@
     "@types/react-dom": "^19",
     "async-mutex": "^0.5.0",
     "clsx": "^2.1.1",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "eslint-config-next": "15.3.1",
     "framer-motion": "^12.19.2",
     "i18next": "^25.3.2",
