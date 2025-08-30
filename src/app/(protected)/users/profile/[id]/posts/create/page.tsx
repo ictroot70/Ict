@@ -4,6 +4,10 @@ import styles from "./CreatePostPage.module.scss";
 import { Draft, Post } from "@/features/posts/model/types";
 import DraftsList from "@/features/posts/ui/steps/DraftsList";
 import CreatePost from "@/features/posts/ui/CreatePostForm";
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+
+
+
 
 const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -98,35 +102,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Слайдер */}
-            <div className={styles.carousel}>
-              <img src={post.photos[currIndex]} alt="post" className={styles.photo} />
-
-              {post.photos.length > 1 && (
-                <>
-                  <button
-                    className={`${styles.arrow} ${styles.left}`}
-                    onClick={() => handlePrev(post.id, post.photos.length)}
-                  >
-                    ◀
-                  </button>
-                  <button
-                    className={`${styles.arrow} ${styles.right}`}
-                    onClick={() => handleNext(post.id, post.photos.length)}
-                  >
-                    ▶
-                  </button>
-
-                  <div className={styles.dots}>
-                    {post.photos.map((_, idx) => (
-                      <span
-                        key={idx}
-                        className={`${styles.dot} ${idx === currIndex ? styles.activeDot : ""}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <EmblaCarousel photos={post.photos} />
 
             {post.description && <p className={styles.description}>{post.description}</p>}
             <span className={styles.date}>{new Date(post.createdAt).toLocaleString()}</span>
@@ -138,3 +114,5 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+
