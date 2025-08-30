@@ -1,66 +1,140 @@
-'use client'
+"use client";
+import React, { useEffect, useState } from "react";
+import styles from "./CreatePostPage.module.scss";
+import { Draft, Post } from "@/features/posts/model/types";
+import DraftsList from "@/features/posts/ui/steps/DraftsList";
+import CreatePost from "@/features/posts/ui/CreatePostForm";
 
-import { useState } from 'react'
-import { Modal } from '@ictroot/ui-kit'
+const HomePage: React.FC = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [currentIndexes, setCurrentIndexes] = useState<{ [key: string]: number }>({});
+  const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
+  // Загружаем посты и черновики при старте
+  useEffect(() => {
+    setPosts(JSON.parse(localStorage.getItem("posts") || "[]"));
+    setDrafts(JSON.parse(localStorage.getItem("drafts") || "[]"));
+  }, []);
 
-export default function CreatePostPage() {
-  const [isOpen, setOpen] = useState(false)
+  const handleSaveDraft = (newDraft: Draft) => {
+    const updated = [newDraft, ...drafts.filter((d) => d.id !== newDraft.id)];
+    setDrafts(updated);
+    localStorage.setItem("drafts", JSON.stringify(updated));
+  };
+
+  const handlePublishPost = (newPost: Post) => {
+    const updated = [newPost, ...posts];
+    setPosts(updated);
+    localStorage.setItem("posts", JSON.stringify(updated));
+  };
+
+  const handleDeleteDraft = (id: string) => {
+    const updated = drafts.filter((d) => d.id !== id);
+    setDrafts(updated);
+    localStorage.setItem("drafts", JSON.stringify(updated));
+  };
+
+  const handleDeletePost = (id: string) => {
+    const updated = posts.filter((p) => p.id !== id);
+    setPosts(updated);
+    localStorage.setItem("posts", JSON.stringify(updated));
+  };
+
+  const handlePrev = (postId: string, total: number) => {
+    setCurrentIndexes((prev) => {
+      const curr = prev[postId] ?? 0;
+      return { ...prev, [postId]: (curr - 1 + total) % total };
+    });
+  };
+
+  const handleNext = (postId: string, total: number) => {
+    setCurrentIndexes((prev) => {
+      const curr = prev[postId] ?? 0;
+      return { ...prev, [postId]: (curr + 1) % total };
+    });
+  };
+
   return (
-    <>
-      <button onClick={() => setOpen(true)}>+ Add Photo</button>
+    <div className={styles.feed}>
+      <button onClick={() => setIsOpen(true)}>Создать пост</button>
 
-      <Modal
-        open={isOpen}
-        modalTitle="Add Photo"
-        onClose={() => setOpen(false)}
-        width="500px"
-        height="400px"
-      >
-        {/* Контент модалки */}
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div
-            style={{
-              border: '2px dashed #ccc',
-              borderRadius: '8px',
-              padding: '40px',
-              marginBottom: '20px',
-            }}
-          >
-            <span style={{ fontSize: '40px' }}>🖼️</span>
+      {/* Черновики */}
+      <DraftsList
+        drafts={drafts}
+        onSelectDraft={(draft) => setEditingDraft(draft)}
+        onDeleteDraft={handleDeleteDraft}
+      />
+
+      {/* Создание нового поста */}
+      {isOpen && (
+        <CreatePost
+          onClose={() => setIsOpen(false)}
+          onSaveDraft={handleSaveDraft}
+          onPublishPost={handlePublishPost}
+        />
+      )}
+
+      {/* Редактирование черновика */}
+      {editingDraft && (
+        <CreatePost
+          draft={editingDraft}
+          onClose={() => setEditingDraft(null)}
+          onSaveDraft={handleSaveDraft}
+          onPublishPost={handlePublishPost}
+          onDeleteDraft={handleDeleteDraft}
+        />
+      )}
+
+      {/* Лента постов */}
+      {posts.map((post) => {
+        const currIndex = currentIndexes[post.id] ?? 0;
+        return (
+          <div key={post.id} className={styles.post}>
+            <div className={styles.postHeader}>
+              <span className={styles.postTitle}>post</span>
+              <button className={styles.deleteBtn} onClick={() => handleDeletePost(post.id)}>✖</button>
+            </div>
+
+            {/* Слайдер */}
+            <div className={styles.carousel}>
+              <img src={post.photos[currIndex]} alt="post" className={styles.photo} />
+
+              {post.photos.length > 1 && (
+                <>
+                  <button
+                    className={`${styles.arrow} ${styles.left}`}
+                    onClick={() => handlePrev(post.id, post.photos.length)}
+                  >
+                    ◀
+                  </button>
+                  <button
+                    className={`${styles.arrow} ${styles.right}`}
+                    onClick={() => handleNext(post.id, post.photos.length)}
+                  >
+                    ▶
+                  </button>
+
+                  <div className={styles.dots}>
+                    {post.photos.map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={`${styles.dot} ${idx === currIndex ? styles.activeDot : ""}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {post.description && <p className={styles.description}>{post.description}</p>}
+            <span className={styles.date}>{new Date(post.createdAt).toLocaleString()}</span>
           </div>
+        );
+      })}
+    </div>
+  );
+};
 
-          <button
-            style={{
-              display: 'block',
-              margin: '10px auto',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              border: 'none',
-              background: '#2d6cdf',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            Select from Computer
-          </button>
-
-          <button
-            style={{
-              display: 'block',
-              margin: '10px auto',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              border: 'none',
-              background: '#333',
-              color: '#bbb',
-              cursor: 'pointer',
-            }}
-          >
-            Open Draft
-          </button>
-        </div>
-      </Modal>
-    </>
-  )
-}
+export default HomePage;
