@@ -45,7 +45,7 @@ export const AppHeader = (): ReactElement => {
             </Button>
           )}
         </AuthBtn>
-        <EditDeletePost/>
+        <EditDeletePost postId={''} />
       </div>
     )
   }

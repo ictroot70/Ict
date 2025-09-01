@@ -1,86 +1,94 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button, Typography } from '@ictroot/ui-kit';
+import React, { useState } from 'react';
+import styles from './EditDeletePost.module.scss';
 
-export const EditDeletePost = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const modalRef = useRef<HTMLDivElement>(null);
+interface EditDeletePostProps {
+    postId: string;
+    onEdit: (id: string) => void;
+    onDelete: (id: string) => void;
+    className?: string;
+}
 
-    const handleEdit = () => {
-        console.log('Edit Post clicked');
-        setIsModalOpen(false);
+export const EditDeletePost: React.FC<EditDeletePostProps> = ({
+    postId,
+    onEdit,
+    onDelete,
+    className = ''
+}) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const handleMenuToggle = () => {
+        setIsMenuOpen(!isMenuOpen);
     };
 
-    const handleDelete = () => {
-        console.log('Delete Post clicked');
-        setIsModalOpen(false);
+    const handleEditClick = () => {
+        onEdit(postId);
+        setIsMenuOpen(false);
     };
 
-    // Закрытие модалки при клике вне её области
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-                setIsModalOpen(false);
-            }
-        };
-
-        if (isModalOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isModalOpen]);
+    const handleDeleteClick = () => {
+        onDelete(postId);
+        setIsMenuOpen(false);
+    };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="text-center relative">
-                <Button
-                    ref={buttonRef}
-                    onClick={() => setIsModalOpen(!isModalOpen)}
-                    variant="primary"
-                    size="md"
-                >
-                    Actions
-                </Button>
+        <div className={`${styles.wrapper} ${className}`}>
+            {/* Кнопка для открытия/закрытия меню */}
+            <button
+                className={styles.menuButton}
+                onClick={handleMenuToggle}
+                aria-label="Open menu"
+            >
+                <div className={styles.dotsIcon}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
 
-                {isModalOpen && (
-                    <div
-                        ref={modalRef}
-                        className="fixed bg-white border border-red-300 rounded-sm z-50 shadow-lg"
-                        style={{
-                            width: '137px',
-                            height: '85px',
-                            top: buttonRef.current ? `${buttonRef.current.getBoundingClientRect().bottom + 120}px` : '238px',
-                            left: buttonRef.current ? `${buttonRef.current.getBoundingClientRect().left}px` : '1055px',
-                            padding: '12px'
-                        }}
+            {/* Выпадающее меню */}
+            {isMenuOpen && (
+                <div className={styles.container}>
+                    {/* Кнопка Edit */}
+                    <button
+                        className={styles.button}
+                        onClick={handleEditClick}
+                        aria-label="Edit Post"
                     >
-                        <div className="flex flex-col gap-3 w-full h-full">
-                            <button
-                                onClick={handleEdit}
-                                className="flex items-center justify-start w-full text-gray-800 hover:bg-gray-100 rounded transition-colors p-1"
-                                style={{ height: '24px' }}
-                            >
-                                <Typography variant="bold_14" className="w-full text-left">
-                                    редактировать
-                                </Typography>
-                            </button>
-
-                            <button
-                                onClick={handleDelete}
-                                className="flex items-center justify-start w-full text-gray-800 hover:bg-gray-100 rounded transition-colors p-1"
-                                style={{ height: '24px' }}
-                            >
-                                <Typography variant="bold_14" className="w-full text-left">
-                                    удалить
-                                </Typography>
-                            </button>
+                        <div className={styles.buttonContent}>
+                            <div className={styles.iconWrapper}>
+                                <img
+                                    src="/icons/svg/arrow-back-outline.svg"
+                                    alt="Edit"
+                                    width={24}
+                                    height={24}
+                                    className={styles.icon}
+                                />
+                            </div>
+                            <span className={styles.text}>Edit Post</span>
                         </div>
-                    </div>
-                )}
-            </div>
+                    </button>
+
+
+                    <button
+                        className={styles.button}
+                        onClick={handleDeleteClick}
+                        aria-label="Delete Post"
+                    >
+                        <div className={styles.buttonContent}>
+                            <div className={styles.iconWrapper}>
+                                <img
+                                    src="/icons/svg/trash.svg"
+                                    alt="Delete"
+                                    width={24}
+                                    height={24}
+                                    className={styles.icon}
+                                />
+                            </div>
+                            <span className={styles.text}>Delete Post</span>
+                        </div>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
