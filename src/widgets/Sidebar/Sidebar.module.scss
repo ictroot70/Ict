@@ -1,0 +1,24 @@
+.sidebar {
+  position: fixed;
+  width: 160px;
+  height: calc(100vh - 60px);
+  top: 60px;
+  left: max(32px, calc((100vw - 1172px) / 2));
+  z-index: 100;
+
+  color: var(--color-light-100);
+  background-color: var(--color-dark-700);
+  overflow: hidden;
+  border-right: 1px solid var(--color-dark-300);
+  padding-top: 72px;
+
+  &Wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+}
+
+body[data-scroll-locked] .sidebar {
+  padding-right: calc(var(--removed-body-scroll-bar-size, 2rem));
+}

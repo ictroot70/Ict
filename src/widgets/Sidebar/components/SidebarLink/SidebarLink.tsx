@@ -1,0 +1,39 @@
+import clsx from 'clsx'
+import { ReactNode } from 'react'
+import s from './SidebarLink.module.scss'
+import Link from 'next/link'
+
+type Props = {
+  icon?: ReactNode
+  activeIcon?: ReactNode
+  active?: boolean
+  disabled?: boolean
+  href: string
+  className?: string
+  children: ReactNode
+}
+
+export const SidebarLink = ({
+  children,
+  icon,
+  activeIcon,
+  active,
+  disabled,
+  className,
+  href,
+  ...rest
+}: Props) => {
+  return (
+    <Link
+      className={clsx(s.link, active && s.active, disabled && s.disabled, className)}
+      href={href}
+      aria-disabled={disabled}
+      {...rest}
+    >
+      {active && activeIcon ? activeIcon : icon}
+      <span className={s.label}>{children}</span>
+    </Link>
+  )
+}
+
+SidebarLink.displayName = 'SidebarLink'

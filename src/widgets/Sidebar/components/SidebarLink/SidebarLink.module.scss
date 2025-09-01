@@ -1,0 +1,39 @@
+.link {
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 0 7px 0 0;
+  border: none;
+  background: transparent;
+  transition: color 0.2s ease;
+
+  span[role='img'] {
+    flex-shrink: 0;
+  }
+
+  &:hover:not(.disabled) {
+    color: var(--color-primary-100);
+  }
+
+  &:active:not(.disabled) {
+    color: var(--color-primary-500);
+  }
+
+  &:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid var(--color-primary-700);
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    color: var(--color-dark-100);
+  }
+
+  &.active {
+    color: var(--color-primary-500);
+    font-weight: var(--font-weight-bold);
+  }
+}
