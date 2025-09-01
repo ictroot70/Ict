@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './EditDeletePost.module.scss';
+import { TrashOutline, EditOutline } from "@/shared/ui"
 
 interface EditDeletePostProps {
     postId: string;
@@ -56,13 +57,14 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>
-                                <img
+                                {/* <img
                                     src="/icons/svg/arrow-back-outline.svg"
                                     alt="Edit"
                                     width={24}
                                     height={24}
                                     className={styles.icon}
-                                />
+                                /> */}
+                                <EditOutline />
                             </div>
                             <span className={styles.text}>Edit Post</span>
                         </div>
@@ -76,13 +78,15 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>
-                                <img
+                                {/* <img
                                     src="/icons/svg/trash.svg"
                                     alt="Delete"
                                     width={24}
                                     height={24}
                                     className={styles.icon}
-                                />
+                                /> */}
+                                <TrashOutline />
+
                             </div>
                             <span className={styles.text}>Delete Post</span>
                         </div>
