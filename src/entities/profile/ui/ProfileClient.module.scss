@@ -1,0 +1,45 @@
+.wrapper {
+  display: flex;
+  gap: 38px;
+  padding: 36px 0 36px 24px;
+}
+
+.avatar {
+  position: relative;
+  width: 204px;
+  height: 204px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image {
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.info {
+  &Header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+}
+
+.name {
+}
+
+.actions {
+}
+
+.stats {
+  display: flex;
+  gap: 80px;
+  margin-bottom: 1.5rem;
+  &Item {
+  }
+}
+
+.about {
+}

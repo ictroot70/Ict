@@ -9,13 +9,16 @@
   color: var(--color-light-100);
   background-color: var(--color-dark-700);
   border-right: 1px solid var(--color-dark-300);
-  padding-top: 72px;
+
   padding-right: 6px;
 
   &Wrapper {
     display: flex;
     flex-direction: column;
     gap: 60px;
+    padding-top: 72px;
+    padding-bottom: 36px;
+    height: 100%;
   }
 }
 

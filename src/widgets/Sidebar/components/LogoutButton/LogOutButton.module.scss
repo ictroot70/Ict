@@ -2,11 +2,11 @@
   height: auto;
   cursor: pointer;
   justify-content: start;
-  text-decoration: none;
   color: inherit;
   padding: 0 7px 0 0;
   font-size: 1rem;
   font-weight: var(--font-weight-regular);
+  margin-top: auto;
 
   &:focus-visible {
     color: inherit;
