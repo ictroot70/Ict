@@ -7,7 +7,6 @@ import {
   BookmarkOutline,
   Home,
   HomeOutline,
-  LogOut,
   MessageCircle,
   MessageCircleOutline,
   Person,
@@ -66,16 +65,6 @@ const linkGroups = [
         icon: <BookmarkOutline />,
         activeIcon: <Bookmark />,
         label: 'Favorites',
-      },
-    ],
-  },
-  {
-    links: [
-      {
-        href: '/logout',
-        icon: <LogOut />,
-        activeIcon: <LogOut />,
-        label: 'Log Out',
       },
     ],
   },
