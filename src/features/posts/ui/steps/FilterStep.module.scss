@@ -2,83 +2,86 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: #000;
+  color: #fff;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #333;
-  background: #222;
-  color: #fff;
-}
-
-.title {
-  font-weight: 500;
-}
-
-.navBtn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.7;
-  }
+  padding: 10px 16px;
+  font-weight: 600;
 }
 
 .preview {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: #000;
+  justify-content: center;
 
   img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 400px;
     object-fit: contain;
   }
 }
 
-.filtersGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+.filtersRow {
+  display: flex;
+  overflow-x: auto;
   gap: 12px;
   padding: 12px;
   background: #111;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+  }
 }
 
-.filterCard {
+.filterItem {
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  color: #fff;
+  min-width: 80px;
 
-  .thumb {
-    width: 80px;
-    height: 80px;
-    overflow: hidden;
-    border-radius: 6px;
-    margin-bottom: 4px;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+  span {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #bbb;
   }
 
-  &:hover {
-    opacity: 0.8;
+  &.active span {
+    color: #397df6;
+    font-weight: 600;
   }
+}
 
-  &.active {
-    border: 2px solid #0077ff;
-    border-radius: 8px;
-  }
+.filterThumb {
+  width: 70px;
+  height: 70px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid transparent;
+}
+
+/* Instagram-like filters */
+.clarendon {
+  filter: contrast(120%) saturate(125%);
+}
+
+.lark {
+  filter: brightness(110%) saturate(105%);
+}
+
+.gingham {
+  filter: contrast(90%) brightness(105%) sepia(10%);
+}
+
+.moon {
+  filter: grayscale(100%) contrast(110%);
 }

@@ -21,7 +21,6 @@ export const PublishStep: React.FC<Props> = ({
                                                setDescription,
                                              }) => {
   const handlePublish = async () => {
-    // 🔑 берём preview напрямую (base64), без FileReader
     const photos = files.map((f) => f.preview);
 
     const newPost: Post = {
@@ -37,8 +36,11 @@ export const PublishStep: React.FC<Props> = ({
 
   return (
     <div className={styles.wrapper}>
+      {/* Header */}
       <div className={styles.header}>
-        <button onClick={onPrev} className={styles.navBtn}>←</button>
+        <button onClick={onPrev} className={styles.navBtn}>
+          ←
+        </button>
         <span className={styles.title}>New Post</span>
         <button
           onClick={handlePublish}
@@ -49,16 +51,22 @@ export const PublishStep: React.FC<Props> = ({
         </button>
       </div>
 
+      {/* Image preview with selected filter */}
       <div className={styles.photoPreview}>
         {files[0] && (
           <img
             src={files[0].preview}
+            className={
+              selectedFilter !== "Normal"
+                ? styles[selectedFilter.toLowerCase()]
+                : ""
+            }
             alt="preview"
-            style={{ filter: selectedFilter }}
           />
         )}
       </div>
 
+      {/* Description form */}
       <div className={styles.form}>
         <textarea
           value={description}

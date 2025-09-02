@@ -3,35 +3,38 @@ import React, { useState } from "react";
 import styles from "./FilterStep.module.scss";
 import { UploadedFile } from "../../model/types";
 
-interface Props {
-  onNext: () => void;
-  onPrev: () => void;
-  files: UploadedFile[];
-  selectedFilter: string;
-  setSelectedFilter: (filter: string) => void;
-}
-
-const filterPresets: { name: string; style: string }[] = [
-  { name: "Normal", style: "none" },
-  { name: "Clarendon", style: "contrast(1.2) brightness(1.1)" },
-  { name: "Lark", style: "brightness(1.2) saturate(1.1)" },
-  { name: "Gingham", style: "sepia(0.2) brightness(1.1)" },
-  { name: "Moon", style: "grayscale(1) contrast(1.1)" },
+const filters = [
+  { name: "Normal", className: "" },
+  { name: "Clarendon", className: "clarendon" },
+  { name: "Lark", className: "lark" },
+  { name: "Gingham", className: "gingham" },
+  { name: "Moon", className: "moon" },
 ];
 
-export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedFilter, setSelectedFilter] = useState<string>("none");
+interface Props {
+  onNext: () => void
+  onPrev: () => void
+  files: UploadedFile[]
+  selectedFilter: string
+  setSelectedFilter: (filter: string) => void
+}
 
+export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setSelectedFilter, selectedFilter }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const currentFile = files[currentIndex];
+  const currentFilter = selectedFilter || "Normal";
+
+  const applyFilter = (filterName: string) => {
+    setSelectedFilter(filterName)
+  };
 
   return (
     <div className={styles.wrapper}>
       {/* Header */}
       <div className={styles.header}>
-        <button onClick={onPrev} className={styles.navBtn}>←</button>
-        <span className={styles.title}>Filters</span>
-        <button onClick={onNext} className={styles.navBtn}>Next</button>
+        <button onClick={onPrev}>←</button>
+        <span>Filters</span>
+        <button onClick={onNext}>Next</button>
       </div>
 
       {/* Preview */}
@@ -39,28 +42,28 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
         <img
           src={currentFile.preview}
           alt="preview"
-          style={{ filter: selectedFilter }}
+          className={selectedFilter !== "Normal" ? styles[selectedFilter.toLowerCase()] : ""}
         />
       </div>
 
-      {/* Filters Grid */}
-      <div className={styles.filtersGrid}>
-        {filterPresets.map((preset) => (
+      {/* Filters row */}
+      <div className={styles.filtersRow}>
+        {filters.map((f) => (
           <div
-            key={preset.name}
-            className={`${styles.filterCard} ${
-              selectedFilter === preset.style ? styles.active : ""
+            key={f.name}
+            className={`${styles.filterItem} ${
+              currentFilter === f.name ? styles.active : ""
             }`}
-            onClick={() => setSelectedFilter(preset.style)}
+            onClick={() => applyFilter(f.name)}
           >
-            <div className={styles.thumb}>
-              <img
-                src={currentFile.preview}
-                alt={preset.name}
-                style={{ filter: preset.style }}
-              />
-            </div>
-            <span>{preset.name}</span>
+            <img
+              src={currentFile.preview}
+              alt={f.name}
+              className={`${styles.filterThumb} ${
+                f.className ? styles[f.className] : ""
+              }`}
+            />
+            <span>{f.name}</span>
           </div>
         ))}
       </div>

@@ -6,6 +6,7 @@ export interface UploadedFile {
   crop?: { x: number; y: number };
   zoom?: number;
   aspect?: number;
+  filter?: string;
 }
 
 export interface Post {

@@ -2,89 +2,67 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: #000;
+  color: #fff;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #333;
-  background: #222;
-  color: #fff;
-}
-
-.title {
-  font-weight: 500;
-}
-
-.navBtn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.7;
-  }
-}
-
-.publishBtn {
-  background: #0077ff;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:disabled {
-    background: #555;
-    cursor: not-allowed;
-  }
+  padding: 10px 16px;
+  font-weight: 600;
 }
 
 .photoPreview {
   flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: #000;
+  justify-content: center;
 
   img {
     max-width: 100%;
-    max-height: 100%;
+    max-height: 350px;
     object-fit: contain;
   }
 }
 
 .form {
   padding: 12px;
-  background: #111;
   display: flex;
   flex-direction: column;
 
   textarea {
     width: 100%;
-    min-height: 100px;
+    min-height: 80px;
     resize: none;
-    border: 1px solid #444;
-    border-radius: 6px;
     padding: 8px;
-    background: #222;
-    color: #fff;
+    border-radius: 6px;
+    border: none;
     font-size: 14px;
+    outline: none;
+  }
 
-    &:focus {
-      outline: none;
-      border-color: #0077ff;
-    }
+  .counter {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #888;
+    text-align: right;
   }
 }
 
-.counter {
-  margin-top: 6px;
-  text-align: right;
-  font-size: 12px;
-  color: #aaa;
+/* фильтры такие же как в FilterStep */
+.clarendon {
+  filter: contrast(120%) saturate(125%);
+}
+
+.lark {
+  filter: brightness(110%) saturate(105%);
+}
+
+.gingham {
+  filter: contrast(90%) brightness(105%) sepia(10%);
+}
+
+.moon {
+  filter: grayscale(100%) contrast(110%);
 }

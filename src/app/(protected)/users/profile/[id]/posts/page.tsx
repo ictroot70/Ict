@@ -80,7 +80,7 @@ const HomePage: React.FC = () => {
       <div className={styles.postsGrid}>
         {posts.map((post) => (
           <div key={post.id} className={styles.postCard}>
-            <EmblaCarousel photos={post.photos} />
+            <EmblaCarousel photos={post.photos} filter={post.filter} />
 
             <div className={styles.postInfo}>
               <div className={styles.userRow}>
