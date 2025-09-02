@@ -1,111 +1,103 @@
-.wrapper {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  color: var(--color-light-300);
-}
-
-.button {
-  align-self: flex-start;
-  padding: 0.6rem 1rem;
-  background: #22c55e;
-  color: #fff;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #16a34a;
-  }
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.section h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
+html, body {
   margin: 0;
-}
-
-/* Черновики */
-.draftList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.draftCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #1c1c1c;
-  border: 1px solid #333;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-}
-
-.draftContent {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  cursor: pointer;
-}
-
-.draftThumb {
-  width: 50px;
-  height: 50px;
-  border-radius: 0.25rem;
-  object-fit: cover;
-  margin-right: 0.75rem;
-}
-
-.draftInfo {
-  display: flex;
-  flex-direction: column;
-}
-
-.draftDesc {
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.draftDate {
-  font-size: 0.75rem;
-  color: #888;
-}
-
-.deleteBtn {
-  background: none;
-  border: none;
-  color: red;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-/* Посты */
-.posts {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.post {
-  background: #1c1c1c;
-  border: 1px solid #333;
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.post img {
+  padding: 0;
   width: 100%;
-  border-radius: 0.5rem;
-  margin-bottom: 0.75rem;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.layout {
+  display: flex;
+  width: 100vw;   // ✅ всегда во всю ширину экрана
+  height: 100vh;  // ✅ всегда во всю высоту
+  overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 140px;
+  background: #141e1c;
+  //border-right: 1px solid #222;
+  padding: 20px 0;
+  position: fixed;
+  top: 360px;
+  left: 10px;
+}
+.feed {
+  display: flex;
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+}
+
+/* Posts grid */
+/* Контейнер с постами */
+.postsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* всегда 4 колонки */
+  gap: 20px;
+  padding: 20px;
+  margin-left: 160px;       /* место под sidebar */
+  margin-right: 20px;       /* чтобы справа не липло */
+  width: calc(100% ); /* растянуть по ширине */
+  box-sizing: border-box;
+}
+
+.postCard {
+  background: #111;
+  border-radius: 10px;
+  border: 1px solid #222;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+  width: 100%;   /* 🔥 убираем фикс 234px */
+  height: auto;  /* пусть подстраивается */
+}
+
+.postInfo {
+  padding: 14px;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: gray;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.time {
+  margin-left: auto;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.description {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.more {
+  color: #3b82f6;
+  cursor: pointer;
+  margin-left: 4px;
+  font-weight: 500;
 }

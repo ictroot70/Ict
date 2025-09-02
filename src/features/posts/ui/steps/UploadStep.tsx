@@ -1,88 +1,88 @@
-"use client";
+'use client'
 import React, { useState } from 'react'
-import { useDropzone } from "react-dropzone";
-import { fileTypeFromBuffer } from "file-type";
-import { UploadedFile } from "../../model/types";
-import styles from "./UploadStep.module.scss";
+import { useDropzone } from 'react-dropzone'
+import { UploadedFile } from '../../model/types'
+import styles from './UploadStep.module.scss'
+import { ImageOutline } from '@/shared/ui/SVGComponents'
 
 interface Props {
-  onNext: () => void;
-  onCancel: () => void;
-  files: UploadedFile[];
-  setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>;
+  onNext: () => void
+  files: UploadedFile[]
+  setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>
+  onOpenDraft?: () => void
 }
 
-const MAX_SIZE = 20 * 1024 * 1024; // 20 MB
-const MAX_FILES = 10;
+const MAX_SIZE = 20 * 1024 * 1024 // 20 MB
+const MAX_FILES = 10
 
-export const UploadStep: React.FC<Props> = ({ onNext, onCancel, files, setFiles }) => {
-  const [error, setError] = useState<string | null>(null);
+export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDraft }) => {
+  const [error, setError] = useState<string | null>(null)
 
   const onDrop = async (acceptedFiles: File[]) => {
-    setError(null);
+    setError(null)
 
     if (files.length + acceptedFiles.length > MAX_FILES) {
-      setError(`You can upload a maximum of ${MAX_FILES} photos`);
-      return;
+      setError(`You can upload a maximum of ${MAX_FILES} photos`)
+      return
     }
 
     for (const file of acceptedFiles) {
       if (file.size > MAX_SIZE) {
-        setError("The photo must be less than 20 Mb");
-        continue;
+        setError('The photo must be less than 20 Mb')
+        continue
       }
 
-      const buffer = await file.arrayBuffer();
-      const type = await fileTypeFromBuffer(new Uint8Array(buffer));
-
-      if (!type || !["image/jpeg", "image/png"].includes(type.mime)) {
-        setError("The photo must be JPEG or PNG format");
-        continue;
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        setError('The photo must be JPEG or PNG format')
+        continue
       }
 
-
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = () => {
-        const preview = reader.result as string; // base64 строка
-        setFiles((prev) => [...prev, { file, preview }]);
-      };
-      reader.readAsDataURL(file);
+        const preview = reader.result as string
+        setFiles(prev => {
+          // 🔑 Проверяем, есть ли такой файл уже в стейте
+          if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
+            return prev
+          }
+          return [...prev, { file, preview }]
+        })
+        onNext()
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
-    accept: {
-      "image/jpeg": [],
-      "image/png": [],
-    },
+    accept: { 'image/jpeg': [], 'image/png': [] },
     multiple: true,
-  });
+    noClick: true,
+  })
 
   return (
     <div className={styles.wrapper}>
+      {/* Зона загрузки */}
       <div {...getRootProps()} className={styles.dropzone}>
         <input {...getInputProps()} />
-        <p className={styles.text}>Drag & drop your photo here, or click to select</p>
-        <p className={styles.helper}>
-          {files.length}/{MAX_FILES} uploaded
-        </p>
-      </div>
-      {error && <p className={styles.error}>{error}</p>}
-      <div className={styles.previewGrid}>
-        {files.map((f, i) => (
-          <img key={i} src={f.preview} alt="preview" className={styles.preview} />
-        ))}
+        <div className={styles.iconWrapper}>
+          <ImageOutline />
+        </div>
+        <p>Drag & drop photos here</p>
       </div>
 
+      {error && <p className={styles.error}>{error}</p>}
+
+      {/* Кнопки */}
       <div className={styles.actions}>
-        <button onClick={onCancel} className={styles.cancelBtn}>Cancel</button>
-        {files.length > 0 && (
-          <button onClick={onNext} className={styles.nextBtn}>
-            Next
-          </button>
-        )}
+        <button type="button" className={styles.primaryBtn} onClick={open}>
+          Select from Computer
+        </button>
+        <button className={styles.secondaryBtn} onClick={onOpenDraft} type="button">
+          Open Draft
+        </button>
       </div>
     </div>
-  );
-};
+  )
+}
+

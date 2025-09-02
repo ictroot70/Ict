@@ -37,6 +37,7 @@
     "next": "^15.4.4",
     "next-redux-wrapper": "^8.1.0",
     "react": "^19.0.0",
+    "react-advanced-cropper": "^0.20.1",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
     "react-easy-crop": "^5.5.0",

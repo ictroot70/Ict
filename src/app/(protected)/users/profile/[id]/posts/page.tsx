@@ -1,123 +1,149 @@
 "use client";
-import { useEffect, useState } from "react";
-import CreatePost from "@/features/posts/ui/CreatePostForm";
-import { Post } from "@/features/posts/model/types";
+import React, { useEffect, useState } from "react";
 import styles from "./PostsPage.module.scss";
+import { Draft, Post } from "@/features/posts/model/types";
+import DraftsList from "@/features/posts/ui/steps/DraftsList";
+import CreatePost from "@/features/posts/ui/CreatePostForm";
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 
-interface Draft {
-  id: string;
-  files: { preview: string }[];
-  description: string;
-  filter: string;
-  createdAt: string;
-}
 
-export default function HomePage() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
+
+
+const HomePage: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [currentIndexes, setCurrentIndexes] = useState<{ [key: string]: number }>({});
+  const [editingDraft, setEditingDraft] = useState<Draft | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  // Загружаем посты и черновики
+  // Загружаем посты и черновики при старте
   useEffect(() => {
-    const savedPosts = JSON.parse(localStorage.getItem("posts") || "[]");
-    const savedDrafts = JSON.parse(localStorage.getItem("drafts") || "[]");
-    setPosts(savedPosts);
-    setDrafts(savedDrafts);
+    setPosts(JSON.parse(localStorage.getItem("posts") || "[]"));
+    setDrafts(JSON.parse(localStorage.getItem("drafts") || "[]"));
   }, []);
 
-  // Удалить пост
-  const handleDeletePost = (id: string) => {
-    const updated = posts.filter((p) => p.id !== id);
-    localStorage.setItem("posts", JSON.stringify(updated));
-    setPosts(updated);
+  const handleSaveDraft = (newDraft: Draft) => {
+    const updated = [newDraft, ...drafts.filter((d) => d.id !== newDraft.id)];
+    setDrafts(updated);
+    localStorage.setItem("drafts", JSON.stringify(updated));
   };
 
-  // Удалить черновик
+  const handlePublishPost = (newPost: Post) => {
+    const updated = [newPost, ...posts];
+    setPosts(updated);
+    localStorage.setItem("posts", JSON.stringify(updated));
+  };
+
   const handleDeleteDraft = (id: string) => {
     const updated = drafts.filter((d) => d.id !== id);
-    localStorage.setItem("drafts", JSON.stringify(updated));
     setDrafts(updated);
+    localStorage.setItem("drafts", JSON.stringify(updated));
+  };
+
+  const handleDeletePost = (id: string) => {
+    const updated = posts.filter((p) => p.id !== id);
+    setPosts(updated);
+    localStorage.setItem("posts", JSON.stringify(updated));
+  };
+
+  const handlePrev = (postId: string, total: number) => {
+    setCurrentIndexes((prev) => {
+      const curr = prev[postId] ?? 0;
+      return { ...prev, [postId]: (curr - 1 + total) % total };
+    });
+  };
+
+  const handleNext = (postId: string, total: number) => {
+    setCurrentIndexes((prev) => {
+      const curr = prev[postId] ?? 0;
+      return { ...prev, [postId]: (curr + 1) % total };
+    });
   };
 
   return (
-    <main className={styles.wrapper}>
-      {/* Кнопка создания нового поста */}
-      <button
-        onClick={() => setIsOpen(true)}
-        style={{
-          background: "#22c55e",
-          color: "#fff",
-          padding: "10px 20px",
-          borderRadius: "6px",
-          marginBottom: "20px",
-        }}
-      >
-        Создать пост
-      </button>
+    <div className={styles.feed}>
+      {/* Левая колонка */}
+      <div className={styles.sidebar}>
+        <button onClick={() => setIsOpen(true)}>Создать пост</button>
+        <DraftsList
+          drafts={drafts}
+          onSelectDraft={(draft) => setEditingDraft(draft)}
+          onDeleteDraft={(id) => {
+            const updated = drafts.filter((d) => d.id !== id)
+            setDrafts(updated)
+            localStorage.setItem("drafts", JSON.stringify(updated))
+          }}
+        />
+      </div>
 
-      {/* Черновики */}
-      {drafts.length > 0 && (
-        <section className={styles.section}>
-          <h2>Черновики</h2>
-          <div className={styles.draftList}>
-            {drafts.map((draft) => (
-              <div key={draft.id} className={styles.draftCard}>
-                <div
-                  className={styles.draftContent}
-                  onClick={() => setEditingDraft(draft)}
-                >
-                  <img
-                    src={draft.files[0]?.preview}
-                    alt="draft"
-                    className={styles.draftThumb}
-                  />
-                  <div className={styles.draftInfo}>
-                    <p className={styles.draftDesc}>
-                      {draft.description || "Без описания"}
-                    </p>
-                    <span className={styles.draftDate}>
-                  {new Date(draft.createdAt).toLocaleString()}
-                </span>
-                  </div>
-                </div>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDeleteDraft(draft.id)}
-                >
-                  ✖
-                </button>
+      {/* Правая колонка — посты */}
+      <div className={styles.postsGrid}>
+        {posts.map((post) => (
+          <div key={post.id} className={styles.postCard}>
+            <EmblaCarousel photos={post.photos} />
+
+            <div className={styles.postInfo}>
+              <div className={styles.userRow}>
+                <div className={styles.avatar}></div>
+                <span className={styles.username}>UserName</span>
+                <span className={styles.time}>
+            {new Date(post.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          </span>
               </div>
-            ))}
+              {post.description && (
+                <p className={styles.description}>
+                  {post.description.slice(0, 40)}...
+                  <span className={styles.more}>Show more</span>
+                </p>
+              )}
+            </div>
           </div>
-        </section>
+        ))}
+      </div>
+
+      {isOpen && (
+        <CreatePost
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          onSaveDraft={(newDraft) => {
+            const updated = [newDraft, ...drafts.filter((d) => d.id !== newDraft.id)]
+            setDrafts(updated)
+            localStorage.setItem("drafts", JSON.stringify(updated))
+          }}
+          onPublishPost={(newPost) => {
+            const updated = [newPost, ...posts]
+            setPosts(updated)
+            localStorage.setItem("posts", JSON.stringify(updated))
+          }}
+        />
       )}
 
-      {/* Лента постов */}
-      {posts.length > 0 && (
-        <section className={styles.section}>
-          <h2>Мои посты</h2>
-          <div className={styles.posts}>
-            {posts.map((post) => (
-              <div key={post.id} className={styles.post}>
-                <img src={post.photos[0]} alt="post" />
-                {post.description && <p>{post.description}</p>}
-                <small>{new Date(post.createdAt).toLocaleString()}</small>
-                <button
-                  className={styles.deleteBtn}
-                  onClick={() => handleDeletePost(post.id)}
-                >
-                  ✖
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
+      {editingDraft && (
+        <CreatePost
+          draft={editingDraft}
+          open={true}
+          onClose={() => setEditingDraft(null)}
+          onSaveDraft={(newDraft) => {
+            const updated = [newDraft, ...drafts.filter((d) => d.id !== newDraft.id)]
+            setDrafts(updated)
+            localStorage.setItem("drafts", JSON.stringify(updated))
+          }}
+          onPublishPost={(newPost) => {
+            const updated = [newPost, ...posts]
+            setPosts(updated)
+            localStorage.setItem("posts", JSON.stringify(updated))
+          }}
+          onDeleteDraft={(id) => {
+            const updated = drafts.filter((d) => d.id !== id)
+            setDrafts(updated)
+            localStorage.setItem("drafts", JSON.stringify(updated))
+          }}
+        />
       )}
-
-      {/* Модалка создания/редактирования */}
-      {isOpen && <CreatePost draft={undefined} />}
-      {editingDraft && <CreatePost draft={editingDraft} />}
-    </main>
+    </div>
   );
-}
+};
+
+export default HomePage;
+
+
