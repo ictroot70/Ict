@@ -8,6 +8,7 @@ import s from './ProfileClient.module.scss'
 import Image from 'next/image'
 import { Button, Typography } from '@ictroot/ui-kit'
 import Link from 'next/link'
+import { Avatar } from '@/shared/composites/Avatar'
 
 export const ProfileClient = (): ReactElement => {
   const { data, isSuccess } = useGetMyProfileQuery()
@@ -17,9 +18,7 @@ export const ProfileClient = (): ReactElement => {
       {isSuccess && (
         <div className={s.profile}>
           <div className={s.profileDetails}>
-            <div className={s.profileAvatar}>
-              <Image src={'/mock/image_4.jpg'} fill alt="Avatar" className={s.profileImage} />
-            </div>
+            <Avatar className={s.profileAvatar} />
             <div className={s.profileInfo}>
               <div className={s.profileInfoHeader}>
                 <Typography variant="h1">UserName</Typography>

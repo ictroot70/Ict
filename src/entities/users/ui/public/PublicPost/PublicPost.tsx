@@ -8,6 +8,7 @@ import s from './PublicPost.module.scss'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import Carousel from './Carousel/Carousel'
+import { Avatar } from '@/shared/composites/Avatar'
 
 type Props = {
   post: PublicPostResponse
@@ -38,15 +39,7 @@ export const PublicPost = ({ post }: Props) => {
       </div>
 
       <div className={s.user}>
-        <div className={s.avatar}>
-          <Image
-            src={avatarOwner ?? '/avatar-default.svg'}
-            alt="User avatar"
-            width={36}
-            height={36}
-            className={s.image}
-          />
-        </div>
+        <Avatar image={avatarOwner} className={s.avatar} />
         <Typography variant="h3">{userName}</Typography>
       </div>
 

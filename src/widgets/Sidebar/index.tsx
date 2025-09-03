@@ -3,7 +3,6 @@ import { linkGroups } from './model/linkGrouos'
 import { usePathname } from 'next/navigation'
 
 import s from './Sidebar.module.scss'
-import { Button, LogOut } from '@ictroot/ui-kit'
 import { LogOutButton } from './components/LogoutButton/LogOutButton'
 
 export const Sidebar = () => {

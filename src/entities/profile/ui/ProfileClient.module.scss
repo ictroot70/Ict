@@ -10,18 +10,8 @@
   }
 
   &Avatar {
-    position: relative;
     width: 204px;
     height: 204px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  &Image {
-    width: 100%;
-    object-fit: cover;
-    object-position: center;
   }
 
   &Info {
@@ -52,9 +42,9 @@
     grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));
 
     &Item {
+      cursor: pointer;
       position: relative;
       width: 100%;
-      max-width: 234px;
       height: 228px;
     }
   }
