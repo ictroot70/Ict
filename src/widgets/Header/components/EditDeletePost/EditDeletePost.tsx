@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { TrashOutline, EditOutline, Button, Typography } from "@/shared/ui";
 import styles from './EditDeletePost.module.scss';
-import { TrashOutline, EditOutline } from "@/shared/ui"
+
+/*
+ * Интерфейс пропсов компонента EditDeletePost
+ * @interface EditDeletePostProps
+ * @property {string} postId - Уникальный идентификатор поста для операций редактирования/удаления
+ * @property {Function} onEdit - Callback-функция при выборе опции редактирования
+ * @property {Function} onDelete - Callback-функция при выборе опции удаления
+ * @property {string} [className] - Дополнительные CSS классы для кастомизации
+ */
 
 interface EditDeletePostProps {
     postId: string;
@@ -9,6 +18,33 @@ interface EditDeletePostProps {
     className?: string;
 }
 
+/*
+ * Компонент выпадающего меню для управления постом (редактирование/уделение)
+ * 
+ * @component
+ * @description Предоставляет компактное меню с опциями редактирования и удаления контента
+ * 
+ * @example
+ * // Базовое использование
+ * <EditDeletePost
+ *   postId="post-123"
+ *   onEdit={(id) => console.log('Edit post:', id)}
+ *   onDelete={(id) => console.log('Delete post:', id)}
+ * />
+ * 
+ * @example
+ * // С кастомным классом
+ * <EditDeletePost
+ *   postId="post-123"
+ *   onEdit={handleEdit}
+ *   onDelete={handleDelete}
+ *   className="custom-edit-delete-menu"
+ * />
+ * 
+ * @param {EditDeletePostProps} props - Пропсы компонента
+ * @returns {JSX.Element} Компонент меню управления постом
+ */
+
 export const EditDeletePost: React.FC<EditDeletePostProps> = ({
     postId,
     onEdit,
@@ -16,6 +52,7 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
     className = ''
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const handleMenuToggle = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -31,66 +68,105 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
         setIsMenuOpen(false);
     };
 
+    useEffect(() => {
+
+        /* 
+         * Обработчик клика вне области меню
+            * @function handleClickOutside
+         * @param { MouseEvent } event - Событие клика
+        */
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <div className={`${styles.wrapper} ${className}`}>
-            {/* Кнопка для открытия/закрытия меню */}
-            <button
+        <div className={`${styles.wrapper} ${className}`} ref={menuRef}>
+            <Button
+                variant="text"
                 className={styles.menuButton}
                 onClick={handleMenuToggle}
                 aria-label="Open menu"
+                aria-expanded={isMenuOpen}
+                style={{
+                    width: '32px',
+                    height: '32px',
+                    padding: '8px',
+                    minWidth: 'auto',
+                    background: '#ffffff',
+                    border: '1px solid #e5e5e5'
+                }}
             >
                 <div className={styles.dotsIcon}>
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-            </button>
+            </Button>
 
-            {/* Выпадающее меню */}
             {isMenuOpen && (
-                <div className={styles.container}>
-                    {/* Кнопка Edit */}
-                    <button
+                <div
+                    className={styles.container}
+                    style={{
+                        minWidth: '137px',
+                        minHeight: '85px'
+                    }}
+                >
+                    <Button
+                        variant="text"
                         className={styles.button}
                         onClick={handleEditClick}
                         aria-label="Edit Post"
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '0'
+                        }}
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>
-                                {/* <img
-                                    src="/icons/svg/arrow-back-outline.svg"
-                                    alt="Edit"
-                                    width={24}
-                                    height={24}
-                                    className={styles.icon}
-                                /> */}
-                                <EditOutline />
+                                <EditOutline size={24} />
                             </div>
-                            <span className={styles.text}>Edit Post</span>
+                            <Typography
+                                variant="regular_14"
+                                className={styles.text}
+                            >
+                                Edit Post
+                            </Typography>
                         </div>
-                    </button>
+                    </Button>
 
 
-                    <button
+                    <Button
+                        variant="text"
                         className={styles.button}
                         onClick={handleDeleteClick}
                         aria-label="Delete Post"
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: '0'
+                        }}
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>
-                                {/* <img
-                                    src="/icons/svg/trash.svg"
-                                    alt="Delete"
-                                    width={24}
-                                    height={24}
-                                    className={styles.icon}
-                                /> */}
-                                <TrashOutline />
-
+                                <TrashOutline size={24} />
                             </div>
-                            <span className={styles.text}>Delete Post</span>
+                            <Typography
+                                variant="regular_14"
+                                className={styles.text}
+                            >
+                                Delete Post
+                            </Typography>
                         </div>
-                    </button>
+                    </Button>
                 </div>
             )}
         </div>

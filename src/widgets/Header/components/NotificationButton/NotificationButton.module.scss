@@ -1,6 +1,6 @@
 .notificationWrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
 }
 
 .notificationBtn {
@@ -17,30 +17,15 @@
   transition: background-color 0.2s ease;
 }
 
-.notificationBadge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 8px;
-  height: 8px;
-  background-color: #ff4757;
-  border-radius: 50%;
-}
-
 .menuHeader {
   padding: 12px 16px;
 }
 
 .menuTitle {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
-  font-weight: 500;
-  font-style: normal;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: 0px;
   color: #ffffff;
-  text-align: left;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .menuDivider {
@@ -50,11 +35,28 @@
   width: 90%;
 }
 
+.notificationsScrollArea {
+  flex: 1;
+  max-height: 300px;
+}
+
+.notificationsViewport {
+  max-height: 300px;
+  padding-right: 8px;
+}
+
 .notificationsList {
   overflow-y: auto;
   max-height: 300px;
   padding: 0;
   margin-right: 8px;
+
+  .menuDivider {
+    height: 1px;
+    background-color: #4c4c4c;
+    margin: 0 auto;
+    width: 90%;
+  }
 }
 
 .notificationItem {
@@ -63,11 +65,7 @@
   padding: 12px 16px 12px 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border-bottom: 1px solid #1a1a1a;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  border-bottom: none;
 
   &:hover {
     background-color: #1a1a1a;
@@ -81,14 +79,7 @@
 
 .notificationTitle {
   margin: 0 0 4px 0;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-style: normal;
-  font-size: 14px;
-  line-height: 24px;
-  letter-spacing: 0%;
   color: #ffffff;
-  text-align: left;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -106,25 +97,13 @@
 }
 
 .notificationMessage {
-  font-family: 'Roboto', sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 14px;
-  line-height: 24px;
-  letter-spacing: 0px;
   color: #cccccc;
-  text-align: left;
+  margin: 0 0 4px 0;
 }
 
 .notificationTime {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 12px;
-  line-height: 16px;
-  letter-spacing: 0%;
   color: #999999;
-  text-align: left;
+  margin: 0;
 }
 
 .emptyState {
@@ -134,33 +113,12 @@
 
 .emptyText {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
   color: #999999;
-}
-
-.notificationsList::-webkit-scrollbar {
-  width: 6px;
-}
-
-.notificationsList::-webkit-scrollbar-track {
-  background: #1a1a1a;
-  border-radius: 3px;
-}
-
-.notificationsList::-webkit-scrollbar-thumb {
-  background: #333333;
-  border-radius: 3px;
-}
-
-.notificationsList::-webkit-scrollbar-thumb:hover {
-  background: #444444;
 }
 
 .notificationMenu {
   position: absolute;
-  top: calc(100% + 1px);
+  top: calc(100% + 8px);
   right: 0;
   width: 355px;
   max-height: 400px;
@@ -201,33 +159,65 @@
   }
 }
 
-.notificationContainer {
-  display: none;
+.notificationsList::-webkit-scrollbar {
+  width: 6px;
 }
 
-.notificationsList {
-  overflow-y: auto;
-  max-height: 300px;
-  padding: 0;
-  padding-right: 10px;
+.notificationsList::-webkit-scrollbar-track {
+  background: #1a1a1a;
+  border-radius: 3px;
+}
 
-  .menuDivider {
-    height: 1px;
-    background-color: #4c4c4c;
-    margin: 0 auto;
-    width: 90%;
+.notificationsList::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 3px;
+}
+
+.notificationsList::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+// [data-radix-scroll-area-viewport] {
+//   scrollbar-width: thin;
+//   scrollbar-color: #333333 #1a1a1a;
+// }
+
+// [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+//   width: 6px;
+// }
+
+// [data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
+//   background: #1a1a1a;
+//   border-radius: 3px;
+// }
+
+// [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+//   background: #333333;
+//   border-radius: 3px;
+// }
+
+// [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
+//   background: #444444;
+// }
+
+@media (max-width: 768px) {
+  .notificationMenu {
+    width: 300px;
+    right: -20px;
+
+    .beak {
+      right: 33px;
+    }
   }
 }
 
-.notificationItem {
-  display: flex;
-  align-items: flex-start;
-  padding: 12px 16px 12px 12px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  border-bottom: none;
+@media (max-width: 480px) {
+  .notificationMenu {
+    width: 280px;
+    right: -40px;
 
-  &:hover {
-    background-color: #1a1a1a;
+    .beak {
+      right: 53px;
+    }
   }
 }

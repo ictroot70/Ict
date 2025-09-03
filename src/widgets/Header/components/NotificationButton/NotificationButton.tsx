@@ -1,8 +1,59 @@
 import { useState, useRef, useEffect } from 'react'
-import { showToastAlert } from '@/shared/lib'
-import { BellOutline } from '@/shared/ui'
+import { BellOutline, Button, ScrollAreaRadix, Typography, TypographyVariant } from '@/shared/ui'
 import s from './NotificationButton.module.scss'
 import React from 'react'
+
+/*
+ * Интерфейс уведомления
+ * @interface Notification
+ * @property {number} id - Уникальный идентификатор уведомления
+ * @property {string} title - Заголовок уведомления
+ * @property {string} message - Текст уведомления
+ * @property {string} time - Время уведомления (например, "2 часа назад")
+ * @property {boolean} isRead - Статус прочтения уведомления
+ */
+
+export interface Notification {
+  id: number
+  title: string
+  message: string
+  time: string
+  isRead: boolean
+}
+
+/*
+ * Пропсы компонента NotificationButton
+ * @interface NotificationButtonProps
+ * @property {Notification[]} [notifications] - Массив уведомлений
+ * @property {Function} [onNotificationClick] - Обработчик клика по уведомлению
+ * @property {string} [className] - Дополнительные CSS классы
+ */
+
+interface NotificationButtonProps {
+  notifications?: Notification[]
+  onNotificationClick?: (notification: Notification) => void
+  className?: string
+}
+
+/*
+ * Компонент кнопки уведомлений с выпадающим меню
+ * 
+ * @component
+ * @example
+ * // Базовое использование с дефолтными уведомлениями
+ * <NotificationButton />
+ * 
+ * @example
+ * // С кастомными уведомлениями
+ * <NotificationButton 
+ *   notifications={customNotifications}
+ *   onNotificationClick={handleNotificationClick}
+ *   className="custom-class"
+ * />
+ * 
+ * @param {NotificationButtonProps} props - Пропсы компонента
+ * @returns {JSX.Element} Компонент кнопки уведомлений
+ */
 
 export interface Notification {
   id: number
@@ -43,16 +94,16 @@ export const NotificationButton = ({
     },
     {
       id: 4,
-      title: 'Новый пользователь',
-      message: 'В системе зарегистрирован новый пользователь',
-      time: '2 дня назад',
+      title: 'Задача выполнена',
+      message: 'Ваша задача "Отчет за месяц" была успешно выполнена',
+      time: '1 день назад',
       isRead: true
     },
     {
       id: 5,
-      title: 'Резервное копирование',
-      message: 'Резервное копирование данных выполнено успешно',
-      time: '3 дня назад',
+      title: 'Задача выполнена',
+      message: 'Ваша задача "Отчет за месяц" была успешно выполнена',
+      time: '1 день назад',
       isRead: true
     }
   ],
@@ -61,11 +112,16 @@ export const NotificationButton = ({
 }: NotificationButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
-  // Закрытие меню при клике вне его области
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsMenuOpen(false)
       }
     }
@@ -81,64 +137,88 @@ export const NotificationButton = ({
   const handleNotificationClick = (notification: Notification) => {
     if (onNotificationClick) {
       onNotificationClick(notification)
-    } else {
-      console.log('Notification clicked:', notification)
     }
   }
 
   return (
-    <div className={s.notificationWrapper} ref={menuRef}>
+    <div className={`${s.notificationWrapper} ${className}`}>
       <button
-        title={'Notification'}
-        type={'button'}
+        ref={buttonRef}
         className={s.notificationBtn}
         onClick={handleButtonClick}
+        title="Уведомления"
+        aria-expanded={isMenuOpen}
+        type="button"
       >
         <BellOutline size={24} />
-        {/* {notifications.some(n => !n.isRead) && (
-          <span className={s.notificationBadge}></span>
-        )} */}
       </button>
 
       {isMenuOpen && (
-        <div className={s.notificationMenu}>
-          <div className={s.beak}></div>
+        <div className={s.notificationMenu} ref={menuRef}>
+          <div className={s.beak} aria-hidden="true"></div>
+
           <div className={s.menuHeader}>
-            <h3 className={s.menuTitle}>Уведомления</h3>
+            <Typography variant="h3" className={s.menuTitle}>
+              Уведомления
+            </Typography>
           </div>
 
-          <div className={s.menuDivider}></div>
+          <div className={s.menuDivider} aria-hidden="true"></div>
 
-          <div className={s.notificationsList}>
-            {notifications.map((notification, index) => (
-              <React.Fragment key={notification.id}>
-                <div
-                  className={`${s.notificationItem} ${!notification.isRead ? s.unread : ''}`}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className={s.notificationContent}>
-                    <h4 className={s.notificationTitle}>
-                      {notification.title}
-                      {!notification.isRead && (
-                        <span className={s.newLabel}>Новое</span>
-                      )}
-                    </h4>
-                    <p className={s.notificationMessage}>{notification.message}</p>
-                    <span className={s.notificationTime}>{notification.time}</span>
+          <ScrollAreaRadix
+            className={s.notificationsScrollArea}
+            viewportClassName={s.notificationsViewport}
+          >
+            <div className={s.notificationsList}>
+              {notifications.map((notification, index) => (
+                <React.Fragment key={notification.id}>
+                  <div
+                    className={`${s.notificationItem} ${!notification.isRead ? s.unread : ''}`}
+                    onClick={() => handleNotificationClick(notification)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className={s.notificationContent}>
+                      <div className={s.notificationTitle}>
+                        <span className={s.titleText}>{notification.title}</span>
+                        {!notification.isRead && (
+                          <span className={s.newLabel}>Новое</span>
+                        )}
+                      </div>
+
+                      <Typography
+                        variant="regular_14"
+                        className={s.notificationMessage}
+                      >
+                        {notification.message}
+                      </Typography>
+
+                      <Typography
+                        variant="small_text"
+                        className={s.notificationTime}
+                      >
+                        {notification.time}
+                      </Typography>
+                    </div>
+
+                    {!notification.isRead && (
+                      <div className={s.unreadDot} aria-hidden="true"></div>
+                    )}
                   </div>
-                  {!notification.isRead && <div className={s.unreadDot}></div>}
-                </div>
 
-                {index < notifications.length - 1 && (
-                  <div className={s.menuDivider}></div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
+                  {index < notifications.length - 1 && (
+                    <div className={s.menuDivider} aria-hidden="true"></div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </ScrollAreaRadix>
 
           {notifications.length === 0 && (
             <div className={s.emptyState}>
-              <p className={s.emptyText}>Нет новых уведомлений</p>
+              <Typography variant="regular_14" className={s.emptyText}>
+                Нет новых уведомлений
+              </Typography>
             </div>
           )}
         </div>
