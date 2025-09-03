@@ -42,10 +42,12 @@ export const baseQueryWithReauth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
+  const url = typeof args === 'string' ? args : args.url
+  console.log('Making request to:', url)
   await mutex.waitForUnlock()
   let result = await baseQuery(args, api, extraOptions)
 
-  // console.log(result)
+  console.log('Request result:', result)
   if (result.error && result.error.status === 401) {
     // checking whether the mutex is locked
     if (!mutex.isLocked()) {
