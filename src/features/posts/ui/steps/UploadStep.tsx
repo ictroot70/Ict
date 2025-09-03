@@ -10,12 +10,13 @@ interface Props {
   files: UploadedFile[]
   setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>
   onOpenDraft?: () => void
+  handleUpload: (file: File) => Promise<void>
 }
 
 const MAX_SIZE = 20 * 1024 * 1024 // 20 MB
 const MAX_FILES = 10
 
-export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDraft }) => {
+export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDraft, handleUpload }) => {
   const [error, setError] = useState<string | null>(null)
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -26,31 +27,29 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDra
       return
     }
 
-    for (const file of acceptedFiles) {
-      if (file.size > MAX_SIZE) {
-        setError('The photo must be less than 20 Mb')
-        continue
-      }
-
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setError('The photo must be JPEG or PNG format')
-        continue
-      }
+    // Добавляем превью для UI
+    acceptedFiles.forEach(file => {
+      if (file.size > MAX_SIZE) return setError('The photo must be less than 20 Mb')
+      if (!['image/jpeg', 'image/png'].includes(file.type)) return setError('The photo must be JPEG or PNG format')
 
       const reader = new FileReader()
       reader.onload = () => {
         const preview = reader.result as string
         setFiles(prev => {
-          // 🔑 Проверяем, есть ли такой файл уже в стейте
           if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
             return prev
           }
           return [...prev, { file, preview }]
         })
-        onNext()
       }
       reader.readAsDataURL(file)
-    }
+    })
+
+    // Загружаем все файлы параллельно
+    await Promise.all(acceptedFiles.map(file => handleUpload(file)))
+
+    // Переход к следующему шагу только один раз
+    onNext()
   }
 
   const { getRootProps, getInputProps, open } = useDropzone({

@@ -10,6 +10,7 @@ interface Props {
   selectedFilter: string;
   description: string;
   setDescription: (v: string) => void;
+  uploadedImage: { uploadId: string; url: string }[];
 }
 
 export const PublishStep: React.FC<Props> = ({
@@ -19,13 +20,12 @@ export const PublishStep: React.FC<Props> = ({
                                                selectedFilter,
                                                description,
                                                setDescription,
+                                               uploadedImage
                                              }) => {
   const handlePublish = async () => {
-    const photos = files.map((f) => f.preview);
-
     const newPost: Post = {
       id: Date.now().toString(),
-      photos,
+      photos: uploadedImage.map(img => img.url),
       description,
       createdAt: new Date().toISOString(),
       filter: selectedFilter,
@@ -53,9 +53,9 @@ export const PublishStep: React.FC<Props> = ({
 
       {/* Image preview with selected filter */}
       <div className={styles.photoPreview}>
-        {files[0] && (
+        {uploadedImage?.length > 0 && (
           <img
-            src={files[0].preview}
+            src={uploadedImage[0].url}
             className={
               selectedFilter !== "Normal"
                 ? styles[selectedFilter.toLowerCase()]
