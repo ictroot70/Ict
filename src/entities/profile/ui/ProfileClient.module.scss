@@ -1,45 +1,61 @@
-.wrapper {
+.profile {
   display: flex;
-  gap: 38px;
+  flex-direction: column;
+  row-gap: 3rem;
   padding: 36px 0 36px 24px;
-}
 
-.avatar {
-  position: relative;
-  width: 204px;
-  height: 204px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.image {
-  width: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.info {
-  &Header {
+  &Details {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    gap: 38px;
   }
-}
 
-.name {
-}
-
-.actions {
-}
-
-.stats {
-  display: flex;
-  gap: 80px;
-  margin-bottom: 1.5rem;
-  &Item {
+  &Avatar {
+    position: relative;
+    width: 204px;
+    height: 204px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
   }
-}
 
-.about {
+  &Image {
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  &Info {
+    &Header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+  }
+
+  &Actions {
+  }
+
+  &Stats {
+    display: flex;
+    gap: 80px;
+    margin-bottom: 1.5rem;
+    &Item {
+    }
+  }
+
+  &About {
+  }
+
+  &Posts {
+    display: grid;
+    gap: 1rem 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));
+
+    &Item {
+      position: relative;
+      width: 100%;
+      max-width: 234px;
+      height: 228px;
+    }
+  }
 }

@@ -15,43 +15,81 @@ export const ProfileClient = (): ReactElement => {
   return (
     <>
       {isSuccess && (
-        <div className={s.wrapper}>
-          <div className={s.avatar}>
-            <Image src={'/mock/image_4.jpg'} fill alt="Avatar" className={s.image} />
+        <div className={s.profile}>
+          <div className={s.profileDetails}>
+            <div className={s.profileAvatar}>
+              <Image src={'/mock/image_4.jpg'} fill alt="Avatar" className={s.profileImage} />
+            </div>
+            <div className={s.profileInfo}>
+              <div className={s.profileInfoHeader}>
+                <Typography variant="h1">UserName</Typography>
+                <div className={s.profileActions}>
+                  <Button variant="secondary">Profile Settings</Button>
+                </div>
+              </div>
+              <div className={s.profileStats}>
+                <div className={s.profileStatsItem}>
+                  <Typography variant="bold_14">2 218</Typography>
+                  <Typography variant="regular_14">Following</Typography>
+                </div>
+                <div className={s.profileStatsItem}>
+                  <Typography variant="bold_14">2 358</Typography>
+                  <Typography variant="regular_14">Followers</Typography>
+                </div>
+                <div className={s.profileStatsItem}>
+                  <Typography variant="bold_14">2 764</Typography>
+                  <Typography variant="regular_14">Publications</Typography>
+                </div>
+              </div>
+              <Typography variant="regular_16" className={s.profileAbout}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+                exercitation ullamco{' '}
+                <Typography asChild variant="regular_link">
+                  <Link href="#link" target="_blank">
+                    laboris nisi ut aliquip ex ea commodo consequat.
+                  </Link>
+                </Typography>
+              </Typography>
+            </div>
           </div>
-          <div className={s.info}>
-            <div className={s.infoHeader}>
-              <Typography variant="h1" className={s.name}>
-                UserName
-              </Typography>
-              <div className={s.actions}>
-                <Button variant="secondary">Profile Settings</Button>
-              </div>
+          <div className={s.profilePosts}>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
             </div>
-            <div className={s.stats}>
-              <div className={s.statsItem}>
-                <Typography variant="bold_14">2 218</Typography>
-                <Typography variant="regular_14">Following</Typography>
-              </div>
-              <div className={s.statsItem}>
-                <Typography variant="bold_14">2 358</Typography>
-                <Typography variant="regular_14">Followers</Typography>
-              </div>
-              <div className={s.statsItem}>
-                <Typography variant="bold_14">2 764</Typography>
-                <Typography variant="regular_14">Publications</Typography>
-              </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
             </div>
-            <Typography variant="regular_16" className={s.about}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-              exercitation ullamco{' '}
-              <Typography asChild variant="regular_link">
-                <Link href="#link" target="_blank">
-                  laboris nisi ut aliquip ex ea commodo consequat.
-                </Link>
-              </Typography>
-            </Typography>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_2.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
+            <div className={s.profilePostsItem}>
+              <Image src={'/mock/image_3.jpg'} fill alt="Post_1" className={s.profileImage} />
+            </div>
           </div>
         </div>
       )}
