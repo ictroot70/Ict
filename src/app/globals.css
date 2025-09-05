@@ -39,3 +39,7 @@ main {
   margin: 60px auto 0;
   padding: 0 2rem;
 }
+
+ul {
+  list-style: none;
+}
