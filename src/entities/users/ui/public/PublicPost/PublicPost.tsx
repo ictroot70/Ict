@@ -39,7 +39,7 @@ export const PublicPost = ({ post }: Props) => {
       </div>
 
       <div className={s.user}>
-        <Avatar image={avatarOwner} className={s.avatar} />
+        <Avatar image={avatarOwner} size={36} />
         <Typography variant="h3">{userName}</Typography>
       </div>
 

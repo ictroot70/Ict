@@ -9,12 +9,8 @@
     gap: 38px;
   }
 
-  &Avatar {
-    width: 204px;
-    height: 204px;
-  }
-
   &Info {
+    width: 100%;
     &Header {
       display: flex;
       justify-content: space-between;
@@ -34,6 +30,11 @@
   }
 
   &About {
+  }
+
+  &Image {
+    object-fit: cover;
+    object-position: center;
   }
 
   &Posts {
