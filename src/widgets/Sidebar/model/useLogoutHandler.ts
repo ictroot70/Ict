@@ -12,7 +12,7 @@ export const useLogoutHandler = (onClose: () => void) => {
   const handleLogout = async () => {
     try {
       await logout().unwrap()
-      router.replace(APP_ROUTES.AUTH.LOGIN)
+      router.replace(APP_ROUTES.ROOT)
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Something went wrong'
 
