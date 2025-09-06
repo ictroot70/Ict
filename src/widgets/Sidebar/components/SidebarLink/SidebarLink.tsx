@@ -23,13 +23,17 @@ export const SidebarLink = ({
   href,
   ...rest
 }: Props) => {
+  if (disabled) {
+    return (
+      <span className={`${s.link} ${s.disabled} ${className}`} role="link" aria-disabled="true">
+        {active && activeIcon ? activeIcon : icon}
+        <span className={s.label}>{children}</span>
+      </span>
+    )
+  }
+
   return (
-    <Link
-      className={clsx(s.link, active && s.active, disabled && s.disabled, className)}
-      href={href}
-      aria-disabled={disabled}
-      {...rest}
-    >
+    <Link className={clsx(s.link, active && s.active, className)} href={href} {...rest}>
       {active && activeIcon ? activeIcon : icon}
       <span className={s.label}>{children}</span>
     </Link>
