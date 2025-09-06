@@ -43,3 +43,15 @@ main {
 ul {
   list-style: none;
 }
+
+/*  
+Changes in styles for the modal window, can be removed after editing in ui-kit
+*/
+
+._overlay_1p3pc_119 {
+  z-index: 100;
+}
+
+._content_1p3pc_126 {
+  z-index: 101;
+}
