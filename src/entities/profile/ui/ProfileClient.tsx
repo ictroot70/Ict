@@ -8,6 +8,8 @@ import s from './ProfileClient.module.scss'
 import Image from 'next/image'
 import { Button, Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
+import Link from 'next/link'
+import { APP_ROUTES } from '@/shared/constant'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -34,7 +36,13 @@ export const ProfileClient = (): ReactElement => {
               <div className={s.profileInfoHeader}>
                 <Typography variant="h1">{meInfo.userName}</Typography>
                 <div className={s.profileActions}>
-                  <Button variant="secondary">Profile Settings</Button>
+                  <Button
+                    as={Link}
+                    variant="secondary"
+                    href={APP_ROUTES.PROFILE.EDIT(`${meInfo.id}`)}
+                  >
+                    Profile Settings
+                  </Button>
                 </div>
               </div>
               <ul className={s.profileStats}>
