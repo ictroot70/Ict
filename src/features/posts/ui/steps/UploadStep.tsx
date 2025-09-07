@@ -10,7 +10,7 @@ interface Props {
   files: UploadedFile[]
   setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>
   onOpenDraft?: () => void
-  handleUpload: (file: File) => Promise<void>
+  handleUpload: (file: File) => Promise<any>
 }
 
 const MAX_SIZE = 20 * 1024 * 1024 // 20 MB
@@ -27,29 +27,32 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDra
       return
     }
 
-    // Добавляем превью для UI
-    acceptedFiles.forEach(file => {
-      if (file.size > MAX_SIZE) return setError('The photo must be less than 20 Mb')
-      if (!['image/jpeg', 'image/png'].includes(file.type)) return setError('The photo must be JPEG or PNG format')
+    for (const file of acceptedFiles) {
+      if (file.size > MAX_SIZE) {
+        setError('The photo must be less than 20 Mb')
+        continue
+      }
+
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        setError('The photo must be JPEG or PNG format')
+        continue
+      }
 
       const reader = new FileReader()
       reader.onload = () => {
         const preview = reader.result as string
         setFiles(prev => {
+          // 🔑 Проверяем, есть ли такой файл уже в стейте
           if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
             return prev
           }
           return [...prev, { file, preview }]
         })
+        onNext()
       }
       reader.readAsDataURL(file)
-    })
 
-    // Загружаем все файлы параллельно
-    await Promise.all(acceptedFiles.map(file => handleUpload(file)))
-
-    // Переход к следующему шагу только один раз
-    onNext()
+    }
   }
 
   const { getRootProps, getInputProps, open } = useDropzone({
@@ -67,7 +70,6 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDra
         <div className={styles.iconWrapper}>
           <ImageOutline />
         </div>
-        <p>Drag & drop photos here</p>
       </div>
 
       {error && <p className={styles.error}>{error}</p>}

@@ -1,14 +1,12 @@
-"use client"
-import React, { useEffect, useState } from "react"
-import { useCreatePost } from "../model/useCreatePost"
-import { UploadStep } from "./steps/UploadStep"
-import { CropStep } from "./steps/CropStep"
-import { FilterStep } from "./steps/FilterStep"
-import { PublishStep } from "./steps/PublishStep"
-import styles from "./CreatePostForm.module.scss"
-import { Draft, Post } from "@/features/posts/model/types"
+'use client'
+import React, { useEffect, useState } from 'react'
+import { useCreatePost } from '../model/useCreatePost'
+import { UploadStep } from './steps/UploadStep'
+import { CropStep } from './steps/CropStep'
+import { FilterStep } from './steps/FilterStep'
+import { PublishStep } from './steps/PublishStep'
+import { Draft, Post } from '@/features/posts/model/types'
 import { Modal } from '@/shared/ui/Modal'
-
 
 import {
   useCreatePostMutation,
@@ -16,7 +14,6 @@ import {
   useUploadImageMutation,
 } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { useSelector } from 'react-redux'
 import { useSearchParams } from 'next/navigation'
 
 interface Props {
@@ -28,7 +25,14 @@ interface Props {
   onDeleteDraft?: (id: string) => void
 }
 
-const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPublishPost, onDeleteDraft }) => {
+const CreatePost: React.FC<Props> = ({
+  draft,
+  open,
+  onClose,
+  onSaveDraft,
+  onPublishPost,
+  onDeleteDraft,
+}) => {
   const { step, setStep, files, setFiles } = useCreatePost()
 
   const [uploadImage] = useUploadImageMutation()
@@ -36,18 +40,18 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
   const [createPost] = useCreatePostMutation()
 
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
-  const [selectedFilter, setSelectedFilter] = useState(draft?.filter || "none")
-  const [description, setDescription] = useState(draft?.description || "")
+  const [selectedFilter, setSelectedFilter] = useState(draft?.filter || 'none')
+  const [description, setDescription] = useState(draft?.description || '')
 
   const searchParams = useSearchParams()
-  const userId = Number(searchParams.get("userId"))
+  const userId = Number(searchParams.get('userId'))
 
   // подставляем файлы из черновика
   useEffect(() => {
     if (draft) {
       setFiles(
-        draft.files.map((f) => ({
-          file: new File([], "draft.jpg"), // mock
+        draft.files.map(f => ({
+          file: new File([], 'draft.jpg'), // mock
           preview: f.preview,
         }))
       )
@@ -58,7 +62,7 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
   const saveDraft = () => {
     const newDraft: Draft = {
       id: draft?.id || Date.now().toString(),
-      files: files.map((f) => ({ preview: f.preview })),
+      files: files.map(f => ({ preview: f.preview })),
       description,
       filter: selectedFilter,
       createdAt: draft?.createdAt || new Date().toISOString(),
@@ -66,52 +70,46 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
     onSaveDraft(newDraft) // обновляем state родителя
   }
   // загрузка фото
-  const handleUpload = async (file: File) => {
-    const allowedTypes = ["image/jpeg", "image/png"]
+  const handleUpload = async (file: File | Blob) => {
+    const allowedTypes = ['image/jpeg', 'image/png']
     const maxSize = 1024 * 1024
     const maxCount = 10
     if (!file) return
 
+    const finalFile =
+      file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
+
     if (uploadedImage.length >= maxCount) {
-      alert("You can upload no more than 10 photos.")
+      alert('You can upload no more than 10 photos.')
       return
     }
 
-    if (!allowedTypes.includes(file.type)) {
-      alert("Only JPEG or PNG images are allowed")
+    if (!allowedTypes.includes(finalFile.type)) {
+      alert('Only JPEG or PNG images are allowed')
       return
     }
 
-    if (file.size > maxSize) {
+    if (finalFile.size > maxSize) {
       alert(`The file is too large. Max size is ${Math.round(maxSize / 1024)} KB`)
       return
     }
 
     try {
       const formData = new FormData()
-      formData.append("file", file)
+      formData.append('file', finalFile)
       const uploaded = await uploadImage(formData).unwrap()
       setUploadedImage(prev => [...prev, ...uploaded.images])
+
+      return uploaded // ✅ ВОЗВРАЩАЕМ результат
     } catch (error) {
-      console.error("Failed to upload image:", error)
+      console.error('Failed to upload image:', error)
     }
   }
-
-  // удаление фото
-  const handleDeleteImage = async (uploadId: string) => {
-    try {
-      await deleteImage(uploadId).unwrap()
-      setUploadedImage(prev => prev.filter(img => img.uploadId !== uploadId))
-    } catch (error) {
-      console.error("Failed to delete image:", error)
-    }
-  }
-
 
   const handleClose = () => {
-    const confirmClose = window.confirm("Do you really want to close? All progress will be lost.")
+    const confirmClose = window.confirm('Do you really want to close? All progress will be lost.')
     if (confirmClose) {
-      const save = window.confirm("Do you want to save this as a draft?")
+      const save = window.confirm('Do you want to save this as a draft?')
       if (save) {
         saveDraft()
       }
@@ -120,31 +118,12 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
     }
   }
 
-  // публикация поста на сервер
-  const handlePublish = async () => {
-    try {
-      await createPost({
-        userId,
-        body: {
-          description,
-          childrenMetadata: uploadedImage.map(img => ({ uploadId: img.uploadId })),
-        },
-      }).unwrap()
-
-      alert("Post created!")
-      resetForm()
-      onClose()
-    } catch (error) {
-      console.error("Failed to create post:", error)
-    }
-  }
-
   const resetForm = () => {
-    setStep("upload")
+    setStep('upload')
     setFiles([])
     setUploadedImage([])
-    setSelectedFilter("none")
-    setDescription("")
+    setSelectedFilter('none')
+    setDescription('')
   }
 
   return (
@@ -156,43 +135,50 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
       height="564px"
       style={{ zIndex: 100 }}
     >
-      {step === "upload" && (
+      {step === 'upload' && (
         <UploadStep
-          onNext={() => setStep("crop")}
+          onNext={() => setStep('crop')}
           files={files}
           setFiles={setFiles}
           handleUpload={handleUpload}
         />
       )}
 
-      {step === "crop" && (
+      {step === 'crop' && (
         <CropStep
-          onPrev={() => setStep("upload")}
-          onNext={() => setStep("filter")}
+          onPrev={() => setStep('upload')}
+          onNext={() => setStep('filter')}
           files={files}
           setFiles={setFiles}
         />
       )}
 
-      {step === "filter" && (
+      {step === 'filter' && (
         <FilterStep
-          onPrev={() => setStep("crop")}
-          onNext={() => setStep("publish")}
+          onPrev={() => setStep('crop')}
+          onNext={() => setStep('publish')}
           files={files}
           selectedFilter={selectedFilter}
           setSelectedFilter={setSelectedFilter}
         />
       )}
 
-      {step === "publish" && (
+      {step === 'publish' && (
         <PublishStep
-          onPrev={() => setStep("filter")}
-          onPublish={handlePublish}
+          onPrev={() => setStep('filter')}
           files={files}
           selectedFilter={selectedFilter}
           description={description}
           setDescription={setDescription}
+          handleUpload={handleUpload}
+          createPost={createPost}
+          userId={userId}
+          onClose={() => {
+            resetForm()
+            onClose()
+          }}
           uploadedImage={uploadedImage}
+          onPublishPost={onPublishPost}
         />
       )}
     </Modal>
@@ -200,6 +186,3 @@ const CreatePost: React.FC<Props> = ({ draft, open, onClose, onSaveDraft, onPubl
 }
 
 export default CreatePost
-
-
-

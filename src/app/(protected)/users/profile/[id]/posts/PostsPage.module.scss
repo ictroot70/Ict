@@ -50,18 +50,16 @@ html, body {
 
 .postCard {
   background: #111;
-  border-radius: 10px;
   border: 1px solid #222;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s;
-  width: 100%;   /* 🔥 убираем фикс 234px */
-  height: auto;  /* пусть подстраивается */
+  width: 100%;
 }
 
 .postInfo {
-  padding: 14px;
+  padding: 5px;
 }
 
 .userRow {
@@ -75,9 +73,9 @@ html, body {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: gray;
+  object-fit: cover;
+  border: 1px solid #333;
 }
-
 .username {
   font-weight: 600;
   font-size: 14px;

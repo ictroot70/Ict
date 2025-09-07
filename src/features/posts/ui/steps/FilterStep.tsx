@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import styles from "./FilterStep.module.scss";
 import { UploadedFile } from "../../model/types";
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+
 
 const filters = [
   { name: "Normal", className: "" },
@@ -12,20 +14,19 @@ const filters = [
 ];
 
 interface Props {
-  onNext: () => void
-  onPrev: () => void
-  files: UploadedFile[]
-  selectedFilter: string
-  setSelectedFilter: (filter: string) => void
+  onNext: () => void;
+  onPrev: () => void;
+  files: UploadedFile[];
 }
 
-export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setSelectedFilter, selectedFilter }) => {
+export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
+  const [filtersState, setFiltersState] = useState<Record<number, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
-  const currentFile = files[currentIndex];
-  const currentFilter = selectedFilter || "Normal";
+
+  const currentFilter = filtersState[currentIndex] || "Normal";
 
   const applyFilter = (filterName: string) => {
-    setSelectedFilter(filterName)
+    setFiltersState((prev) => ({ ...prev, [currentIndex]: filterName }));
   };
 
   return (
@@ -37,14 +38,11 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setSelected
         <button onClick={onNext}>Next</button>
       </div>
 
-      {/* Preview */}
-      <div className={styles.preview}>
-        <img
-          src={currentFile.preview}
-          alt="preview"
-          className={selectedFilter !== "Normal" ? styles[selectedFilter.toLowerCase()] : ""}
-        />
-      </div>
+      {/* Используем EmblaCarousel */}
+      <EmblaCarousel
+        photos={files.map((f) => f.preview)}
+        filter={currentFilter}
+      />
 
       {/* Filters row */}
       <div className={styles.filtersRow}>
@@ -57,7 +55,7 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setSelected
             onClick={() => applyFilter(f.name)}
           >
             <img
-              src={currentFile.preview}
+              src={files[currentIndex].preview}
               alt={f.name}
               className={`${styles.filterThumb} ${
                 f.className ? styles[f.className] : ""

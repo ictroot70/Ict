@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
-import styles from "./EmblaCarousel.module.css"
+import styles from "./EmblaCarousel.module.scss"
 
 interface Props {
   photos: string[];
