@@ -9,14 +9,13 @@ interface Props {
   onNext: () => void
   files: UploadedFile[]
   setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>
-  onOpenDraft?: () => void
   handleUpload: (file: File) => Promise<any>
 }
 
 const MAX_SIZE = 20 * 1024 * 1024 // 20 MB
 const MAX_FILES = 10
 
-export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDraft, handleUpload }) => {
+export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpload }) => {
   const [error, setError] = useState<string | null>(null)
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -79,7 +78,7 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, onOpenDra
         <button type="button" className={styles.primaryBtn} onClick={open}>
           Select from Computer
         </button>
-        <button className={styles.secondaryBtn} onClick={onOpenDraft} type="button">
+        <button className={styles.secondaryBtn} type="button">
           Open Draft
         </button>
       </div>

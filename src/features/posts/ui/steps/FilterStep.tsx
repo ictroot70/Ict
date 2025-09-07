@@ -17,16 +17,23 @@ interface Props {
   onNext: () => void;
   onPrev: () => void;
   files: UploadedFile[];
+  filtersState: Record<number, string>;
+  // selectedFilter: string;
+  setFiltersState: React.Dispatch<React.SetStateAction<Record<number, string>>>;
 }
 
-export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
-  const [filtersState, setFiltersState] = useState<Record<number, string>>({});
+export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersState, filtersState }) => {
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // текущий фильтр для активной картинки
   const currentFilter = filtersState[currentIndex] || "Normal";
 
   const applyFilter = (filterName: string) => {
-    setFiltersState((prev) => ({ ...prev, [currentIndex]: filterName }));
+    setFiltersState((prev) => ({
+      ...prev,
+      [currentIndex]: filterName, // 🔑 сохраняем только для текущей картинки
+    }));
   };
 
   return (
@@ -38,10 +45,11 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
         <button onClick={onNext}>Next</button>
       </div>
 
-      {/* Используем EmblaCarousel */}
+
       <EmblaCarousel
         photos={files.map((f) => f.preview)}
-        filter={currentFilter}
+        filtersState={filtersState}
+        onSlideChange={setCurrentIndex}
       />
 
       {/* Filters row */}
@@ -57,9 +65,7 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files }) => {
             <img
               src={files[currentIndex].preview}
               alt={f.name}
-              className={`${styles.filterThumb} ${
-                f.className ? styles[f.className] : ""
-              }`}
+              className={`${styles.filterThumb} ${f.className ? styles[f.className] : ""}`}
             />
             <span>{f.name}</span>
           </div>

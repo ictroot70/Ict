@@ -2,27 +2,28 @@
 import React from "react";
 import styles from "./PublishStep.module.scss";
 import { UploadedFile, Post } from "../../model/types";
-import { ToastAlert } from '@/shared/composites'
-import { toast } from 'react-toastify/unstyled'
+import { ToastAlert } from "@/shared/composites";
+import { toast } from "react-toastify/unstyled";
+import EmblaCarousel from "@/entities/posts/ui/EmblaCarousel";
 
 interface Props {
   onPrev: () => void;
   files: UploadedFile[];
-  selectedFilter: string;
+  filtersState: Record<number, string>; // ✅ фильтры для каждой картинки
   description: string;
   setDescription: (v: string) => void;
-  handleUpload: (file: File | Blob) => Promise<any>; // пробрасываем из CreatePostForm
-  createPost: (args: any) => Promise<any>;           // пробрасываем из CreatePostForm
+  handleUpload: (file: File | Blob) => Promise<any>;
+  createPost: (args: any) => Promise<any>;
   userId: number;
   onClose: () => void;
-  uploadedImage: { uploadId: string; url: string }[];  // 🔑 добавили
+  uploadedImage: { uploadId: string; url: string }[];
   onPublishPost: (post: any) => void;
 }
 
 export const PublishStep: React.FC<Props> = ({
                                                onPrev,
                                                files,
-                                               selectedFilter,
+                                               filtersState,
                                                description,
                                                setDescription,
                                                handleUpload,
@@ -30,16 +31,17 @@ export const PublishStep: React.FC<Props> = ({
                                                userId,
                                                onClose,
                                                uploadedImage,
-                                               onPublishPost
+                                               onPublishPost,
                                              }) => {
-  const previewUrl = files[0]?.preview;
-
   const handlePublish = async () => {
     if (files.length === 0) return;
 
     const uploadedAll: any[] = [];
 
-    for (const file of files) {
+    for (let idx = 0; idx < files.length; idx++) {
+      const file = files[idx];
+      const filter = filtersState[idx] || "Normal"; // ✅ фильтр для конкретной картинки
+
       const img = new Image();
       img.src = file.preview;
       await new Promise((resolve) => (img.onload = resolve));
@@ -51,7 +53,7 @@ export const PublishStep: React.FC<Props> = ({
       const ctx = canvas.getContext("2d")!;
 
       // применяем фильтр
-      switch (selectedFilter) {
+      switch (filter) {
         case "Clarendon":
           ctx.filter = "contrast(1.2) saturate(1.35)";
           break;
@@ -60,6 +62,9 @@ export const PublishStep: React.FC<Props> = ({
           break;
         case "Moon":
           ctx.filter = "grayscale(1) contrast(1.1) brightness(1.1)";
+          break;
+        case "Lark":
+          ctx.filter = "brightness(1.1) saturate(1.2)";
           break;
         default:
           ctx.filter = "none";
@@ -81,7 +86,6 @@ export const PublishStep: React.FC<Props> = ({
 
     if (uploadedAll.length === 0) return;
 
-    // создаём пост с массивом картинок
     const newPost = await createPost({
       userId,
       body: {
@@ -93,20 +97,16 @@ export const PublishStep: React.FC<Props> = ({
     });
 
     onPublishPost(newPost);
-    toast(
-      <ToastAlert
-        type="success"
-        message="✅ Post created!"
-      />
-    )
-    // alert("Post created!");
+    toast(<ToastAlert type="success" message="✅ Post created!" />);
     onClose();
   };
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <button onClick={onPrev} className={styles.navBtn}>←</button>
+        <button onClick={onPrev} className={styles.navBtn}>
+          ←
+        </button>
         <span className={styles.title}>New Post</span>
         <button
           onClick={handlePublish}
@@ -117,18 +117,12 @@ export const PublishStep: React.FC<Props> = ({
         </button>
       </div>
 
+      {/* ✅ Слайдер вместо одной картинки */}
       <div className={styles.photoPreview}>
-        {previewUrl && (
-          <img
-            src={previewUrl}
-            className={
-              selectedFilter !== "Normal"
-                ? styles[selectedFilter.toLowerCase()]
-                : ""
-            }
-            alt="preview"
-          />
-        )}
+        <EmblaCarousel
+          photos={files.map((f) => f.preview)}
+          filtersState={filtersState} // пробрасываем фильтры
+        />
       </div>
 
       <div className={styles.form}>

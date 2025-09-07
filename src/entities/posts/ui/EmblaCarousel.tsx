@@ -4,10 +4,11 @@ import styles from "./EmblaCarousel.module.scss"
 
 interface Props {
   photos: string[];
-  filter?: string;
+  filtersState?: Record<number, string>;
+  onSlideChange?: (index: number) => void;
 }
 
-const EmblaCarousel: React.FC<Props> = ({ photos, filter }) => {
+const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange }) => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
   const [selectedIndex, setSelectedIndex] = useState(0)
 
@@ -16,24 +17,33 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filter }) => {
 
   useEffect(() => {
     if (!emblaApi) return
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap())
+    const onSelect = () => {
+      const index = emblaApi.selectedScrollSnap()
+      setSelectedIndex(index)
+      if (onSlideChange) onSlideChange(index)
+    }
     emblaApi.on("select", onSelect)
     onSelect()
-  }, [emblaApi])
+  }, [emblaApi, onSlideChange])
+
 
   return (
     <div className={styles.embla}>
       <div className={styles.embla__viewport} ref={emblaRef}>
         <div className={styles.embla__container}>
-          {photos.map((src, idx) => (
-            <div className={styles.embla__slide} key={idx}>
-              <img
-                src={src}
-                alt={`post-${idx}`}
-                className={filter ? styles[filter.toLowerCase()] : ""}
-              />
-            </div>
-          ))}
+          {photos.map((src, idx) => {
+            // ✅ Безопасно читаем фильтр для конкретного индекса
+            const filter = filtersState && filtersState[idx] ? filtersState[idx] : ""
+            return (
+              <div className={styles.embla__slide} key={idx}>
+                <img
+                  src={src}
+                  alt={`post-${idx}`}
+                  className={filter ? styles[filter.toLowerCase()] : ""}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
 

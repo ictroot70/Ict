@@ -5,74 +5,36 @@ import { UploadStep } from './steps/UploadStep'
 import { CropStep } from './steps/CropStep'
 import { FilterStep } from './steps/FilterStep'
 import { PublishStep } from './steps/PublishStep'
-import { Draft, Post } from '@/features/posts/model/types'
+import { Post } from '@/features/posts/model/types'
 import { Modal } from '@/shared/ui/Modal'
 
-import {
-  useCreatePostMutation,
-  useDeleteImageMutation,
-  useUploadImageMutation,
-} from '@/entities/posts/api/postApi'
+import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 
 interface Props {
-  draft?: Draft
   open: boolean
   onClose: () => void
-  onSaveDraft: (newDraft: Draft) => void
   onPublishPost: (post: Post) => void
-  onDeleteDraft?: (id: string) => void
 }
 
-const CreatePost: React.FC<Props> = ({
-  draft,
-  open,
-  onClose,
-  onSaveDraft,
-  onPublishPost,
-  onDeleteDraft,
-}) => {
+const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const { step, setStep, files, setFiles } = useCreatePost()
 
   const [uploadImage] = useUploadImageMutation()
-  const [deleteImage] = useDeleteImageMutation()
   const [createPost] = useCreatePostMutation()
-
+  const [filtersState, setFiltersState] = useState<Record<number, string>>({});
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
-  const [selectedFilter, setSelectedFilter] = useState(draft?.filter || 'none')
-  const [description, setDescription] = useState(draft?.description || '')
+  const [description, setDescription] = useState('')
+  const [selectedFilter, setSelectedFilter] = useState('Normal')
 
-  const searchParams = useSearchParams()
-  const userId = Number(searchParams.get('userId'))
+  const params = useParams()
+  const userId = Number(params.id)
 
-  // подставляем файлы из черновика
-  useEffect(() => {
-    if (draft) {
-      setFiles(
-        draft.files.map(f => ({
-          file: new File([], 'draft.jpg'), // mock
-          preview: f.preview,
-        }))
-      )
-    }
-  }, [draft, setFiles])
-
-  // сохранить черновик
-  const saveDraft = () => {
-    const newDraft: Draft = {
-      id: draft?.id || Date.now().toString(),
-      files: files.map(f => ({ preview: f.preview })),
-      description,
-      filter: selectedFilter,
-      createdAt: draft?.createdAt || new Date().toISOString(),
-    }
-    onSaveDraft(newDraft) // обновляем state родителя
-  }
   // загрузка фото
   const handleUpload = async (file: File | Blob) => {
     const allowedTypes = ['image/jpeg', 'image/png']
-    const maxSize = 1024 * 1024
+    const maxSize = 1024 * 1024 * 20
     const maxCount = 10
     if (!file) return
 
@@ -109,10 +71,6 @@ const CreatePost: React.FC<Props> = ({
   const handleClose = () => {
     const confirmClose = window.confirm('Do you really want to close? All progress will be lost.')
     if (confirmClose) {
-      const save = window.confirm('Do you want to save this as a draft?')
-      if (save) {
-        saveDraft()
-      }
       resetForm()
       onClose()
     }
@@ -122,7 +80,6 @@ const CreatePost: React.FC<Props> = ({
     setStep('upload')
     setFiles([])
     setUploadedImage([])
-    setSelectedFilter('none')
     setDescription('')
   }
 
@@ -158,8 +115,8 @@ const CreatePost: React.FC<Props> = ({
           onPrev={() => setStep('crop')}
           onNext={() => setStep('publish')}
           files={files}
-          selectedFilter={selectedFilter}
-          setSelectedFilter={setSelectedFilter}
+          filtersState={filtersState}
+          setFiltersState={setFiltersState}
         />
       )}
 
@@ -167,7 +124,7 @@ const CreatePost: React.FC<Props> = ({
         <PublishStep
           onPrev={() => setStep('filter')}
           files={files}
-          selectedFilter={selectedFilter}
+          filtersState={filtersState}
           description={description}
           setDescription={setDescription}
           handleUpload={handleUpload}

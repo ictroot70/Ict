@@ -28,8 +28,7 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
 
   const currentFile = files[currentIndex];
 
-  // 🔑 Сохранение обрезанного изображения
-  const handleNext = () => {
+  const saveCrop = () => {
     if (cropperRef.current) {
       const canvas = cropperRef.current.getCanvas();
       if (canvas) {
@@ -41,24 +40,31 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
         );
       }
     }
+  };
+
+
+  const handleThumbClick = (idx: number) => {
+    saveCrop();
+    setCurrentIndex(idx);
+  };
+
+  const handleNext = () => {
+    saveCrop();
     onNext();
   };
 
-  // 🔑 Смена aspect ratio
   const handleAspectChange = (value: number) => {
     setAspect(value === 0 ? undefined : value);
   };
 
   return (
     <div className={styles.wrapper}>
-      {/* Шапка */}
       <div className={styles.header}>
         <button onClick={onPrev} className={styles.navBtn}>←</button>
         <span className={styles.title}>Cropping</span>
         <button onClick={handleNext} className={styles.navBtn}>Next</button>
       </div>
 
-      {/* Область кропа */}
       <div className={styles.cropContainer}>
         <Cropper
           src={currentFile.preview}
@@ -70,7 +76,6 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
         />
       </div>
 
-      {/* Aspect Ratios */}
       <div className={styles.aspectRatios}>
         {aspectRatios.map((ar) => (
           <button
@@ -87,14 +92,13 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
         ))}
       </div>
 
-      {/* Миниатюры снизу */}
       {files.length > 1 && (
         <div className={styles.thumbs}>
           {files.map((f, idx) => (
             <div
               key={idx}
               className={`${styles.thumb} ${idx === currentIndex ? styles.active : ""}`}
-              onClick={() => setCurrentIndex(idx)}
+              onClick={() => handleThumbClick(idx)}
             >
               <img src={f.preview} alt="thumb" />
             </div>

@@ -1,29 +1,41 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import styles from './PostsPage.module.scss'
-import { Draft, Post } from '@/features/posts/model/types'
+import { Draft } from '@/features/posts/model/types'
 import DraftsList from '@/features/posts/ui/steps/DraftsList'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 import { useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { timeAgo } from '@/features/posts/lib/timeAgo'
+import { toast } from 'react-toastify/unstyled'
+import { ToastAlert } from '@/shared/composites'
 
 const HomePage: React.FC = () => {
   const params = useParams()
   const userId = Number(params.id)
 
-  const { data, isLoading } = useGetPostsByUserQuery(
+  const { data, isLoading, error, refetch } = useGetPostsByUserQuery(
     { userId, endCursorPostId: 0 },
     { skip: !userId }
   )
-  const [drafts, setDrafts] = useState<Draft[]>([])
+
   const [editingDraft, setEditingDraft] = useState<Draft | null>(null)
   const [isOpen, setIsOpen] = useState(false)
 
+
   useEffect(() => {
-    setDrafts(JSON.parse(localStorage.getItem('drafts') || '[]'))
-  }, [])
+    if (error) {
+      let message = 'Unknown error'
+      if ('status' in error) {
+        message = `Error ${error.status}`
+      } else if ('message' in error) {
+        message = error.message as string
+      }
+
+      toast(<ToastAlert type="error" message={message} />)
+    }
+  }, [error])
 
   if (isLoading) return <div>Loading...</div>
 
@@ -31,17 +43,7 @@ const HomePage: React.FC = () => {
     <div className={styles.feed}>
       <div className={styles.sidebar}>
         <button onClick={() => setIsOpen(true)}>Создать пост</button>
-        <DraftsList
-          drafts={drafts}
-          onSelectDraft={draft => setEditingDraft(draft)}
-          onDeleteDraft={id => {
-            const updated = drafts.filter(d => d.id !== id)
-            setDrafts(updated)
-            localStorage.setItem('drafts', JSON.stringify(updated))
-          }}
-        />
       </div>
-
       <div className={styles.postsGrid}>
         {data?.items.map(post => (
           <div key={post.id} className={styles.postCard}>
@@ -66,12 +68,9 @@ const HomePage: React.FC = () => {
         <CreatePost
           open={isOpen}
           onClose={() => setIsOpen(false)}
-          onSaveDraft={newDraft => {
-            const updated = [newDraft, ...drafts.filter(d => d.id !== newDraft.id)]
-            setDrafts(updated)
-            localStorage.setItem('drafts', JSON.stringify(updated))
+          onPublishPost={() => {
+            refetch()
           }}
-          onPublishPost={() => {}} // теперь не нужно пушить руками
         />
       )}
     </div>
