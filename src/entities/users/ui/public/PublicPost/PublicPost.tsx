@@ -19,7 +19,7 @@ export const PublicPost = ({ post }: Props) => {
 
   const timeAgo = useTimeAgo(createdAt)
 
-  const MAX_CHAR_COUNT = 70
+  const MAX_CHAR_COUNT = 67
 
   const [isExpanded, setIsExpanded] = useState(false)
   const isLongDescription = description.length >= MAX_CHAR_COUNT
