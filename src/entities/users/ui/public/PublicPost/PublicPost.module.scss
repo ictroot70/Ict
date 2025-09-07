@@ -45,9 +45,13 @@
   flex-grow: 1;
   height: 100%;
   overflow: auto;
+  overflow-wrap: break-word;
 
   &::-webkit-scrollbar {
     width: 4px;
+    &:horizontal {
+      height: 4px;
+    }
   }
 
   &::-webkit-scrollbar-track {
@@ -56,8 +60,12 @@
   }
 
   &::-webkit-scrollbar-thumb {
+    cursor: pointer;
     background: var(--color-dark-100);
     border-radius: 2px;
+    &:hover {
+      background: var(--color-light-900);
+    }
   }
 }
 
