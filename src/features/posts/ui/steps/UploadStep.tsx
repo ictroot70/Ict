@@ -12,7 +12,7 @@ interface Props {
   handleUpload: (file: File) => Promise<any>
 }
 
-const MAX_SIZE = 20 * 1024 * 1024 // 20 MB
+const MAX_SIZE = 20 * 1024 * 1024
 const MAX_FILES = 10
 
 export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpload }) => {
@@ -41,7 +41,6 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
       reader.onload = () => {
         const preview = reader.result as string
         setFiles(prev => {
-          // 🔑 Проверяем, есть ли такой файл уже в стейте
           if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
             return prev
           }
@@ -63,7 +62,6 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
 
   return (
     <div className={styles.wrapper}>
-      {/* Зона загрузки */}
       <div {...getRootProps()} className={styles.dropzone}>
         <input {...getInputProps()} />
         <div className={styles.iconWrapper}>
@@ -73,7 +71,6 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
 
       {error && <p className={styles.error}>{error}</p>}
 
-      {/* Кнопки */}
       <div className={styles.actions}>
         <button type="button" className={styles.primaryBtn} onClick={open}>
           Select from Computer

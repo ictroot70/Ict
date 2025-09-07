@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useCreatePost } from '../model/useCreatePost'
 import { UploadStep } from './steps/UploadStep'
 import { CropStep } from './steps/CropStep'
@@ -23,15 +23,15 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
   const [uploadImage] = useUploadImageMutation()
   const [createPost] = useCreatePostMutation()
-  const [filtersState, setFiltersState] = useState<Record<number, string>>({});
+  const [filtersState, setFiltersState] = useState<Record<number, string>>({})
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState('Normal')
+
 
   const params = useParams()
   const userId = Number(params.id)
 
-  // загрузка фото
+
   const handleUpload = async (file: File | Blob) => {
     const allowedTypes = ['image/jpeg', 'image/png']
     const maxSize = 1024 * 1024 * 20
@@ -62,7 +62,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       const uploaded = await uploadImage(formData).unwrap()
       setUploadedImage(prev => [...prev, ...uploaded.images])
 
-      return uploaded // ✅ ВОЗВРАЩАЕМ результат
+      return uploaded
     } catch (error) {
       console.error('Failed to upload image:', error)
     }

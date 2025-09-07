@@ -18,7 +18,6 @@ interface Props {
   onPrev: () => void;
   files: UploadedFile[];
   filtersState: Record<number, string>;
-  // selectedFilter: string;
   setFiltersState: React.Dispatch<React.SetStateAction<Record<number, string>>>;
 }
 
@@ -26,19 +25,17 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersS
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // текущий фильтр для активной картинки
   const currentFilter = filtersState[currentIndex] || "Normal";
 
   const applyFilter = (filterName: string) => {
     setFiltersState((prev) => ({
       ...prev,
-      [currentIndex]: filterName, // 🔑 сохраняем только для текущей картинки
+      [currentIndex]: filterName,
     }));
   };
 
   return (
     <div className={styles.wrapper}>
-      {/* Header */}
       <div className={styles.header}>
         <button onClick={onPrev}>←</button>
         <span>Filters</span>
@@ -52,7 +49,6 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersS
         onSlideChange={setCurrentIndex}
       />
 
-      {/* Filters row */}
       <div className={styles.filtersRow}>
         {filters.map((f) => (
           <div

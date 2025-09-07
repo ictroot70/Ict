@@ -21,13 +21,13 @@
 
 .embla__slide img {
   width: 100%;
-  height: auto;        /* пропорции */
-  max-height: 400px;   /* 🔑 ограничение, чтобы карточка не растягивалась слишком сильно */
-  object-fit: cover;   /* обрезает края, как в Figma */
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
   border-bottom: 1px solid #222;
 }
 
-/* 🔹 Кнопки-стрелки */
+
 .embla__button {
   position: absolute;
   top: 50%;
@@ -55,7 +55,7 @@
   right: 10px;
 }
 
-/* 🔹 Индикаторы */
+
 .embla__dots {
   position: absolute;
   bottom: 12px;
@@ -77,7 +77,7 @@
 }
 
 .embla__dot__active {
-  background: #1976d2; /* синий как на твоём примере */
+  background: #1976d2;
 }
 
 .clarendon {

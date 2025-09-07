@@ -9,7 +9,7 @@ import EmblaCarousel from "@/entities/posts/ui/EmblaCarousel";
 interface Props {
   onPrev: () => void;
   files: UploadedFile[];
-  filtersState: Record<number, string>; // ✅ фильтры для каждой картинки
+  filtersState: Record<number, string>;
   description: string;
   setDescription: (v: string) => void;
   handleUpload: (file: File | Blob) => Promise<any>;
@@ -40,7 +40,7 @@ export const PublishStep: React.FC<Props> = ({
 
     for (let idx = 0; idx < files.length; idx++) {
       const file = files[idx];
-      const filter = filtersState[idx] || "Normal"; // ✅ фильтр для конкретной картинки
+      const filter = filtersState[idx] || "Normal";
 
       const img = new Image();
       img.src = file.preview;
@@ -52,7 +52,6 @@ export const PublishStep: React.FC<Props> = ({
 
       const ctx = canvas.getContext("2d")!;
 
-      // применяем фильтр
       switch (filter) {
         case "Clarendon":
           ctx.filter = "contrast(1.2) saturate(1.35)";
@@ -117,11 +116,10 @@ export const PublishStep: React.FC<Props> = ({
         </button>
       </div>
 
-      {/* ✅ Слайдер вместо одной картинки */}
       <div className={styles.photoPreview}>
         <EmblaCarousel
           photos={files.map((f) => f.preview)}
-          filtersState={filtersState} // пробрасываем фильтры
+          filtersState={filtersState}
         />
       </div>
 

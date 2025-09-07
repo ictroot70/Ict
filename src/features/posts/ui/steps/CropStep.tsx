@@ -23,7 +23,6 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
   const [currentIndex, setCurrentIndex] = useState(0);
   const [aspect, setAspect] = useState<number | undefined>(undefined);
 
-  // ✅ используем useRef для доступа к cropper API
   const cropperRef = useRef<CropperRef>(null);
 
   const currentFile = files[currentIndex];
@@ -72,7 +71,7 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
           stencilProps={{
             aspectRatio: aspect,
           }}
-          ref={cropperRef} // ✅ теперь правильный ref
+          ref={cropperRef}
         />
       </div>
 

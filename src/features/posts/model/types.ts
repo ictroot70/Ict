@@ -14,13 +14,6 @@ export interface Post {
   photos: string[];
   description: string;
   createdAt: string;
-  filter?: string; // 🔹 добавляем фильтр
+  filter?: string;
 }
 
-export interface Draft {
-  id: string
-  files: { preview: string }[]
-  description: string
-  filter: string
-  createdAt: string
-}

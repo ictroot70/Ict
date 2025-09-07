@@ -32,7 +32,6 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
       <div className={styles.embla__viewport} ref={emblaRef}>
         <div className={styles.embla__container}>
           {photos.map((src, idx) => {
-            // ✅ Безопасно читаем фильтр для конкретного индекса
             const filter = filtersState && filtersState[idx] ? filtersState[idx] : ""
             return (
               <div className={styles.embla__slide} key={idx}>
