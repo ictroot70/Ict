@@ -1,8 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import styles from './PostsPage.module.scss'
-import { Draft } from '@/features/posts/model/types'
-import DraftsList from '@/features/posts/ui/steps/DraftsList'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 import { useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
@@ -20,9 +18,8 @@ const HomePage: React.FC = () => {
     { skip: !userId }
   )
 
-  const [editingDraft, setEditingDraft] = useState<Draft | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
 
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     if (error) {
