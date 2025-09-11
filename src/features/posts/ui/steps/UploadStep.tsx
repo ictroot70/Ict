@@ -63,7 +63,11 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
   return (
     <div className={styles.wrapper}>
       <div {...getRootProps()} className={styles.dropzone}>
-        <input {...getInputProps()} />
+        <input {...getInputProps({
+          onClick: (event: React.MouseEvent<HTMLInputElement>) => {
+            event.currentTarget.value = ''
+          }
+        })} />
         <div className={styles.iconWrapper}>
           <ImageOutline />
         </div>

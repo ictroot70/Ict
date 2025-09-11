@@ -59,7 +59,13 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles }) =
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <button onClick={onPrev} className={styles.navBtn}>←</button>
+        <button
+          onClick={onPrev}
+          className={styles.navBtn}
+          disabled={files.length >= 10}
+        >
+          ←
+        </button>
         <span className={styles.title}>Cropping</span>
         <button onClick={handleNext} className={styles.navBtn}>Next</button>
       </div>
