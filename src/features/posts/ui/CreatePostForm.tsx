@@ -26,6 +26,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const [filtersState, setFiltersState] = useState<Record<number, string>>({})
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
+  const [isUploading, setIsUploading] = useState(false);
 
 
   const params = useParams()
@@ -117,6 +118,9 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
           files={files}
           filtersState={filtersState}
           setFiltersState={setFiltersState}
+          handleUpload={handleUpload}
+          setUploadedImage={setUploadedImage}
+          setIsUploading={setIsUploading}
         />
       )}
 
@@ -136,6 +140,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
           }}
           uploadedImage={uploadedImage}
           onPublishPost={onPublishPost}
+          isUploading={isUploading}
         />
       )}
     </Modal>
