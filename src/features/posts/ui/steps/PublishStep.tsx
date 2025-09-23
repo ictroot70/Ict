@@ -65,7 +65,7 @@ export const PublishStep: React.FC<Props> = ({
           className={styles.publishBtn}
           disabled={description.length > 500 || isUploading}
         >
-          {isUploading ? 'Uploading...' : 'Publish'}
+         Publish
         </button>
       </div>
 

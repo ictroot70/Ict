@@ -7,10 +7,13 @@ import { FilterStep } from './steps/FilterStep'
 import { PublishStep } from './steps/PublishStep'
 import { Post } from '@/features/posts/model/types'
 import { Modal } from '@/shared/ui/Modal'
+import styles from './CreatePostForm.module.scss'
+
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { useParams } from 'next/navigation'
+import { useImageDropzone } from '@/features/posts/lib/useImageDropzone'
 
 interface Props {
   open: boolean
@@ -27,6 +30,12 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
   const [isUploading, setIsUploading] = useState(false);
+
+  const { open: openDialog, getRootProps, getInputProps, error } = useImageDropzone(
+    files,
+    setFiles,
+    () => setStep('crop')
+  )
 
 
   const params = useParams()
@@ -90,15 +99,19 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       onClose={handleClose}
       modalTitle="Add Photo"
       width="492px"
-      height="564px"
-      style={{ zIndex: 100 }}
+      height="640px"
+      style={{ zIndex: 100, padding: 0 }}
+      className={styles.modal}
     >
       {step === 'upload' && (
         <UploadStep
           onNext={() => setStep('crop')}
           files={files}
           setFiles={setFiles}
-          handleUpload={handleUpload}
+          openDialog={openDialog}
+          getRootProps={getRootProps}
+          getInputProps={getInputProps}
+          error={error}
         />
       )}
 
@@ -108,6 +121,8 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
           onNext={() => setStep('filter')}
           files={files}
           setFiles={setFiles}
+          openDialog={openDialog}
+          getInputProps={getInputProps}
         />
       )}
 

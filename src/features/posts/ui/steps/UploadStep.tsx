@@ -1,6 +1,5 @@
 'use client'
-import React, { useState } from 'react'
-import { useDropzone } from 'react-dropzone'
+import React from 'react'
 import { UploadedFile } from '../../model/types'
 import styles from './UploadStep.module.scss'
 import { ImageOutline } from '@/shared/ui/SVGComponents'
@@ -9,65 +8,28 @@ interface Props {
   onNext: () => void
   files: UploadedFile[]
   setFiles: React.Dispatch<React.SetStateAction<UploadedFile[]>>
-  handleUpload: (file: File) => Promise<any>
+  openDialog: () => void
+  getRootProps: () => any
+  getInputProps: (props?: any) => any
+  error: string | null
 }
 
-const MAX_SIZE = 20 * 1024 * 1024
-const MAX_FILES = 10
-
-export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpload }) => {
-  const [error, setError] = useState<string | null>(null)
-
-  const onDrop = async (acceptedFiles: File[]) => {
-    setError(null)
-
-    if (files.length + acceptedFiles.length > MAX_FILES) {
-      setError(`You can upload a maximum of ${MAX_FILES} photos`)
-      return
-    }
-
-    for (const file of acceptedFiles) {
-      if (file.size > MAX_SIZE) {
-        setError('The photo must be less than 20 Mb')
-        continue
-      }
-
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setError('The photo must be JPEG or PNG format')
-        continue
-      }
-
-      const reader = new FileReader()
-      reader.onload = () => {
-        const preview = reader.result as string
-        setFiles(prev => {
-          if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
-            return prev
-          }
-          return [...prev, { file, preview }]
-        })
-        onNext()
-      }
-      reader.readAsDataURL(file)
-
-    }
-  }
-
-  const { getRootProps, getInputProps, open } = useDropzone({
-    onDrop,
-    accept: { 'image/jpeg': [], 'image/png': [] },
-    multiple: true,
-    noClick: true,
-  })
-
+export const UploadStep: React.FC<Props> = ({
+  openDialog,
+  getRootProps,
+  getInputProps,
+  error,
+}) => {
   return (
     <div className={styles.wrapper}>
       <div {...getRootProps()} className={styles.dropzone}>
-        <input {...getInputProps({
-          onClick: (event: React.MouseEvent<HTMLInputElement>) => {
-            event.currentTarget.value = ''
-          }
-        })} />
+        <input
+          {...getInputProps({
+            onClick: (event: React.MouseEvent<HTMLInputElement>) => {
+              event.currentTarget.value = ''
+            },
+          })}
+        />
         <div className={styles.iconWrapper}>
           <ImageOutline />
         </div>
@@ -76,7 +38,7 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.actions}>
-        <button type="button" className={styles.primaryBtn} onClick={open}>
+        <button type="button" className={styles.primaryBtn} onClick={openDialog}>
           Select from Computer
         </button>
         <button className={styles.secondaryBtn} type="button">
@@ -86,4 +48,3 @@ export const UploadStep: React.FC<Props> = ({ onNext, files, setFiles, handleUpl
     </div>
   )
 }
-

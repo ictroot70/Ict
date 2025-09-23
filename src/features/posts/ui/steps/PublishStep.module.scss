@@ -1,9 +1,8 @@
-.wrapper {
+.modal-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background: #000;
-  color: #fff;
+  overflow-y: auto;
 }
 
 .header {
@@ -20,27 +19,27 @@
   justify-content: center;
 
   img {
-    max-width: 100%;
-    max-height: 350px;
+    width: 100%;
+    height: 450px;
     object-fit: contain;
   }
 }
 
 .form {
-  padding: 12px;
   display: flex;
   flex-direction: column;
 
   textarea {
-    width: 100%;
-    min-height: 80px;
+    width: 90%;
+    min-height: 70px;
     resize: none;
-    padding: 8px;
+    padding: 6px;
     border-radius: 6px;
     border: none;
     font-size: 14px;
     outline: none;
-    color: #333333;
+    color: #555;
+    align-self: center;
   }
 
   .counter {

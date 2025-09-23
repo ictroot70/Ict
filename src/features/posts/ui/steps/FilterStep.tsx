@@ -112,12 +112,13 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersS
         <button onClick={handleNext}>Next</button>
       </div>
 
-
+      <div className={styles.carouselWrapper}>
       <EmblaCarousel
         photos={files.map((f) => f.preview)}
         filtersState={filtersState}
         onSlideChange={setCurrentIndex}
       />
+      </div>
 
       <div className={styles.filtersRow}>
         {filters.map((f) => (
