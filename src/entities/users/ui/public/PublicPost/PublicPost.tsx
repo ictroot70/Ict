@@ -9,13 +9,15 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import Carousel from './Carousel/Carousel'
 import { Avatar } from '@/shared/composites/Avatar'
+import Link from 'next/link'
+import { APP_ROUTES } from '@/shared/constant'
 
 type Props = {
   post: PublicPostResponse
 }
 
 export const PublicPost = ({ post }: Props) => {
-  const { userName, images, avatarOwner, description, createdAt } = post
+  const { userName, images, avatarOwner, description, createdAt, ownerId } = post
 
   const timeAgo = useTimeAgo(createdAt)
 
@@ -40,7 +42,9 @@ export const PublicPost = ({ post }: Props) => {
 
       <div className={s.user}>
         <Avatar image={avatarOwner} size={36} />
-        <Typography variant="h3">{userName}</Typography>
+        <Link href={APP_ROUTES.PUBLIC_USERS.PROFILE(`${ownerId}`)}>
+          <Typography variant="h3">{userName}</Typography>
+        </Link>
       </div>
 
       <div className={s.content}>

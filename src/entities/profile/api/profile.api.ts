@@ -30,7 +30,7 @@ export const profileApi = createApi({
         url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
       }),
     }),
-    getProfileWithPosts: builder.query<ProfileWithPostsResponse, string>({
+    getPostsByUserName: builder.query<ProfileWithPostsResponse, string>({
       query: userName => ({ url: `v1/users/${userName}` }),
     }),
   }),
@@ -40,5 +40,5 @@ export const {
   useGetMyProfileQuery,
   useLazyGetMyProfileQuery,
   useGetPublicProfileQuery,
-  useGetProfileWithPostsQuery,
+  useGetPostsByUserNameQuery,
 } = profileApi
