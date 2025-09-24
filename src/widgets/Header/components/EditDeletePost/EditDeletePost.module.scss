@@ -4,6 +4,12 @@
 }
 
 .menuButton {
+  width: 32px;
+  height: 32px;
+  padding: 8px;
+  min-width: auto;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -26,13 +32,13 @@
   gap: 3px;
   width: 16px;
   height: 16px;
-}
 
-.dotsIcon span {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: #666666;
+  span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #666666;
+  }
 }
 
 .container {

@@ -95,14 +95,6 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                 onClick={handleMenuToggle}
                 aria-label="Open menu"
                 aria-expanded={isMenuOpen}
-                style={{
-                    width: '32px',
-                    height: '32px',
-                    padding: '8px',
-                    minWidth: 'auto',
-                    background: '#ffffff',
-                    border: '1px solid #e5e5e5'
-                }}
             >
                 <div className={styles.dotsIcon}>
                     <span></span>
