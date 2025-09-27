@@ -68,6 +68,7 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
                 className={`${styles.embla__dot} ${
                   idx === selectedIndex ? styles.embla__dot__active : ""
                 }`}
+                onClick={() => emblaApi && emblaApi.scrollTo(idx)}
               />
             ))}
           </div>
