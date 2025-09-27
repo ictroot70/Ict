@@ -107,9 +107,9 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersS
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <button onClick={onPrev}>←</button>
+        <button onClick={onPrev} className={styles.navBtn}>←</button>
         <span>Filters</span>
-        <button onClick={handleNext}>Next</button>
+        <button onClick={handleNext} className={styles.navBtn}>Next</button>
       </div>
 
       <div className={styles.carouselWrapper}>
@@ -134,7 +134,7 @@ export const FilterStep: React.FC<Props> = ({ onNext, onPrev, files, setFiltersS
               alt={f.name}
               className={`${styles.filterThumb} ${f.className ? styles[f.className] : ""}`}
             />
-            <span>{f.name}</span>
+            <span className={styles.name}>{f.name}</span>
           </div>
         ))}
       </div>

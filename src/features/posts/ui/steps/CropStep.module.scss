@@ -23,7 +23,7 @@
   background: transparent;
   border: none;
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
 
   &:hover {
@@ -78,6 +78,14 @@
 
   &.active {
     background: #0077ff;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    opacity: 0.7;
   }
 }
 
@@ -116,6 +124,10 @@
   position: relative;
   z-index: 100;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
 }
 
 .deleteBtn {

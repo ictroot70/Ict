@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  background: #0d0d0d;
 }
 
 .header {
@@ -10,6 +11,7 @@
   justify-content: space-between;
   padding: 10px 16px;
   font-weight: 600;
+  background: #222;
 }
 
 .photoPreview {
@@ -24,13 +26,30 @@
     object-fit: contain;
   }
 }
+.publishBtn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
 
 .form {
   display: flex;
   flex-direction: column;
 
   textarea {
-    width: 90%;
+    width: 85%;
     min-height: 70px;
     resize: none;
     padding: 6px;
@@ -44,6 +63,7 @@
 
   .counter {
     margin-top: 4px;
+    margin-right: 40px;
     font-size: 12px;
     color: #888;
     text-align: right;

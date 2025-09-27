@@ -99,8 +99,8 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       onClose={handleClose}
       modalTitle="Add Photo"
       width="492px"
-      height="640px"
-      style={{ zIndex: 100, padding: 0 }}
+      height="auto"
+      style={{ zIndex: 100, paddingBottom: 48 }}
       className={styles.modal}
     >
       {step === 'upload' && (

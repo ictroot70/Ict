@@ -56,14 +56,14 @@ export const PublishStep: React.FC<Props> = ({
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
-        <button onClick={onPrev} className={styles.navBtn}>
+        <button onClick={onPrev} className={styles.publishBtn}>
           ←
         </button>
         <span className={styles.title}>New Post</span>
         <button
           onClick={handlePublish}
           className={styles.publishBtn}
-          disabled={description.length > 500 || isUploading}
+          disabled={description.length === 0 || description.length > 500 || isUploading}
         >
          Publish
         </button>
