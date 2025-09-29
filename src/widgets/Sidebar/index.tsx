@@ -1,0 +1,33 @@
+import { SidebarGroup, SidebarLink } from './components'
+import { linkGroups } from './model/linkGrouos'
+import { usePathname } from 'next/navigation'
+
+import s from './Sidebar.module.scss'
+import { LogOutButton } from './components/LogoutButton/LogOutButton'
+
+export const Sidebar = () => {
+  const pathname = usePathname()
+  return (
+    <nav className={s.sidebar}>
+      <div className={s.sidebarWrapper}>
+        {linkGroups.map((group, index) => (
+          <SidebarGroup key={index}>
+            {group.links.map(link => (
+              <SidebarLink
+                key={link.href}
+                href={link.href}
+                icon={link.icon}
+                activeIcon={link.activeIcon}
+                disabled={link.disabled}
+                active={link.href === pathname}
+              >
+                {link.label}
+              </SidebarLink>
+            ))}
+          </SidebarGroup>
+        ))}
+        <LogOutButton />
+      </div>
+    </nav>
+  )
+}

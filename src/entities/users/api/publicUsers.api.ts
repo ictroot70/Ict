@@ -2,6 +2,7 @@ import { GetPublicUsers } from '@/entities/users/model'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { createApi } from '@reduxjs/toolkit/query/react'
+import { GetPublicPostsRequest, GetPublicPostsResponse } from './api.types'
 
 export const publicUsersApi = createApi({
   reducerPath: 'publicUsersApi',
@@ -12,7 +13,13 @@ export const publicUsersApi = createApi({
         url: API_ROUTES.PUBLIC_USER.COUNT,
       }),
     }),
+    getPublicPosts: builder.query<GetPublicPostsResponse, GetPublicPostsRequest>({
+      query: ({ endCursorPostId, ...params }) => ({
+        params,
+        url: `v1/public-posts/all/${endCursorPostId}`,
+      }),
+    }),
   }),
 })
 
-export const { useGetPublicUsersCounterQuery } = publicUsersApi
+export const { useGetPublicUsersCounterQuery, useGetPublicPostsQuery } = publicUsersApi

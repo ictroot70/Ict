@@ -30,3 +30,38 @@ export interface ProfileUpdateDto {
   dateOfBirth?: string
   aboutMe?: string
 }
+export interface PublicProfileResponse {
+  aboutMe: null | string
+  avatars: AvatarViewDto[]
+  id: number
+  userMetadata: UserMetadata
+  userName: string
+}
+
+export interface PublicProfileRequest {
+  profileId: string
+}
+
+export interface UserMetadata {
+  followers: number
+  following: number
+  publications: number
+}
+
+export interface ProfileWithPostsResponse {
+  aboutMe: string
+  avatars: AvatarViewDto[]
+  city: string
+  country: string
+  dateOfBirth: string
+  firstName: string
+  followersCount: number
+  followingCount: number
+  id: number
+  isFollowedBy: boolean
+  isFollowing: boolean
+  lastName: string
+  publicationsCount: number
+  region: string
+  userName: string
+}
