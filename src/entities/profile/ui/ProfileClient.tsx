@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactElement } from 'react'
+import { ReactElement, useState } from 'react'
 
 import { useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
 
@@ -10,6 +10,7 @@ import { Button, Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
+import PostModal from './PostModal/PostModal'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -25,6 +26,16 @@ export const ProfileClient = (): ReactElement => {
     { label: 'Followers', value: profileWithPosts?.followersCount || 0 },
     { label: 'Publications', value: profileWithPosts?.publicationsCount || 0 },
   ]
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedImages, setSelectedImages] = useState<string[]>([])
+
+  const openModal = (index: number) => {
+    setSelectedImages([`/mock/image_${index + 1}.jpg`])
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => setIsModalOpen(false)
 
   return (
     <>
@@ -61,7 +72,14 @@ export const ProfileClient = (): ReactElement => {
           <ul className={s.profilePosts}>
             {Array.from({ length: 4 }).map((_, index) => {
               return (
-                <div key={index} className={s.profilePostsItem}>
+                <div
+                  key={index}
+                  className={s.profilePostsItem}
+                  onClick={() => openModal(index)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' ? openModal(index) : null)}
+                >
                   <Image
                     src={`/mock/image_${index + 1}.jpg`}
                     fill
@@ -72,6 +90,10 @@ export const ProfileClient = (): ReactElement => {
               )
             })}
           </ul>
+
+          {isModalOpen && (
+            <PostModal open={isModalOpen} onClose={closeModal} images={selectedImages} initialIndex={0} />
+          )}
         </div>
       )}
     </>
