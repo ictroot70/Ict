@@ -36,7 +36,7 @@ export const PublicPost = ({ post }: Props) => {
         {images.length > 1 ? (
           <Carousel slides={images} />
         ) : (
-          <Image src={images[0].url} alt="Image" fill className={s.image} />
+          <Image src={images[0]?.url} alt="Image" fill className={s.image} />
         )}
       </div>
 
