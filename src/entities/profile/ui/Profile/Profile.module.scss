@@ -4,6 +4,7 @@
   row-gap: 3rem;
   max-width: 972px;
   margin: 0 auto;
+  min-height: 100%;
 
   &Details {
     display: flex;
@@ -38,7 +39,15 @@
     object-position: center;
   }
 
+  &SectionPosts {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+  }
+
   &Posts {
+    width: 100%;
     display: grid;
     gap: 1rem 0.75rem;
     grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));

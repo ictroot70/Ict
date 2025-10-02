@@ -1,6 +1,8 @@
 'use client'
+import { useGetPostsByUserQuery } from '@/entities/posts/api'
 import { useGetPublicProfileQuery } from '@/entities/profile'
 import { Profile } from '@/entities/profile/ui'
+import { Loading } from '@/shared/composites'
 import { useParams } from 'next/navigation'
 
 export default function PublicUser() {
@@ -8,12 +10,27 @@ export default function PublicUser() {
 
   const profileId = typeof id === 'string' ? id : ''
 
-  const { data: publicProfile } = useGetPublicProfileQuery(
+  const { data: publicProfile, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     { profileId },
     {
       skip: !profileId,
     }
   )
 
-  return <>{publicProfile ? <Profile profile={publicProfile} /> : <div>user not found</div>}</>
+  const { data: postsData, isLoading: isPostsLoading } = useGetPostsByUserQuery(
+    { userId: +profileId },
+    {
+      skip: !profileId,
+    }
+  )
+
+  const isLoading = isProfileLoading || isPostsLoading
+
+  if (isLoading) return <Loading />
+
+  if (!publicProfile) {
+    return <div>User not found</div>
+  }
+
+  return <Profile profile={publicProfile} posts={postsData?.items} />
 }

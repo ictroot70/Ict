@@ -8,9 +8,11 @@ import { Avatar } from '@/shared/composites'
 import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
+import { PostViewModel } from '@/entities/posts/api'
 
 interface Props {
   profile: ProfileType
+  posts?: PostViewModel[]
   isOwnProfile?: boolean
   isAuthenticated?: boolean
   onEdit?: () => void
@@ -20,6 +22,7 @@ interface Props {
 
 export const Profile: React.FC<Props> = ({
   profile,
+  posts,
   isOwnProfile = false,
   isAuthenticated = false,
   onEdit,
@@ -63,7 +66,30 @@ export const Profile: React.FC<Props> = ({
         </div>
       </div>
 
-      <ul className={s.profilePosts}>
+      <div className={s.profileSectionPosts}>
+        {posts ? (
+          <ul className={s.profilePosts}>
+            {posts.map(post => (
+              <div key={post.id} className={s.profilePostsItem}>
+                <Image
+                  src={post.images[0]?.url}
+                  fill
+                  alt={`Post_${post.id + 1}`}
+                  className={s.profileImage}
+                />
+              </div>
+            ))}
+          </ul>
+        ) : (
+          <Typography variant="h1">
+            {isOwnProfile
+              ? "You haven't published any posts yet"
+              : "This user hasn't published any posts yet"}
+          </Typography>
+        )}
+      </div>
+
+      {/*       <ul className={s.profilePosts}>
         {Array.from({ length: 4 }).map((_, index) => {
           return (
             <div key={index} className={s.profilePostsItem}>
@@ -76,7 +102,7 @@ export const Profile: React.FC<Props> = ({
             </div>
           )
         })}
-      </ul>
+      </ul> */}
     </div>
   )
 }
