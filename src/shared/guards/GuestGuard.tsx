@@ -16,7 +16,7 @@ export function GuestGuard({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (data) {
       setRedirecting(true)
-      router.replace(APP_ROUTES.PROFILE.MY(data.userId))
+      router.replace(APP_ROUTES.PROFILE.MY)
     }
   }, [data, router])
 

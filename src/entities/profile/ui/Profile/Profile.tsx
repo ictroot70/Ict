@@ -88,21 +88,6 @@ export const Profile: React.FC<Props> = ({
           </Typography>
         )}
       </div>
-
-      {/*       <ul className={s.profilePosts}>
-        {Array.from({ length: 4 }).map((_, index) => {
-          return (
-            <div key={index} className={s.profilePostsItem}>
-              <Image
-                src={`/mock/image_${index + 1}.jpg`}
-                fill
-                alt={`Post_${index + 1}`}
-                className={s.profileImage}
-              />
-            </div>
-          )
-        })}
-      </ul> */}
     </div>
   )
 }

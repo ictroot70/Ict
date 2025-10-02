@@ -6,8 +6,6 @@ import {
   PublicProfileResponse,
 } from '@/entities/profile/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
-import { baseQueryWithReauth } from '@/shared/api/base-query.api'
-import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseApi } from '@/shared/api/base-api'
 
 export const profileApi = baseApi.injectEndpoints({
@@ -29,8 +27,8 @@ export const profileApi = baseApi.injectEndpoints({
         url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
       }),
     }),
-    getPostsByUserName: builder.query<ProfileWithPostsResponse, string>({
-      query: userName => ({ url: `v1/users/${userName}` }),
+    getPostsByUserName: builder.query<ProfileWithPostsResponse, { userName: string }>({
+      query: ({ userName }) => ({ url: `v1/users/${userName}` }),
     }),
   }),
 })

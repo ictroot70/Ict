@@ -36,9 +36,9 @@ export const useSignIn = () => {
       const profile = await triggerProfile().unwrap()
 
       if (profile?.firstName) {
-        router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
+        router.replace(APP_ROUTES.PROFILE.MY)
       } else {
-        router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
+        router.replace(APP_ROUTES.PROFILE.EDIT)
       }
     } catch (error: any) {
       const message =
