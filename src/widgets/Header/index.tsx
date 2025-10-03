@@ -7,8 +7,9 @@ import Link from 'next/link'
 
 import s from './AppHeader.module.scss'
 
-import { AuthBtn, LanguageSelect, NotificationButton } from './components'
-import { useHomeLink } from './hooks'
+import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
+import { useHomeLink, useLogoutHandler } from './hooks'
+import { EditDeletePost } from './components/EditDeletePost/EditDeletePost'
 
 export const AppHeader = (): ReactElement => {
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()
@@ -31,6 +32,7 @@ export const AppHeader = (): ReactElement => {
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
         {!isAuthorized && <AuthBtn />}
+        <EditDeletePost onDelete={() => {}} onEdit={() => {}} postId={''} /> 
       </div>
     )
   }

@@ -6,6 +6,8 @@ export {
   Select,
   UkFlag,
   ArrowBack,
+  TrashOutline,
+  EditOutline,
   ArrowForwardSimple,
   ArrowBackSimple,
   TrendingUp,
