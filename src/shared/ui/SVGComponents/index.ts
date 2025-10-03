@@ -8,6 +8,7 @@ export {
   ArrowBack,
   TrashOutline,
   EditOutline,
+  ImageOutline,
   ArrowForwardSimple,
   ArrowBackSimple,
   TrendingUp,
