@@ -39,3 +39,26 @@ main {
   margin: 60px auto 0;
   padding: 0 2rem;
 }
+
+ul {
+  list-style: none;
+}
+
+/*  
+Changes in styles for the modal window, can be removed after editing in ui-kit
+*/
+._overlay_1p3pc_119 {
+  z-index: 100;
+}
+
+._content_1p3pc_126 {
+  z-index: 101;
+}
+
+/*  
+Changes in styles for the alert, can be removed after editing in ui-kit
+*/
+._alert_vrmkq_1 {
+  min-height: 0;
+  max-height: none;
+}

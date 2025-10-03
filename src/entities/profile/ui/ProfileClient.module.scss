@@ -1,0 +1,51 @@
+.profile {
+  display: flex;
+  flex-direction: column;
+  row-gap: 3rem;
+
+  &Details {
+    display: flex;
+    gap: 38px;
+  }
+
+  &Info {
+    width: 100%;
+    &Header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+  }
+
+  &Actions {
+  }
+
+  &Stats {
+    display: flex;
+    gap: 80px;
+    margin-bottom: 1.5rem;
+    &Item {
+    }
+  }
+
+  &About {
+  }
+
+  &Image {
+    object-fit: cover;
+    object-position: center;
+  }
+
+  &Posts {
+    display: grid;
+    gap: 1rem 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));
+
+    &Item {
+      cursor: pointer;
+      position: relative;
+      width: 100%;
+      height: 228px;
+    }
+  }
+}
