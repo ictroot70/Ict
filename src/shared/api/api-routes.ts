@@ -37,50 +37,51 @@ export const API_ROUTES = {
 
   POSTS: {
     BASE: '/v1/posts',
-    BY_ID: (postId: string) => `/v1/posts/id/${postId}`,
+    BY_ID: (postId: number) => `/v1/posts/id/${postId}`,
     IMAGE: '/v1/posts/image',
     DELETE_IMAGE: (uploadId: string) => `/v1/posts/image/${uploadId}`,
-    USER_POSTS: (userId: string, endCursorPostId: string) =>
+    USER_POSTS: (userId: number, endCursorPostId: number) =>
       `/v1/posts/user/${userId}/${endCursorPostId}`,
     PARAM: (param: string) => `/v1/posts/${param}`,
-    BY_POST_ID: (postId: string) => `/v1/posts/${postId}`,
-    COMMENTS: (postId: string) => `/v1/posts/${postId}/comments`,
-    COMMENT_ANSWERS: (postId: string, commentId: string) =>
+    BY_POST_ID: (postId: number) => `/v1/posts/${postId}`,
+    COMMENTS: (postId: number) => `/v1/posts/${postId}/comments`,
+    COMMENT_ANSWERS: (postId: number, commentId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers`,
-    ANSWER_LIKES: (postId: string, commentId: string, answerId: string) =>
+    ANSWER_LIKES: (postId: number, commentId: number, answerId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers/${answerId}/likes`,
-    COMMENT_LIKES: (postId: string, commentId: string) =>
+    COMMENT_LIKES: (postId: number, commentId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/likes`,
-    LIKE_STATUS_POST: (postId: string) => `/v1/posts/${postId}/like-status`,
-    POST_LIKES: (postId: string) => `/v1/posts/${postId}/likes`,
+    LIKE_STATUS_POST: (postId: number) => `/v1/posts/${postId}/like-status`,
+    POST_LIKES: (postId: number) => `/v1/posts/${postId}/likes`,
 
     // Comments and Answers
-    CREATE_COMMENT: (postId: string) => `/v1/posts/${postId}/comments`,
-    CREATE_ANSWER_COMMENT: (postId: string, commentId: string) =>
+    CREATE_COMMENT: (postId: number) => `/v1/posts/${postId}/comments`,
+    CREATE_ANSWER_COMMENT: (postId: number, commentId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers`,
-    LIKE_STATUS_ANSWER: (postId: string, commentId: string, answerId: string) =>
+    LIKE_STATUS_ANSWER: (postId: number, commentId: number, answerId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers/${answerId}/like-status`,
-    LIKE_STATUS_COMMENT: (postId: string, commentId: string) =>
+    LIKE_STATUS_COMMENT: (postId: number, commentId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/like-status`,
   },
 
+  //PUBLIC_POSTS !!!DEPRECATED!!!
   PUBLIC_POSTS: {
-    ALL: (endCursorPostId: string) => `/v1/public-posts/all/${endCursorPostId}`,
-    USER: (userId: string, endCursorPostId: string) =>
+    ALL: (endCursorPostId: number) => `/v1/public-posts/all/${endCursorPostId}`,
+    USER: (userId: number, endCursorPostId: number) =>
       `/v1/public-posts/user/${userId}/${endCursorPostId}`,
-    BY_ID: (postId: string) => `/v1/public-posts/${postId}`,
-    COMMENTS: (postId: string) => `/v1/public-posts/${postId}/comments`,
+    BY_ID: (postId: number) => `/v1/public-posts/${postId}`,
+    COMMENTS: (postId: number) => `/v1/public-posts/${postId}/comments`,
   },
 
   PUBLIC_USER: {
     COUNT: '/v1/public-user',
-    PROFILE: (profileId: string) => `/v1/public-user/profile/${profileId}`,
+    PROFILE: (profileId: number) => `/v1/public-user/profile/${profileId}`,
   },
 
   SESSIONS: {
     ALL: '/v1/sessions',
     TERMINATE_ALL: '/v1/sessions/terminate-all',
-    DELETE: (deviceId: string) => `/v1/sessions/${deviceId}`,
+    DELETE: (deviceId: number) => `/v1/sessions/${deviceId}`,
   },
 
   SUBSCRIPTIONS: {
@@ -94,7 +95,7 @@ export const API_ROUTES = {
 
   USERS_FOLLOW: {
     BASE: '/v1/users',
-    DELETE_FOLLOWER: (userId: string) => `/v1/users/follower/${userId}`,
+    DELETE_FOLLOWER: (userId: number) => `/v1/users/follower/${userId}`,
     FOLLOWING: '/v1/users/following',
     BY_USERNAME: (userName: string) => `/v1/users/${userName}`,
     FOLLOWERS_BY_USERNAME: (userName: string) => `/v1/users/${userName}/followers`,
@@ -107,6 +108,6 @@ export const API_ROUTES = {
     DELETE: '/v1/users/profile',
     UPLOAD_AVATAR: '/v1/users/profile/avatar',
     DELETE_AVATAR: '/v1/users/profile/avatar',
-    DELETE_BY_ID: (id: string) => `/v1/users/profile/${id}`,
+    DELETE_BY_ID: (id: number) => `/v1/users/profile/${id}`,
   },
 } as const

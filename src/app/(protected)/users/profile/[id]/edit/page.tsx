@@ -4,16 +4,12 @@ import { AuthGuard } from '@/shared/guards'
 
 function EditProfile() {
   return (
-    <div>
-      <h1>Edit Profile</h1>
-    </div>
+    <>
+      <h2>Edit Profile</h2>
+    </>
   )
 }
 
 export default function Page() {
-  return (
-    <AuthGuard>
-      <EditProfile />
-    </AuthGuard>
-  )
+  return <EditProfile />
 }

@@ -2,16 +2,19 @@ import { profileApi } from '@/entities/profile/api/profile.api'
 import { publicUsersApi } from '@/entities/users/api'
 import { authApi } from '@/features/auth'
 import { Action, combineSlices, configureStore, ThunkAction } from '@reduxjs/toolkit'
-
+import { postApi } from '@/entities/posts/api'
+import { baseApi } from '@/shared/api/base-api'
+console.log('API reducer paths:')
+console.log('authApi:', authApi.reducerPath)
+console.log('publicUsersApi:', publicUsersApi.reducerPath)
+console.log('profileApi:', profileApi.reducerPath)
+console.log('postApi:', postApi.reducerPath)
+const apiSlices = [baseApi]
 export const makeStore = () => {
   return configureStore({
-    reducer: combineSlices(authApi, publicUsersApi, profileApi),
+    reducer: combineSlices(...apiSlices),
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(
-        authApi.middleware,
-        publicUsersApi.middleware,
-        profileApi.middleware
-      ),
+      getDefaultMiddleware().concat(...apiSlices.map(api => api.middleware)),
     devTools: true,
   })
 }

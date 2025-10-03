@@ -1,13 +1,17 @@
+/** @prettier */
 'use client'
-import { useGetPublicUsersCounterQuery } from '@/entities/users/api'
+
+import s from './Public.module.scss'
+
+import { useGetPublicPostsQuery } from '@/entities/users/api'
 import { Loading } from '@/shared/composites'
-import { Card, Typography } from '@/shared/ui'
 
-import styles from './Public.module.scss'
-
+import { PublicPost } from './PublicPost/PublicPost'
+import { UsersCounter } from './UsersCounter/UsersCounter'
+import { mockDataPosts } from '../../model/mockDataForPublicPosts'
 
 export function Public() {
-  const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
+  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 12 })
 
   if (isLoading) {
     return <Loading />
@@ -18,26 +22,24 @@ export function Public() {
   if (!data) {
     return null
   }
-  const rawCount = data.totalCount.toString()
-  const minLength = 6
-  const paddedCount = rawCount.padStart(Math.max(minLength, rawCount.length), '0')
-  const digits = paddedCount.split('')
+
+  const { items, totalUsers } = data
 
   return (
-    <>
-      <section className={styles.registeredUsersSection}>
-        <h2>Registered users:</h2>
-        <Card className={styles.counter}>
-          <div className={styles.digitsWrapper}>
-            {digits.map((digit, index) => (
-              <Typography variant={'h2'} className={styles.digitBox} key={index}>
-                {digit}
-              </Typography>
-            ))}
-          </div>
-        </Card>
-
-      </section>
-    </>
+    <div className={s.container}>
+      <UsersCounter totalCount={totalUsers || 0} />
+      <div className={s.posts}>
+        {mockDataPosts.map((item, index) => {
+          return <PublicPost key={index} post={item} />
+        })}
+        {items.map(post => {
+          return <PublicPost key={post.id} post={post} />
+        })}
+      </div>
+    </div>
   )
 }
+
+/* 
+
+*/
