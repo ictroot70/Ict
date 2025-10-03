@@ -1,0 +1,158 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #333;
+  background: #222;
+  color: #fff;
+}
+
+.title {
+  font-weight: 500;
+}
+
+.navBtn {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.cropContainer {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #333;
+  overflow: hidden;
+}
+
+.tools {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #333;
+  color: #fff;
+}
+
+.zoomControl {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input[type="range"] {
+    flex: 1;
+  }
+}
+
+.aspectRatios {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  > :last-child {
+    margin-left: auto;
+  }
+}
+
+.aspectBtn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &.active {
+    background: #0077ff;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.thumbs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background: #222;
+}
+
+.thumb {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 2px solid transparent;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &.active {
+    border-color: #0077ff;
+  }
+  &:hover .deleteBtn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+.iconBtn {
+  position: relative;
+  z-index: 100;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.deleteBtn {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 0, 0, 0.8);
+  }
+}
