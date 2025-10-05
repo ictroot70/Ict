@@ -1,23 +1,27 @@
 /** @prettier */
 'use client'
 
-import Image from 'next/image'
-import { Typography } from '@ictroot/ui-kit'
-import { useState } from 'react'
-import s from './PublicPost.module.scss'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import Carousel from './Carousel/Carousel'
 import { Avatar } from '@/shared/composites/Avatar'
+import { Typography } from '@ictroot/ui-kit'
+import Image from 'next/image'
 import Link from 'next/link'
-import { APP_ROUTES } from '@/shared/constant'
+import { useState } from 'react'
+import Carousel from './Carousel/Carousel'
+import s from './PublicPost.module.scss'
 
 type Props = {
   post: PublicPostResponse
+  urlProfile: string
 }
 
-export const PublicPost = ({ post }: Props) => {
-  const { userName, images, avatarOwner, description, createdAt, ownerId } = post
+const DEFAULT_IMAGE = '/default-image.svg'
+
+export const PublicPost = ({ post, urlProfile }: Props) => {
+  const { userName, images, avatarOwner, description, createdAt } = post
+
+  console.log(avatarOwner)
 
   const timeAgo = useTimeAgo(createdAt)
 
@@ -36,13 +40,13 @@ export const PublicPost = ({ post }: Props) => {
         {images.length > 1 ? (
           <Carousel slides={images} />
         ) : (
-          <Image src={images[0]?.url} alt="Image" fill className={s.image} />
+          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.image} />
         )}
       </div>
 
       <div className={s.user}>
         <Avatar image={avatarOwner} size={36} />
-        <Link href={APP_ROUTES.PUBLIC_USERS.PROFILE(`${ownerId}`)}>
+        <Link href={urlProfile}>
           <Typography variant="h3">{userName}</Typography>
         </Link>
       </div>

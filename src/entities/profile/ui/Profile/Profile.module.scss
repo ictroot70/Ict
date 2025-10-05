@@ -2,9 +2,10 @@
   display: flex;
   flex-direction: column;
   row-gap: 3rem;
-  max-width: 972px;
+  width: 100%;
   margin: 0 auto;
   min-height: 100%;
+  overflow: hidden;
 
   &Details {
     display: flex;
@@ -41,22 +42,24 @@
 
   &SectionPosts {
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-grow: 1;
+    text-align: center;
   }
 
   &Posts {
     width: 100%;
     display: grid;
     gap: 1rem 0.75rem;
-    grid-template-columns: repeat(auto-fit, minmax(234px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
 
     &Item {
       cursor: pointer;
       position: relative;
-      width: 100%;
       height: 228px;
+    }
+
+    &Message {
+      width: 100%;
     }
   }
 }

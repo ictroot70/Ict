@@ -1,3 +1,9 @@
+import { APP_ROUTES } from '@/shared/constant'
+import { Button } from '@ictroot/ui-kit'
+import Link from 'next/link'
+
+import s from './ProfileActions.module.scss'
+
 interface Props {
   isAuthenticated: boolean
   isOwnProfile: boolean
@@ -12,7 +18,6 @@ interface Props {
 export const ProfileActions: React.FC<Props> = ({
   isAuthenticated,
   isOwnProfile,
-  onEdit,
   onFollow,
   onMessage,
   isFollowing = false,
@@ -23,26 +28,31 @@ export const ProfileActions: React.FC<Props> = ({
 
   if (isOwnProfile) {
     return (
-      <button onClick={onEdit} className="edit-button" disabled={isLoading}>
+      <Button variant="secondary" as={Link} href={APP_ROUTES.PROFILE.EDIT}>
         Profile Settings
-      </button>
+      </Button>
     )
   }
 
   return (
-    <div className="action-buttons">
+    <div className={s.actions}>
       {isFollowing ? (
-        <button onClick={onUnfollow} className="unfollow-button" disabled={isLoading}>
+        <Button
+          variant="outlined"
+          onClick={onUnfollow}
+          disabled={isLoading}
+          className={s.btnOutlined}
+        >
           Unfollow
-        </button>
+        </Button>
       ) : (
-        <button onClick={onFollow} className="follow-button" disabled={isLoading}>
+        <Button onClick={onFollow} disabled={isLoading}>
           Follow
-        </button>
+        </Button>
       )}
-      <button onClick={onMessage} className="message-button" disabled={isLoading}>
+      <Button variant="secondary" onClick={onMessage} disabled={isLoading}>
         Send Message
-      </button>
+      </Button>
     </div>
   )
 }

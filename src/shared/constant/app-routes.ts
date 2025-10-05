@@ -23,6 +23,7 @@ export const APP_ROUTES = {
   PROFILE: {
     MY: '/my-profile',
     EDIT: '/my-profile/edit',
+    USER: (userName: string) => `/users/${userName}`,
   },
 
   PUBLIC_USERS: {

@@ -9,23 +9,24 @@ import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { PostViewModel } from '@/entities/posts/api'
+import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 
 interface Props {
   profile: ProfileType
   posts?: PostViewModel[]
   isOwnProfile?: boolean
   isAuthenticated?: boolean
-  onEdit?: () => void
   onFollow?: () => void
   onMessage?: () => void
 }
+
+const DEFAULT_IMAGE = '/default-image.svg'
 
 export const Profile: React.FC<Props> = ({
   profile,
   posts,
   isOwnProfile = false,
   isAuthenticated = false,
-  onEdit,
   onFollow,
   onMessage,
 }) => {
@@ -47,7 +48,6 @@ export const Profile: React.FC<Props> = ({
             <ProfileActions
               isAuthenticated={isAuthenticated}
               isOwnProfile={isOwnProfile}
-              onEdit={onEdit}
               onFollow={onFollow}
               onMessage={onMessage}
             />
@@ -71,17 +71,21 @@ export const Profile: React.FC<Props> = ({
           <ul className={s.profilePosts}>
             {posts.map(post => (
               <div key={post.id} className={s.profilePostsItem}>
-                <Image
-                  src={post.images[0]?.url}
-                  fill
-                  alt={`Post_${post.id + 1}`}
-                  className={s.profileImage}
-                />
+                {post.images.length > 1 ? (
+                  <Carousel slides={post.images} />
+                ) : (
+                  <Image
+                    src={post.images[0]?.url || DEFAULT_IMAGE}
+                    alt="Image"
+                    fill
+                    className={s.image}
+                  />
+                )}
               </div>
             ))}
           </ul>
         ) : (
-          <Typography variant="h1">
+          <Typography variant="h1" className={s.profilePostsMessage}>
             {isOwnProfile
               ? "You haven't published any posts yet"
               : "This user hasn't published any posts yet"}

@@ -27,7 +27,7 @@ export const profileApi = baseApi.injectEndpoints({
         url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
       }),
     }),
-    getPostsByUserName: builder.query<ProfileWithPostsResponse, { userName: string }>({
+    getProfileByUserName: builder.query<ProfileWithPostsResponse, { userName: string }>({
       query: ({ userName }) => ({ url: `v1/users/${userName}` }),
     }),
   }),
@@ -37,5 +37,5 @@ export const {
   useGetMyProfileQuery,
   useLazyGetMyProfileQuery,
   useGetPublicProfileQuery,
-  useGetPostsByUserNameQuery,
+  useGetProfileByUserNameQuery,
 } = profileApi
