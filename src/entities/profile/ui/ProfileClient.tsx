@@ -10,6 +10,7 @@ import { Button, Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
+import { useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -18,6 +19,10 @@ export const ProfileClient = (): ReactElement => {
     skip: !meInfo?.userName || !isSuccess,
   })
 
+  const { data: postsData, isLoading: isPostsLoading } = useGetPostsByUserQuery(
+    { userId: meInfo?.id ?? 0, endCursorPostId: 0 },
+    { skip: !meInfo?.id }
+  )
   const avatarUrl = profileWithPosts?.avatars[0]?.url
 
   const statsData = [
@@ -59,18 +64,22 @@ export const ProfileClient = (): ReactElement => {
             </div>
           </div>
           <ul className={s.profilePosts}>
-            {Array.from({ length: 4 }).map((_, index) => {
-              return (
-                <div key={index} className={s.profilePostsItem}>
+            {isPostsLoading && <Typography>Loading posts...</Typography>}
+
+            {postsData?.items?.length ? (
+              postsData.items.map(post => (
+                <li key={post.id} className={s.profilePostsItem}>
                   <Image
-                    src={`/mock/image_${index + 1}.jpg`}
+                    src={post.images[0]?.url || '/placeholder.png'}
                     fill
-                    alt={`Post_${index + 1}`}
+                    alt={post.description || `Post ${post.id}`}
                     className={s.profileImage}
                   />
-                </div>
-              )
-            })}
+                </li>
+              ))
+            ) : (
+              !isPostsLoading && <Typography>No posts yet.</Typography>
+            )}
           </ul>
         </div>
       )}

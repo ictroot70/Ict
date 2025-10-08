@@ -3,14 +3,16 @@
 import { useRouter } from 'next/navigation'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
 
-export default function CreatePage() {
+export default function CreatePostModal() {
   const router = useRouter()
+
+  const handleClose = () => router.back()
 
   return (
     <CreatePost
       open={true}
-      onClose={() => router.push('/feed')}
-      onPublishPost={() => router.push('/feed')}
+      onClose={handleClose}
+      onPublishPost={() => router.back()}
     />
   )
 }
