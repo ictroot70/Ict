@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import styles from './PublishStep.module.scss'
 import { UploadedFile, Post } from '../../model/types'
 import { ToastAlert } from '@/shared/composites'
@@ -27,7 +27,6 @@ export const PublishStep: React.FC<Props> = ({
   filtersState,
   description,
   setDescription,
-  handleUpload,
   createPost,
   userId,
   onClose,
@@ -35,22 +34,30 @@ export const PublishStep: React.FC<Props> = ({
   uploadedImage,
   isUploading,
 }) => {
+
+  const [isPublishing, setIsPublishing] = useState(false)
+
   const handlePublish = async () => {
-    if (uploadedImage.length === 0) return
+    if (isPublishing || uploadedImage.length === 0) return
 
-    const newPost = await createPost({
-      userId,
-      body: {
-        description,
-        childrenMetadata: uploadedImage.map((img: any) => ({
-          uploadId: img.uploadId,
-        })),
-      },
-    })
+    setIsPublishing(true)
+    try {
+      const newPost = await createPost({
+        userId,
+        body: {
+          description,
+          childrenMetadata: uploadedImage.map(img => ({ uploadId: img.uploadId })),
+        },
+      })
 
-    onPublishPost(newPost)
-    toast(<ToastAlert type="success" message="✅ Post created!" />)
-    onClose()
+      onPublishPost(newPost)
+      toast(<ToastAlert type="success" message="✅ Post created!" />)
+      onClose()
+    } catch (err) {
+      toast(<ToastAlert type="error" message="❌ Failed to create post" />)
+    } finally {
+      setIsPublishing(false)
+    }
   }
 
   return (
@@ -63,9 +70,14 @@ export const PublishStep: React.FC<Props> = ({
         <button
           onClick={handlePublish}
           className={styles.publishBtn}
-          disabled={description.length === 0 || description.length > 500 || isUploading}
+          disabled={
+            description.length === 0 ||
+            description.length > 500 ||
+            isUploading ||
+            isPublishing
+          }
         >
-         Publish
+          {isPublishing ? 'Publishing…' : 'Publish'}
         </button>
       </div>
 
