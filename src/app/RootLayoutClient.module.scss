@@ -1,11 +1,12 @@
 .wrapper {
-  border: 1px solid red;
   width: 100%;
+  align-self: stretch;
 }
 
 .content {
+  height: 100%;
   position: relative;
-  border: 1px solid green;
+  align-self: stretch;
 
   &.withSidebar {
     min-height: 100%;
@@ -21,5 +22,5 @@
   }
 }
 
-//align-self: stretch;
+//
 //  min-height: calc(100vh - 60px);

@@ -1,5 +1,7 @@
 /** @prettier */
 
+import { useMeQuery } from '@/features/auth'
+import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 import {
   TrendingUp,
@@ -17,6 +19,8 @@ import {
 } from '@/shared/ui'
 
 export const useLinkGroups = () => {
+  const { user } = useAuth()
+
   const linkGroups = [
     {
       links: [
@@ -33,7 +37,7 @@ export const useLinkGroups = () => {
           label: 'Create',
         },
         {
-          href: `${APP_ROUTES.PROFILE.MY}`,
+          href: `${APP_ROUTES.PROFILE.ID(`${user?.userId}`)}`,
           icon: <PersonOutline />,
           activeIcon: <Person />,
           label: 'My Profile',

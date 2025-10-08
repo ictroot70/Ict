@@ -78,7 +78,7 @@ export const Profile: React.FC<Props> = ({
                     src={post.images[0]?.url || DEFAULT_IMAGE}
                     alt="Image"
                     fill
-                    className={s.image}
+                    className={s.profilePostsImage}
                   />
                 )}
               </div>

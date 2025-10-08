@@ -13,7 +13,7 @@ import { useMeQuery } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 
 export function Public() {
-  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 80 })
+  const { data, isLoading, isError } = useGetPublicPostsQuery({ pageSize: 16 })
   const { data: isAuth } = useMeQuery()
 
   if (isLoading) {
@@ -37,11 +37,7 @@ export function Public() {
             <PublicPost
               key={index}
               post={item}
-              urlProfile={
-                isAuth
-                  ? APP_ROUTES.PROFILE.USER(item.userName)
-                  : APP_ROUTES.PUBLIC_USERS.PROFILE(`${item.ownerId}`)
-              }
+              urlProfile={APP_ROUTES.PROFILE.ID(`${item.ownerId}`)}
             />
           )
         })}
@@ -50,11 +46,7 @@ export function Public() {
             <PublicPost
               key={post.id}
               post={post}
-              urlProfile={
-                isAuth
-                  ? APP_ROUTES.PROFILE.USER(post.userName)
-                  : APP_ROUTES.PUBLIC_USERS.PROFILE(`${post.ownerId}`)
-              }
+              urlProfile={APP_ROUTES.PROFILE.ID(`${post.ownerId}`)}
             />
           )
         })}

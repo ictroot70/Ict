@@ -9,6 +9,7 @@ import s from './AppHeader.module.scss'
 
 import { AuthBtn, LanguageSelect, NotificationButton } from './components'
 import { useHomeLink } from './hooks'
+import { APP_ROUTES } from '@/shared/constant'
 
 export const AppHeader = (): ReactElement => {
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()
@@ -39,7 +40,7 @@ export const AppHeader = (): ReactElement => {
     <>
       <Header isAuthorized={isAuthorized} className={s.header}>
         <div className={s.container}>
-          <Link href={homeLink}>
+          <Link href={APP_ROUTES.ROOT}>
             <Typography variant={'h1'}>ICTRoot</Typography>
           </Link>
           {renderAuthControls()}

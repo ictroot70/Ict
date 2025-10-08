@@ -38,7 +38,6 @@ main {
   min-height: calc(100vh - 60px);
   margin: 60px auto 0;
   padding: 0 2rem;
-  border: 1px solid orange;
 }
 
 ul {
