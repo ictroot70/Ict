@@ -31,11 +31,13 @@ export const PublicPost = ({ post }: Props) => {
   return (
     <div className={s.wrapper}>
       <div className={s.imageContainer}>
-        {images.length > 1 ? (
-          <Carousel slides={images} />
-        ) : (
-          <Image src={images[0].url} alt="Image" fill className={s.image} />
-        )}
+        {images?.length ? (
+          images.length > 1 ? (
+            <Carousel slides={images} />
+          ) : (
+            <Image src={images[0].url} alt="Image" fill className={s.image} />
+          )
+        ) : null}
       </div>
 
       <div className={s.user}>
