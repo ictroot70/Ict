@@ -1,17 +1,17 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  font-family: Inter, Arial, sans-serif;
-}
+// html, body {
+//   margin: 0;
+//   padding: 0;
+//   width: 100%;
+//   height: 100%;
+//   background: #000;
+//   color: #fff;
+//   font-family: Inter, Arial, sans-serif;
+// }
 
 .layout {
   display: flex;
-  width: 100vw;   // ✅ всегда во всю ширину экрана
-  height: 100vh;  // ✅ всегда во всю высоту
+  width: 100vw; // ✅ всегда во всю ширину экрана
+  height: 100vh; // ✅ всегда во всю высоту
   overflow: hidden;
 }
 
@@ -42,9 +42,9 @@ html, body {
   grid-template-columns: repeat(4, 1fr); /* всегда 4 колонки */
   gap: 20px;
   padding: 20px;
-  margin-left: 160px;       /* место под sidebar */
-  margin-right: 20px;       /* чтобы справа не липло */
-  width: calc(100% ); /* растянуть по ширине */
+  margin-left: 160px; /* место под sidebar */
+  margin-right: 20px; /* чтобы справа не липло */
+  width: calc(100%); /* растянуть по ширине */
   box-sizing: border-box;
 }
 

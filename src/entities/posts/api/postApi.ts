@@ -67,6 +67,27 @@ export const postApi = baseApi.injectEndpoints({
         { type: 'Post', id: 'LIST' },
         { type: 'Post', id: `USER-${userId}` },
       ],
+      async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getPostsByUser',
+            { userId, endCursorPostId: 0 },
+            (draft: PaginatedResponse<PostViewModel>) => {
+              const post = draft.items.find(p => p.id === postId)
+              if (post && body.description) {
+                post.description = body.description
+                post.updatedAt = new Date().toISOString()
+              }
+            }
+          )
+        )
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
     }),
 
     deletePost: builder.mutation<void, { postId: number; userId: number }>({

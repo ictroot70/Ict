@@ -26,7 +26,7 @@ export const profileApi = baseApi.injectEndpoints({
     }),
     getPublicProfile: builder.query<PublicProfileResponse, PublicProfileRequest>({
       query: ({ profileId }) => ({
-        url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
+        url: API_ROUTES.PUBLIC_USER.PROFILE(profileId), // ошибка
       }),
     }),
     getProfileWithPosts: builder.query<ProfileWithPostsResponse, string>({

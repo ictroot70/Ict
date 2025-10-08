@@ -1,8 +1,6 @@
-
-
 'use client'
 
-import { ReactElement } from 'react'
+import { ReactElement, useState } from 'react' // ← Добавить useState
 
 import { useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
 
@@ -13,16 +11,14 @@ import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
-import { useDeletePostMutation, useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
+import { useDeletePostMutation, useGetPostsByUserQuery, useUpdatePostMutation } from '@/entities/posts/api/postApi'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
-
   const { data: profileWithPosts } = useGetProfileWithPostsQuery(meInfo?.userName as string, {
     skip: !meInfo?.userName || !isSuccess,
   })
-
-  const { data: userPosts, isLoading: postsLoading } = useGetPostsByUserQuery(
+  const { data: userPosts, isLoading: postsLoading, refetch } = useGetPostsByUserQuery(
     {
       userId: meInfo?.id || 0,
       endCursorPostId: 0,
@@ -31,10 +27,11 @@ export const ProfileClient = (): ReactElement => {
     { skip: !meInfo?.id }
   )
 
-  console.log(userPosts)
+  console.log(`Пользователь: ${userPosts?.items?.length || 0} постов, ID = ${meInfo?.id}`)
 
   const [deletePost] = useDeletePostMutation()
-
+  const [updatePost] = useUpdatePostMutation()
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
 
   const avatarUrl = profileWithPosts?.avatars[0]?.url
 
@@ -44,10 +41,39 @@ export const ProfileClient = (): ReactElement => {
     { label: 'Publications', value: profileWithPosts?.publicationsCount || 0 },
   ]
 
+  console.log(profileWithPosts?.publicationsCount)
 
-  const handleEditPost = (postId: string) => {
+  const handleEditPost = async (postId: string) => {
     console.log(`Редактируется пост с ID: ${postId}`)
 
+    if (!meInfo?.id) {
+      console.error('User ID not found')
+      return
+    }
+
+    const fixedUpdateData = {
+      description: `Отредактированный пост ${new Date().toLocaleTimeString()}`,
+
+    }
+
+    try {
+      setEditingPostId(postId)
+
+      await updatePost({
+        postId: parseInt(postId),
+        body: fixedUpdateData,
+        userId: meInfo.id
+      }).unwrap()
+
+      refetch()
+
+      console.log(`Пост с ID: ${postId} успешно обновлен`)
+      setEditingPostId(null)
+
+    } catch (error) {
+      console.error('Ошибка при редактировании поста:', error)
+      setEditingPostId(null)
+    }
   }
 
   const handleDeletePost = async (postId: string) => {
@@ -60,15 +86,12 @@ export const ProfileClient = (): ReactElement => {
       }
 
       const postIdNumber = parseInt(postId)
-
       await deletePost({
         postId: postIdNumber,
         userId: meInfo.id
       }).unwrap()
 
       console.log(`Пост с ID: ${postId} успешно удален`)
-
-
     } catch (error) {
       console.error('Ошибка при удалении поста:', error)
     }
@@ -78,15 +101,12 @@ export const ProfileClient = (): ReactElement => {
     if (post?.images?.[0]?.url) {
       return post.images[0].url
     }
-
     return `/mock/image_${index + 1}.jpg`
   }
 
   const getPostDescription = (post: any) => {
-
     return post?.description || `Post ${post?.id || ''}`
   }
-
 
   return (
     <>
@@ -121,7 +141,6 @@ export const ProfileClient = (): ReactElement => {
             </div>
           </div>
 
-          {/* Секция с постами пользователя */}
           <div className={s.postsSection}>
             <Typography variant="h2" className={s.postsTitle}>
               My Posts
@@ -131,7 +150,6 @@ export const ProfileClient = (): ReactElement => {
               <div className={s.loading}>Loading posts...</div>
             ) : (
               <ul className={s.profilePosts}>
-                {/* Отображаем реальные посты пользователя */}
                 {userPosts?.items?.map((post, index) => (
                   <div key={post.id} className={s.profilePostsItem}>
                     <div className={s.imageContainer}>
@@ -142,20 +160,21 @@ export const ProfileClient = (): ReactElement => {
                         className={s.profileImage}
                       />
 
-                      {/* Кнопка управления постом */}
                       <div className={s.editDeleteWrapper}>
                         <EditDeletePost
                           postId={post.id.toString()}
                           onEdit={handleEditPost}
                           onDelete={handleDeletePost}
+                          isEditing={editingPostId === post.id.toString()}
                         />
                       </div>
                     </div>
 
-                    {/* Информация о посте (опционально) */}
+                    {/* Информация о посте */}
                     <div className={s.postInfo}>
                       <Typography variant="regular_14" className={s.postDescription}>
-                        {post.description || `Post ${post.id}`}
+                        {/* ← ИЗМЕНИТЬ эту строку */}
+                        {editingPostId === post.id.toString() ? 'Редактирование...' : getPostDescription(post)}
                       </Typography>
                       <Typography variant="regular_12" className={s.postDate}>
                         {new Date(post.createdAt).toLocaleDateString()}
@@ -164,7 +183,6 @@ export const ProfileClient = (): ReactElement => {
                   </div>
                 ))}
 
-                {/* Если постов нет, показываем заглушку */}
                 {(!userPosts?.items || userPosts.items.length === 0) && (
                   <div className={s.noPosts}>
                     <Typography variant="regular_16">
