@@ -14,7 +14,7 @@ export const Avatar = ({ image, alt, className, size = 40 }: Props) => {
   const classNames = clsx(s.avatar, className)
   return (
     <Image
-      src={image ?? DEFAULT_AVATAR}
+      src={image || DEFAULT_AVATAR}
       width={size}
       height={size}
       alt={alt ?? DEFAULT_AVATAR_ALT}

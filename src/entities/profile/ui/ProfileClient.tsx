@@ -5,12 +5,12 @@ import { ReactElement } from 'react'
 import { useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
 
 import s from './ProfileClient.module.scss'
-import Image from 'next/image'
 import { Button, Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
 import { useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
+import { PostCard } from '@/entities/posts/ui/PostCard'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -63,24 +63,23 @@ export const ProfileClient = (): ReactElement => {
               </Typography>
             </div>
           </div>
-          <ul className={s.profilePosts}>
+          <div className={s.profilePosts}>
             {isPostsLoading && <Typography>Loading posts...</Typography>}
 
-            {postsData?.items?.length ? (
-              postsData.items.map(post => (
-                <li key={post.id} className={s.profilePostsItem}>
-                  <Image
-                    src={post.images[0]?.url || '/placeholder.png'}
-                    fill
-                    alt={post.description || `Post ${post.id}`}
-                    className={s.profileImage}
+            {postsData?.items?.length
+              ? postsData.items.map(post => (
+                  <PostCard
+                    key={post.id}
+                    id={post.id}
+                    images={post.images}
+                    avatarOwner={post.avatarOwner}
+                    userName={post.userName}
+                    createdAt={post.createdAt}
+                    description={post.description}
                   />
-                </li>
-              ))
-            ) : (
-              !isPostsLoading && <Typography>No posts yet.</Typography>
-            )}
-          </ul>
+                ))
+              : !isPostsLoading && <Typography>No posts yet.</Typography>}
+          </div>
         </div>
       )}
     </>
