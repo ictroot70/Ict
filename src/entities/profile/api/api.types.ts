@@ -37,6 +37,8 @@ export interface PublicProfileResponse {
   aboutMe: null | string
   avatars: AvatarViewDto[]
   userMetadata: UserMetadata
+  isFollowing: boolean
+  isFollowedBy: boolean
 }
 
 export interface PublicProfileRequest {

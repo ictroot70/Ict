@@ -9,6 +9,8 @@ interface ProfileData {
   following: number
   followers: number
   publications: number
+  isFollowing?: boolean
+  isFollowedBy?: boolean
 }
 
 export const useProfileData = (profile: ProfileType): ProfileData => {
@@ -22,6 +24,8 @@ export const useProfileData = (profile: ProfileType): ProfileData => {
         following: profile.followingCount,
         followers: profile.followersCount,
         publications: profile.publicationsCount,
+        isFollowedBy: profile.isFollowedBy,
+        isFollowing: profile.isFollowing,
       }
     }
 
@@ -33,6 +37,8 @@ export const useProfileData = (profile: ProfileType): ProfileData => {
         following: profile.userMetadata.following,
         followers: profile.userMetadata.followers,
         publications: profile.userMetadata.publications,
+        isFollowedBy: profile.isFollowedBy,
+        isFollowing: profile.isFollowing,
       }
     }
 

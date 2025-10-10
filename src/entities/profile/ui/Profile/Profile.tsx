@@ -30,7 +30,8 @@ export const Profile: React.FC<Props> = ({
   onFollow,
   onMessage,
 }) => {
-  const { userName, aboutMe, avatars, followers, following, publications } = useProfileData(profile)
+  const { userName, aboutMe, avatars, followers, following, publications, isFollowing } =
+    useProfileData(profile)
 
   const statsData = [
     { label: 'Following', value: followers },
@@ -50,6 +51,7 @@ export const Profile: React.FC<Props> = ({
               isOwnProfile={isOwnProfile}
               onFollow={onFollow}
               onMessage={onMessage}
+              isFollowing={isFollowing}
             />
           </div>
           <ul className={s.profileStats}>

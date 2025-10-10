@@ -3,7 +3,6 @@ import { useGetPostsByUserQuery } from '@/entities/posts/api'
 import { useGetPublicProfileQuery } from '@/entities/profile'
 import { Profile } from '@/entities/profile/ui'
 import { Loading } from '@/shared/composites'
-import { useParams } from 'next/navigation'
 
 type Props = {
   id: string
