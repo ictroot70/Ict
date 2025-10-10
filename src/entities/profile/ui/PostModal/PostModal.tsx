@@ -52,37 +52,6 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
   }
 
   return (
-    // <Modal open={open} onClose={onClose} width={'90vw'} height={'80vh'} className={s.modal}>
-    //   <div className={s.container}>
-    //     <div className={s.media}>
-    //       {images.length > 1 ? (
-    //         <Carousel slides={slides} options={{ startIndex: initialIndex }} />
-    //       ) : (
-    //         <Image src={images[0]} alt={'Post image'} fill className={s.image} />
-    //       )}
-    //     </div>
-    //
-    //     <div className={s.sidebar}>
-    //       <div className={s.comments}>
-    //         {comments.map((text, idx) => (
-    //           <div key={idx} className={s.commentItem}>
-    //             <Typography variant={'regular_14'}>{text}</Typography>
-    //           </div>
-    //         ))}
-    //       </div>
-    //       <div className={s.inputRow}>
-    //         <Input
-    //           placeholder={'Add a comment...'}
-    //           value={comment}
-    //           onChange={e => setComment(e.currentTarget.value)}
-    //         />
-    //         <Button variant={'text'} onClick={handlePublish} disabled={!comment.trim()} className={s.publishBtn}>
-    //           <Typography variant={'regular_14'}>Publish</Typography>
-    //         </Button>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </Modal>
     <Modal open={open} onClose={onClose} width={'90vw'} height={'80vh'} className={s.modal}>
       {/*<Modal style={{ width: '972px', height: '564px' }}>*/}
       <div className={s.innermodal}>
@@ -94,7 +63,7 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
             <Image src={images[0]} alt={'Post image'} fill className={s.image} />
           )}
         </div>
-        <div>
+        <div className={s.postSideBar}>
           <div className={s.postHeader}>
             <div className={s.username}>
               <div className={s.avatar} />
@@ -112,77 +81,44 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
 
           <Separator />
           <div className={s.comments}>
-            <div className={s.commentRow}>
-              <div className={`${s.commentAvatar} ${s.commentAvatar1}`} />
-              <div>
-                <Typography variant={'regular_14'} color={'light'}>
-                  <strong> UserName</strong> Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </Typography>
-                <Typography variant="small_text" className={s.timestamp}>
-                  2 minute ago
-                </Typography>
+            {comments.map((comment, index) => (
+              <div className={s.commentRow}>
+                <div className={`${s.commentAvatar} ${s.commentAvatar1}`} />
+                <div>
+                  <Typography variant={'regular_14'} color={'light'}>
+                    <strong> UserName</strong> {comment}
+                  </Typography>
+                  <Typography variant="small_text" className={s.timestamp}>
+                    2 minute ago
+                  </Typography>
+                </div>
               </div>
-            </div>
-            <div className={s.commentRow}>
-              <div className={`${s.commentAvatar} ${s.commentAvatar2}`} />
-              <div>
-                <Typography variant={'regular_14'} color={'light'}>
-                  <strong> UserName</strong> Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </Typography>
-                <Typography variant="small_text" className={s.timestamp}>
-                  2 hours ago
-                </Typography>
-              </div>
-            </div>
-            <div className={s.commentRow}>
-              <div className={`${s.commentAvatar} ${s.commentAvatar3}`} />
-              <div>
-                <Typography variant={'regular_14'} color={'light'}>
-                  <strong> UserName</strong> Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </Typography>
-                <Typography variant="small_text" className={s.timestamp}>
-                  2 week ago
-                </Typography>
-              </div>
-            </div>
-            <div className={s.commentRow} style={{ textWrap: 'wrap' }}>
-              <div className={`${s.commentAvatar} ${s.commentAvatar4}`} />
-              <div>
-                <Typography variant={'regular_14'} color={'light'}>
-                  <strong> UserName</strong> Lorem ipsum dolor sit amet, consectetur adipiscing
-                  elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </Typography>
-                <Typography variant="small_text" className={s.timestamp}>
-                  2 day ago
-                </Typography>
-              </div>
-            </div>
+            ))}
           </div>
           <Separator />
-          <div className={s.likeSendSave}>
-            <HeartOutline />
-            <PaperPlane />
-            <BookmarkOutline />
-          </div>
 
-          <div className={s.likesRow} style={{ textWrap: 'wrap' }}>
-            <div className={s.likesAvatars}>
-              <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
-              <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
-              <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
+          <div className={s.footer}>
+            <div className={s.likeSendSave}>
+              <HeartOutline />
+              <PaperPlane />
+              <BookmarkOutline />
             </div>
-            <div>
-              <Typography variant={'regular_14'} color={'light'}>
-                2 243 "<strong>Like</strong>"
-              </Typography>
-              <Typography variant="small_text" className={s.timestamp}>
-                July 3, 2021
-              </Typography>
+
+            <div className={s.likesRow} style={{ textWrap: 'wrap' }}>
+              <div className={s.likesAvatars}>
+                <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
+                <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
+                <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
+              </div>
+              <div>
+                <Typography variant={'regular_14'} color={'light'}>
+                  2 243 "<strong>Like</strong>"
+                </Typography>
+                <Typography variant="small_text" className={s.timestamp}>
+                  July 3, 2021
+                </Typography>
+              </div>
             </div>
-          </div>
 
             <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
               <ControlledInput<CommentForm>
@@ -195,6 +131,7 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
                 Publish
               </Button>
             </form>
+          </div>
         </div>
       </div>
     </Modal>

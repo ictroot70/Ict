@@ -21,13 +21,7 @@
 //  object-position: center;
 //}
 //
-//.sidebar {
-//  display: flex;
-//  flex-direction: column;
-//  border-left: 1px solid var(--color-dark-300);
-//  height: 100%;
-//  min-height: 0;
-//}
+
 //
 //.comments {
 //  flex: 1;
@@ -84,6 +78,17 @@
 .image {
   object-fit: contain;
   object-position: center;
+  max-height: 450px;
+}
+
+.postSideBar {
+  display: flex;
+  flex-direction: column;
+  //border-left: 1px solid var(--color-dark-300);
+  max-height: 450px;
+  min-height: 0;
+
+  padding: 0 24px;
 }
 
 .postHeader {
@@ -96,7 +101,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .avatar {
@@ -109,10 +115,11 @@
 .comments {
   display: flex;
   flex-direction: column;
-  padding: 24px;
   gap: 8px;
   overflow: scroll;
   max-height: 50%;
+  padding-top: 20px;
+  padding-bottom: 10px;
 }
 
 /* Comments list items */
@@ -152,11 +159,18 @@
   display: flex;
 }
 
+.footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 /* Likes row */
 .likesRow {
   display: flex;
   gap: 8px;
-  padding: 12px 24px 26px;
 }
 
 .likesAvatars {
