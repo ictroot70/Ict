@@ -70,7 +70,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       const formData = new FormData()
       formData.append('file', finalFile)
       const uploaded = await uploadImage(formData).unwrap()
-      setUploadedImage(prev => [...prev, ...uploaded.images])
+      setUploadedImage(prev => [...uploaded.images, ...prev])
 
       return uploaded
     } catch (error) {
