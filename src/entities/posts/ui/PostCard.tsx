@@ -25,8 +25,8 @@ export const PostCard: React.FC<PostCardProps> = ({
         <Image
           src={firstImage}
           alt={description || 'Post image'}
-          width={300}
-          height={300}
+          width={342}
+          height={228}
           className={styles.postImage}
         />
       </div>
