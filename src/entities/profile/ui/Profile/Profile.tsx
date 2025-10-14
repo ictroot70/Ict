@@ -10,6 +10,7 @@ import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { PostViewModel } from '@/entities/posts/api'
 import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 
 interface Props {
   profile: ProfileType
@@ -74,7 +75,7 @@ export const Profile: React.FC<Props> = ({
             {posts.map(post => (
               <div key={post.id} className={s.profilePostsItem}>
                 {post.images.length > 1 ? (
-                  <Carousel slides={post.images} />
+                  <EmblaCarousel photos={post.images.map(img => img.url)} />
                 ) : (
                   <Image
                     src={post.images[0]?.url || DEFAULT_IMAGE}

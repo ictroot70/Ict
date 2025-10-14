@@ -8,8 +8,9 @@ import { Typography } from '@ictroot/ui-kit'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import Carousel from './Carousel/Carousel'
+
 import s from './PublicPost.module.scss'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 
 type Props = {
   post: PublicPostResponse
@@ -38,7 +39,7 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
     <div className={s.wrapper}>
       <div className={s.imageContainer}>
         {images.length > 1 ? (
-          <Carousel slides={images} />
+          <EmblaCarousel photos={images.map(img => img.url)} />
         ) : (
           <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.image} />
         )}
