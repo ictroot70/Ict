@@ -24,12 +24,7 @@ type Props = {
 
 type CommentForm = { comment: string }
 
-export const PostModal = ({
-  open,
-  onClose,
-  images,
-  variant,
-}: Props): ReactElement => {
+export const PostModal = ({ open, onClose, images, variant }: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     'Awesome shot! The colors are incredible.',
     'Looks like a perfect vacation spot.',
@@ -61,7 +56,6 @@ export const PostModal = ({
     <Modal open={open} onClose={onClose} closeBtnOutside className={s.modal}>
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
-          {/*<img width={'100%'} src="https://cbc-group.kz/images/man.png" alt="man" />*/}
           {images.length > 1 ? (
             // <Carousel slides={slides} options={{ startIndex: initialIndex }} />
             <EmblaCarousel photos={images} />
@@ -87,10 +81,10 @@ export const PostModal = ({
             )}
           </div>
 
-          <Separator className={s.separator}/>
+          <Separator className={s.separator} />
           <div className={s.comments}>
             {comments.map((comment, index) => (
-              <div className={s.commentRow} key={index}>
+              <div className={s.comment} key={index}>
                 <div className={`${s.commentAvatar} ${s.commentAvatar1}`} />
                 <div>
                   <Typography variant={'regular_14'} color={'light'}>
@@ -100,16 +94,25 @@ export const PostModal = ({
                     2 minute ago
                   </Typography>
                 </div>
+                <Button variant={'text'} className={s.commentLikeButton}>
+                  <HeartOutline size={16} />
+                </Button>
               </div>
             ))}
           </div>
-          <Separator className={s.separator}/>
+          <Separator className={s.separator} />
 
           <div className={s.footer}>
             <div className={s.likeSendSave}>
-              <HeartOutline />
-              <PaperPlane />
-              <BookmarkOutline />
+              <Button variant={'text'} className={s.postButton}>
+                <HeartOutline />
+              </Button>
+              <Button variant={'text'} className={s.postButton}>
+                <PaperPlane />
+              </Button>
+              <Button variant={'text'} className={s.postButton}>
+                <BookmarkOutline />
+              </Button>
             </div>
 
             <div className={s.likesRow} style={{ textWrap: 'wrap' }}>
