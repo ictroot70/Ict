@@ -92,7 +92,7 @@ export const ProfileClient = (): ReactElement => {
           </ul>
 
           {isModalOpen && (
-            <PostModal open={isModalOpen} onClose={closeModal} images={selectedImages} initialIndex={0} />
+            <PostModal variant={'myPost'} open={isModalOpen} onClose={closeModal} images={selectedImages} initialIndex={0} />
           )}
         </div>
       )}

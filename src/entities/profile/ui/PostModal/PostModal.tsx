@@ -5,7 +5,6 @@ import { ReactElement, useMemo, useState } from 'react'
 import Image from 'next/image'
 
 import { Button, Modal, Typography } from '@/shared/ui'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { UserImage } from '@/entities/users/api/api.types'
 
 import s from './PostModal.module.scss'
@@ -13,8 +12,10 @@ import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/u
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 
 type Props = {
+  variant: 'public' | 'myPost' | 'userPost'
   open: boolean
   onClose: () => void
   images: string[]
@@ -23,7 +24,12 @@ type Props = {
 
 type CommentForm = { comment: string }
 
-export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): ReactElement => {
+export const PostModal = ({
+  open,
+  onClose,
+  images,
+  variant,
+}: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     'Awesome shot! The colors are incredible.',
     'Looks like a perfect vacation spot.',
@@ -52,13 +58,13 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
   }
 
   return (
-    <Modal open={open} onClose={onClose} width={'90vw'} height={'80vh'} className={s.modal}>
-      {/*<Modal style={{ width: '972px', height: '564px' }}>*/}
-      <div className={s.innermodal}>
+    <Modal open={open} onClose={onClose} closeBtnOutside className={s.modal}>
+      <div className={s.innerModal}>
         <div className={s.photoContainer}>
           {/*<img width={'100%'} src="https://cbc-group.kz/images/man.png" alt="man" />*/}
           {images.length > 1 ? (
-            <Carousel slides={slides} options={{ startIndex: initialIndex }} />
+            // <Carousel slides={slides} options={{ startIndex: initialIndex }} />
+            <EmblaCarousel photos={images} />
           ) : (
             <Image src={images[0]} alt={'Post image'} fill className={s.image} />
           )}
@@ -72,17 +78,19 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
               </Typography>
             </div>
 
-            <EditDeletePost
-              postId="post-123"
-              onEdit={id => console.log('Edit post:', id)}
-              onDelete={id => console.log('Delete post:', id)}
-            />
+            {variant !== 'public' && (
+              <EditDeletePost
+                postId="post-123"
+                onEdit={id => console.log('Edit post:', id)}
+                onDelete={id => console.log('Delete post:', id)}
+              />
+            )}
           </div>
 
-          <Separator />
+          <Separator className={s.separator}/>
           <div className={s.comments}>
             {comments.map((comment, index) => (
-              <div className={s.commentRow}>
+              <div className={s.commentRow} key={index}>
                 <div className={`${s.commentAvatar} ${s.commentAvatar1}`} />
                 <div>
                   <Typography variant={'regular_14'} color={'light'}>
@@ -95,7 +103,7 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
               </div>
             ))}
           </div>
-          <Separator />
+          <Separator className={s.separator}/>
 
           <div className={s.footer}>
             <div className={s.likeSendSave}>
@@ -114,23 +122,27 @@ export const PostModal = ({ open, onClose, images, initialIndex = 0 }: Props): R
                 <Typography variant={'regular_14'} color={'light'}>
                   2 243 "<strong>Like</strong>"
                 </Typography>
-                <Typography variant="small_text" className={s.timestamp}>
-                  July 3, 2021
-                </Typography>
               </div>
             </div>
+            <Typography variant="small_text" className={s.timestamp}>
+              July 3, 2021
+            </Typography>
+            <Separator />
 
-            <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
-              <ControlledInput<CommentForm>
-                name={'comment'}
-                control={control}
-                inputType={'text'}
-                placeholder={'Add a Comment'}
-              />
-              <Button variant={'outlined'} type={'submit'} disabled={!watch('comment')?.trim()}>
-                Publish
-              </Button>
-            </form>
+            {variant !== 'public' && (
+              <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
+                <ControlledInput<CommentForm>
+                  name={'comment'}
+                  control={control}
+                  inputType={'text'}
+                  placeholder={'Add a Comment'}
+                  className={s.input}
+                />
+                <Button variant={'text'} type={'submit'} disabled={!watch('comment')?.trim()}>
+                  Publish
+                </Button>
+              </form>
+            )}
           </div>
         </div>
       </div>
