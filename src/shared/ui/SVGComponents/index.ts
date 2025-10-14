@@ -21,4 +21,6 @@ export {
   PlusSquare,
   PlusSquareOutline,
   Search,
+  TrashOutline,
+  EditOutline
 } from '@ictroot/ui-kit'

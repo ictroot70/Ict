@@ -1,11 +1,8 @@
-'use client'
-
-import { ReactElement, useMemo, useState } from 'react'
+import { ReactElement, useState } from 'react'
 
 import Image from 'next/image'
 
 import { Button, Modal, Typography } from '@/shared/ui'
-import { UserImage } from '@/entities/users/api/api.types'
 
 import s from './PostModal.module.scss'
 import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/ui-kit'
@@ -33,17 +30,6 @@ export const PostModal = ({ open, onClose, images, variant }: Props): ReactEleme
   const { control, handleSubmit, reset, watch } = useForm<CommentForm>({
     defaultValues: { comment: '' },
   })
-
-  const slides: UserImage[] = useMemo(() => {
-    return images.map((url, idx) => ({
-      url,
-      createdAt: new Date().toISOString(),
-      fileSize: 0,
-      height: 0,
-      uploadId: String(idx),
-      width: 0,
-    }))
-  }, [images])
 
   const handlePublish = ({ comment }: CommentForm) => {
     const trimmed = comment.trim()

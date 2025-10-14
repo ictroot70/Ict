@@ -12,6 +12,9 @@
 }
 
 .photoContainer {
+  display: flex;
+  align-items: center;
+
   position: relative;
   background: rgba(0, 0, 0, 0.59);
   min-height: 0;
