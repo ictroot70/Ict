@@ -4,6 +4,7 @@
   height: calc(100vh - 60px);
   top: 60px;
   left: max(32px, calc((100vw - 1172px) / 2));
+  z-index: 100;
 
   color: var(--color-light-100);
   background-color: var(--color-dark-700);

@@ -1,21 +1,28 @@
 /** @prettier */
 'use client'
 
-import Image from 'next/image'
-import { Typography } from '@ictroot/ui-kit'
-import { useState } from 'react'
-import s from './PublicPost.module.scss'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import Carousel from './Carousel/Carousel'
 import { Avatar } from '@/shared/composites/Avatar'
+import { Typography } from '@ictroot/ui-kit'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useState } from 'react'
+
+import s from './PublicPost.module.scss'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 
 type Props = {
   post: PublicPostResponse
+  urlProfile: string
 }
 
-export const PublicPost = ({ post }: Props) => {
+const DEFAULT_IMAGE = '/default-image.svg'
+
+export const PublicPost = ({ post, urlProfile }: Props) => {
   const { userName, images, avatarOwner, description, createdAt } = post
+
+  console.log(avatarOwner)
 
   const timeAgo = useTimeAgo(createdAt)
 
@@ -32,15 +39,17 @@ export const PublicPost = ({ post }: Props) => {
     <div className={s.wrapper}>
       <div className={s.imageContainer}>
         {images.length > 1 ? (
-          <Carousel slides={images} />
+          <EmblaCarousel photos={images.map(img => img.url)} />
         ) : (
-          <Image src={images[0].url} alt="Image" fill className={s.image} />
+          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.image} />
         )}
       </div>
 
       <div className={s.user}>
         <Avatar image={avatarOwner} size={36} />
-        <Typography variant="h3">{userName}</Typography>
+        <Link href={urlProfile}>
+          <Typography variant="h3">{userName}</Typography>
+        </Link>
       </div>
 
       <div className={s.content}>

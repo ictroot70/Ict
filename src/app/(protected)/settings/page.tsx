@@ -1,7 +1,5 @@
 'use client'
 
-import { AuthGuard } from '@/shared/guards'
-
 function EditProfile() {
   return (
     <>
