@@ -10,7 +10,7 @@ import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
 import { useGetPostsByUserQuery } from '@/entities/posts/api/postApi'
-import { PostCard } from '@/entities/posts/ui/PostCard'
+import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -76,6 +76,7 @@ export const ProfileClient = (): ReactElement => {
                     userName={post.userName}
                     createdAt={post.createdAt}
                     description={post.description}
+                    modalVariant={'userPost'}
                   />
                 ))
               : !isPostsLoading && <Typography>No posts yet.</Typography>}

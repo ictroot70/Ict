@@ -1,6 +1,4 @@
 /** @prettier */
-'use client'
-
 import Image from 'next/image'
 import { Typography } from '@ictroot/ui-kit'
 import { useState } from 'react'
@@ -9,6 +7,7 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import Carousel from './Carousel/Carousel'
 import { Avatar } from '@/shared/composites/Avatar'
+import Link from 'next/link'
 
 type Props = {
   post: PublicPostResponse

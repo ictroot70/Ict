@@ -1,17 +1,14 @@
 'use client'
 
 import s from './Profile.module.scss'
-import Image from 'next/image'
-import { useState } from 'react'
 import { Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 
 import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { PostViewModel } from '@/entities/posts/api'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 
 interface Props {
   profile: ProfileType
@@ -41,20 +38,11 @@ export const Profile: React.FC<Props> = ({
     { label: 'Publications', value: publications },
   ]
 
-  const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-  const [modalImages, setModalImages] = useState<string[]>([])
   const modalVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
     ? 'public'
     : isOwnProfile
-    ? 'myPost'
-    : 'userPost'
-
-  const handleOpenPost = (images: string[]) => {
-    setModalImages(images)
-    setIsPostModalOpen(true)
-  }
-
-  const handleClosePost = () => setIsPostModalOpen(false)
+      ? 'myPost'
+      : 'userPost'
 
   return (
     <div className={s.profile}>
@@ -89,22 +77,16 @@ export const Profile: React.FC<Props> = ({
         {posts ? (
           <ul className={s.profilePosts}>
             {posts.map(post => (
-              <div
+              <PostCard
                 key={post.id}
-                className={s.profilePostsItem}
-                onClick={() => handleOpenPost(post.images.map(img => img.url))}
-              >
-                {post.images.length > 1 ? (
-                  <EmblaCarousel photos={post.images.map(img => img.url)} />
-                ) : (
-                  <Image
-                    src={post.images[0]?.url || DEFAULT_IMAGE}
-                    alt="Image"
-                    fill
-                    className={s.profilePostsImage}
-                  />
-                )}
-              </div>
+                id={post.id}
+                images={post.images}
+                avatarOwner={post.avatarOwner}
+                userName={post.userName}
+                createdAt={post.createdAt}
+                description={post.description}
+                modalVariant={modalVariant}
+              />
             ))}
           </ul>
         ) : (
@@ -115,12 +97,6 @@ export const Profile: React.FC<Props> = ({
           </Typography>
         )}
       </div>
-      <PostModal
-        open={isPostModalOpen}
-        onClose={handleClosePost}
-        images={modalImages}
-        variant={modalVariant}
-      />
     </div>
   )
 }

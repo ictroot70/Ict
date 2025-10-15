@@ -4,7 +4,7 @@ import styles from './PublishStep.module.scss'
 import { UploadedFile, Post } from '../../model/types'
 import { ToastAlert } from '@/shared/composites'
 import { toast } from 'react-toastify/unstyled'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 
 interface Props {
   onPrev: () => void

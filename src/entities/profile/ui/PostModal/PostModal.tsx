@@ -9,7 +9,8 @@ import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/u
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
+import { Avatar } from '@/shared/composites'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
@@ -17,14 +18,27 @@ type Props = {
   onClose: () => void
   images: string[]
   initialIndex?: number
+  avatarOwner?: string
+  userName: string
+  createdAt: string
+  description?: string
 }
 
 type CommentForm = { comment: string }
 
-export const PostModal = ({ open, onClose, images, variant }: Props): ReactElement => {
+export const PostModal = ({
+  open,
+  onClose,
+  images,
+  variant,
+  userName,
+  avatarOwner,
+  createdAt,
+  description,
+}: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
-    'Awesome shot! The colors are incredible.',
-    'Looks like a perfect vacation spot.',
+    // 'Awesome shot! The colors are incredible.',
+    // 'Looks like a perfect vacation spot.',
   ])
 
   const { control, handleSubmit, reset, watch } = useForm<CommentForm>({
@@ -38,12 +52,22 @@ export const PostModal = ({ open, onClose, images, variant }: Props): ReactEleme
     reset()
   }
 
+  const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(createdAt))
+
   return (
-    <Modal open={open} onClose={onClose} closeBtnOutside className={s.modal}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeBtnOutside
+      className={s.modal}
+    >
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
           {images.length > 1 ? (
-            // <Carousel slides={slides} options={{ startIndex: initialIndex }} />
             <EmblaCarousel photos={images} />
           ) : (
             <Image src={images[0]} alt={'Post image'} fill className={s.image} />
@@ -52,9 +76,10 @@ export const PostModal = ({ open, onClose, images, variant }: Props): ReactEleme
         <div className={s.postSideBar}>
           <div className={s.postHeader}>
             <div className={s.username}>
-              <div className={s.avatar} />
+              <Avatar size={36} image={avatarOwner} />
+
               <Typography variant={'h3'} color={'light'}>
-                UserName
+                {userName}
               </Typography>
             </div>
 
@@ -69,14 +94,27 @@ export const PostModal = ({ open, onClose, images, variant }: Props): ReactEleme
 
           <Separator className={s.separator} />
           <div className={s.comments}>
+            <div className={s.comment}>
+              <Avatar size={36} image={avatarOwner} />
+
+              <div>
+                <Typography variant={'regular_14'} color={'light'}>
+                  <strong>{userName}</strong> {description}
+                </Typography>
+                <Typography variant="small_text" className={s.commentTimestamp}>
+                  2 minute ago
+                </Typography>
+              </div>
+            </div>
             {comments.map((comment, index) => (
               <div className={s.comment} key={index}>
-                <div className={`${s.commentAvatar} ${s.commentAvatar1}`} />
+                <Avatar size={36} image={avatarOwner} />
+
                 <div>
                   <Typography variant={'regular_14'} color={'light'}>
                     <strong> UserName</strong> {comment}
                   </Typography>
-                  <Typography variant="small_text" className={s.timestamp}>
+                  <Typography variant="small_text" className={s.commentTimestamp}>
                     2 minute ago
                   </Typography>
                 </div>
@@ -114,7 +152,7 @@ export const PostModal = ({ open, onClose, images, variant }: Props): ReactEleme
               </div>
             </div>
             <Typography variant="small_text" className={s.timestamp}>
-              July 3, 2021
+              {formattedCreatedAt}
             </Typography>
             <Separator />
 
