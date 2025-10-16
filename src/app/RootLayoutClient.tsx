@@ -5,14 +5,9 @@ import { ReactNode } from 'react'
 import styles from './RootLayoutClient.module.scss'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { Sidebar } from '@/widgets/Sidebar'
-import { Loading } from '@/shared/composites'
 
 export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <Loading />
-  }
+  const { isAuthenticated } = useAuth()
 
   return (
     <main className={styles.main}>
