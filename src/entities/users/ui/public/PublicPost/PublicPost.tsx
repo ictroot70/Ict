@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import s from './PublicPost.module.scss'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import Carousel from '../Carousel/Carousel'
 
 type Props = {
   post: PublicPostResponse
@@ -39,7 +39,7 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
     <div className={s.wrapper}>
       <div className={s.imageContainer}>
         {images.length > 1 ? (
-          <EmblaCarousel photos={images.map(img => img.url)} />
+          <Carousel slides={images} />
         ) : (
           <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.image} />
         )}

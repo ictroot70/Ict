@@ -1,16 +1,15 @@
 'use client'
 
-import s from './Profile.module.scss'
-import Image from 'next/image'
-import { Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
+import { Typography } from '@/shared/ui'
+import Image from 'next/image'
+import s from './Profile.module.scss'
 
-import { ProfileActions } from './ProfileActions/ProfileActions'
+import { PostViewModel } from '@/entities/posts/api'
+import Carousel from '@/entities/users/ui/public/Carousel/Carousel'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
-import { PostViewModel } from '@/entities/posts/api'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import { ProfileActions } from './ProfileActions/ProfileActions'
 
 interface Props {
   profile: ProfileType
@@ -75,7 +74,7 @@ export const Profile: React.FC<Props> = ({
             {posts.map(post => (
               <div key={post.id} className={s.profilePostsItem}>
                 {post.images.length > 1 ? (
-                  <EmblaCarousel photos={post.images.map(img => img.url)} />
+                  <Carousel slides={post.images} />
                 ) : (
                   <Image
                     src={post.images[0]?.url || DEFAULT_IMAGE}
