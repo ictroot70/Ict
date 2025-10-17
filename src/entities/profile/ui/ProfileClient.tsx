@@ -1,9 +1,7 @@
 'use client'
 
-import { ReactElement, useState } from 'react' // ← Добавить useState
-
+import { ReactElement, useState } from 'react'
 import { useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
-
 import s from './ProfileClient.module.scss'
 import Image from 'next/image'
 import { Button, Typography } from '@/shared/ui'
@@ -12,6 +10,7 @@ import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { useDeletePostMutation, useGetPostsByUserQuery, useUpdatePostMutation } from '@/entities/posts/api/postApi'
+import { DeletePostModal } from './DeletePostModal'
 
 export const ProfileClient = (): ReactElement => {
   const { data: meInfo, isSuccess } = useGetMyProfileQuery()
@@ -33,12 +32,16 @@ export const ProfileClient = (): ReactElement => {
   const [updatePost] = useUpdatePostMutation()
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
   const avatarUrl = profileWithPosts?.avatars[0]?.url
 
   const statsData = [
     { label: 'Following', value: profileWithPosts?.followingCount || 0 },
     { label: 'Followers', value: profileWithPosts?.followersCount || 0 },
-    { label: 'Publications', value: profileWithPosts?.publicationsCount || 0 },
+    { label: 'Publications', value: userPosts?.items?.length || 0 },
   ]
 
   console.log(profileWithPosts?.publicationsCount)
@@ -53,7 +56,6 @@ export const ProfileClient = (): ReactElement => {
 
     const fixedUpdateData = {
       description: `Отредактированный пост ${new Date().toLocaleTimeString()}`,
-
     }
 
     try {
@@ -76,25 +78,50 @@ export const ProfileClient = (): ReactElement => {
     }
   }
 
-  const handleDeletePost = async (postId: string) => {
-    console.log(`Удаляется пост с ID: ${postId}`)
+  const handleDeletePost = (postId: string) => {
+    console.log(`Открывается модалка удаления для поста с ID: ${postId}`)
+    setSelectedPostId(postId)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!selectedPostId || !meInfo?.id) {
+      console.error('Post ID or User ID not found')
+      return
+    }
+
+    console.log(`Удаляется пост с ID: ${selectedPostId}`)
 
     try {
-      if (!meInfo?.id) {
-        console.error('User ID not found')
-        return
-      }
+      setIsDeleting(true)
 
-      const postIdNumber = parseInt(postId)
+      const postIdNumber = parseInt(selectedPostId)
       await deletePost({
         postId: postIdNumber,
         userId: meInfo.id
       }).unwrap()
 
-      console.log(`Пост с ID: ${postId} успешно удален`)
+      console.log(`Пост с ID: ${selectedPostId} успешно удален`)
+
+      // Закрываем модалку и сбрасываем состояния
+      setIsDeleteModalOpen(false)
+      setSelectedPostId(null)
+
+      // Можно добавить refetch если нужно
+      // refetch()
+
     } catch (error) {
       console.error('Ошибка при удалении поста:', error)
+    } finally {
+      setIsDeleting(false)
     }
+  }
+
+  // ← ДОБАВИТЬ функцию отмены удаления
+  const handleCancelDelete = () => {
+    setIsDeleteModalOpen(false)
+    setSelectedPostId(null)
+    console.log('Удаление отменено')
   }
 
   const getPostImageUrl = (post: any, index: number) => {
@@ -164,16 +191,14 @@ export const ProfileClient = (): ReactElement => {
                         <EditDeletePost
                           postId={post.id.toString()}
                           onEdit={handleEditPost}
-                          onDelete={handleDeletePost}
+                          onDelete={handleDeletePost} // ← Теперь открывает модалку
                           isEditing={editingPostId === post.id.toString()}
                         />
                       </div>
                     </div>
 
-                    {/* Информация о посте */}
                     <div className={s.postInfo}>
                       <Typography variant="regular_14" className={s.postDescription}>
-                        {/* ← ИЗМЕНИТЬ эту строку */}
                         {editingPostId === post.id.toString() ? 'Редактирование...' : getPostDescription(post)}
                       </Typography>
                       <Typography variant="regular_12" className={s.postDate}>
@@ -195,6 +220,15 @@ export const ProfileClient = (): ReactElement => {
           </div>
         </div>
       )}
+
+      {/* ← ДОБАВИТЬ модальное окно удаления */}
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        postId={selectedPostId || ''}
+        isLoading={isDeleting}
+      />
     </>
   )
 }
