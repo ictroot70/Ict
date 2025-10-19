@@ -11,6 +11,8 @@ import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { Avatar } from '@/shared/composites'
+import Link from 'next/link'
+import ProfilePage from '@/app/profile/[id]/page'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
@@ -59,12 +61,7 @@ export const PostModal = ({
   }).format(new Date(createdAt))
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      closeBtnOutside
-      className={s.modal}
-    >
+    <Modal open={open} onClose={onClose} closeBtnOutside className={s.modal}>
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
           {images.length > 1 ? (
