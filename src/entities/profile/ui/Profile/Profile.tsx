@@ -6,7 +6,7 @@ import Image from 'next/image'
 import s from './Profile.module.scss'
 
 import { PostViewModel } from '@/entities/posts/api'
-import Carousel from '@/entities/users/ui/public/Carousel/Carousel'
+import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { ProfileActions } from './ProfileActions/ProfileActions'

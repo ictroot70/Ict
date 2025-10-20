@@ -44,4 +44,8 @@ export const APP_ROUTES = {
     BASE: '/subscriptions',
     MY_PAYMENTS: '/subscriptions/my-payments',
   },
+
+  UI: {
+    EDIT: '/editdeletepost',
+  },
 } as const

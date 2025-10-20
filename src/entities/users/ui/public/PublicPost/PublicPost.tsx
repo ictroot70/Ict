@@ -10,7 +10,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import s from './PublicPost.module.scss'
-import Carousel from '../Carousel/Carousel'
+import Carousel from './Carousel/Carousel'
 
 type Props = {
   post: PublicPostResponse
@@ -21,8 +21,6 @@ const DEFAULT_IMAGE = '/default-image.svg'
 
 export const PublicPost = ({ post, urlProfile }: Props) => {
   const { userName, images, avatarOwner, description, createdAt } = post
-
-  console.log(avatarOwner)
 
   const timeAgo = useTimeAgo(createdAt)
 

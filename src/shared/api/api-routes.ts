@@ -75,7 +75,7 @@ export const API_ROUTES = {
 
   PUBLIC_USER: {
     COUNT: '/v1/public-user',
-    PROFILE: (profileId: string) => `/v1/public-user/profile/${profileId}`,
+    PROFILE: (profileId: number) => `/v1/public-user/profile/${profileId}`,
   },
 
   SESSIONS: {
