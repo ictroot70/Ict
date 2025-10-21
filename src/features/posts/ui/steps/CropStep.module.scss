@@ -156,3 +156,10 @@
     background: rgba(255, 0, 0, 0.8);
   }
 }
+
+.noOverlay {
+  background: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+

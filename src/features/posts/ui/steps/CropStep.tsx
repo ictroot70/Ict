@@ -30,27 +30,33 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles, get
 
   const currentFile = files[currentIndex]
 
-  const saveCrop = () => {
-    if (cropperRef.current) {
-      const canvas = cropperRef.current.getCanvas()
-      if (canvas) {
-        const croppedImage = canvas.toDataURL('image/jpeg')
-        setFiles(prev =>
-          prev.map((f, idx) => (idx === currentIndex ? { ...f, preview: croppedImage } : f))
-        )
-      }
-    }
-  }
+    const saveCrop = () => {
+        if (cropperRef.current) {
+            if (!aspect) {
+                return;
+            }
+
+            const canvas = cropperRef.current.getCanvas();
+            if (canvas) {
+                const croppedImage = canvas.toDataURL('image/jpeg');
+                setFiles(prev =>
+                    prev.map((f, idx) =>
+                        idx === currentIndex ? { ...f, preview: croppedImage } : f
+                    )
+                );
+            }
+        }
+    };
 
   const handleThumbClick = (idx: number) => {
     saveCrop()
     setCurrentIndex(idx)
   }
 
-  const handleNext = () => {
-    saveCrop()
-    onNext()
-  }
+    const handleNext = () => {
+        if (aspect) saveCrop();
+        onNext();
+    };
 
   const handleAspectChange = (value: number) => {
     setAspect(value === 0 ? undefined : value)
@@ -78,13 +84,24 @@ export const CropStep: React.FC<Props> = ({ onNext, onPrev, files, setFiles, get
       </div>
       <div className={styles.cropContainer}>
         <Cropper
-          src={currentFile.preview}
-          className={styles.cropper}
-          stencilProps={{
-            aspectRatio: aspect,
-          }}
-          ref={cropperRef}
+            src={currentFile.preview}
+            className={styles.cropper}
+            ref={cropperRef}
+            stencilProps={
+              aspect
+                  ? { aspectRatio: aspect }
+                  : {
+                    movable: false,
+                    resizable: false,
+                    handlers: false,
+                    lines: false,
+                    preview: false,
+                    size: 'fullscreen',
+                    overlayClassName: styles.noOverlay,
+                  }
+            }
         />
+
       </div>
       <div className={styles.aspectRatios}>
         {aspectRatios.map(ar => (
