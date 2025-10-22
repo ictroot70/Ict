@@ -21,13 +21,8 @@ export const APP_ROUTES = {
   },
 
   PROFILE: {
-    MY: (id: string) => `/users/profile/${id}`,
-    EDIT: (id: string) => `/users/profile/${id}/edit`,
-  },
-
-  PUBLIC_USERS: {
-    PROFILE: '/public-users/profile',
-    EDIT_PROFILE: (id: string) => `/public-users/profile/${id}/edit`,
+    ID: (id: string) => `/profile/${id}`,
+    EDIT: '/settings',
   },
 
   POSTS: {

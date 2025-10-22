@@ -7,9 +7,9 @@ import Link from 'next/link'
 
 import s from './AppHeader.module.scss'
 
-import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
-import { useHomeLink, useLogoutHandler } from './hooks'
-import { EditDeletePost } from './components/EditDeletePost/EditDeletePost'
+import { AuthBtn, LanguageSelect, NotificationButton } from './components'
+import { useHomeLink } from './hooks'
+import { APP_ROUTES } from '@/shared/constant'
 
 export const AppHeader = (): ReactElement => {
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()
@@ -28,11 +28,10 @@ export const AppHeader = (): ReactElement => {
     }
 
     return (
-      <div className={s.headerControls}>
+      <div className={s.header__controls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
         {!isAuthorized && <AuthBtn />}
-        <EditDeletePost onDelete={() => {}} onEdit={() => {}} postId={''} /> 
       </div>
     )
   }
@@ -40,8 +39,8 @@ export const AppHeader = (): ReactElement => {
   return (
     <>
       <Header isAuthorized={isAuthorized} className={s.header}>
-        <div className={s.container}>
-          <Link href={homeLink}>
+        <div className={s.header__container}>
+          <Link href={APP_ROUTES.ROOT}>
             <Typography variant={'h1'}>ICTRoot</Typography>
           </Link>
           {renderAuthControls()}
