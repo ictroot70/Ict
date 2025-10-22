@@ -9,12 +9,12 @@ type Props = {
   size?: number
 }
 export const Avatar = ({ image, alt, className, size = 40 }: Props) => {
-  const DEFAULT_AVATAR = '/avatar-default.svg'
+  const DEFAULT_AVATAR = '/default-avatar.svg'
   const DEFAULT_AVATAR_ALT = 'Avatar'
   const classNames = clsx(s.avatar, className)
   return (
     <Image
-      src={image ?? DEFAULT_AVATAR}
+      src={image || DEFAULT_AVATAR}
       width={size}
       height={size}
       alt={alt ?? DEFAULT_AVATAR_ALT}
