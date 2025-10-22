@@ -1,84 +1,84 @@
 /** @prettier */
-.wrapper {
+.post {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   height: 391px;
   overflow: hidden;
-}
 
-.imageContainer {
-  position: relative;
-  flex-grow: 1;
-  width: 100%;
-  height: auto;
-  min-height: 120px;
-  max-height: 240px;
-  transition: max-height 0.3s ease;
-  overflow: hidden;
-}
+  &__media {
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+    height: auto;
+    min-height: 120px;
+    max-height: 240px;
+    transition: max-height 0.3s ease;
+    overflow: hidden;
+  }
 
-.user {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
 
-.image {
-  width: 100%;
-  object-fit: cover;
-  object-position: center;
-}
+  &__image {
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+  &__content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
 
-.time {
-  color: var(--color-light-900);
-  margin-bottom: 3px;
-}
+  &__time {
+    color: var(--color-light-900);
+    margin-bottom: 3px;
+  }
 
-.descriptionWrapper {
-  flex-grow: 1;
-  height: 100%;
-  overflow: auto;
-  overflow-wrap: break-word;
+  &__description {
+    flex-grow: 1;
+    height: 100%;
+    overflow: auto;
+    overflow-wrap: break-word;
 
-  &::-webkit-scrollbar {
-    width: 4px;
-    &:horizontal {
-      height: 4px;
+    &::-webkit-scrollbar {
+      width: 4px;
+      &:horizontal {
+        height: 4px;
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--color-dark-300);
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      cursor: pointer;
+      background: var(--color-dark-100);
+      border-radius: 2px;
+      &:hover {
+        background: var(--color-light-900);
+      }
     }
   }
 
-  &::-webkit-scrollbar-track {
-    background: var(--color-dark-300);
-    border-radius: 2px;
+  &__text {
+    display: inline;
   }
 
-  &::-webkit-scrollbar-thumb {
-    cursor: pointer;
-    background: var(--color-dark-100);
-    border-radius: 2px;
-    &:hover {
-      background: var(--color-light-900);
+  &__toggle {
+    display: inline;
+    margin-left: 3px;
+    line-height: 1.25;
+
+    &:focus-visible {
+      outline: 1px solid var(--color-primary-700);
     }
-  }
-}
-
-.description {
-  display: inline;
-}
-
-.link {
-  display: inline;
-  margin-left: 3px;
-  line-height: 1.25;
-
-  &:focus-visible {
-    outline: 1px solid var(--color-primary-700);
   }
 }

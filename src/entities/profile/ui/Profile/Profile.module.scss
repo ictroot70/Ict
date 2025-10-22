@@ -6,24 +6,22 @@
   margin: 0 auto;
   min-height: 100%;
 
-  &Details {
+  &__details {
     display: flex;
     gap: 38px;
   }
 
-  &Info {
+  &__info {
     width: 100%;
-    &Header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
   }
 
-  &Actions {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
   }
 
-  &Stats {
+  &__stats {
     display: flex;
     gap: 80px;
     margin-bottom: 1.5rem;
@@ -31,34 +29,33 @@
     }
   }
 
-  &About {
+  &__about {
   }
 
-  &SectionPosts {
+  &__section {
     display: flex;
     flex-grow: 1;
     text-align: center;
   }
 
-  &Posts {
+  &__posts {
     width: 100%;
     display: grid;
     gap: 1rem 0.75rem;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
+  }
 
-    &Item {
-      cursor: pointer;
-      position: relative;
-      height: 228px;
-    }
-
+  &__post {
+    cursor: pointer;
+    position: relative;
+    height: 228px;
     &Image {
       object-fit: cover;
       object-position: center;
     }
+  }
 
-    &Message {
-      width: 100%;
-    }
+  &__message {
+    width: 100%;
   }
 }

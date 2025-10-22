@@ -41,10 +41,10 @@ export const Profile: React.FC<Props> = ({
 
   return (
     <div className={s.profile}>
-      <div className={s.profileDetails}>
+      <div className={s.profile__details}>
         <Avatar size={204} image={avatars[0]?.url} />
-        <div className={s.profileInfo}>
-          <div className={s.profileInfoHeader}>
+        <div className={s.profile__info}>
+          <div className={s.profile__header}>
             <Typography variant="h1">{userName}</Typography>
             <ProfileActions
               isAuthenticated={isAuthenticated}
@@ -54,25 +54,25 @@ export const Profile: React.FC<Props> = ({
               isFollowing={isFollowing}
             />
           </div>
-          <ul className={s.profileStats}>
+          <ul className={s.profile__stats}>
             {statsData.map(({ label, value }, index) => (
-              <li key={index} className={s.profileStatsItem}>
+              <li key={index} className={s.profile__statsItem}>
                 <Typography variant="bold_14">{value}</Typography>
                 <Typography variant="regular_14">{label}</Typography>
               </li>
             ))}
           </ul>
-          <Typography variant="regular_16" className={s.profileAbout}>
+          <Typography variant="regular_16" className={s.profile__about}>
             {aboutMe || 'No information has been added yet.'}
           </Typography>
         </div>
       </div>
 
-      <div className={s.profileSectionPosts}>
-        {posts ? (
-          <ul className={s.profilePosts}>
+      <div className={s.profile__section}>
+        {posts && posts.length ? (
+          <ul className={s.profile__posts}>
             {posts.map(post => (
-              <div key={post.id} className={s.profilePostsItem}>
+              <div key={post.id} className={s.profile__post}>
                 {post.images.length > 1 ? (
                   <Carousel slides={post.images} />
                 ) : (
@@ -80,14 +80,14 @@ export const Profile: React.FC<Props> = ({
                     src={post.images[0]?.url || DEFAULT_IMAGE}
                     alt="Image"
                     fill
-                    className={s.profilePostsImage}
+                    className={s.profile__postImage}
                   />
                 )}
               </div>
             ))}
           </ul>
         ) : (
-          <Typography variant="h1" className={s.profilePostsMessage}>
+          <Typography variant="h1" className={s.profile__message}>
             {isOwnProfile
               ? "You haven't published any posts yet"
               : "This user hasn't published any posts yet"}

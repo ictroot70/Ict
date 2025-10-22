@@ -34,31 +34,28 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
   }
 
   return (
-    <div className={s.wrapper}>
-      <div className={s.imageContainer}>
+    <div className={s.post}>
+      <div className={s.post__media}>
         {images.length > 1 ? (
           <Carousel slides={images} />
         ) : (
-          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.image} />
+          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.post__image} />
         )}
       </div>
 
-      <div className={s.user}>
+      <div className={s.post__user}>
         <Avatar image={avatarOwner} size={36} />
         <Link href={urlProfile}>
           <Typography variant="h3">{userName}</Typography>
         </Link>
       </div>
 
-      <div className={s.content}>
-        <Typography className={s.time} variant="small_text">
+      <div className={s.post__content}>
+        <Typography className={s.post__time} variant="small_text">
           {timeAgo}
         </Typography>
-        <div className={s.descriptionWrapper}>
-          <Typography
-            className={`${s.description} ${isExpanded ? s.descriptionExpanded : s.descriptionCollapsed}`}
-            variant="regular_14"
-          >
+        <div className={s.post__description}>
+          <Typography className={s.post__text} variant="regular_14">
             {isExpanded || !isLongDescription
               ? description
               : description.slice(0, MAX_CHAR_COUNT) + '...'}
@@ -68,7 +65,7 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
               asChild
               onClick={toggleDescriptionDisplayHandler}
               variant="regular_link"
-              className={s.link}
+              className={s.post__toggle}
             >
               <button>{isExpanded ? 'Hide' : 'ShowMore'}</button>
             </Typography>
