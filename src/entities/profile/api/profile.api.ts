@@ -5,6 +5,7 @@ import {
   PublicProfileRequest,
   PublicProfileResponse,
 } from '@/entities/profile/api/api.types'
+
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
 
@@ -24,7 +25,7 @@ export const profileApi = baseApi.injectEndpoints({
     }),
     getPublicProfile: builder.query<PublicProfileResponse, PublicProfileRequest>({
       query: ({ profileId }) => ({
-        url: API_ROUTES.PUBLIC_USER.PROFILE(Number(profileId)),
+        url: API_ROUTES.PUBLIC_USER.PROFILE(+profileId),
       }),
     }),
     getProfileByUserName: builder.query<ProfileWithPostsResponse, { userName: string }>({

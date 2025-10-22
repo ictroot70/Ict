@@ -3,11 +3,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
-import { EmblaCarouselType, EmblaOptionsType } from 'embla-carousel'
 import Image from 'next/image'
+import s from './Carousel.module.scss'
 import { UserImage } from '@/entities/users/api/api.types'
-import styles from './Carousel.module.scss'
 import { ArrowBackSimple, ArrowForwardSimple } from '@/shared/ui'
+
+type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0]
 
 type PropType = {
   slides: UserImage[]
@@ -26,21 +27,23 @@ const Carousel: React.FC<PropType> = props => {
   const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi])
   const scrollTo = useCallback((index: number) => emblaApi && emblaApi.scrollTo(index), [emblaApi])
 
-  const onInit = useCallback((emblaApi: EmblaCarouselType) => {
+  const onInit = useCallback(() => {
+    if (!emblaApi) return
     setScrollSnaps(emblaApi.scrollSnapList())
-  }, [])
+  }, [emblaApi])
 
-  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
     setSelectedIndex(emblaApi.selectedScrollSnap())
     setPrevBtnEnabled(emblaApi.canScrollPrev())
     setNextBtnEnabled(emblaApi.canScrollNext())
-  }, [])
+  }, [emblaApi])
 
   useEffect(() => {
     if (!emblaApi) return
 
-    onInit(emblaApi)
-    onSelect(emblaApi)
+    onInit()
+    onSelect()
     emblaApi.on('reInit', onInit)
     emblaApi.on('reInit', onSelect)
     emblaApi.on('select', onSelect)
@@ -53,12 +56,12 @@ const Carousel: React.FC<PropType> = props => {
   }, [emblaApi, onInit, onSelect])
 
   return (
-    <div className={styles.embla}>
-      <div className={styles.viewport} ref={emblaRef}>
-        <div className={styles.container}>
+    <div className={s.carousel}>
+      <div className={s.carousel__viewport} ref={emblaRef}>
+        <div className={s.carousel__container}>
           {slides.map((slide, index) => (
-            <div className={styles.slide} key={index}>
-              <div className={styles.slideNumber}>
+            <div className={s.carousel__slide} key={index}>
+              <div className={s.carousel__image}>
                 <Image src={slide.url} alt={`Image ${index + 1}`} fill />
               </div>
             </div>
@@ -67,9 +70,9 @@ const Carousel: React.FC<PropType> = props => {
       </div>
 
       {slides.length > 1 && (
-        <div className={styles.navButtons}>
+        <div className={s.carousel__nav}>
           <button
-            className={styles.navButton}
+            className={s.carousel__button}
             onClick={scrollPrev}
             disabled={!prevBtnEnabled}
             type="button"
@@ -78,7 +81,7 @@ const Carousel: React.FC<PropType> = props => {
             <ArrowBackSimple />
           </button>
           <button
-            className={styles.navButton}
+            className={s.carousel__button}
             onClick={scrollNext}
             disabled={!nextBtnEnabled}
             type="button"
@@ -90,12 +93,12 @@ const Carousel: React.FC<PropType> = props => {
       )}
 
       {slides.length > 1 && (
-        <div className={styles.controls}>
-          <div className={styles.dots}>
+        <div className={s.carousel__controls}>
+          <div className={s.carousel__dots}>
             {scrollSnaps.map((_, index) => (
               <button
                 key={index}
-                className={`${styles.dot} ${index === selectedIndex ? styles.dotSelected : ''}`}
+                className={`${s.carousel__dot} ${index === selectedIndex ? s['carousel__dot--active'] : ''}`}
                 type="button"
                 onClick={() => scrollTo(index)}
                 aria-label={`Go to slide ${index + 1}`}

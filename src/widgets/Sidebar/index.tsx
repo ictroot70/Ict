@@ -11,7 +11,7 @@ export const Sidebar = () => {
 
   return (
     <nav className={s.sidebar}>
-      <div className={s.sidebarWrapper}>
+      <div className={s.sidebar__content}>
         {linkGroups.map((group, index) => (
           <SidebarGroup key={index}>
             {group.links.map(link => (

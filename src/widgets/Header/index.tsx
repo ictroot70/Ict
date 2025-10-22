@@ -28,7 +28,7 @@ export const AppHeader = (): ReactElement => {
     }
 
     return (
-      <div className={s.headerControls}>
+      <div className={s.header__controls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
         {!isAuthorized && <AuthBtn />}
@@ -39,7 +39,7 @@ export const AppHeader = (): ReactElement => {
   return (
     <>
       <Header isAuthorized={isAuthorized} className={s.header}>
-        <div className={s.container}>
+        <div className={s.header__container}>
           <Link href={APP_ROUTES.ROOT}>
             <Typography variant={'h1'}>ICTRoot</Typography>
           </Link>

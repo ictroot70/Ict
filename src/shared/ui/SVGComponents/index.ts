@@ -6,6 +6,9 @@ export {
   Select,
   UkFlag,
   ArrowBack,
+  TrashOutline,
+  EditOutline,
+  ImageOutline,
   ArrowForwardSimple,
   ArrowBackSimple,
   TrendingUp,
@@ -21,7 +24,4 @@ export {
   PlusSquare,
   PlusSquareOutline,
   Search,
-  TrashOutline,
-  EditOutline,
-  ImageOutline
 } from '@ictroot/ui-kit'

@@ -1,14 +1,15 @@
 'use client'
 
-import s from './Profile.module.scss'
-import { Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
+import { Typography } from '@/shared/ui'
+import Image from 'next/image'
+import s from './Profile.module.scss'
 
-import { ProfileActions } from './ProfileActions/ProfileActions'
+import { PostViewModel } from '@/entities/posts/api'
+import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
-import { PostViewModel } from '@/entities/posts/api'
-import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
+import { ProfileActions } from './ProfileActions/ProfileActions'
 
 interface Props {
   profile: ProfileType
@@ -38,18 +39,12 @@ export const Profile: React.FC<Props> = ({
     { label: 'Publications', value: publications },
   ]
 
-  const modalVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
-    ? 'public'
-    : isOwnProfile
-      ? 'myPost'
-      : 'userPost'
-
   return (
     <div className={s.profile}>
-      <div className={s.profileDetails}>
+      <div className={s.profile__details}>
         <Avatar size={204} image={avatars[0]?.url} />
-        <div className={s.profileInfo}>
-          <div className={s.profileInfoHeader}>
+        <div className={s.profile__info}>
+          <div className={s.profile__header}>
             <Typography variant="h1">{userName}</Typography>
             <ProfileActions
               isAuthenticated={isAuthenticated}
@@ -59,38 +54,40 @@ export const Profile: React.FC<Props> = ({
               isFollowing={isFollowing}
             />
           </div>
-          <ul className={s.profileStats}>
+          <ul className={s.profile__stats}>
             {statsData.map(({ label, value }, index) => (
-              <li key={index} className={s.profileStatsItem}>
+              <li key={index} className={s.profile__statsItem}>
                 <Typography variant="bold_14">{value}</Typography>
                 <Typography variant="regular_14">{label}</Typography>
               </li>
             ))}
           </ul>
-          <Typography variant="regular_16" className={s.profileAbout}>
+          <Typography variant="regular_16" className={s.profile__about}>
             {aboutMe || 'No information has been added yet.'}
           </Typography>
         </div>
       </div>
 
-      <div className={s.profileSectionPosts}>
-        {posts ? (
-          <ul className={s.profilePosts}>
+      <div className={s.profile__section}>
+        {posts && posts.length ? (
+          <ul className={s.profile__posts}>
             {posts.map(post => (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                images={post.images}
-                avatarOwner={post.avatarOwner}
-                userName={post.userName}
-                createdAt={post.createdAt}
-                description={post.description}
-                modalVariant={modalVariant}
-              />
+              <div key={post.id} className={s.profile__post}>
+                {post.images.length > 1 ? (
+                  <Carousel slides={post.images} />
+                ) : (
+                  <Image
+                    src={post.images[0]?.url || DEFAULT_IMAGE}
+                    alt="Image"
+                    fill
+                    className={s.profile__postImage}
+                  />
+                )}
+              </div>
             ))}
           </ul>
         ) : (
-          <Typography variant="h1" className={s.profilePostsMessage}>
+          <Typography variant="h1" className={s.profile__message}>
             {isOwnProfile
               ? "You haven't published any posts yet"
               : "This user hasn't published any posts yet"}
