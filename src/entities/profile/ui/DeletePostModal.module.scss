@@ -1,11 +1,12 @@
+// Для Варианта 1 (кастомная реализация)
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 10000;
+  background-color: rgba(0, 0, 0, 0.8); // Более темный overlay
+  z-index: 10001; // Выше чем основная модалка
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,13 +21,36 @@
   padding: 12px 24px 36px 24px;
   display: flex;
   flex-direction: column;
+  z-index: 10002; // Еще выше
 }
 
+// Для Варианта 2 (с Modal компонентом)
+.modalWrapper {
+  z-index: 10001 !important;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  z-index: 10000 !important;
+}
+
+.modalContent {
+  width: 378px;
+  height: 216px;
+  background: #333333;
+  border: 1px solid #4c4c4c;
+  border-radius: 2px;
+  padding: 12px 24px 36px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Общие стили
 .header {
-  border-bottom: 1px solid rgba(76, 76, 76, 1); // Линия 486px
+  border-bottom: 1px solid rgba(76, 76, 76, 1);
   padding-bottom: 12px;
   margin-bottom: 30px;
-  width: 100%; // Чтобы линия была на всю ширину модалки
+  width: 100%;
 }
 
 .title {

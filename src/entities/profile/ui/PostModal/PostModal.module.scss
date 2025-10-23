@@ -1,7 +1,7 @@
 .modal {
   width: 972px;
   height: 574px;
-  z-index: 200;
+  z-index: 1000;
 }
 
 .innerModal {
@@ -34,7 +34,11 @@
   height: 100%;
 }
 
-.postHeader, .likeSendSave, .likesRow, .timestamp, .inputForm {
+.postHeader,
+.likeSendSave,
+.likesRow,
+.timestamp,
+.inputForm {
   padding: 0 24px;
 }
 
@@ -51,6 +55,30 @@
   gap: 8px;
   padding-top: 12px;
   padding-bottom: 12px;
+}
+
+/* Кнопка закрытия */
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1100; // Увеличиваем z-index кнопки закрытия
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: auto;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
 }
 
 /* Comments section */
@@ -86,7 +114,6 @@
   padding-top: 10px;
   margin-left: auto;
 }
-
 
 .footer {
   display: flex;
@@ -160,7 +187,6 @@
   padding-bottom: 7px;
 }
 
-
 .inputForm {
   display: flex;
 
@@ -169,9 +195,22 @@
 }
 
 .separator {
-
 }
 
 .input {
   border: none;
+}
+
+/* Overlay для основной модалки */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999; // Меньше чем у основной модалки
 }

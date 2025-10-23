@@ -1,6 +1,6 @@
 'use client'
 import { useGetPostsByUserQuery } from '@/entities/posts/api'
-import { Profile, useGetMyProfileQuery, useGetProfileByUserNameQuery } from '@/entities/profile'
+import { Profile, useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
 import { Loading } from '@/shared/composites'
 
 export default function MyProfile() {
@@ -9,8 +9,8 @@ export default function MyProfile() {
   const userName = myProfile?.userName
   const userId = myProfile?.id
 
-  const { data: fullMyProfile, isLoading: isFullMyProfileLoading } = useGetProfileByUserNameQuery(
-    { userName: userName || '' },
+  const { data: fullMyProfile, isLoading: isFullMyProfileLoading } = useGetProfileWithPostsQuery(
+    userName || '',
     { skip: !userName }
   )
 
@@ -28,4 +28,4 @@ export default function MyProfile() {
   }
 
   return <Profile profile={fullMyProfile} posts={myPosts?.items} isAuthenticated isOwnProfile />
-}
+} 

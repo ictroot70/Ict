@@ -13,6 +13,11 @@ interface PostCardProps {
   createdAt: string
   description?: string
   modalVariant: 'public' | 'myPost' | 'userPost'
+
+  onEditPost?: (postId: string) => void
+  onDeletePost?: (postId: string) => void
+  isEditing?: boolean
+  userId?: number
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -23,8 +28,14 @@ export const PostCard: React.FC<PostCardProps> = ({
   avatarOwner,
   userName,
   createdAt,
+  onEditPost,
+  onDeletePost,
+  isEditing,
+  userId,
 }) => {
   const firstImage = images?.[0]?.url || '/placeholder.png'
+
+  console.log(firstImage)
 
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
   const [modalImages, setModalImages] = useState<string[]>([])
@@ -33,6 +44,20 @@ export const PostCard: React.FC<PostCardProps> = ({
     setModalImages(images)
     setIsPostModalOpen(true)
   }
+
+  const getProcessedImageUrl = (url: string) => {
+    if (!url) return '/placeholder.png';
+    try {
+      new URL(url);
+      return url;
+    } catch {
+
+      return encodeURI(url).replace(/\s/g, '%20');
+    }
+  };
+
+  const firstImageUrl = images?.[0]?.url ? getProcessedImageUrl(images[0].url) : '/placeholder.png';
+
   const handleClosePost = () => setIsPostModalOpen(false)
 
   return (
@@ -42,12 +67,15 @@ export const PostCard: React.FC<PostCardProps> = ({
       className={styles.postCard}
     >
       <div className={styles.postImageWrapper}>
-        <Image
+        <img
           src={firstImage}
           alt={description || 'Post image'}
-          width={342}
-          height={228}
           className={styles.postImage}
+          onError={(e) => {
+            console.error('Failed to load image:', firstImage)
+            e.currentTarget.src = '/placeholder.png'
+          }}
+          onLoad={() => console.log('Image loaded successfully:', firstImage)}
         />
       </div>
       <PostModal
@@ -59,6 +87,11 @@ export const PostCard: React.FC<PostCardProps> = ({
         userName={userName}
         createdAt={createdAt}
         description={description}
+        postId={id.toString()}
+        userId={userId || 0}
+        onEditPost={onEditPost}
+        onDeletePost={onDeletePost}
+        isEditing={isEditing}
       />
     </div>
   )
