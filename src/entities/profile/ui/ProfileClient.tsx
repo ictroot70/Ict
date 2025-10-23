@@ -3,13 +3,12 @@
 import { ReactElement, useState } from 'react'
 import { useGetMyProfileQuery, useGetProfileWithPostsQuery } from '@/entities/profile'
 import s from './ProfileClient.module.scss'
-import Image from 'next/image'
 import { Button, Typography } from '@/shared/ui'
 import { Avatar } from '@/shared/composites'
 import Link from 'next/link'
 import { APP_ROUTES } from '@/shared/constant'
-import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { useDeletePostMutation, useGetPostsByUserQuery, useUpdatePostMutation } from '@/entities/posts/api/postApi'
+import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 import { DeletePostModal } from './DeletePostModal'
 
 export const ProfileClient = (): ReactElement => {
@@ -36,6 +35,10 @@ export const ProfileClient = (): ReactElement => {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  const { data: postsData, isLoading: isPostsLoading } = useGetPostsByUserQuery(
+    { userId: meInfo?.id ?? 0, endCursorPostId: 0 },
+    { skip: !meInfo?.id }
+  )
   const avatarUrl = profileWithPosts?.avatars[0]?.url
 
   const statsData = [
@@ -167,61 +170,28 @@ export const ProfileClient = (): ReactElement => {
               </Typography>
             </div>
           </div>
+          <div className={s.profilePosts}>
+            {isPostsLoading && <Typography>Loading posts...</Typography>}
 
-          <div className={s.postsSection}>
-            <Typography variant="h2" className={s.postsTitle}>
-              My Posts
-            </Typography>
-
-            {postsLoading ? (
-              <div className={s.loading}>Loading posts...</div>
-            ) : (
-              <ul className={s.profilePosts}>
-                {userPosts?.items?.map((post, index) => (
-                  <div key={post.id} className={s.profilePostsItem}>
-                    <div className={s.imageContainer}>
-                      <Image
-                        src={getPostImageUrl(post, index)}
-                        fill
-                        alt={getPostDescription(post)}
-                        className={s.profileImage}
-                      />
-
-                      <div className={s.editDeleteWrapper}>
-                        <EditDeletePost
-                          postId={post.id.toString()}
-                          onEdit={handleEditPost}
-                          onDelete={handleDeletePost} // ← Теперь открывает модалку
-                          isEditing={editingPostId === post.id.toString()}
-                        />
-                      </div>
-                    </div>
-
-                    <div className={s.postInfo}>
-                      <Typography variant="regular_14" className={s.postDescription}>
-                        {editingPostId === post.id.toString() ? 'Редактирование...' : getPostDescription(post)}
-                      </Typography>
-                      <Typography variant="regular_12" className={s.postDate}>
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </div>
-                  </div>
-                ))}
-
-                {(!userPosts?.items || userPosts.items.length === 0) && (
-                  <div className={s.noPosts}>
-                    <Typography variant="regular_16">
-                      No posts yet. Create your first post!
-                    </Typography>
-                  </div>
-                )}
-              </ul>
-            )}
+            {postsData?.items?.length
+              ? postsData.items.map(post => (
+                <PostCard
+                  key={post.id}
+                  id={post.id}
+                  images={post.images}
+                  avatarOwner={post.avatarOwner}
+                  userName={post.userName}
+                  createdAt={post.createdAt}
+                  description={post.description}
+                  modalVariant={'userPost'}
+                />
+              ))
+              : !isPostsLoading && <Typography>No posts yet.</Typography>}
           </div>
         </div>
       )}
 
-      {/* ← ДОБАВИТЬ модальное окно удаления */}
+
       <DeletePostModal
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}

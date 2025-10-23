@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import styles from "./FilterStep.module.scss";
 import { UploadedFile } from "../../model/types";
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { toast } from 'react-toastify/unstyled'
 import { ToastAlert } from '@/shared/composites'

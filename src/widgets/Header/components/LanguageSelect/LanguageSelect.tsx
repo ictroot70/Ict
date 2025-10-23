@@ -39,7 +39,7 @@ export const LanguageSelect = () => {
           { value: 'en', label: 'English', icon: <UkFlag /> },
           { value: 'rus', label: 'Russian', icon: <RussiaFlag /> },
         ]}
-        onValueChange={handleLanguageChange}
+        // onValueChange={handleLanguageChange}
       />
     </div>
   )

@@ -1,6 +1,4 @@
 /** @prettier */
-'use client'
-
 import Image from 'next/image'
 import { Typography } from '@ictroot/ui-kit'
 import { useState } from 'react'
@@ -9,12 +7,16 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import Carousel from './Carousel/Carousel'
 import { Avatar } from '@/shared/composites/Avatar'
+import Link from 'next/link'
 
 type Props = {
   post: PublicPostResponse
+  urlProfile: string
 }
 
-export const PublicPost = ({ post }: Props) => {
+const DEFAULT_IMAGE = '/default-image.svg'
+
+export const PublicPost = ({ post, urlProfile }: Props) => {
   const { userName, images, avatarOwner, description, createdAt } = post
 
   const timeAgo = useTimeAgo(createdAt)
@@ -31,16 +33,20 @@ export const PublicPost = ({ post }: Props) => {
   return (
     <div className={s.wrapper}>
       <div className={s.imageContainer}>
-        {images.length > 1 ? (
-          <Carousel slides={images} />
-        ) : (
-          <Image src={images[0].url} alt="Image" fill className={s.image} />
-        )}
+        {images?.length ? (
+          images.length > 1 ? (
+            <Carousel slides={images} />
+          ) : (
+            <Image src={images[0].url} alt="Image" fill className={s.image} />
+          )
+        ) : null}
       </div>
 
       <div className={s.user}>
         <Avatar image={avatarOwner} size={36} />
-        <Typography variant="h3">{userName}</Typography>
+        <Link href={urlProfile}>
+          <Typography variant="h3">{userName}</Typography>
+        </Link>
       </div>
 
       <div className={s.content}>

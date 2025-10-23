@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TrashOutline, EditOutline, Button, Typography } from "@/shared/ui";
+import { Button, Typography } from "@/shared/ui";
 import styles from './EditDeletePost.module.scss';
+import { TrashOutline, EditOutline } from "@/shared/ui/SVGComponents"
 
 interface EditDeletePostProps {
     postId: string;
