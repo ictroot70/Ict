@@ -11,8 +11,6 @@ import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { Avatar } from '@/shared/composites'
-import Link from 'next/link'
-import ProfilePage from '@/app/profile/[id]/page'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
@@ -36,7 +34,7 @@ export const PostModal = ({
   userName,
   avatarOwner,
   createdAt,
-  description,
+  description
 }: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     // 'Awesome shot! The colors are incredible.',
@@ -61,7 +59,7 @@ export const PostModal = ({
   }).format(new Date(createdAt))
 
   return (
-    <Modal open={open} onClose={onClose} closeBtnOutside className={s.modal}>
+    <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
           {images.length > 1 ? (
@@ -89,7 +87,7 @@ export const PostModal = ({
             )}
           </div>
 
-          <Separator className={s.separator} />
+          <Separator/>
           <div className={s.comments}>
             <div className={s.comment}>
               <Avatar size={36} image={avatarOwner} />
@@ -116,26 +114,27 @@ export const PostModal = ({
                   </Typography>
                 </div>
                 <Button variant={'text'} className={s.commentLikeButton}>
-                  <HeartOutline size={16} />
+                  <HeartOutline size={16} color={'white'} />
                 </Button>
               </div>
             ))}
           </div>
-          <Separator className={s.separator} />
+          <Separator />
 
           <div className={s.footer}>
-            <div className={s.likeSendSave}>
-              <Button variant={'text'} className={s.postButton}>
-                <HeartOutline />
-              </Button>
-              <Button variant={'text'} className={s.postButton}>
-                <PaperPlane />
-              </Button>
-              <Button variant={'text'} className={s.postButton}>
-                <BookmarkOutline />
-              </Button>
-            </div>
-
+            {variant !== 'public' && (
+              <div className={s.likeSendSave}>
+                <Button variant={'text'} className={s.postButton}>
+                  <HeartOutline color={'white'} />
+                </Button>
+                <Button variant={'text'} className={s.postButton}>
+                  <PaperPlane color={'white'} />
+                </Button>
+                <Button variant={'text'} className={s.postButton}>
+                  <BookmarkOutline color={'white'} />
+                </Button>
+              </div>
+            )}
             <div className={s.likesRow} style={{ textWrap: 'wrap' }}>
               <div className={s.likesAvatars}>
                 <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
@@ -151,21 +150,23 @@ export const PostModal = ({
             <Typography variant="small_text" className={s.timestamp}>
               {formattedCreatedAt}
             </Typography>
-            <Separator />
 
             {variant !== 'public' && (
-              <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
-                <ControlledInput<CommentForm>
-                  name={'comment'}
-                  control={control}
-                  inputType={'text'}
-                  placeholder={'Add a Comment'}
-                  className={s.input}
-                />
-                <Button variant={'text'} type={'submit'} disabled={!watch('comment')?.trim()}>
-                  Publish
-                </Button>
-              </form>
+              <>
+                <Separator className={s.separator}/>
+                <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
+                  <ControlledInput<CommentForm>
+                    name={'comment'}
+                    control={control}
+                    inputType={'text'}
+                    placeholder={'Add a Comment'}
+                    className={s.input}
+                  />
+                  <Button variant={'text'} type={'submit'} disabled={!watch('comment')?.trim()}>
+                    Publish
+                  </Button>
+                </form>
+              </>
             )}
           </div>
         </div>
