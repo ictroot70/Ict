@@ -11,6 +11,7 @@ import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { Avatar } from '@/shared/composites'
+import PostActions from './PostActions/PostActions'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
@@ -34,7 +35,7 @@ export const PostModal = ({
   userName,
   avatarOwner,
   createdAt,
-  description
+  description,
 }: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     // 'Awesome shot! The colors are incredible.',
@@ -78,16 +79,10 @@ export const PostModal = ({
               </Typography>
             </div>
 
-            {variant !== 'public' && (
-              <EditDeletePost
-                postId="post-123"
-                onEdit={id => console.log('Edit post:', id)}
-                onDelete={id => console.log('Delete post:', id)}
-              />
-            )}
+            {variant !== 'public' && <PostActions />}
           </div>
 
-          <Separator/>
+          <Separator />
           <div className={s.comments}>
             <div className={s.comment}>
               <Avatar size={36} image={avatarOwner} />
@@ -153,7 +148,7 @@ export const PostModal = ({
 
             {variant !== 'public' && (
               <>
-                <Separator className={s.separator}/>
+                <Separator className={s.separator} />
                 <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
                   <ControlledInput<CommentForm>
                     name={'comment'}
