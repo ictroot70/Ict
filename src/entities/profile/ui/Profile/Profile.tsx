@@ -80,6 +80,7 @@ export const Profile: React.FC<Props> = ({
                   userName={post.userName}
                   createdAt={post.createdAt}
                   modalVariant={ProfileType}
+                  description={post.description}
                 />
               ))}
             </ul>
