@@ -47,7 +47,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           width={342}
           height={228}
           className={styles.postImage}
-          onClick={() => handleOpenPost(images.map(img => img.url))}
+          onClick={() => handleOpenPost()}
         />
       </div>
       <PostModal
