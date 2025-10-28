@@ -9,15 +9,15 @@ import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/u
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { Avatar } from '@/shared/composites'
-import PostActions from './PostActions/PostActions'
+import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
+import { PostImageViewModel } from '@/entities/posts/api'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
   open: boolean
   onClose: () => void
-  images: string[]
+  images: PostImageViewModel[]
   initialIndex?: number
   avatarOwner?: string
   userName: string
@@ -59,14 +59,22 @@ export const PostModal = ({
     day: 'numeric',
   }).format(new Date(createdAt))
 
+  console.log(images[0].url)
+
   return (
     <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
           {images.length > 1 ? (
-            <EmblaCarousel photos={images} />
+            <Carousel
+              slides={images}
+              options={{
+                align: 'center',
+                loop: false,
+              }}
+            />
           ) : (
-            <Image src={images[0]} alt={'Post image'} fill className={s.image} />
+            <Image src={images[0]?.url} alt={'Post image'} fill className={s.image} />
           )}
         </div>
         <div className={s.postSideBar}>
