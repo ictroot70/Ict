@@ -1,12 +1,18 @@
 import s from './ActionsMenu.module.scss'
 import React, { useState, useRef, useEffect, ReactNode } from 'react'
-import { Button, MoreHorizontal } from '@/shared/ui'
+import { Button, MoreHorizontal, Typography } from '@/shared/ui'
 
-type Props = {
-  children: ReactNode
+export interface ActionsMenuItem {
+  label: string
+  icon: ReactNode
+  onClick: () => void
 }
 
-export const ActionsMenu: React.FC<Props> = ({ children }) => {
+type Props = {
+  items: ActionsMenuItem[]
+}
+
+export const ActionsMenu: React.FC<Props> = ({ items }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const menuRef = useRef<HTMLDivElement>(null)
@@ -17,6 +23,11 @@ export const ActionsMenu: React.FC<Props> = ({ children }) => {
 
   const closeMenu = () => {
     setIsMenuOpen(false)
+  }
+
+  const handleItemClick = ({ onClick }: Pick<ActionsMenuItem, 'onClick'>) => {
+    onClick()
+    closeMenu()
   }
 
   useEffect(() => {
@@ -44,7 +55,25 @@ export const ActionsMenu: React.FC<Props> = ({ children }) => {
         <MoreHorizontal />
       </Button>
 
-      {isMenuOpen && <div className={s.container}>{children}</div>}
+      {isMenuOpen && (
+        <div className={s.menu}>
+          {items.map(({ icon, label, onClick }) => {
+            return (
+              <Button
+                variant="text"
+                className={s.item}
+                onClick={() => handleItemClick({ onClick })}
+                aria-label="Edit Post"
+              >
+                <span className={s.icon}>{icon}</span>
+                <Typography asChild variant="regular_14" className={s.text}>
+                  <span>{label}</span>
+                </Typography>
+              </Button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

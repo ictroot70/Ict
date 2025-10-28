@@ -6,12 +6,12 @@ import { Button, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
 import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/ui-kit'
-import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import { Avatar } from '@/shared/composites'
 import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { PostImageViewModel } from '@/entities/posts/api'
+import PostActions from './PostActions/PostActions'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
