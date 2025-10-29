@@ -41,33 +41,33 @@ export const Profile: React.FC<Props> = ({
   const ProfileType = isAuthenticated ? (isOwnProfile ? 'myPost' : 'userPost') : 'public'
 
   return (
-      <div className={s.profile}>
-        <div className={s.profile__details}>
-          <Avatar size={204} image={avatars[0]?.url} />
-          <div className={s.profile__info}>
-            <div className={s.profile__header}>
-              <Typography variant="h1">{userName}</Typography>
-              <ProfileActions
-                isAuthenticated={isAuthenticated}
-                isOwnProfile={isOwnProfile}
-                onFollow={onFollow}
-                onMessage={onMessage}
-                isFollowing={isFollowing}
-              />
-            </div>
-            <ul className={s.profile__stats}>
-              {statsData.map(({ label, value }, index) => (
-                <li key={index} className={s.profile__statsItem}>
-                  <Typography variant="bold_14">{value}</Typography>
-                  <Typography variant="regular_14">{label}</Typography>
-                </li>
-              ))}
-            </ul>
-            <Typography variant="regular_16" className={s.profile__about}>
-              {aboutMe || 'No information has been added yet.'}
-            </Typography>
+    <div className={s.profile}>
+      <div className={s.profile__details}>
+        <Avatar size={204} image={avatars[0]?.url} />
+        <div className={s.profile__info}>
+          <div className={s.profile__header}>
+            <Typography variant="h1">{userName}</Typography>
+            <ProfileActions
+              isAuthenticated={isAuthenticated}
+              isOwnProfile={isOwnProfile}
+              onFollow={onFollow}
+              onMessage={onMessage}
+              isFollowing={isFollowing}
+            />
           </div>
+          <ul className={s.profile__stats}>
+            {statsData.map(({ label, value }, index) => (
+              <li key={index} className={s.profile__statsItem}>
+                <Typography variant="bold_14">{value}</Typography>
+                <Typography variant="regular_14">{label}</Typography>
+              </li>
+            ))}
+          </ul>
+          <Typography variant="regular_16" className={s.profile__about}>
+            {aboutMe || 'No information has been added yet.'}
+          </Typography>
         </div>
+      </div>
 
         <div className={s.profile__section}>
           {posts && posts.length ? (
