@@ -87,7 +87,7 @@ export const PostModal = ({
               </Typography>
             </div>
 
-            {variant !== 'public' && <PostActions />}
+            {variant !== 'public' && <PostActions variant={variant} />}
           </div>
 
           <Separator />
