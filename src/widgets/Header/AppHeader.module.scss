@@ -1,9 +1,9 @@
 .header {
   position: fixed;
+  z-index: 100;
   top: 0;
   left: 0;
   padding: 0.75rem 0;
-  z-index: 100;
 
   &__controls {
     display: flex;
