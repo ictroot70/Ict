@@ -19,7 +19,7 @@
 
 import { ActionsMenu, ActionsMenuItem } from '@/shared/composites/ActionsMenu/ActionsMenu'
 import { EditOutline, TrashOutline } from '@/shared/ui'
-import { CopyOutline, PersonRemoveOutline } from '@ictroot/ui-kit'
+import { CopyOutline, PersonAddOutline } from '@ictroot/ui-kit'
 
 type Props = {
   variant: 'public' | 'myPost' | 'userPost'
@@ -41,8 +41,8 @@ export default function PostActions({ variant }: Props) {
 
   const userPostActions: ActionsMenuItem[] = [
     {
-      label: 'Unfollow',
-      icon: <PersonRemoveOutline />,
+      label: 'Follow',
+      icon: <PersonAddOutline />,
       onClick: () => {},
     },
     {
