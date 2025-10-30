@@ -76,11 +76,8 @@ export const Profile: React.FC<Props> = ({
                 <PostCard
                   key={post.id}
                   id={post.id}
-                  images={post.images}
-                  userName={post.userName}
-                  createdAt={post.createdAt}
-                  modalVariant={ProfileType}
-                  description={post.description}
+                  image={post.images[0].url}
+                  userId={profile.id}
                 />
               ))}
             </ul>
