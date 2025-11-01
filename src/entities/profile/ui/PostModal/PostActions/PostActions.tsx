@@ -22,7 +22,7 @@ import { EditOutline, TrashOutline } from '@/shared/ui'
 import { CopyOutline, PersonAddOutline } from '@ictroot/ui-kit'
 
 type Props = {
-  variant: 'public' | 'myPost' | 'userPost'
+  variant: 'myPost' | 'userPost'
 }
 
 export default function PostActions({ variant }: Props) {
@@ -52,20 +52,7 @@ export default function PostActions({ variant }: Props) {
     },
   ]
 
-  let currentItems: ActionsMenuItem[] = []
-
-  switch (variant) {
-    case 'myPost': {
-      currentItems = myPostActions
-      break
-    }
-    case 'userPost': {
-      currentItems = userPostActions
-      break
-    }
-    default:
-      currentItems = []
-  }
+  let currentItems: ActionsMenuItem[] = variant === 'myPost' ? myPostActions : userPostActions
 
   return <ActionsMenu items={currentItems} />
 }

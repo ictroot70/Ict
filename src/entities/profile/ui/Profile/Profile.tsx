@@ -73,15 +73,7 @@ export const Profile: React.FC<Props> = ({
         {posts && posts.length ? (
           <ul className={s.profile__posts}>
             {posts.map(post => (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                images={post.images}
-                userName={post.userName}
-                createdAt={post.createdAt}
-                modalVariant={ProfileType}
-                description={post.description}
-              />
+              <PostCard key={post.id} id={post.id} image={post.images[0].url} userId={profile.id} />
             ))}
           </ul>
         ) : (

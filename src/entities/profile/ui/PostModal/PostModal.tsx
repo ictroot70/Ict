@@ -10,33 +10,19 @@ import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import { Avatar } from '@/shared/composites'
 import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
-import { PostImageViewModel } from '@/entities/posts/api'
+import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/features/posts/utils/useAuth'
 import PostActions from './PostActions/PostActions'
 
 type Props = {
-  variant: 'public' | 'myPost' | 'userPost'
   open: boolean
   onClose: () => void
-  images: PostImageViewModel[]
-  initialIndex?: number
-  avatarOwner?: string
-  userName: string
-  createdAt: string
-  description?: string
 }
 
 type CommentForm = { comment: string }
 
-export const PostModal = ({
-  open,
-  onClose,
-  images,
-  variant,
-  userName,
-  avatarOwner,
-  createdAt,
-  description,
-}: Props): ReactElement => {
+export const PostModal = ({ open, onClose }: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     // 'Awesome shot! The colors are incredible.',
     // 'Looks like a perfect vacation spot.',
@@ -53,51 +39,70 @@ export const PostModal = ({
     reset()
   }
 
+  const searchParams = useSearchParams()
+  const postIdFromQuery = searchParams.get('postId')
+  const postId = postIdFromQuery ? Number(postIdFromQuery) : undefined
+
+  const { data: postData } = useGetPostByIdQuery(postId as number, {
+    skip: !open || !postId,
+  })
+
+  const { user, isAuthenticated } = useAuth()
+  const computedVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
+    ? 'public'
+    : postData?.ownerId && user?.userId === postData.ownerId
+      ? 'myPost'
+      : 'userPost'
+
+  const effectiveImages = postData?.images ?? []
+  const effectiveUserName = postData?.userName ?? ''
+  const effectiveAvatar = postData?.avatarOwner ?? ''
+  const effectiveDescription = postData?.description ?? ''
+  const effectiveCreatedAt = postData?.createdAt ?? new Date().toISOString()
+
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(createdAt))
-
-  console.log(images[0].url)
+  }).format(new Date(effectiveCreatedAt))
 
   return (
     <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
       <div className={s.innerModal}>
         <div className={s.photoContainer}>
-          {images.length > 1 ? (
+          {effectiveImages.length > 1 ? (
             <Carousel
-              slides={images}
+              slides={effectiveImages}
               options={{
                 align: 'center',
                 loop: false,
               }}
             />
-          ) : (
-            <Image src={images[0]?.url} alt={'Post image'} fill className={s.image} />
-          )}
+          ) : effectiveImages.length === 1 ? (
+            <Image src={effectiveImages[0]?.url} alt={'Post image'} fill className={s.image} />
+          ) : null}
         </div>
         <div className={s.postSideBar}>
           <div className={s.postHeader}>
             <div className={s.username}>
-              <Avatar size={36} image={avatarOwner} />
+              <Avatar size={36} image={effectiveAvatar} />
 
               <Typography variant={'h3'} color={'light'}>
-                {userName}
+                {effectiveUserName}
               </Typography>
             </div>
 
-            {variant !== 'public' && <PostActions variant={variant} />}
+            {computedVariant !== 'public' && <PostActions variant={computedVariant} />}
           </div>
 
           <Separator />
           <div className={s.comments}>
             <div className={s.comment}>
-              <Avatar size={36} image={avatarOwner} />
+              <Avatar size={36} image={effectiveAvatar} />
 
               <div>
                 <Typography variant={'regular_14'} color={'light'}>
-                  <strong>{userName}</strong> {description}
+                  <strong>{effectiveUserName}</strong> {effectiveDescription}
                 </Typography>
                 <Typography variant="small_text" className={s.commentTimestamp}>
                   2 minute ago
@@ -106,7 +111,7 @@ export const PostModal = ({
             </div>
             {comments.map((comment, index) => (
               <div className={s.comment} key={index}>
-                <Avatar size={36} image={avatarOwner} />
+                <Avatar size={36} image={effectiveAvatar} />
 
                 <div>
                   <Typography variant={'regular_14'} color={'light'}>
@@ -125,7 +130,7 @@ export const PostModal = ({
           <Separator />
 
           <div className={s.footer}>
-            {variant !== 'public' && (
+            {computedVariant !== 'public' && (
               <div className={s.likeSendSave}>
                 <Button variant={'text'} className={s.postButton}>
                   <HeartOutline color={'white'} />
@@ -154,7 +159,7 @@ export const PostModal = ({
               {formattedCreatedAt}
             </Typography>
 
-            {variant !== 'public' && (
+            {computedVariant !== 'public' && (
               <>
                 <Separator className={s.separator} />
                 <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
