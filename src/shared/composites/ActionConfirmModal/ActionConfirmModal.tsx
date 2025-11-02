@@ -50,7 +50,12 @@ export const ActionConfirmModal = ({
   }
 
   return (
-    <Modal open={open} onClose={onClose} modalTitle={title} width={width} height={height}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      modalTitle={title}
+      style={{ width: width, height: height }}
+    >
       <div>
         <Typography variant={'regular_16'} className={styles.text}>
           {message}

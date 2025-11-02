@@ -7,9 +7,8 @@ import Link from 'next/link'
 
 import s from './AppHeader.module.scss'
 
-import { AuthBtn, LanguageSelect, LogoutModal, NotificationButton } from './components'
-import { useHomeLink, useLogoutHandler } from './hooks'
-import { EditDeletePost } from './components/EditDeletePost/EditDeletePost'
+import { AuthBtn, LanguageSelect, NotificationButton } from './components'
+import { useHomeLink } from './hooks'
 
 export const AppHeader = (): ReactElement => {
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()

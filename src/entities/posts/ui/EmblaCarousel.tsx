@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react"
-import useEmblaCarousel from "embla-carousel-react"
-import styles from "./EmblaCarousel.module.scss"
+import React, { useEffect, useState } from 'react'
+import useEmblaCarousel from 'embla-carousel-react'
+import styles from './EmblaCarousel.module.scss'
 
 interface Props {
-  photos: string[];
-  filtersState?: Record<number, string>;
-  onSlideChange?: (index: number) => void;
+  photos: string[]
+  filtersState?: Record<number, string>
+  onSlideChange?: (index: number) => void
 }
 
 const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange }) => {
@@ -22,23 +22,22 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
       setSelectedIndex(index)
       if (onSlideChange) onSlideChange(index)
     }
-    emblaApi.on("select", onSelect)
+    emblaApi.on('select', onSelect)
     onSelect()
   }, [emblaApi, onSlideChange])
-
 
   return (
     <div className={styles.embla}>
       <div className={styles.embla__viewport} ref={emblaRef}>
         <div className={styles.embla__container}>
           {photos.map((src, idx) => {
-            const filter = filtersState && filtersState[idx] ? filtersState[idx] : ""
+            const filter = filtersState && filtersState[idx] ? filtersState[idx] : ''
             return (
               <div className={styles.embla__slide} key={idx}>
                 <img
                   src={src}
                   alt={`post-${idx}`}
-                  className={filter ? styles[filter.toLowerCase()] : ""}
+                  className={filter ? styles[filter.toLowerCase()] : ''}
                 />
               </div>
             )
@@ -66,7 +65,7 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
               <span
                 key={idx}
                 className={`${styles.embla__dot} ${
-                  idx === selectedIndex ? styles.embla__dot__active : ""
+                  idx === selectedIndex ? styles.embla__dot__active : ''
                 }`}
                 onClick={() => emblaApi && emblaApi.scrollTo(idx)}
               />
