@@ -6,7 +6,6 @@ import { Button, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
 import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/ui-kit'
-import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import { Avatar } from '@/shared/composites'
@@ -14,6 +13,7 @@ import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/features/posts/utils/useAuth'
+import PostActions from './PostActions/PostActions'
 
 type Props = {
   open: boolean
@@ -22,10 +22,7 @@ type Props = {
 
 type CommentForm = { comment: string }
 
-export const PostModal = ({
-  open,
-  onClose,
-}: Props): ReactElement => {
+export const PostModal = ({ open, onClose }: Props): ReactElement => {
   const [comments, setComments] = useState<string[]>([
     // 'Awesome shot! The colors are incredible.',
     // 'Looks like a perfect vacation spot.',
@@ -54,8 +51,8 @@ export const PostModal = ({
   const computedVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
     ? 'public'
     : postData?.ownerId && user?.userId === postData.ownerId
-    ? 'myPost'
-    : 'userPost'
+      ? 'myPost'
+      : 'userPost'
 
   const effectiveImages = postData?.images ?? []
   const effectiveUserName = postData?.userName ?? ''
@@ -82,12 +79,7 @@ export const PostModal = ({
               }}
             />
           ) : effectiveImages.length === 1 ? (
-            <Image
-              src={effectiveImages[0]?.url}
-              alt={'Post image'}
-              fill
-              className={s.image}
-            />
+            <Image src={effectiveImages[0]?.url} alt={'Post image'} fill className={s.image} />
           ) : null}
         </div>
         <div className={s.postSideBar}>
@@ -100,16 +92,10 @@ export const PostModal = ({
               </Typography>
             </div>
 
-            {computedVariant !== 'public' && (
-              <EditDeletePost
-                postId="post-123"
-                onEdit={id => console.log('Edit post:', id)}
-                onDelete={id => console.log('Delete post:', id)}
-              />
-            )}
+            {computedVariant !== 'public' && <PostActions variant={computedVariant} />}
           </div>
 
-          <Separator/>
+          <Separator />
           <div className={s.comments}>
             <div className={s.comment}>
               <Avatar size={36} image={effectiveAvatar} />
@@ -175,7 +161,7 @@ export const PostModal = ({
 
             {computedVariant !== 'public' && (
               <>
-                <Separator className={s.separator}/>
+                <Separator className={s.separator} />
                 <form onSubmit={handleSubmit(handlePublish)} className={s.inputForm}>
                   <ControlledInput<CommentForm>
                     name={'comment'}

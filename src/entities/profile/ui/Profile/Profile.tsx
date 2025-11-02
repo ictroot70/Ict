@@ -69,26 +69,21 @@ export const Profile: React.FC<Props> = ({
         </div>
       </div>
 
-        <div className={s.profile__section}>
-          {posts && posts.length ? (
-            <ul className={s.profile__posts}>
-              {posts.map(post => (
-                <PostCard
-                  key={post.id}
-                  id={post.id}
-                  image={post.images[0].url}
-                  userId={profile.id}
-                />
-              ))}
-            </ul>
-          ) : (
-            <Typography variant="h1" className={s.profile__message}>
-              {isOwnProfile
-                ? "You haven't published any posts yet"
-                : "This user hasn't published any posts yet"}
-            </Typography>
-          )}
-        </div>
+      <div className={s.profile__section}>
+        {posts && posts.length ? (
+          <ul className={s.profile__posts}>
+            {posts.map(post => (
+              <PostCard key={post.id} id={post.id} image={post.images[0].url} userId={profile.id} />
+            ))}
+          </ul>
+        ) : (
+          <Typography variant="h1" className={s.profile__message}>
+            {isOwnProfile
+              ? "You haven't published any posts yet"
+              : "This user hasn't published any posts yet"}
+          </Typography>
+        )}
       </div>
+    </div>
   )
 }

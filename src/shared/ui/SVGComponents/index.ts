@@ -24,4 +24,5 @@ export {
   PlusSquare,
   PlusSquareOutline,
   Search,
+  MoreHorizontal,
 } from '@ictroot/ui-kit'
