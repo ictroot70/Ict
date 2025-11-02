@@ -70,7 +70,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       const formData = new FormData()
       formData.append('file', finalFile)
       const uploaded = await uploadImage(formData).unwrap()
-      setUploadedImage(prev => [...prev, ...uploaded.images])
+      setUploadedImage(prev => [...uploaded.images, ...prev])
 
       return uploaded
     } catch (error) {
@@ -98,9 +98,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       open={open}
       onClose={handleClose}
       modalTitle="Add Photo"
-      width="492px"
-      height="auto"
-      style={{ zIndex: 100, paddingBottom: 48 }}
+      style={{ paddingBottom: 48 }}
       className={styles.modal}
     >
       {step === 'upload' && (
