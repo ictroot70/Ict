@@ -2,14 +2,13 @@
 
 import { Avatar } from '@/shared/composites'
 import { Typography } from '@/shared/ui'
-import Image from 'next/image'
 import s from './Profile.module.scss'
 
 import { PostViewModel } from '@/entities/posts/api'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { ProfileActions } from './ProfileActions/ProfileActions'
+import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 
 interface Props {
   profile: ProfileType
@@ -38,6 +37,8 @@ export const Profile: React.FC<Props> = ({
     { label: 'Followers', value: following },
     { label: 'Publications', value: publications },
   ]
+
+  const ProfileType = isAuthenticated ? (isOwnProfile ? 'myPost' : 'userPost') : 'public'
 
   return (
     <div className={s.profile}>
@@ -72,18 +73,7 @@ export const Profile: React.FC<Props> = ({
         {posts && posts.length ? (
           <ul className={s.profile__posts}>
             {posts.map(post => (
-              <div key={post.id} className={s.profile__post}>
-                {post.images.length > 1 ? (
-                  <Carousel slides={post.images} />
-                ) : (
-                  <Image
-                    src={post.images[0]?.url || DEFAULT_IMAGE}
-                    alt="Image"
-                    fill
-                    className={s.profile__postImage}
-                  />
-                )}
-              </div>
+              <PostCard key={post.id} id={post.id} image={post.images[0].url} userId={profile.id} />
             ))}
           </ul>
         ) : (
