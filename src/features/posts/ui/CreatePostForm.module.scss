@@ -1,15 +1,25 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 50;
+.modal {
+  width: 492px;
+  height: 564px;
+
+  &.filterStep {
+    width: auto;
+  }
+  //padding-bottom: 12px;
 }
 
-.error {
-  color: red;
-  margin-top: 8px;
-  font-size: 14px;
-}
+//.overlay {
+//  position: fixed;
+//  inset: 0;
+//  background: rgba(0, 0, 0, 0.5);
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//  //z-index: 50;
+//}
+//
+//.error {
+//  color: red;
+//  margin-top: 8px;
+//  font-size: 14px;
+//}

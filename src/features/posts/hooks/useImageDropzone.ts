@@ -1,8 +1,9 @@
 'use client'
 import { useDropzone } from 'react-dropzone'
+import { v4 as uuidv4 } from 'uuid'
 import { useState } from 'react'
 import { UploadedFile } from '@/features/posts/model/types'
-
+import { compressImage } from '@/features/posts/lib/filterStep/compressImage'
 
 const MAX_SIZE = 20 * 1024 * 1024
 const MAX_FILES = 10
@@ -17,37 +18,37 @@ export function useImageDropzone(
   const onDrop = async (acceptedFiles: File[]) => {
     setError(null)
 
-    if (files.length + acceptedFiles.length > MAX_FILES) {
-      setError(`You can upload a maximum of ${MAX_FILES} photos`)
-      return
-    }
-
     for (const file of acceptedFiles) {
-      if (file.size > MAX_SIZE) {
-        setError('The photo must be less than 20 Mb')
+      if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        setError('The photo must be JPEG or PNG format')
         continue
       }
 
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setError('The photo must be JPEG or PNG format')
+      const compressed = await compressImage(file)
+      if (compressed.size > MAX_SIZE) {
+        setError('The photo must be less than 20 Mb')
         continue
       }
 
       const reader = new FileReader()
       reader.onload = () => {
         const preview = reader.result as string
-        setFiles(prev => {
-          if (prev.some(f => f.file.name === file.name && f.file.lastModified === file.lastModified)) {
-            return prev
-          }
-          return [...prev, { file, preview }]
-        })
+        setFiles(prev => [
+          ...prev,
+          {
+            id: uuidv4(),
+            file,
+            preview,
+            original: preview,
+            isModified: false,
+          },
+        ])
+
         onNext()
       }
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(compressed)
     }
   }
-
   const { getRootProps, getInputProps, open } = useDropzone({
     onDrop,
     accept: { 'image/jpeg': [], 'image/png': [] },
