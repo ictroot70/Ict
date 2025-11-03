@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './PublishStep.module.scss'
 import { UploadedFile } from '../../model/types'
 import { Avatar, ToastAlert } from '@/shared/composites'
@@ -7,6 +8,9 @@ import { toast } from 'react-toastify/unstyled'
 import { Input, Separator, TextArea, Typography } from '@/shared/ui'
 import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 import { Header } from '@/features/posts/ui/Header/header'
+import { useGetMyProfileQuery } from '@/entities/profile'
+import { PostViewModel } from '@/shared/types'
+import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 
 interface Props {
   onPrev: () => void
@@ -18,8 +22,9 @@ interface Props {
   createPost: (args: any) => Promise<any>
   userId: number
   onClose: () => void
-  uploadedImage: { uploadId: string; url: string }[]
-  onPublishPost: (post: any) => void
+  // uploadedImage: { uploadId: string; url: string }[]
+  uploadedImage: PostImageViewModel[]
+  onPublishPost: (post: PostViewModel) => void
   isUploading: boolean
 }
 
@@ -36,6 +41,9 @@ export const PublishStep: React.FC<Props> = ({
   uploadedImage,
   isUploading,
 }) => {
+  const { data } = useGetMyProfileQuery()
+  const userName = data?.userName
+  const avatarUrl = data?.avatars[0]?.url
   const [isPublishing, setIsPublishing] = useState(false)
 
   const handlePublish = async () => {
@@ -72,24 +80,20 @@ export const PublishStep: React.FC<Props> = ({
         }
         nextStepTitle="Publish"
       />
-      <div style={{ display: 'flex', width: 'max-content' }}>
+      <div className={styles.carouselContainer}>
         <div className={styles.photoPreview}>
           <EmblaCarousel photos={files.map(f => f.preview)} filtersState={filtersState} />
         </div>
 
         <div className={styles.form}>
-          <div style={{ padding: '24px' }}>
-            <div
-              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}
-              className={styles.user}
-            >
-              <Avatar size={36} alt={''} image={''} />
-              <Typography variant="h1">user name</Typography>
+          <div className={styles.formContainer}>
+            <div className={styles.user}>
+              <Avatar size={36} alt={userName} image={avatarUrl || ''} />
+              <Typography variant="h1">{userName}</Typography>
             </div>
             <TextArea
               className={styles.description}
-              style={{ width: '433px', height: '120px', color: '#fff' }}
-              id="description"
+              style={{ width: '433px', height: '120px', color: '#fff' }} // TODO: Delete when class triggers
               label="Add publication descriptions"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -101,7 +105,7 @@ export const PublishStep: React.FC<Props> = ({
             </Typography>
           </div>
           <Separator />
-          <div style={{ padding: '24px' }}>
+          <div className={styles.locationContainer}>
             <Input
               className={styles.locationInput}
               id={'1'}
@@ -109,7 +113,7 @@ export const PublishStep: React.FC<Props> = ({
               placeholder={'Add location wit Icon'}
               disabled
             />
-            <div style={{ padding: '6px' }}>
+            <div className={styles.locationInfo}>
               <Typography className={styles.cityName} variant={'regular_16'}>
                 New York
               </Typography>

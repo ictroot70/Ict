@@ -5,8 +5,20 @@
   overflow-y: auto;
   background: #0d0d0d;
 }
+.carouselContainer{
+  display: flex;
+  width: max-content;
+}
+.formContainer{
+padding: 24px;
+}
 
-
+.user{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 .photoPreview {
   width: 490px;
   flex: 1;
@@ -20,18 +32,18 @@
     object-fit: cover;
   }
 }
-
-.locationInput {
-
+.locationContainer{
+  padding: 24px;
 }
-
+.locationInput {
+}
+.locationInfo{
+  padding: 6px;
+}
 .description {
- div textarea {
     width: 433px;
     height: 120px;
     color: #fff;
-  }
-
 }
 
 

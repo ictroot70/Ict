@@ -5,19 +5,20 @@ import { UploadStep } from './steps/UploadStep'
 import { CropStep } from './steps/CropStep'
 import { FilterStep } from './steps/FilterStep'
 import { PublishStep } from './steps/PublishStep'
-import { Post } from '@/features/posts/model/types'
 import { Modal, Typography, Button } from '@/shared/ui'
 import styles from './CreatePostForm.module.scss'
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
+import { FilterName } from '@/features/posts/lib/constants/filter-configs'
+import { PostViewModel } from '@/shared/types'
 
 interface Props {
   open: boolean
   onClose: () => void
-  onPublishPost: (post: Post) => void
+  onPublishPost: (post: PostViewModel) => void
 }
 
 const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
@@ -25,7 +26,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
   const [uploadImage] = useUploadImageMutation()
   const [createPost] = useCreatePostMutation()
-  const [filtersState, setFiltersState] = useState<Record<number, string>>({})
+  const [filtersState, setFiltersState] = useState<Record<number, FilterName>>({})
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
   const [isUploading, setIsUploading] = useState(false)
@@ -39,17 +40,32 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   } = useImageDropzone(files, setFiles, () => setStep('crop'))
 
   const params = useParams()
-  const userId = Number(params.id)
+  const router = useRouter()
+  const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
-    const allowedTypes = ['image/jpeg', 'image/png']
-    const maxSize = 1024 * 1024 * 20
-    const maxCount = 10
+    // Todo: Later will add for this process
+    // const allowedTypes = ['image/jpeg', 'image/png']
+    // const maxSize = 1024 * 1024 * 20
+    // const maxCount = 10
     if (!file) return
+
+    // if (uploadedImage.length >= maxCount) {
+    //   alert('You can upload no more than 10 photos.')
+    //   return
+    // }
+    //
+    // if (!allowedTypes.includes(finalFile.type)) {
+    //   alert('Only JPEG or PNG images are allowed')
+    //   return
+    // }
 
     const finalFile =
       file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
-
+    // if (finalFile.size > maxSize) {
+    //   alert(`The file is too large. Max size is ${Math.round(maxSize / 1024)} KB`)
+    //   return
+    // }
     try {
       const formData = new FormData()
       formData.append('file', finalFile)
@@ -62,25 +78,46 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     }
   }
 
-  const handleClose = () => {
-    setShowConfirmModal(true)
-  }
+  // const handleClose = () => {
+  //   setShowConfirmModal(true)
+  // }
 
   const resetForm = () => {
     setStep('upload')
     setFiles([])
-    setUploadedImage([])
+    setFiltersState({})
     setDescription('')
+    setShowConfirmModal(false)
+    setIsUploading(false)
+  }
+  const handleModalClose = () => {
+    if (isUploading) return
+
+    if (step !== 'upload' || files.length > 0) {
+      setShowConfirmModal(true)
+      resetForm()
+    } else {
+      handleConfirmClose()
+    }
   }
 
   const handleConfirmClose = () => {
     resetForm()
-    setShowConfirmModal(false)
     onClose()
   }
 
   const handleCancelClose = () => {
     setShowConfirmModal(false)
+  }
+
+  const handlePublishSuccess = () => {
+    onClose()
+
+    const timeoutId = setTimeout(() => {
+      resetForm()
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
   }
 
   const showModalTitle = step === 'upload',
@@ -90,7 +127,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     <>
       <Modal
         open={open}
-        onClose={handleClose}
+        onClose={handleModalClose}
         modalTitle={showModalTitle ? 'Add Photo' : ''}
         className={clsx(styles.modal, (filterStep || publishStep) && styles.filterStep)}
       >
@@ -140,10 +177,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
             handleUpload={handleUpload}
             createPost={createPost}
             userId={userId}
-            onClose={() => {
-              resetForm()
-              onClose()
-            }}
+            onClose={handlePublishSuccess}
             uploadedImage={uploadedImage}
             onPublishPost={onPublishPost}
             isUploading={isUploading}
@@ -152,21 +186,21 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       </Modal>
 
       <Modal
+        className={styles.confirmModal}
         open={showConfirmModal}
         modalTitle={'Сlose'}
         onClose={handleCancelClose}
-        style={{ width: '378px' }}
       >
-        <Typography variant={'regular_16'} style={{ paddingBlock: '6px 18px' }}>
+        <Typography variant={'regular_16'} className={styles.confirmModalText}>
           Do you really want to close the creation of a publication? <br /> If you close everything
           will be deleted
         </Typography>
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+        <div className={styles.confirmModalButtons}>
           <Button variant={'outlined'} onClick={handleCancelClose}>
-            Cancel
+            Discard
           </Button>
           <Button variant={'primary'} onClick={handleConfirmClose}>
-            Confirm
+            Save draft
           </Button>
         </div>
       </Modal>

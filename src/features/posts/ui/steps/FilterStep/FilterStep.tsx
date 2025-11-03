@@ -113,7 +113,7 @@ export const FilterStep: React.FC<Props> = ({
   return (
     <div className={styles.wrapper}>
       <Header onPrev={onPrev} onNext={handleNext} title="Filters" nextStepTitle="Next" />
-      <div style={{ display: 'flex', width: 'max-content', height: '498px' }}>
+      <div className={styles.carouselContainer}>
         <div className={styles.carouselWrapper}>
           <EmblaCarousel
             photos={files.map(f => f.preview)}
