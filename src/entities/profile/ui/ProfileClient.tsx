@@ -183,7 +183,11 @@ export const ProfileClient = (): ReactElement => {
                   userName={post.userName}
                   createdAt={post.createdAt}
                   description={post.description}
-                  modalVariant={'userPost'}
+                  modalVariant={'myPost'}
+                  onEditPost={handleEditPost}
+                  onDeletePost={handleDeletePost}
+                  isEditing={editingPostId === post.id.toString()}
+                  userId={meInfo?.id}
                 />
               ))
               : !isPostsLoading && <Typography>No posts yet.</Typography>}

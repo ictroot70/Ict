@@ -35,7 +35,6 @@ export const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const firstImage = images?.[0]?.url || '/placeholder.png'
 
-  console.log(firstImage)
 
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
   const [modalImages, setModalImages] = useState<string[]>([])
