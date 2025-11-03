@@ -30,8 +30,6 @@ export const AppHeader = (): ReactElement => {
       <div className={s.headerControls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
-        {!isAuthorized && <AuthBtn />}
-        <EditDeletePost onDelete={() => {}} onEdit={() => {}} postId={''} /> 
       </div>
     )
   }

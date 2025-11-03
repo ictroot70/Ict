@@ -21,7 +21,7 @@ interface Props {
   handleUpload: (file: File | Blob) => Promise<any>
   createPost: (args: any) => Promise<any>
   userId: number
-  onClose: () => void
+  onClose: (post: PostViewModel) => void
   // uploadedImage: { uploadId: string; url: string }[]
   uploadedImage: PostImageViewModel[]
   onPublishPost: (post: PostViewModel) => void
@@ -61,7 +61,7 @@ export const PublishStep: React.FC<Props> = ({
 
       onPublishPost(newPost)
       toast(<ToastAlert type="success" message="✅ Post created!" />)
-      onClose()
+      onClose(newPost)
     } catch (err) {
       toast(<ToastAlert type="error" message="❌ Failed to create post" />)
     } finally {
