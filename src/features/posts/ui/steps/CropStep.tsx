@@ -37,11 +37,6 @@ const aspectRatios = [
     value: 16 / 9,
     icon: <div className={clsx(styles.aspectIcon, styles.sixteenToNine)} />,
   },
-  {
-    label: '3 : 2',
-    value: 3 / 2,
-    icon: <div className={clsx(styles.aspectIcon, styles.threeToTwo)} />,
-  },
 ]
 
 export const CropStep: React.FC<Props> = ({
@@ -128,7 +123,7 @@ export const CropStep: React.FC<Props> = ({
   const handleDelete = (idx: number) => {
     setFiles(prev => prev.filter((_, i) => i !== idx))
     if (currentIndex === idx) {
-      setCurrentIndex(0) // после удаления перейти к первой картинке
+      setCurrentIndex(0)
     } else if (currentIndex > idx) {
       setCurrentIndex(prev => prev - 1)
     }
