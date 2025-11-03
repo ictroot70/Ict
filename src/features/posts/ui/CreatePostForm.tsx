@@ -10,7 +10,7 @@ import styles from './CreatePostForm.module.scss'
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
 import { PostViewModel } from '@/shared/types'
@@ -39,8 +39,9 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     error,
   } = useImageDropzone(files, setFiles, () => setStep('crop'))
 
-  const params = useParams()
   const router = useRouter()
+  const params = useParams()
+  const searchParams = useSearchParams()
   const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
@@ -78,10 +79,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     }
   }
 
-  // const handleClose = () => {
-  //   setShowConfirmModal(true)
-  // }
-
   const resetForm = () => {
     setStep('upload')
     setFiles([])
@@ -92,10 +89,8 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   }
   const handleModalClose = () => {
     if (isUploading) return
-
     if (step !== 'upload' || files.length > 0) {
       setShowConfirmModal(true)
-      resetForm()
     } else {
       handleConfirmClose()
     }
@@ -110,9 +105,9 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     setShowConfirmModal(false)
   }
 
-  const handlePublishSuccess = () => {
+  const handlePublishSuccess = (newPost: PostViewModel) => {
+    onPublishPost(newPost)
     onClose()
-
     const timeoutId = setTimeout(() => {
       resetForm()
     }, 100)
