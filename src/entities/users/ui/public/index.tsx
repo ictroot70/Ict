@@ -10,7 +10,7 @@ import { PublicPost } from './PublicPost/PublicPost'
 import { UsersCounter } from './UsersCounter/UsersCounter'
 
 import { APP_ROUTES } from '@/shared/constant'
-import { GetPublicPostsResponse, PublicPostResponse } from '../../api/api.types'
+import { GetPublicPostsResponse } from '../../api/api.types'
 import { useEffect, useRef } from 'react'
 import { useAppStore } from '@/lib/hooks'
 
@@ -24,7 +24,11 @@ export function Public({ postsData }: Props) {
 
   const { data, isLoading, isError } = useGetPublicPostsQuery(
     { pageSize: 4 },
-    { skip: needInitPostsInStore.current }
+    {
+      skip: needInitPostsInStore.current,
+      pollingInterval: 60000,
+      refetchOnMountOrArgChange: true,
+    }
   )
 
   useEffect(() => {
@@ -69,18 +73,3 @@ export function Public({ postsData }: Props) {
     </div>
   )
 }
-
-//import { mockDataPosts } from '../../model/mockDataForPublicPosts'
-//import { useMeQuery } from '@/features/auth'
-
-// const { data: isAuth } = useMeQuery()
-
-/*  {mockDataPosts.map((item, index) => {
-          return (
-            <PublicPost
-              key={index}
-              post={item}
-              urlProfile={APP_ROUTES.PROFILE.ID(`${item.ownerId}`)}
-            />
-          )
-        })} */

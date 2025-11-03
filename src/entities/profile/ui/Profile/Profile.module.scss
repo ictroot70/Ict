@@ -13,6 +13,7 @@
 
   &Info {
     width: 100%;
+
     &Header {
       display: flex;
       justify-content: space-between;
@@ -20,24 +21,22 @@
     }
   }
 
-  &Actions {
-  }
-
   &Stats {
     display: flex;
     gap: 80px;
     margin-bottom: 1.5rem;
+
     &Item {
+      // стили для элемента статистики
     }
   }
 
   &About {
+    // стили для блока "about me"
   }
 
   &SectionPosts {
-    display: flex;
-    flex-grow: 1;
-    text-align: center;
+    // стили для секции постов
   }
 
   &Posts {
@@ -46,19 +45,26 @@
     gap: 1rem 0.75rem;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
 
-    &Item {
-      cursor: pointer;
-      position: relative;
-      height: 228px;
-    }
-
-    &Image {
-      object-fit: cover;
-      object-position: center;
-    }
-
     &Message {
       width: 100%;
     }
+  }
+}
+
+// Дополнительные стили для элементов постов
+.profilePostsItem {
+  cursor: pointer;
+  position: relative;
+  height: 228px;
+}
+
+.profilePost {
+  cursor: pointer;
+  position: relative;
+  height: 228px;
+
+  &Image {
+    object-fit: cover;
+    object-position: center;
   }
 }

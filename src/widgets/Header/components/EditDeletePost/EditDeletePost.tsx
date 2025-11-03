@@ -3,6 +3,15 @@ import { Button, Typography } from "@/shared/ui";
 import styles from './EditDeletePost.module.scss';
 import { TrashOutline, EditOutline } from "@/shared/ui/SVGComponents"
 
+/*
+ * Интерфейс пропсов компонента EditDeletePost
+ * @interface EditDeletePostProps
+ * @property {string} postId - Уникальный идентификатор поста для операций редактирования/удаления
+ * @property {Function} onEdit - Callback-функция при выборе опции редактирования
+ * @property {Function} onDelete - Callback-функция при выборе опции удаления
+ * @property {string} [className] - Дополнительные CSS классы для кастомизации
+ */
+
 interface EditDeletePostProps {
     postId: string;
     onEdit: (id: string) => void;

@@ -21,8 +21,8 @@ importers:
         specifier: ^5.1.1
         version: 5.2.1(react-hook-form@7.56.1(react@19.1.1))
       '@ictroot/ui-kit':
-        specifier: 0.1.1-beta.2
-        version: 0.1.1-beta.2(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: 0.1.1-beta.3
+        version: 0.1.1-beta.3(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@reduxjs/toolkit':
         specifier: 2.7.0
         version: 2.7.0(react-redux@9.2.0(@types/react@19.1.9)(react@19.1.1)(redux@5.0.1))(react@19.1.1)
@@ -44,9 +44,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      embla-carousel:
-        specifier: ^8.6.0
-        version: 8.6.0
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.1.1)
@@ -88,7 +85,7 @@ importers:
         version: 14.3.8(react@19.1.1)
       react-easy-crop:
         specifier: ^5.5.0
-        version: 5.5.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        version: 5.5.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-hook-form:
         specifier: 7.56.1
         version: 7.56.1(react@19.1.1)
@@ -264,8 +261,8 @@ packages:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
 
-  '@ictroot/ui-kit@0.1.1-beta.2':
-    resolution: {integrity: sha512-TZfzw6jDNY53Eya7lE6c0yOyQUmEKre78qtSHqESLxmg5cnJDQnhNbbMBgJiqfTgix2ijLD/5esJS61QJFe/pg==}
+  '@ictroot/ui-kit@0.1.1-beta.3':
+    resolution: {integrity: sha512-5+vVO1okpsZVdZCdrRrZJDL7S65Jk9nLgjCdJ3nDhraDNQqsSYCUSbFiobBM/uEzlcgNiFM8vYKskL5yLtBpvw==}
     peerDependencies:
       react: '>=18.3.1'
       react-dom: '>=18.3.1'
@@ -2587,8 +2584,8 @@ packages:
     peerDependencies:
       react: '>= 16.8 || 18.0.0'
 
-  react-easy-crop@5.5.0:
-    resolution: {integrity: sha512-OZzU+yXMhe69vLkDex+5QxcfT94FdcgVCyW2dBUw35ZoC3Is42TUxUy04w8nH1mfMKaizVdC3rh/wUfNW1mK4w==}
+  react-easy-crop@5.5.3:
+    resolution: {integrity: sha512-iKwFTnAsq+IVuyF6N0Q3zjRx9DG1NMySkwWxVfM/xAOeHYH1vhvM+V2kFiq5HOIQGWouITjfltCx54mbDpMpmA==}
     peerDependencies:
       react: '>=16.4.0'
       react-dom: '>=16.4.0'
@@ -3252,7 +3249,7 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@ictroot/ui-kit@0.1.1-beta.2(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@ictroot/ui-kit@0.1.1-beta.3(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@fontsource-variable/inter': 5.2.5
       '@radix-ui/react-checkbox': 1.3.1(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -5632,7 +5629,7 @@ snapshots:
       prop-types: 15.8.1
       react: 19.1.1
 
-  react-easy-crop@5.5.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  react-easy-crop@5.5.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       normalize-wheel: 1.0.1
       react: 19.1.1

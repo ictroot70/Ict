@@ -1,7 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import styles from './PostCard.module.scss'
 import PostModal from '@/entities/profile/ui/PostModal/PostModal'
 
@@ -17,77 +19,47 @@ interface PostCardProps {
   onEditPost?: (postId: string) => void
   onDeletePost?: (postId: string) => void
   isEditing?: boolean
-  userId?: number
+  image: string
+  userId: number
 }
 
+// В компоненте PostCard
 export const PostCard: React.FC<PostCardProps> = ({
   id,
   images,
-  description,
-  modalVariant,
   avatarOwner,
   userName,
   createdAt,
+  description,
+  modalVariant,
   onEditPost,
   onDeletePost,
   isEditing,
+  image,
   userId,
 }) => {
-  const firstImage = images?.[0]?.url || '/placeholder.png'
-
-
-  const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-  const [modalImages, setModalImages] = useState<string[]>([])
-
-  const handleOpenPost = (images: string[]) => {
-    setModalImages(images)
-    setIsPostModalOpen(true)
-  }
-
-  const getProcessedImageUrl = (url: string) => {
-    if (!url) return '/placeholder.png';
-    try {
-      new URL(url);
-      return url;
-    } catch {
-
-      return encodeURI(url).replace(/\s/g, '%20');
-    }
-  };
-
-  const firstImageUrl = images?.[0]?.url ? getProcessedImageUrl(images[0].url) : '/placeholder.png';
-
-  const handleClosePost = () => setIsPostModalOpen(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const postIdParam = searchParams.get('postId')
+  const isPostModalOpen = postIdParam === String(id)
+  const handleClosePost = () => router.replace(`/profile/${userId}`)
 
   return (
-    <div
-      key={id}
-      onClick={() => handleOpenPost(images.map(img => img.url))}
-      className={styles.postCard}
-    >
+    <div key={id} className={styles.postCard}>
       <div className={styles.postImageWrapper}>
-        <img
-          src={firstImage}
-          alt={description || 'Post image'}
-          className={styles.postImage}
-          onError={(e) => {
-            console.error('Failed to load image:', firstImage)
-            e.currentTarget.src = '/placeholder.png'
-          }}
-          onLoad={() => console.log('Image loaded successfully:', firstImage)}
-        />
+        <Link href={`/profile/${userId}?postId=${id}`} scroll={false} prefetch={false}>
+          <Image
+            src={image}
+            alt={id.toString() || 'Post image'}
+            width={342}
+            height={228}
+            className={styles.postImage}
+          />
+        </Link>
       </div>
       <PostModal
         open={isPostModalOpen}
         onClose={handleClosePost}
-        images={modalImages}
-        variant={modalVariant}
-        avatarOwner={avatarOwner}
-        userName={userName}
-        createdAt={createdAt}
-        description={description}
-        postId={id.toString()}
-        userId={userId || 0}
         onEditPost={onEditPost}
         onDeletePost={onDeletePost}
         isEditing={isEditing}

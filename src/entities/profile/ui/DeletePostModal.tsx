@@ -21,50 +21,64 @@ export const DeletePostModal = ({
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !isLoading) {
         onClose()
       }
     }
 
     if (isOpen) {
       document.addEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'hidden'
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
     }
-  }, [isOpen, onClose])
+  }, [isOpen, onClose, isLoading])
 
   if (!isOpen) return null
 
+  const handleConfirmClick = () => {
+    console.log('DeletePostModal: подтверждение удаления')
+    onConfirm()
+  }
+
+  const handleCancelClick = () => {
+    console.log('DeletePostModal: отмена удаления')
+    onClose()
+  }
+
   return (
-    <div className={s.overlay} onClick={onClose}>
-      <div className={s.modal} onClick={(e) => e.stopPropagation()}>
-        <div className={s.header}>
-          <Typography variant="h1" className={s.title}>
-            Delete Post
+    <div className={s.overlay} onClick={handleCancelClick}>
+      <div className={s.modalWrapper}>
+        <div className={s.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={s.header}>
+            <Typography variant="h1" className={s.title}>
+              Delete Post
+            </Typography>
+          </div>
+
+          <Typography variant="regular_16" className={s.message}>
+            Are you sure you want to delete this post?
           </Typography>
-        </div>
 
-        <Typography variant="regular_16" className={s.message}>
-          Are you sure you want to delete this post?
-        </Typography>
-
-        <div className={s.actions}>
-          <button
-            className={`${s.button} ${s.cancelButton}`}
-            onClick={onClose}
-            disabled={isLoading}
-          >
-            No
-          </button>
-          <button
-            className={`${s.button} ${s.confirmButton}`}
-            onClick={onConfirm}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Deleting...' : 'Yes'}
-          </button>
+          <div className={s.actions}>
+            <button
+              className={`${s.button} ${s.cancelButton}`}
+              onClick={handleCancelClick}
+              disabled={isLoading}
+            >
+              No
+            </button>
+            <button
+              className={`${s.button} ${s.confirmButton}`}
+              onClick={handleConfirmClick}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Deleting...' : 'Yes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -23,5 +23,6 @@ export default function UserProfile({ id }: Props) {
     return <div>User not found</div>
   }
 
+
   return <Profile profile={userProfile} posts={userPosts?.items} isAuthenticated />
 }
