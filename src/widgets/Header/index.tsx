@@ -30,6 +30,7 @@ export const AppHeader = (): ReactElement => {
       <div className={s.headerControls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
+        {!isAuthorized && <AuthBtn />}
       </div>
     )
   }
