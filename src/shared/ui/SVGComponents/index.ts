@@ -11,6 +11,8 @@ export {
   ImageOutline,
   ArrowForwardSimple,
   ArrowBackSimple,
+  PlusCircle,
+  Expand,
   TrendingUp,
   Bookmark,
   BookmarkOutline,

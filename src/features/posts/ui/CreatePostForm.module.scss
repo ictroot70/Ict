@@ -1,14 +1,21 @@
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.modal {
+  width: 492px;
+  height: 564px;
+
+  &.filterStep {
+    width: auto;
+  }
+}
+.confirmModal {
+  width: 378px;
+}
+.confirmModalText {
+  padding-block: 6px 18px;
 }
 
-.error {
-  color: red;
-  margin-top: 8px;
-  font-size: 14px;
+.confirmModalButtons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
+

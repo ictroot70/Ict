@@ -19,7 +19,7 @@
   transition: border-color 0.2s ease;
 
   &:hover {
-    border-color: #397DF6;
+    border-color: #397df6;
   }
 }
 
@@ -39,17 +39,7 @@
 }
 
 .primaryBtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background: #397DF6;
-  border: none;
-  color: white;
-  padding: 8px 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
+
   margin-top: 20px;
   transition: background 0.2s ease;
 
@@ -59,17 +49,6 @@
 }
 
 .secondaryBtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  background: transparent;
-  border: 1px solid #397DF6;
-  color: #397DF6;
-  padding: 8px 24px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
   margin-top: 10px;
   transition: all 0.2s ease;
 
@@ -77,7 +56,6 @@
     background: rgba(57, 125, 246, 0.1);
   }
 }
-
 
 .previewGrid {
   display: grid;
@@ -100,6 +78,32 @@
 
   &:hover {
     transform: scale(1.05);
-    border-color: #397DF6;
+    border-color: #397df6;
+  }
+}
+
+.compressionWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  animation: fadeIn 0.3s ease-in-out;
+  svg {
+    transform: scale(1.1);
+  }
+  p {
+    font-size: 14px;
+    color: #333;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
