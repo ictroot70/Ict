@@ -1,24 +1,24 @@
 'use client'
 import React, { useState } from 'react'
-import { useCreatePost } from '../model/useCreatePost'
+import { clsx } from 'clsx'
 import { UploadStep } from './steps/UploadStep'
 import { CropStep } from './steps/CropStep'
 import { FilterStep } from './steps/FilterStep'
 import { PublishStep } from './steps/PublishStep'
-import { Post } from '@/features/posts/model/types'
-import { Modal } from '@/shared/ui/Modal'
+import { Modal, Typography, Button } from '@/shared/ui'
 import styles from './CreatePostForm.module.scss'
-
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { useParams } from 'next/navigation'
-import { useImageDropzone } from '@/features/posts/lib/useImageDropzone'
+import { useParams, useSearchParams, useRouter } from 'next/navigation'
+import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
+import { FilterName } from '@/features/posts/lib/constants/filter-configs'
+import { PostViewModel } from '@/shared/types'
 
 interface Props {
   open: boolean
   onClose: () => void
-  onPublishPost: (post: Post) => void
+  onPublishPost: (post: PostViewModel) => void
 }
 
 const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
@@ -26,46 +26,47 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
   const [uploadImage] = useUploadImageMutation()
   const [createPost] = useCreatePostMutation()
-  const [filtersState, setFiltersState] = useState<Record<number, string>>({})
+  const [filtersState, setFiltersState] = useState<Record<number, FilterName>>({})
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
 
-  const { open: openDialog, getRootProps, getInputProps, error } = useImageDropzone(
-    files,
-    setFiles,
-    () => setStep('crop')
-  )
+  const {
+    open: openDialog,
+    getRootProps,
+    getInputProps,
+    error,
+  } = useImageDropzone(files, setFiles, () => setStep('crop'))
 
-
+  const router = useRouter()
   const params = useParams()
-  const userId = Number(params.id)
-
+  const searchParams = useSearchParams()
+  const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
-    const allowedTypes = ['image/jpeg', 'image/png']
-    const maxSize = 1024 * 1024 * 20
-    const maxCount = 10
+    // Todo: Later will add for this process
+    // const allowedTypes = ['image/jpeg', 'image/png']
+    // const maxSize = 1024 * 1024 * 20
+    // const maxCount = 10
     if (!file) return
+
+    // if (uploadedImage.length >= maxCount) {
+    //   alert('You can upload no more than 10 photos.')
+    //   return
+    // }
+    //
+    // if (!allowedTypes.includes(finalFile.type)) {
+    //   alert('Only JPEG or PNG images are allowed')
+    //   return
+    // }
 
     const finalFile =
       file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
-
-    if (uploadedImage.length >= maxCount) {
-      alert('You can upload no more than 10 photos.')
-      return
-    }
-
-    if (!allowedTypes.includes(finalFile.type)) {
-      alert('Only JPEG or PNG images are allowed')
-      return
-    }
-
-    if (finalFile.size > maxSize) {
-      alert(`The file is too large. Max size is ${Math.round(maxSize / 1024)} KB`)
-      return
-    }
-
+    // if (finalFile.size > maxSize) {
+    //   alert(`The file is too large. Max size is ${Math.round(maxSize / 1024)} KB`)
+    //   return
+    // }
     try {
       const formData = new FormData()
       formData.append('file', finalFile)
@@ -78,85 +79,127 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     }
   }
 
-  const handleClose = () => {
-    const confirmClose = window.confirm('Do you really want to close? All progress will be lost.')
-    if (confirmClose) {
-      resetForm()
-      onClose()
-    }
-  }
-
   const resetForm = () => {
     setStep('upload')
     setFiles([])
-    setUploadedImage([])
+    setFiltersState({})
     setDescription('')
+    setShowConfirmModal(false)
+    setIsUploading(false)
+  }
+  const handleModalClose = () => {
+    if (isUploading) return
+    if (step !== 'upload' || files.length > 0) {
+      setShowConfirmModal(true)
+    } else {
+      handleConfirmClose()
+    }
   }
 
+  const handleConfirmClose = () => {
+    resetForm()
+    onClose()
+  }
+
+  const handleCancelClose = () => {
+    setShowConfirmModal(false)
+  }
+
+  const handlePublishSuccess = (newPost: PostViewModel) => {
+    onPublishPost(newPost)
+    onClose()
+    const timeoutId = setTimeout(() => {
+      resetForm()
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }
+
+  const showModalTitle = step === 'upload',
+    filterStep = step === 'filter',
+    publishStep = step === 'publish'
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      modalTitle="Add Photo"
-      style={{ paddingBottom: 48 }}
-      className={styles.modal}
-    >
-      {step === 'upload' && (
-        <UploadStep
-          onNext={() => setStep('crop')}
-          files={files}
-          setFiles={setFiles}
-          openDialog={openDialog}
-          getRootProps={getRootProps}
-          getInputProps={getInputProps}
-          error={error}
-        />
-      )}
+    <>
+      <Modal
+        open={open}
+        onClose={handleModalClose}
+        modalTitle={showModalTitle ? 'Add Photo' : ''}
+        className={clsx(styles.modal, (filterStep || publishStep) && styles.filterStep)}
+      >
+        {step === 'upload' && (
+          <UploadStep
+            onNext={() => setStep('crop')}
+            files={files}
+            setFiles={setFiles}
+            openDialog={openDialog}
+            getRootProps={getRootProps}
+            getInputProps={getInputProps}
+            error={error}
+          />
+        )}
 
-      {step === 'crop' && (
-        <CropStep
-          onPrev={() => setStep('upload')}
-          onNext={() => setStep('filter')}
-          files={files}
-          setFiles={setFiles}
-          openDialog={openDialog}
-          getInputProps={getInputProps}
-        />
-      )}
+        {step === 'crop' && (
+          <CropStep
+            onPrev={() => setStep('upload')}
+            onNext={() => setStep('filter')}
+            files={files}
+            setFiles={setFiles}
+            openDialog={openDialog}
+            getInputProps={getInputProps}
+          />
+        )}
 
-      {step === 'filter' && (
-        <FilterStep
-          onPrev={() => setStep('crop')}
-          onNext={() => setStep('publish')}
-          files={files}
-          filtersState={filtersState}
-          setFiltersState={setFiltersState}
-          handleUpload={handleUpload}
-          setUploadedImage={setUploadedImage}
-          setIsUploading={setIsUploading}
-        />
-      )}
+        {step === 'filter' && (
+          <FilterStep
+            onPrev={() => setStep('crop')}
+            onNext={() => setStep('publish')}
+            files={files}
+            filtersState={filtersState}
+            setFiltersState={setFiltersState}
+            handleUpload={handleUpload}
+            setUploadedImage={setUploadedImage}
+            setIsUploading={setIsUploading}
+          />
+        )}
 
-      {step === 'publish' && (
-        <PublishStep
-          onPrev={() => setStep('filter')}
-          files={files}
-          filtersState={filtersState}
-          description={description}
-          setDescription={setDescription}
-          handleUpload={handleUpload}
-          createPost={createPost}
-          userId={userId}
-          onClose={() => {
-            resetForm()
-            onClose()
-          }}
-          uploadedImage={uploadedImage}
-          onPublishPost={onPublishPost}
-          isUploading={isUploading}
-        />
-      )}
-    </Modal>
+        {step === 'publish' && (
+          <PublishStep
+            onPrev={() => setStep('filter')}
+            files={files}
+            filtersState={filtersState}
+            description={description}
+            setDescription={setDescription}
+            handleUpload={handleUpload}
+            createPost={createPost}
+            userId={userId}
+            onClose={handlePublishSuccess}
+            uploadedImage={uploadedImage}
+            onPublishPost={onPublishPost}
+            isUploading={isUploading}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        className={styles.confirmModal}
+        open={showConfirmModal}
+        modalTitle={'Сlose'}
+        onClose={handleCancelClose}
+      >
+        <Typography variant={'regular_16'} className={styles.confirmModalText}>
+          Do you really want to close the creation of a publication? <br /> If you close everything
+          will be deleted
+        </Typography>
+        <div className={styles.confirmModalButtons}>
+          <Button variant={'outlined'} onClick={handleCancelClose}>
+            Discard
+          </Button>
+          <Button variant={'primary'} onClick={handleConfirmClose}>
+            Save draft
+          </Button>
+        </div>
+      </Modal>
+    </>
   )
 }
 

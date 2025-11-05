@@ -5,48 +5,52 @@
   overflow-y: auto;
   background: #0d0d0d;
 }
-
-.header {
+.carouselContainer{
   display: flex;
-  justify-content: space-between;
-  padding: 10px 16px;
-  font-weight: 600;
-  background: #222;
+  width: max-content;
+}
+.formContainer{
+padding: 24px;
 }
 
+.user{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 .photoPreview {
+  width: 490px;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  img {
-    width: 100%;
-    height: 450px;
-    object-fit: contain;
+  div img {
+    width: 490px;
+    height: 503px;
+    object-fit: cover;
   }
 }
-.publishBtn {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 14px;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.7;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
+.locationContainer{
+  padding: 24px;
 }
+.locationInput {
+}
+.locationInfo{
+  padding: 6px;
+}
+.description {
+    width: 433px;
+    height: 120px;
+    color: #fff;
+}
+
 
 .form {
   display: flex;
   flex-direction: column;
+
 
   textarea {
     width: 85%;
@@ -62,14 +66,11 @@
   }
 
   .counter {
-    margin-top: 4px;
-    margin-right: 40px;
     font-size: 12px;
     color: #888;
     text-align: right;
   }
 }
-
 
 .clarendon {
   filter: contrast(120%) saturate(125%);

@@ -1,0 +1,28 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #333;
+  background: #222;
+  color: #fff;
+}
+
+.title {
+  font-weight: 500;
+}
+
+.navBtn {
+  width: 61px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+.navBtnText {
+  color: var(--color-primary-500);
+}

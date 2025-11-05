@@ -42,7 +42,7 @@ export interface PublicProfileResponse {
 }
 
 export interface PublicProfileRequest {
-  profileId: string
+  profileId: number
 }
 
 export interface UserMetadata {
