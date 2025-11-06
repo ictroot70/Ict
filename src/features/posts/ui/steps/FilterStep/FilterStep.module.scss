@@ -74,9 +74,18 @@
   justify-content: center;
   cursor: pointer;
   min-width: 80px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--color-primary-500);
+  }
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 5px var(--color-primary-700);
+  }
 
   span {
-    margin-top: 0px;
+    margin-top: 0;
     font-size: 12px;
     color: #bbb;
 
@@ -85,10 +94,15 @@
     }
   }
 
-  &.active span {
-    color: #397df6;
-    font-weight: 600;
+  &.active{
+    box-shadow: 0 0 5px var(--color-primary-500);
+    //transform: scale(1);
+    pointer-events: none;
 
+    span{
+      color: var(--color-primary-500);
+      font-weight: 600;
+    }
     &:hover {
       opacity: 1;
     }
@@ -135,4 +149,9 @@
     display: block;
     margin: 0 auto;
   }
+}
+.separator{
+  width: 1px;
+  height: auto;
+  box-shadow: 3px 3px 6px 1px #fff;
 }

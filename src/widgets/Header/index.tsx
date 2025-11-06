@@ -28,7 +28,7 @@ export const AppHeader = (): ReactElement => {
     }
 
     return (
-      <div className={s.headerControls}>
+      <div className={s.header__controls}>
         {isAuthorized && <NotificationButton />}
         <LanguageSelect />
         {!isAuthorized && <AuthBtn />}

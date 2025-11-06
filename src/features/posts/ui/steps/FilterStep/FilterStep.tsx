@@ -3,11 +3,13 @@ import React, { useCallback, useState } from 'react'
 import styles from './FilterStep.module.scss'
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
 import { Header } from '@/features/posts/ui/Header/header'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { toast } from 'react-toastify/unstyled'
 import { ToastAlert } from '@/shared/composites'
+import { Card } from '@/shared/ui'
 import { UploadedFile } from '@/features/posts/model/types'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
+import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
 
 interface Props {
   onNext: () => void
@@ -121,9 +123,13 @@ export const FilterStep: React.FC<Props> = ({
             onSlideChange={setCurrentIndex}
           />
         </div>
+        {/*<Separator className={styles.separator} key={'filter-step'} />*/}
+        <SeparatorBlc />
+        <SeparatorBlc />
+
         <div className={styles.filtersRow}>
           {FILTERS.map(f => (
-            <div
+            <Card
               key={f.name}
               className={`${styles.filterItem} ${currentFilter === f.name ? styles.active : ''}`}
               onClick={() => applyFilter(f.name)}
@@ -134,7 +140,7 @@ export const FilterStep: React.FC<Props> = ({
                 className={`${styles.filterThumb} ${f.className ? styles[f.className] : ''}`}
               />
               <span className={styles.name}>{f.name}</span>
-            </div>
+            </Card>
           ))}
         </div>
       </div>

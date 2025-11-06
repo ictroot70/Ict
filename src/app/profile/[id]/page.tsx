@@ -8,12 +8,22 @@ import { Loading } from '@/shared/composites'
 import { useParams } from 'next/navigation'
 
 export default function ProfilePage() {
-  const params = useParams()
-  const id = params.id as string
+  const { id } = useParams<{ id: string }>()
+  const userId = Number(id)
+
   const { user, isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) return <Loading />
-  if (!isAuthenticated) return <PublicUser id={id} />
+  if (Number.isNaN(userId))
+    return (
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
+        Invalid user ID
+      </div>
+    )
 
-  return +id === user?.userId ? <MyProfile /> : <UserProfile id={id} />
+  if (!isAuthenticated) return <PublicUser id={userId} />
+
+  return userId === user?.userId ? <MyProfile /> : <UserProfile id={userId} />
 }
