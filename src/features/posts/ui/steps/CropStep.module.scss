@@ -33,6 +33,12 @@
 .navBtnText {
   color: var(--color-primary-500);
 }
+
+.separator {
+  margin: 12px 0;
+  height: 10px;
+  background-color: #333;
+}
 .emptyState {
   display: grid;
   align-items: center;

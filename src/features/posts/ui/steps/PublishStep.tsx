@@ -1,16 +1,16 @@
 'use client'
 import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import styles from './PublishStep.module.scss'
 import { UploadedFile } from '../../model/types'
 import { Avatar, ToastAlert } from '@/shared/composites'
 import { toast } from 'react-toastify/unstyled'
 import { Input, Separator, TextArea, Typography } from '@/shared/ui'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel'
 import { Header } from '@/features/posts/ui/Header/header'
 import { useGetMyProfileQuery } from '@/entities/profile'
 import { PostViewModel } from '@/shared/types'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
+import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
+import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
 
 interface Props {
   onPrev: () => void
@@ -84,6 +84,8 @@ export const PublishStep: React.FC<Props> = ({
         <div className={styles.photoPreview}>
           <EmblaCarousel photos={files.map(f => f.preview)} filtersState={filtersState} />
         </div>
+        <SeparatorBlc />
+        <SeparatorBlc />
 
         <div className={styles.form}>
           <div className={styles.formContainer}>
@@ -117,11 +119,7 @@ export const PublishStep: React.FC<Props> = ({
               <Typography className={styles.cityName} variant={'regular_16'}>
                 New York
               </Typography>
-              <Typography
-                style={{ color: '#8D9094' }}
-                className={styles.location}
-                variant={'small_text'}
-              >
+              <Typography className={styles.location} variant={'small_text'}>
                 Washington Square Park
               </Typography>
             </div>

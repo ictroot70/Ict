@@ -1,10 +1,8 @@
 /** @prettier */
 
-import { useMeQuery } from '@/features/auth'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 import {
-  TrendingUp,
   Bookmark,
   BookmarkOutline,
   Home,
@@ -16,12 +14,27 @@ import {
   PlusSquare,
   PlusSquareOutline,
   Search,
+  TrendingUp,
 } from '@/shared/ui'
+import { ReactElement } from 'react'
 
-export const useLinkGroups = () => {
+export type SidebarLinkItem = {
+  href: string
+  icon: ReactElement
+  activeIcon: ReactElement
+  label: string
+  disabled?: boolean
+}
+
+export type SidebarLinkGroup = {
+  links: SidebarLinkItem[]
+}
+
+export const useLinkGroups = (): { linkGroups: SidebarLinkGroup[] } | null => {
   const { user } = useAuth()
+  if (!user) return null
 
-  const linkGroups = [
+  const linkGroups: SidebarLinkGroup[] = [
     {
       links: [
         {
@@ -37,7 +50,7 @@ export const useLinkGroups = () => {
           label: 'Create',
         },
         {
-          href: `${APP_ROUTES.PROFILE.ID(`${user?.userId}`)}`,
+          href: `${APP_ROUTES.PROFILE.ID(user.userId)}`,
           icon: <PersonOutline />,
           activeIcon: <Person />,
           label: 'My Profile',

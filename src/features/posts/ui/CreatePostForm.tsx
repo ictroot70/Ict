@@ -3,7 +3,6 @@ import React, { useState } from 'react'
 import { clsx } from 'clsx'
 import { UploadStep } from './steps/UploadStep'
 import { CropStep } from './steps/CropStep'
-import { FilterStep } from './steps/FilterStep'
 import { PublishStep } from './steps/PublishStep'
 import { Modal, Typography, Button } from '@/shared/ui'
 import styles from './CreatePostForm.module.scss'
@@ -14,6 +13,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
 import { PostViewModel } from '@/shared/types'
+import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
 
 interface Props {
   open: boolean
@@ -71,7 +71,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
       const formData = new FormData()
       formData.append('file', finalFile)
       const uploaded = await uploadImage(formData).unwrap()
-      setUploadedImage(prev => [...uploaded.images, ...prev])
+      setUploadedImage(prev => [...prev, ...uploaded.images])
 
       return uploaded
     } catch (error) {

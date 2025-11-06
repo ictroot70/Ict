@@ -7,7 +7,11 @@ import { LogOutButton } from './components/LogoutButton/LogOutButton'
 
 export const Sidebar = () => {
   const pathname = usePathname()
-  const { linkGroups } = useLinkGroups()
+  const linkGroupsData = useLinkGroups()
+
+  if (!linkGroupsData) return null
+
+  const { linkGroups } = linkGroupsData
 
   return (
     <nav className={s.sidebar}>
