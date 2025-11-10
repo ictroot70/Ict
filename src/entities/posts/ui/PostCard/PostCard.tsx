@@ -16,22 +16,15 @@ interface PostCardProps {
   description?: string
   modalVariant: 'public' | 'myPost' | 'userPost'
 
-  onEditPost?: (postId: string) => void
+  onEditPost?: (postId: string, newDescription: string) => void
   onDeletePost?: (postId: string) => void
   isEditing?: boolean
   image: string
   userId: number
 }
 
-// В компоненте PostCard
 export const PostCard: React.FC<PostCardProps> = ({
   id,
-  images,
-  avatarOwner,
-  userName,
-  createdAt,
-  description,
-  modalVariant,
   onEditPost,
   onDeletePost,
   isEditing,

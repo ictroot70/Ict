@@ -7,10 +7,10 @@ import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
 import { PostViewModel } from '@/entities/posts/api'
-import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
-import { useState } from 'react'
-import { useDeletePostMutation, useUpdatePostMutation } from '@/entities/posts/api/postApi'
-import { DeletePostModal } from '../DeletePostModal' // Добавьте импорт
+import { ProfilePosts } from './ProfilePosts/ProfilePosts'
+import { DeletePostModal } from '../DeletePostModal'
+import { useDeletePostLogic } from './hooks/useDeletePostLogic'
+import { useEditPostLogic } from './hooks/useEditPostLogic'
 
 interface Props {
   profile: ProfileType
@@ -34,13 +34,10 @@ export const Profile: React.FC<Props> = ({
   const { userName, aboutMe, avatars, followers, following, publications, isFollowing } =
     useProfileData(profile)
 
-  const [deletePost] = useDeletePostMutation()
-  const [updatePost] = useUpdatePostMutation()
-  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const { isDeleteModalOpen, selectedPostId, isDeleting, handleDeletePost, handleConfirmDelete, handleCancelDelete } =
+    useDeletePostLogic(profile.id, onRefetchPosts)
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const { editingPostId, handleEditPost } = useEditPostLogic(profile.id, onRefetchPosts)
 
   const statsData = [
     { label: 'Following', value: following },
@@ -53,78 +50,6 @@ export const Profile: React.FC<Props> = ({
     : isOwnProfile
       ? 'myPost'
       : 'userPost'
-
-  const handleEditPost = async (postId: string, newDescription: string) => {
-    console.log(`Редактируется пост с ID: ${postId}`)
-
-    if (!profile?.id) {
-      console.error('User ID not found')
-      return
-    }
-
-    const updateData = {
-      description: newDescription,
-    }
-
-    try {
-      setEditingPostId(postId)
-
-      await updatePost({
-        postId: parseInt(postId),
-        body: updateData,
-        userId: profile.id
-      }).unwrap()
-
-      onRefetchPosts?.()
-      console.log(`Пост с ID: ${postId} успешно обновлен`)
-      setEditingPostId(null)
-
-    } catch (error) {
-      console.error('Ошибка при редактировании поста:', error)
-      setEditingPostId(null)
-    }
-  }
-
-  const handleDeletePost = (postId: string) => {
-    console.log(`Открывается модалка удаления для поста с ID: ${postId}`)
-    setSelectedPostId(postId)
-    setIsDeleteModalOpen(true)
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!selectedPostId || !profile?.id) {
-      console.error('Post ID or User ID not found')
-      return
-    }
-
-    console.log(`Удаляется пост с ID: ${selectedPostId}`)
-
-    try {
-      setIsDeleting(true)
-
-      const postIdNumber = parseInt(selectedPostId)
-      await deletePost({
-        postId: postIdNumber,
-        userId: profile.id
-      }).unwrap()
-
-      console.log(`Пост с ID: ${selectedPostId} успешно удален`)
-      setIsDeleteModalOpen(false)
-      setSelectedPostId(null)
-      onRefetchPosts?.()
-
-    } catch (error) {
-      console.error('Ошибка при удалении поста:', error)
-    } finally {
-      setIsDeleting(false)
-    }
-  }
-
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setSelectedPostId(null)
-    console.log('Удаление отменено')
-  }
 
   return (
     <>
@@ -157,33 +82,15 @@ export const Profile: React.FC<Props> = ({
         </div>
 
         <div className={s.profileSectionPosts}>
-          {posts && posts.length > 0 ? (
-            <ul className={s.profilePosts}>
-              {posts.map(post => (
-                <PostCard
-                  key={post.id}
-                  id={post.id}
-                  images={post.images}
-                  avatarOwner={post.avatarOwner}
-                  userName={post.userName}
-                  createdAt={post.createdAt}
-                  description={post.description}
-                  modalVariant={modalVariant}
-                  onEditPost={isOwnProfile ? handleEditPost : undefined}
-                  onDeletePost={isOwnProfile ? handleDeletePost : undefined}
-                  isEditing={editingPostId === post.id.toString()}
-                  userId={profile.id}
-                  image={post.images[0]?.url || ''}
-                />
-              ))}
-            </ul>
-          ) : (
-            <Typography variant="h1" className={s.profilePostsMessage}>
-              {isOwnProfile
-                ? "You haven't published any posts yet"
-                : "This user hasn't published any posts yet"}
-            </Typography>
-          )}
+          <ProfilePosts
+            posts={posts}
+            isOwnProfile={isOwnProfile}
+            modalVariant={modalVariant}
+            onEditPost={isOwnProfile ? handleEditPost : undefined}
+            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
+            isEditing={editingPostId}
+            profileId={profile.id}
+          />
         </div>
       </div>
 

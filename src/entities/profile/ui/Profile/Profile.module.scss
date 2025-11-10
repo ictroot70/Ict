@@ -27,16 +27,13 @@
     margin-bottom: 1.5rem;
 
     &Item {
-      // стили для элемента статистики
     }
   }
 
   &About {
-    // стили для блока "about me"
   }
 
   &SectionPosts {
-    // стили для секции постов
   }
 
   &Posts {
@@ -51,7 +48,6 @@
   }
 }
 
-// Дополнительные стили для элементов постов
 .profilePostsItem {
   cursor: pointer;
   position: relative;

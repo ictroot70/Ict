@@ -42,7 +42,6 @@
   flex-direction: column;
 }
 
-// Общие стили
 .header {
   border-bottom: 1px solid rgba(76, 76, 76, 1);
   padding-bottom: 12px;
@@ -124,7 +123,6 @@
   }
 }
 
-// DeletePostModal.module.scss
 .overlay {
   position: fixed;
   top: 0;
@@ -135,7 +133,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000; // Высокий z-index
+  z-index: 10000;
 }
 
 .modalWrapper {
@@ -154,7 +152,6 @@
   z-index: 10002;
 }
 
-// Остальные стили остаются такими же...
 .header {
   border-bottom: 1px solid rgba(76, 76, 76, 1);
   padding-bottom: 12px;
