@@ -36,7 +36,7 @@ export type UserImage = {
 }
 
 export type GetPublicPostsRequest = {
-  endCursorPostId?: string
+  endCursorPostId?: number
   pageSize?: number
   sortBy?: string
   sortDirection?: string

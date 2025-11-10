@@ -61,11 +61,12 @@ export function Public({ postsData }: Props) {
       <UsersCounter totalCount={totalUsers || 0} />
       <div className={s.posts}>
         {items.map(post => {
+          console.log(typeof post.ownerId)
           return (
             <PublicPost
               key={post.id}
               post={post}
-              urlProfile={APP_ROUTES.PROFILE.ID(`${post.ownerId}`)}
+              urlProfile={APP_ROUTES.PROFILE.ID(post.ownerId)}
             />
           )
         })}

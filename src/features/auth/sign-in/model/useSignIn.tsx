@@ -31,7 +31,7 @@ export const useSignIn = () => {
     try {
       setIsRedirecting(true)
       const response = await logIn(data).unwrap()
-      const decoded = jwtDecode<{ userId: string }>(response.accessToken)
+      const decoded = jwtDecode<{ userId: number }>(response.accessToken)
       const userId = decoded?.userId
 
       localStorage.setItem('access_token', response.accessToken)

@@ -5,14 +5,14 @@ import { Profile } from '@/entities/profile/ui'
 import { Loading } from '@/shared/composites'
 
 type Props = {
-  id: string
+  id: number
 }
 
 export default function PublicUser({ id }: Props) {
   const { data: publicProfile, isLoading: isProfileLoading } = useGetPublicProfileQuery({
     profileId: id,
   })
-  const { data: postsData, isLoading: isPostsLoading } = useGetPostsByUserQuery({ userId: +id })
+  const { data: postsData, isLoading: isPostsLoading } = useGetPostsByUserQuery({ userId: id })
 
   const isLoading = isProfileLoading || isPostsLoading
 

@@ -8,6 +8,8 @@ export {
   ArrowBack,
   ArrowForwardSimple,
   ArrowBackSimple,
+  PlusCircle,
+  Expand,
   TrendingUp,
   Bookmark,
   BookmarkOutline,

@@ -1,22 +1,15 @@
 'use client'
 
 import { ReactElement, useEffect, useState } from 'react'
-import Image from 'next/image'
 import { Button, Modal, Typography } from '@/shared/ui'
 import s from './PostModal.module.scss'
-import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/ui-kit'
-import { ControlledInput } from '@/features/formControls'
-import { useForm } from 'react-hook-form'
-import { Avatar } from '@/shared/composites'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/features/posts/utils/useAuth'
-import PostActions from './PostActions/PostActions'
 import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
-// УДАЛИТЕ этот импорт - модалка удаления теперь в Profile
-// import { DeletePostModal } from '../DeletePostModal'
-import { ControlledTextarea } from '@/features/formControls/textarea/ui'
+import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import { EditMode } from './EditMode/EditMode'
+import { ViewMode } from './ViewMode/ViewMode'
+import { useForm } from 'react-hook-form'
 
 type CommentForm = { comment: string }
 type EditDescriptionForm = { description: string }
@@ -48,17 +41,6 @@ export const PostModal = ({
     mode: 'onChange'
   })
 
-  const descriptionValue = watchDescription('description') || ''
-  const characterCount = descriptionValue.length
-  const maxCharacters = 500
-
-  const handlePublish = ({ comment }: CommentForm) => {
-    const trimmed = comment.trim()
-    if (!trimmed) return
-    setComments(prev => [...prev, trimmed])
-    resetComment()
-  }
-
   const searchParams = useSearchParams()
   const postIdFromQuery = searchParams.get('postId')
   const postId = postIdFromQuery ? Number(postIdFromQuery) : undefined
@@ -81,10 +63,16 @@ export const PostModal = ({
   const effectiveCreatedAt = postData?.createdAt ?? new Date().toISOString()
   const effectivePostId = postData?.id ? String(postData.id) : ''
 
-  // Сбрасываем форму редактирования при изменении описания
   useEffect(() => {
     resetDescription({ description: effectiveDescription })
   }, [effectiveDescription, resetDescription])
+
+  const handlePublish = ({ comment }: CommentForm) => {
+    const trimmed = comment.trim()
+    if (!trimmed) return
+    setComments(prev => [...prev, trimmed])
+    resetComment()
+  }
 
   const handleSaveDescription = ({ description: newDescription }: EditDescriptionForm) => {
     const trimmed = newDescription.trim()
@@ -143,230 +131,44 @@ export const PostModal = ({
   }).format(new Date(effectiveCreatedAt))
 
   return (
-    <>
-      <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
-        <div className={s.innerModal} onClick={handleOverlayClick}>
-          {/* Режим редактирования */}
-          {isEditingDescription ? (
-            <div className={s.editMode}>
-              {/* Шапка редактирования */}
-              <div className={s.editHeader}>
-                <Typography variant="h1" className={s.editTitle}>
-                  Edit Post
-                </Typography>
-                <Button
-                  variant="text"
-                  onClick={handleCancelEdit}
-                  className={s.closeButton}
-                >
-                  {/* <CloseOutline size={24} /> */}
-                </Button>
-              </div>
-
-              <div className={s.editContent}>
-                {/* Левая часть - изображение */}
-                <div className={s.editImageContainer}>
-                  {effectiveImages.length > 1 ? (
-                    <Carousel
-                      slides={effectiveImages}
-                      options={{
-                        align: 'center',
-                        loop: false,
-                      }}
-                    />
-                  ) : effectiveImages.length === 1 ? (
-                    <Image src={effectiveImages[0]?.url} alt={'Post image'} fill className={s.editImage} />
-                  ) : null}
-                </div>
-
-                {/* Правая часть - форма редактирования */}
-                <div className={s.editFormContainer}>
-                  <div className={s.userInfo}>
-                    <Avatar size={36} image={effectiveAvatar} />
-                    <Typography variant={'h3'} color={'light'}>
-                      {effectiveUserName}
-                    </Typography>
-                  </div>
-
-                  <div className={s.editFormSection}>
-                    <Typography variant="regular_14" className={s.formLabel}>
-                      Add publication descriptions
-                    </Typography>
-
-                    <form onSubmit={handleDescriptionSubmit(handleSaveDescription)} className={s.editDescriptionForm}>
-                      <ControlledTextarea<EditDescriptionForm>
-                        name={'description'}
-                        control={descriptionControl}
-                        placeholder={'Write your description here...'}
-                        className={s.descriptionTextarea}
-                        rules={{
-                          maxLength: {
-                            value: maxCharacters,
-                            message: `Description must be less than ${maxCharacters} characters`
-                          }
-                        }}
-                      />
-                      <div className={s.characterCounter}>
-                        <Typography
-                          variant="small_text"
-                          className={characterCount > maxCharacters ? s.characterError : s.characterInfo}
-                        >
-                          {characterCount}/{maxCharacters}
-                        </Typography>
-                      </div>
-
-                      {errors.description && (
-                        <Typography variant="small_text" className={s.errorMessage}>
-                          {errors.description.message}
-                        </Typography>
-                      )}
-
-                      <div className={s.editDescriptionActions}>
-                        <Button
-                          variant={'outlined'}
-                          type="button"
-                          onClick={handleCancelEdit}
-                          className={s.cancelEditButton}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant={'primary'}
-                          type={'submit'}
-                          disabled={!descriptionValue.trim() || characterCount > maxCharacters}
-                          className={s.saveEditButton}
-                        >
-                          Save
-                        </Button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Обычный режим просмотра */
-            <div className={s.viewMode}>
-              <div className={s.photoContainer}>
-                {effectiveImages.length > 1 ? (
-                  <Carousel
-                    slides={effectiveImages}
-                    options={{
-                      align: 'center',
-                      loop: false,
-                    }}
-                  />
-                ) : effectiveImages.length === 1 ? (
-                  <Image src={effectiveImages[0]?.url} alt={'Post image'} fill className={s.image} />
-                ) : null}
-              </div>
-              <div className={s.postSideBar}>
-                <div className={s.postHeader}>
-                  <div className={s.username}>
-                    <Avatar size={36} image={effectiveAvatar} />
-                    <Typography variant={'h3'} color={'light'}>
-                      {effectiveUserName}
-                    </Typography>
-                  </div>
-
-                  {computedVariant === 'myPost' ? (
-                    <EditDeletePost
-                      postId={effectivePostId}
-                      onEdit={handleEditPost}
-                      onDelete={handleDeletePost}
-                      isEditing={isEditing}
-                    />
-                  ) : computedVariant === 'userPost' ? (
-                    <PostActions variant={computedVariant} />
-                  ) : null}
-                </div>
-
-                <Separator />
-                <div className={s.comments}>
-                  <div className={s.comment}>
-                    <Avatar size={36} image={effectiveAvatar} />
-                    <div>
-                      <Typography variant={'regular_14'} color={'light'}>
-                        <strong>{effectiveUserName}</strong> {effectiveDescription}
-                      </Typography>
-                      <Typography variant="small_text" className={s.commentTimestamp}>
-                        2 minute ago
-                      </Typography>
-                    </div>
-                  </div>
-                  {comments.map((comment, index) => (
-                    <div className={s.comment} key={index}>
-                      <Avatar size={36} image={effectiveAvatar} />
-                      <div>
-                        <Typography variant={'regular_14'} color={'light'}>
-                          <strong> UserName</strong> {comment}
-                        </Typography>
-                        <Typography variant="small_text" className={s.commentTimestamp}>
-                          2 minute ago
-                        </Typography>
-                      </div>
-                      <Button variant={'text'} className={s.commentLikeButton}>
-                        <HeartOutline size={16} color={'white'} />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <Separator />
-
-                <div className={s.footer}>
-                  {computedVariant !== 'public' && (
-                    <div className={s.likeSendSave}>
-                      <Button variant={'text'} className={s.postButton}>
-                        <HeartOutline color={'white'} />
-                      </Button>
-                      <Button variant={'text'} className={s.postButton}>
-                        <PaperPlane color={'white'} />
-                      </Button>
-                      <Button variant={'text'} className={s.postButton}>
-                        <BookmarkOutline color={'white'} />
-                      </Button>
-                    </div>
-                  )}
-                  <div className={s.likesRow} style={{ textWrap: 'wrap' }}>
-                    <div className={s.likesAvatars}>
-                      <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
-                      <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
-                      <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
-                    </div>
-                    <div>
-                      <Typography variant={'regular_14'} color={'light'}>
-                        2 243 "<strong>Like</strong>"
-                      </Typography>
-                    </div>
-                  </div>
-                  <Typography variant="small_text" className={s.timestamp}>
-                    {formattedCreatedAt}
-                  </Typography>
-
-                  {computedVariant !== 'public' && (
-                    <>
-                      <Separator className={s.separator} />
-                      <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-                        <ControlledInput<CommentForm>
-                          name={'comment'}
-                          control={commentControl}
-                          inputType={'text'}
-                          placeholder={'Add a Comment'}
-                          className={s.input}
-                        />
-                        <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
-                          Publish
-                        </Button>
-                      </form>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
-    </>
+    <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
+      <div className={s.innerModal} onClick={handleOverlayClick}>
+        {isEditingDescription ? (
+          <EditMode
+            descriptionControl={descriptionControl}
+            handleDescriptionSubmit={handleDescriptionSubmit}
+            handleSaveDescription={handleSaveDescription}
+            handleCancelEdit={handleCancelEdit}
+            errors={errors}
+            watchDescription={watchDescription}
+            effectiveImages={effectiveImages}
+            effectiveAvatar={effectiveAvatar}
+            effectiveUserName={effectiveUserName}
+            effectiveDescription={effectiveDescription}
+            onClose={onClose}
+          />
+        ) : (
+          <ViewMode
+            effectiveImages={effectiveImages}
+            effectiveAvatar={effectiveAvatar}
+            effectiveUserName={effectiveUserName}
+            effectiveDescription={effectiveDescription}
+            effectivePostId={effectivePostId}
+            effectiveCreatedAt={effectiveCreatedAt}
+            computedVariant={computedVariant}
+            handleEditPost={handleEditPost}
+            handleDeletePost={handleDeletePost}
+            isEditing={isEditing}
+            comments={comments}
+            commentControl={commentControl}
+            handleCommentSubmit={handleCommentSubmit}
+            watchComment={watchComment}
+            handlePublish={handlePublish}
+            formattedCreatedAt={formattedCreatedAt}
+          />
+        )}
+      </div>
+    </Modal>
   )
 }
 

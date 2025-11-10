@@ -5,6 +5,7 @@
 :root {
   --font-family: 'Inter Variable', 'Roboto Variable', sans-serif;
   --background: #0d0d0d;
+  --color-dark-500-transparent: rgba(23, 23, 23, 0.56);
 }
 
 html,
