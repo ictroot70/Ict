@@ -1,6 +1,6 @@
 'use client'
 import { useGetPostsByUserQuery } from '@/entities/posts/api'
-import { Profile, useGetMyProfileQuery, useGetProfileWithPostsQuery, useGetProfileByUserNameQuery } from '@/entities/profile'
+import { Profile, useGetMyProfileQuery, useGetProfileByUserNameQuery } from '@/entities/profile'
 import { Loading } from '@/shared/composites'
 
 export default function MyProfile() {

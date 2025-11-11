@@ -126,7 +126,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   border: 1px solid #333333;
-  z-index: 1000;
+  z-index: 90;
   display: flex;
   flex-direction: column;
 
@@ -140,7 +140,7 @@
     border-right: 9px solid transparent;
     border-bottom: 10px solid #333333;
     background: transparent;
-    z-index: 1000;
+    z-index: 91;
     pointer-events: none;
   }
 
@@ -154,7 +154,7 @@
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
     border-bottom: 9px solid #171717;
-    z-index: 1001;
+    z-index: 92;
     pointer-events: none;
   }
 }
