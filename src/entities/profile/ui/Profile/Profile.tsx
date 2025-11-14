@@ -1,3 +1,4 @@
+
 'use client'
 
 import s from './Profile.module.scss'
@@ -11,6 +12,7 @@ import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { DeletePostModal } from '../DeletePostModal'
 import { useDeletePostLogic } from './hooks/useDeletePostLogic'
 import { useEditPostLogic } from './hooks/useEditPostLogic'
+import { useState } from 'react'
 
 interface Props {
   profile: ProfileType
@@ -34,6 +36,8 @@ export const Profile: React.FC<Props> = ({
   const { userName, aboutMe, avatars, followers, following, publications, isFollowing } =
     useProfileData(profile)
 
+  const [deletingFromModal, setDeletingFromModal] = useState(false)
+
   const { isDeleteModalOpen, selectedPostId, isDeleting, handleDeletePost, handleConfirmDelete, handleCancelDelete } =
     useDeletePostLogic(profile.id, onRefetchPosts)
 
@@ -50,6 +54,26 @@ export const Profile: React.FC<Props> = ({
     : isOwnProfile
       ? 'myPost'
       : 'userPost'
+
+  const handleDeleteFromModal = (postId: string) => {
+    console.log(`Profile: удаление из модалки, пост ${postId}`)
+    setDeletingFromModal(true)
+    handleDeletePost(postId)
+  }
+
+  const handleConfirmDeleteWrapper = () => {
+    console.log('Profile: подтверждение удаления')
+    handleConfirmDelete()
+    if (deletingFromModal) {
+      setDeletingFromModal(false)
+    }
+  }
+
+  const handleCancelDeleteWrapper = () => {
+    console.log('Profile: отмена удаления')
+    handleCancelDelete()
+    setDeletingFromModal(false)
+  }
 
   return (
     <>
@@ -87,7 +111,7 @@ export const Profile: React.FC<Props> = ({
             isOwnProfile={isOwnProfile}
             modalVariant={modalVariant}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
-            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
+            onDeletePost={isOwnProfile ? handleDeleteFromModal : undefined}
             isEditing={editingPostId}
             profileId={profile.id}
           />
@@ -96,8 +120,8 @@ export const Profile: React.FC<Props> = ({
 
       <DeletePostModal
         isOpen={isDeleteModalOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
+        onClose={handleCancelDeleteWrapper}
+        onConfirm={handleConfirmDeleteWrapper}
         isLoading={isDeleting}
       />
     </>

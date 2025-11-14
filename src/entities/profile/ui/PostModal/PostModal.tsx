@@ -1,11 +1,10 @@
 'use client'
 
 import { ReactElement, useEffect, useState } from 'react'
-import { Button, Modal, Typography } from '@/shared/ui'
+import { Modal, } from '@/shared/ui'
 import s from './PostModal.module.scss'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/features/posts/utils/useAuth'
-import { EditDeletePost } from '@/widgets/Header/components/EditDeletePost/EditDeletePost'
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
@@ -87,17 +86,11 @@ export const PostModal = ({
     setIsEditingDescription(false)
   }
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose()
-    }
-  }
-
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (isEditingDescription) {
-          handleCancelEdit()
+          return
         } else {
           onClose()
         }
@@ -118,7 +111,7 @@ export const PostModal = ({
   }
 
   const handleDeletePost = () => {
-    console.log(`PostModal: открывается модалка удаления для поста ${effectivePostId}`)
+    console.log(`PostModal: вызываем удаление для поста ${effectivePostId}`)
     if (onDeletePost && effectivePostId) {
       onDeletePost(effectivePostId)
     }
@@ -131,8 +124,13 @@ export const PostModal = ({
   }).format(new Date(effectiveCreatedAt))
 
   return (
-    <Modal open={open} onClose={onClose} closeBtnOutside={true} className={s.modal}>
-      <div className={s.innerModal} onClick={handleOverlayClick}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      closeBtnOutside={true}
+      className={s.modal}
+    >
+      <div className={s.innerModal}>
         {isEditingDescription ? (
           <EditMode
             descriptionControl={descriptionControl}
@@ -149,6 +147,7 @@ export const PostModal = ({
           />
         ) : (
           <ViewMode
+            onClose={onClose}
             effectiveImages={effectiveImages}
             effectiveAvatar={effectiveAvatar}
             effectiveUserName={effectiveUserName}

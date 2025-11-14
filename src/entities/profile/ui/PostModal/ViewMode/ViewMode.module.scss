@@ -1,0 +1,211 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  width: 100%;
+  height: 100%;
+}
+
+.viewMode {
+  display: grid;
+  grid-template-columns: 490px 480px;
+  height: 574px;
+  background: var(--color-dark-700);
+  width: 972px;
+  border: 1px solid var(--color-dark-100);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1001;
+}
+
+// Убраны стили для viewHeader, viewTitle, closeButton
+
+.photoContainer {
+  display: flex;
+  align-items: center;
+  position: relative;
+  background: rgba(0, 0, 0, 0.59);
+  height: 100%; // Картинка 100% по высоте
+}
+
+.image {
+  object-fit: contain;
+  object-position: center;
+}
+
+.postSideBar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%; // Сайдбар тоже 100% по высоте
+}
+
+.postHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px; // Добавлен padding сверху и снизу
+}
+
+.username {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.descriptionSection {
+  padding: 0 24px;
+  margin-bottom: 17px;
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.descriptionTimestamp {
+  color: #8d9094;
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 24px;
+}
+
+.comment {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.commentTimestamp {
+  color: #8d9094;
+}
+
+.commentLikeButton {
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 16px;
+  height: 16px;
+  padding-top: 10px;
+  margin-left: auto;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 24px;
+  min-height: 83px;
+}
+
+.likeSendSave {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 19px;
+}
+
+.likeSendSave > :last-child {
+  margin-left: auto;
+}
+
+.postButton {
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.likesRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.likesAvatars {
+  display: flex;
+}
+
+.likeAvatar {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.likeAvatar1 {
+  background: #7f1414;
+}
+
+.likeAvatar2 {
+  background: rgba(255, 255, 255, 0.77);
+  margin-left: -8px;
+  z-index: -1;
+}
+
+.likeAvatar3 {
+  background: #0773e0;
+  margin-left: -8px;
+  z-index: -2;
+}
+
+.timestamp {
+  color: #8d9094;
+  padding-bottom: 7px;
+}
+
+.inputForm {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.separator {
+  margin-bottom: 17px;
+}
+
+.input {
+  border: none;
+  background: transparent;
+  color: white;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+  .viewMode {
+    width: 95vw;
+    height: 95vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+
+  .photoContainer {
+    height: 50%; // На мобильных 50% высоты
+  }
+
+  .postSideBar {
+    height: 50%; // На мобильных 50% высоты
+  }
+}

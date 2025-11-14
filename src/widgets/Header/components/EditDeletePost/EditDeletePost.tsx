@@ -19,7 +19,6 @@ interface EditDeletePostProps {
     className?: string;
     isEditing?: boolean;
 }
-
 export const EditDeletePost: React.FC<EditDeletePostProps> = ({
     postId,
     onEdit,

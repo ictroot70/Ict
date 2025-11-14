@@ -37,6 +37,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   const isPostModalOpen = postIdParam === String(id)
   const handleClosePost = () => router.replace(`/profile/${userId}`)
 
+  console.log('PostCard render - id:', id, 'isPostModalOpen:', isPostModalOpen)
+
+
   return (
     <div key={id} className={styles.postCard}>
       <div className={styles.postImageWrapper}>
@@ -57,6 +60,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         onDeletePost={onDeletePost}
         isEditing={isEditing}
       />
+
     </div>
   )
 }

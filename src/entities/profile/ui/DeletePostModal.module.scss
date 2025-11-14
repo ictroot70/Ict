@@ -1,56 +1,13 @@
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
 .modal {
-  width: 378px;
-  height: 216px;
-  background: #333333;
-  border: 1px solid #4c4c4c;
-  border-radius: 2px;
-  padding: 12px 24px 36px 24px;
-  display: flex;
-  flex-direction: column;
-  z-index: 10002;
-}
-
-.modalWrapper {
-  z-index: 10001;
-}
-
-.modalContent {
-  width: 378px;
-  height: 216px;
-  background: #333333;
-  border: 1px solid #4c4c4c;
-  border-radius: 2px;
-  padding: 12px 24px 36px 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.header {
-  border-bottom: 1px solid rgba(76, 76, 76, 1);
-  padding-bottom: 12px;
-  margin-bottom: 30px;
+  max-width: 378px;
   width: 100%;
 }
 
-.title {
-  font-family: Inter;
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 24px;
-  color: rgba(255, 255, 255, 1);
-  margin: 0;
+.content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
 .message {
@@ -60,7 +17,7 @@
   line-height: 24px;
   color: rgba(255, 255, 255, 1);
   text-align: left;
-  margin: 0 0 30px 0;
+  margin: 0;
   letter-spacing: 0%;
 }
 
@@ -68,32 +25,12 @@
   display: flex;
   justify-content: flex-end;
   gap: 24px;
-  margin-top: auto;
-}
-
-.button {
-  width: 96px;
-  height: 36px;
-  border-radius: 2px;
-  gap: 9px;
-  border: 1px solid;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Inter;
-  font-size: 14px;
-  line-height: 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  margin-top: 0;
 }
 
 .cancelButton {
-  background: transparent;
+  width: 96px;
+  height: 36px;
   border-color: #397df6;
   color: #397df6;
 
@@ -103,9 +40,10 @@
 }
 
 .confirmButton {
+  width: 96px;
+  height: 36px;
   background: #397df6;
   border-color: #397df6;
-  color: rgba(255, 255, 255, 1);
 
   &:hover:not(:disabled) {
     background: #2d6bd8;
@@ -115,5 +53,6 @@
   &:disabled {
     background: #1e4a9b;
     border-color: #1e4a9b;
+    opacity: 0.5;
   }
 }
