@@ -24,6 +24,7 @@ export type SidebarLinkItem = {
   activeIcon: ReactElement
   label: string
   disabled?: boolean
+  modalAction?: string
 }
 
 export type SidebarLinkGroup = {
@@ -45,6 +46,7 @@ export const useLinkGroups = (): { linkGroups: SidebarLinkGroup[] } | null => {
         },
         {
           href: '/create',
+          modalAction: 'create',
           icon: <PlusSquareOutline />,
           activeIcon: <PlusSquare />,
           label: 'Create',
