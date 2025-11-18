@@ -1,3 +1,332 @@
+// .modalOverlay {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   background-color: rgba(0, 0, 0, 0.5);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   z-index: 1000;
+//   width: 100%;
+//   height: 100%;
+// }
+
+// .editMode {
+//   display: flex;
+//   flex-direction: column;
+//   background: var(--color-dark-700);
+//   width: 972px;
+//   height: 574px;
+//   border: 1px solid var(--color-dark-100);
+//   border-radius: 0;
+//   overflow: hidden;
+//   position: relative;
+//   z-index: 1001;
+// }
+
+// .editHeader {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   padding: 12px 20px;
+//   border-bottom: 1px solid #4c4c4c;
+//   height: 60px;
+//   flex-shrink: 0;
+// }
+
+// .editTitle {
+//   font-family: Inter;
+//   font-weight: 700;
+//   font-size: 18px;
+//   line-height: 24px;
+//   color: white;
+//   margin: 0;
+// }
+
+// .closeButton {
+//   padding: 0;
+//   width: 24px;
+//   height: 24px;
+//   min-width: auto;
+//   color: white;
+
+//   &:hover {
+//     background: transparent;
+//     opacity: 0.7;
+//   }
+// }
+
+// .editContent {
+//   display: grid;
+//   grid-template-columns: 490px 1fr;
+//   height: calc(100% - 60px);
+//   flex: 1;
+// }
+
+// .editImageContainer {
+//   position: relative;
+//   background: rgba(0, 0, 0, 0.59);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   border-right: 1px solid #4c4c4c;
+//   overflow: hidden;
+// }
+
+// .editImage {
+//   object-fit: contain;
+//   object-position: center;
+// }
+
+// .editFormContainer {
+//   display: flex;
+//   flex-direction: column;
+//   padding: 24px;
+//   padding-top: 0;
+//   overflow: hidden;
+// }
+
+// .userInfo {
+//   display: flex;
+//   align-items: center;
+//   padding-top: 24px;
+//   gap: 12px;
+//   padding-bottom: 16px;
+//   margin-top: 0;
+// }
+
+// .editFormSection {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   flex: 1;
+//   margin-top: 0;
+//   overflow: hidden;
+// }
+
+// .formLabel {
+//   color: #8d9094;
+//   font-weight: 500;
+//   margin-top: 0;
+//   margin-bottom: 0;
+// }
+
+// .editDescriptionForm {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 16px;
+//   flex: 1;
+//   margin-top: 0;
+//   overflow: hidden;
+// }
+
+// .descriptionTextarea {
+//   width: 100%;
+//   height: 120px;
+//   background: transparent;
+//   border-radius: 2px;
+//   padding: 6px 12px;
+//   color: white;
+//   font-family: Inter;
+//   font-size: 14px;
+//   line-height: 1.4;
+//   resize: none;
+//   margin: 0;
+//   overflow-y: auto;
+//   white-space: pre-wrap;
+//   word-wrap: break-word;
+
+//   &:focus {
+//     outline: none;
+//     border-color: #397df6;
+//   }
+
+//   &::placeholder {
+//     color: #8d9094;
+//   }
+// }
+
+// .characterCounter {
+//   display: flex;
+//   justify-content: flex-end;
+//   margin-top: 0;
+// }
+
+// .characterInfo {
+//   color: #8d9094;
+// }
+
+// .characterError {
+//   color: #ff4d4f;
+// }
+
+// .errorMessage {
+//   color: #ff4d4f;
+//   margin-top: -8px;
+//   margin-bottom: 0;
+// }
+
+// .editDescriptionActions {
+//   display: flex;
+//   gap: 12px;
+//   justify-content: flex-end;
+//   margin-top: auto;
+//   padding-top: 16px;
+// }
+
+// .cancelEditButton {
+//   background: transparent;
+//   border-color: #8d9094;
+//   color: #8d9094;
+//   min-width: 96px;
+
+//   &:hover {
+//     background: rgba(141, 144, 148, 0.1);
+//   }
+// }
+
+// .saveEditButton {
+//   background: #397df6;
+//   border-color: #397df6;
+//   min-width: 96px;
+
+//   &:hover:not(:disabled) {
+//     background: #2d6bd8;
+//     border-color: #2d6bd8;
+//   }
+
+//   &:disabled {
+//     background: #1e4a9b;
+//     border-color: #1e4a9b;
+//     opacity: 0.5;
+//   }
+// }
+
+// .exitConfirmationOverlay {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   background-color: rgba(0, 0, 0, 0.8);
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   z-index: 2000;
+// }
+
+// .exitConfirmationDialog {
+//   background: var(--color-dark-700);
+//   border-radius: 2px;
+//   padding: 12px 24px 36px 24px;
+//   width: 486px;
+//   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+//   animation: fadeInScale 0.2s ease-out;
+//   display: flex;
+//   flex-direction: column;
+// }
+
+// @keyframes fadeInScale {
+//   from {
+//     opacity: 0;
+//     transform: scale(0.95);
+//   }
+//   to {
+//     opacity: 1;
+//     transform: scale(1);
+//   }
+// }
+
+// .exitConfirmationHeader {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   margin-bottom: 16px;
+// }
+
+// .exitConfirmationHeader h3 {
+//   color: white;
+//   margin: 0;
+//   font-size: 18px;
+//   font-weight: 600;
+// }
+
+// .exitCloseButton {
+//   padding: 4px;
+//   width: 24px;
+//   height: 24px;
+//   min-width: auto;
+//   color: #8d9094;
+
+//   &:hover {
+//     background: transparent;
+//     opacity: 0.7;
+//   }
+// }
+
+// .exitConfirmationContent {
+//   margin-bottom: 20px;
+// }
+
+// .exitConfirmationContent p {
+//   color: #8d9094;
+//   margin: 0;
+//   line-height: 1.5;
+// }
+
+// .exitConfirmationActions {
+//   display: flex;
+//   gap: 12px;
+//   justify-content: flex-end;
+//   padding: 16px 20px 0 0;
+// }
+
+// .exitCancelButton {
+//   background: transparent;
+//   border-color: #8d9094;
+//   color: #8d9094;
+//   min-width: 80px;
+
+//   &:hover {
+//     background: rgba(141, 144, 148, 0.1);
+//   }
+// }
+
+// .exitConfirmButton {
+//   background: #397df6;
+//   border-color: #397df6;
+//   min-width: 80px;
+
+//   &:hover {
+//     background: #2d6bd8;
+//     border-color: #2d6bd8;
+//   }
+// }
+
+// /* Адаптивность для EditMode */
+// @media (max-width: 968px) {
+//   .editMode {
+//     width: 95vw;
+//     height: 95vh;
+//   }
+
+//   .editContent {
+//     grid-template-columns: 1fr;
+//     grid-template-rows: 1fr 1fr;
+//   }
+
+//   .editImageContainer {
+//     border-right: none;
+//     border-bottom: 1px solid #4c4c4c;
+//   }
+
+//   .editFormContainer {
+//     padding: 16px;
+//   }
+// }
+
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -43,6 +372,9 @@
   line-height: 24px;
   color: white;
   margin: 0;
+  // Выравнивание по левому краю для режима редактирования
+  text-align: left;
+  width: 100%;
 }
 
 .closeButton {
@@ -190,7 +522,7 @@
 .saveEditButton {
   background: #397df6;
   border-color: #397df6;
-  min-width: 96px;
+  min-width: 120px;
 
   &:hover:not(:disabled) {
     background: #2d6bd8;
@@ -302,27 +634,5 @@
   &:hover {
     background: #2d6bd8;
     border-color: #2d6bd8;
-  }
-}
-
-/* Адаптивность для EditMode */
-@media (max-width: 968px) {
-  .editMode {
-    width: 95vw;
-    height: 95vh;
-  }
-
-  .editContent {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
-  }
-
-  .editImageContainer {
-    border-right: none;
-    border-bottom: 1px solid #4c4c4c;
-  }
-
-  .editFormContainer {
-    padding: 16px;
   }
 }

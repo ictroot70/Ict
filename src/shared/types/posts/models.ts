@@ -96,3 +96,36 @@ export interface PublicationsFollowersWithPaginationViewModel {
   nextCursor: number
   items: PostViewModel[]
 }
+
+export type PostVariant = 'public' | 'myPost' | 'userPost'
+
+export interface PostModalHandlers {
+  onEditPost?: (postId: string, description: string) => void
+  onDeletePost?: (postId: string) => void
+  onClose: () => void
+}
+
+export interface PostFormData {
+  description: string
+  comment: string
+}
+
+export interface PostModalData {
+  images: PostImageViewModel[]
+  userName: string
+  avatar: string
+  description: string
+  createdAt: string
+  postId: string
+  ownerId?: number
+}
+
+export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
+  images: post.images,
+  userName: post.userName,
+  avatar: post.avatarOwner,
+  description: post.description || '',
+  createdAt: post.createdAt,
+  postId: post.id.toString(),
+  ownerId: post.ownerId,
+})
