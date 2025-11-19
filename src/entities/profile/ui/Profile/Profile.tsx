@@ -1,4 +1,3 @@
-
 'use client'
 
 import s from './Profile.module.scss'
@@ -7,14 +6,13 @@ import { Avatar } from '@/shared/composites'
 import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
-import { PostViewModel } from '@/entities/posts/api'
+import { PostViewModel } from '@/shared/types'
 import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { DeletePostModal } from '../DeletePostModal'
 import { useDeletePostLogic } from './hooks/useDeletePostLogic'
 import { useEditPostLogic } from './hooks/useEditPostLogic'
-import { useState } from 'react'
 
-interface Props {
+interface ProfileProps {
   profile: ProfileType
   posts?: PostViewModel[]
   isOwnProfile?: boolean
@@ -24,7 +22,7 @@ interface Props {
   onRefetchPosts?: () => void
 }
 
-export const Profile: React.FC<Props> = ({
+export const Profile: React.FC<ProfileProps> = ({
   profile,
   posts,
   isOwnProfile = false,
@@ -36,14 +34,18 @@ export const Profile: React.FC<Props> = ({
   const { userName, aboutMe, avatars, followers, following, publications, isFollowing } =
     useProfileData(profile)
 
-  const [deletingFromModal, setDeletingFromModal] = useState(false)
-
-  const { isDeleteModalOpen, selectedPostId, isDeleting, handleDeletePost, handleConfirmDelete, handleCancelDelete } =
-    useDeletePostLogic(profile.id, onRefetchPosts)
+  const {
+    isDeleteModalOpen,
+    selectedPostId,
+    isDeleting,
+    handleDeletePost,
+    handleConfirmDelete,
+    handleCancelDelete
+  } = useDeletePostLogic(profile.id, onRefetchPosts)
 
   const { editingPostId, handleEditPost } = useEditPostLogic(profile.id, onRefetchPosts)
 
-  const statsData = [
+  const stats = [
     { label: 'Following', value: following },
     { label: 'Followers', value: followers },
     { label: 'Publications', value: publications },
@@ -54,26 +56,6 @@ export const Profile: React.FC<Props> = ({
     : isOwnProfile
       ? 'myPost'
       : 'userPost'
-
-  const handleDeleteFromModal = (postId: string) => {
-    console.log(`Profile: удаление из модалки, пост ${postId}`)
-    setDeletingFromModal(true)
-    handleDeletePost(postId)
-  }
-
-  const handleConfirmDeleteWrapper = () => {
-    console.log('Profile: подтверждение удаления')
-    handleConfirmDelete()
-    if (deletingFromModal) {
-      setDeletingFromModal(false)
-    }
-  }
-
-  const handleCancelDeleteWrapper = () => {
-    console.log('Profile: отмена удаления')
-    handleCancelDelete()
-    setDeletingFromModal(false)
-  }
 
   return (
     <>
@@ -92,8 +74,8 @@ export const Profile: React.FC<Props> = ({
               />
             </div>
             <ul className={s.profileStats}>
-              {statsData.map(({ label, value }, index) => (
-                <li key={index} className={s.profileStatsItem}>
+              {stats.map(({ label, value }) => (
+                <li key={label} className={s.profileStatsItem}>
                   <Typography variant="bold_14">{value}</Typography>
                   <Typography variant="regular_14">{label}</Typography>
                 </li>
@@ -111,7 +93,7 @@ export const Profile: React.FC<Props> = ({
             isOwnProfile={isOwnProfile}
             modalVariant={modalVariant}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
-            onDeletePost={isOwnProfile ? handleDeleteFromModal : undefined}
+            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
             isEditing={editingPostId}
             profileId={profile.id}
           />
@@ -120,8 +102,8 @@ export const Profile: React.FC<Props> = ({
 
       <DeletePostModal
         isOpen={isDeleteModalOpen}
-        onClose={handleCancelDeleteWrapper}
-        onConfirm={handleConfirmDeleteWrapper}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
         isLoading={isDeleting}
       />
     </>

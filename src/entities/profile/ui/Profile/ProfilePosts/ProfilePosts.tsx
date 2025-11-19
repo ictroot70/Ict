@@ -1,16 +1,16 @@
 import s from '../Profile.module.scss'
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
-import { PostViewModel } from '@/entities/posts/api'
+import { PostViewModel } from '@/shared/types'
 import { Typography } from '@/shared/ui'
 
 interface ProfilePostsProps {
   posts?: PostViewModel[]
   isOwnProfile: boolean
   modalVariant: 'public' | 'myPost' | 'userPost'
-  onEditPost?: (postId: string, newDescription: string) => void
+  onEditPost?: (postId: string, description: string) => void
   onDeletePost?: (postId: string) => void
   isEditing: string | null
-  profileId: number | string | undefined
+  profileId: number
 }
 
 export const ProfilePosts: React.FC<ProfilePostsProps> = ({
@@ -22,7 +22,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
   isEditing,
   profileId
 }) => {
-  if (!posts || posts.length === 0) {
+  if (!posts?.length) {
     return (
       <Typography variant="h1" className={s.profilePostsMessage}>
         {isOwnProfile
@@ -37,18 +37,12 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
       {posts.map(post => (
         <PostCard
           key={post.id}
-          id={post.id}
-          images={post.images}
-          avatarOwner={post.avatarOwner}
-          userName={post.userName}
-          createdAt={post.createdAt}
-          description={post.description}
+          post={post}
           modalVariant={modalVariant}
           onEditPost={onEditPost}
           onDeletePost={onDeletePost}
           isEditing={isEditing === post.id.toString()}
-          userId={Number(profileId)}
-          image={post.images[0]?.url || ''}
+          userId={profileId}
         />
       ))}
     </ul>

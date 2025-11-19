@@ -58,7 +58,6 @@ export const PostModal = ({
 
   // Функция для закрытия модалки с проверкой на редактирование
   const handleCloseModal = () => {
-    // Не закрываем модалку при активном редактировании
     if (!isEditingDescription && !isEditing) {
       onClose()
     }
@@ -67,7 +66,6 @@ export const PostModal = ({
   // Обработка Escape - не закрываем при редактировании
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      // Не закрываем модалку при редактировании поста или описания
       if (e.key === 'Escape' && !isEditingDescription && !isEditing) {
         onClose()
       }

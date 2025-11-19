@@ -6,53 +6,44 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import styles from './PostCard.module.scss'
 import PostModal from '@/entities/profile/ui/PostModal/PostModal'
+import { PostViewModel } from '@/shared/types'
 
 interface PostCardProps {
-  id: number
-  images: { url: string }[]
-  avatarOwner?: string
-  userName: string
-  createdAt: string
-  description?: string
+  post: PostViewModel
   modalVariant: 'public' | 'myPost' | 'userPost'
-
-  onEditPost?: (postId: string, newDescription: string) => void
+  onEditPost?: (postId: string, description: string) => void
   onDeletePost?: (postId: string) => void
   isEditing?: boolean
-  image: string
   userId: number
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
-  id,
+  post,
   onEditPost,
   onDeletePost,
   isEditing,
-  image,
   userId,
 }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const postIdParam = searchParams.get('postId')
-  const isPostModalOpen = postIdParam === String(id)
+  const isPostModalOpen = searchParams.get('postId') === String(post.id)
+
   const handleClosePost = () => router.replace(`/profile/${userId}`)
 
-  console.log('PostCard render - id:', id, 'isPostModalOpen:', isPostModalOpen)
-
-
   return (
-    <div key={id} className={styles.postCard}>
+    <div className={styles.postCard}>
       <div className={styles.postImageWrapper}>
-        <Link href={`/profile/${userId}?postId=${id}`} scroll={false} prefetch={false}>
+        <Link href={`/profile/${userId}?postId=${post.id}`} scroll={false}>
           <Image
-            src={image}
-            alt={id.toString() || 'Post image'}
+            src={post.images[0]?.url || '/fallback-image.jpg'}
+            alt={`Post by ${post.userName}`}
             width={342}
             height={228}
             className={styles.postImage}
           />
         </Link>
       </div>
+
       <PostModal
         open={isPostModalOpen}
         onClose={handleClosePost}
@@ -60,7 +51,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         onDeletePost={onDeletePost}
         isEditing={isEditing}
       />
-
     </div>
   )
 }

@@ -1,12 +1,12 @@
-import Image from 'next/image'
-import { Button, Typography } from '@/shared/ui'
+// ViewMode.tsx (основной компонент)
+import { Separator } from '@ictroot/ui-kit'
+import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
 import s from './ViewMode.module.scss'
-import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/ui-kit'
-import { Avatar } from '@/shared/composites'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
-import { ControlledInput } from '@/features/formControls'
-import PostActions from '../PostActions/PostActions'
-import { PostModalData, PostVariant } from '@/shared/types'
+import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
+import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
+import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
+import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
+
 
 interface ViewModeProps {
   onClose: () => void
@@ -19,7 +19,7 @@ interface ViewModeProps {
   commentControl: any
   handleCommentSubmit: any
   watchComment: (field: string) => string
-  handlePublish: (data: { comment: string }) => void
+  handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthenticated: boolean
   isOwnProfile: boolean
@@ -60,133 +60,33 @@ export const ViewMode = ({
   return (
     <div className={s.modalOverlay} onClick={handleOverlayClick}>
       <div className={s.viewMode} onClick={(e) => e.stopPropagation()}>
-        <div className={s.photoContainer}>
-          {postData.images.length > 1 ? (
-            <Carousel
-              slides={postData.images}
-              options={{ align: 'center', loop: false }}
-            />
-          ) : postData.images.length === 1 ? (
-            <Image
-              src={postData.images[0].url}
-              alt="Post image"
-              fill
-              className={s.image}
-            />
-          ) : null}
-        </div>
+        <ViewModePhotoSection postData={postData} />
 
         <div className={s.postSideBar}>
-          <div className={s.postHeader}>
-            <div className={s.username}>
-              <Avatar size={36} image={postData.avatar} />
-              <Typography variant="h3" color="light">
-                {postData.userName}
-              </Typography>
-            </div>
+          <ViewModePostHeader
+            postData={postData}
+            variant={variant}
+            onEdit={handleEditPost}
+            onDelete={handleDeletePost}
+            onFollow={handleFollow}
+            onCopyLink={handleCopyLink}
+          />
 
-            {variant === 'myPost' ? (
-              <PostActions
-                variant="myPost"
-                onEdit={handleEditPost}
-                onDelete={handleDeletePost}
-              />
-            ) : variant === 'userPost' ? (
-              <PostActions
-                variant="userPost"
-                onFollow={handleFollow}
-                onCopyLink={handleCopyLink}
-              />
-            ) : null}
-          </div>
+          <ViewModeCommentsSection
+            postData={postData}
+            comments={comments}
+          />
 
           <Separator />
 
-          <div className={s.comments}>
-            <div className={s.comment}>
-              <Avatar size={36} image={postData.avatar} />
-              <div>
-                <Typography variant="regular_14" color="light">
-                  <strong>{postData.userName}</strong> {postData.description}
-                </Typography>
-                <Typography variant="small_text" className={s.commentTimestamp}>
-                  2 minutes ago
-                </Typography>
-              </div>
-            </div>
-
-            {comments.map((comment, index) => (
-              <div className={s.comment} key={index}>
-                <Avatar size={36} image={postData.avatar} />
-                <div>
-                  <Typography variant="regular_14" color="light">
-                    <strong>UserName</strong> {comment}
-                  </Typography>
-                  <Typography variant="small_text" className={s.commentTimestamp}>
-                    2 minutes ago
-                  </Typography>
-                </div>
-                <Button variant="text" className={s.commentLikeButton}>
-                  <HeartOutline size={16} color="white" />
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          <Separator />
-
-          <div className={s.footer}>
-            {variant !== 'public' && (
-              <div className={s.likeSendSave}>
-                <Button variant="text" className={s.postButton}>
-                  <HeartOutline color="white" />
-                </Button>
-                <Button variant="text" className={s.postButton}>
-                  <PaperPlane color="white" />
-                </Button>
-                <Button variant="text" className={s.postButton}>
-                  <BookmarkOutline color="white" />
-                </Button>
-              </div>
-            )}
-
-            <div className={s.likesRow}>
-              <div className={s.likesAvatars}>
-                <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
-                <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
-                <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
-              </div>
-              <Typography variant="regular_14" color="light">
-                2,243 <strong>Likes</strong>
-              </Typography>
-            </div>
-
-            <Typography variant="small_text" className={s.timestamp}>
-              {formattedCreatedAt}
-            </Typography>
-
-            {variant !== 'public' && (
-              <>
-                <Separator className={s.separator} />
-                <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-                  <ControlledInput
-                    name="comment"
-                    control={commentControl}
-                    inputType="text"
-                    placeholder="Add a Comment"
-                    className={s.input}
-                  />
-                  <Button
-                    variant="text"
-                    type="submit"
-                    disabled={!watchComment('comment')?.trim()}
-                  >
-                    Publish
-                  </Button>
-                </form>
-              </>
-            )}
-          </div>
+          <ViewModePostFooter
+            variant={variant}
+            formattedCreatedAt={formattedCreatedAt}
+            commentControl={commentControl}
+            handleCommentSubmit={handleCommentSubmit}
+            watchComment={watchComment}
+            handlePublish={handlePublish}
+          />
         </div>
       </div>
     </div>
