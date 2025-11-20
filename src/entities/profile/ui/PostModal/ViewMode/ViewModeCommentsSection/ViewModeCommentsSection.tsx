@@ -21,7 +21,6 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
     <>
       <Separator />
       <div className={s.comments}>
-        {/* Основной комментарий (описание поста) */}
         <div className={s.comment}>
           <Avatar size={36} image={postData.avatar} />
           <div>
@@ -34,7 +33,6 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        {/* Список комментариев */}
         {comments.map((comment, index) => (
           <div className={s.comment} key={index}>
             <Avatar size={36} image={postData.avatar} />

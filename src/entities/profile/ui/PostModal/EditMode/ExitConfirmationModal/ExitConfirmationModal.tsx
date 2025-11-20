@@ -1,4 +1,3 @@
-// components/ExitConfirmationModal.tsx
 import { Button, Typography } from '@/shared/ui'
 import s from '../EditMode.module.scss'
 

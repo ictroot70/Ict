@@ -26,14 +26,12 @@
   z-index: 1001;
 }
 
-// Убраны стили для viewHeader, viewTitle, closeButton
-
 .photoContainer {
   display: flex;
   align-items: center;
   position: relative;
   background: rgba(0, 0, 0, 0.59);
-  height: 100%; // Картинка 100% по высоте
+  height: 100%;
 }
 
 .image {
@@ -46,7 +44,7 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  height: 100%; // Сайдбар тоже 100% по высоте
+  height: 100%;
 }
 
 .postHeader {
@@ -54,7 +52,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px; // Добавлен padding сверху и снизу
+  padding: 12px 24px;
 }
 
 .username {
@@ -192,7 +190,6 @@
   }
 }
 
-/* Адаптивность */
 @media (max-width: 968px) {
   .viewMode {
     width: 95vw;
@@ -202,10 +199,10 @@
   }
 
   .photoContainer {
-    height: 50%; // На мобильных 50% высоты
+    height: 50%;
   }
 
   .postSideBar {
-    height: 50%; // На мобильных 50% высоты
+    height: 50%;
   }
 }

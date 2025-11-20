@@ -210,7 +210,6 @@ export const isProfileWithPosts = (profile: ProfileType): profile is ProfileWith
   return 'followersCount' in profile && 'firstName' in profile && !('userMetadata' in profile)
 }
 
-// Остальные типы остаются без изменений...
 export interface UserInfo {
   id: number
   userName: string

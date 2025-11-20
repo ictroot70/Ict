@@ -1,4 +1,3 @@
-// ViewMode.tsx (основной компонент)
 import { Separator } from '@ictroot/ui-kit'
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
 import s from './ViewMode.module.scss'
@@ -31,15 +30,12 @@ export const ViewMode = ({
   variant,
   handleEditPost,
   handleDeletePost,
-  isEditing,
   comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
   handlePublish,
   formattedCreatedAt,
-  isAuthenticated,
-  isOwnProfile
 }: ViewModeProps) => {
 
   const handleOverlayClick = (e: React.MouseEvent) => {

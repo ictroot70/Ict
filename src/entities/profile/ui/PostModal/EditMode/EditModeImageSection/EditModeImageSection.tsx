@@ -1,4 +1,3 @@
-// components/EditImageSection.tsx
 import Image from 'next/image'
 import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
 import { PostModalData } from '@/shared/types'

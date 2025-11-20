@@ -25,7 +25,6 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
 }) => {
   return (
     <div className={s.footer}>
-      {/* Кнопки действий (только для авторизованных) */}
       {variant !== 'public' && (
         <div className={s.likeSendSave}>
           <Button variant="text" className={s.postButton}>
@@ -40,7 +39,6 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         </div>
       )}
 
-      {/* Счетчик лайков */}
       <div className={s.likesRow}>
         <div className={s.likesAvatars}>
           <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
@@ -52,12 +50,10 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         </Typography>
       </div>
 
-      {/* Время публикации */}
       <Typography variant="small_text" className={s.timestamp}>
         {formattedCreatedAt}
       </Typography>
 
-      {/* Форма комментария (только для авторизованных) */}
       {variant !== 'public' && (
         <>
           <Separator className={s.separator} />

@@ -129,6 +129,7 @@
 //   postId: post.id.toString(),
 //   ownerId: post.ownerId,
 // })
+
 import { LikeStatus } from '../base/enums'
 import { UserBase } from '../user/models'
 
