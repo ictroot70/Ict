@@ -9,8 +9,8 @@ import { Header } from '@/features/posts/ui/Header/header'
 import { useGetMyProfileQuery } from '@/entities/profile'
 import { PostViewModel } from '@/shared/types'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
 import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
+import { Carousel } from '@/shared/composites'
 
 interface Props {
   onPrev: () => void
@@ -74,7 +74,7 @@ export const PublishStep: React.FC<Props> = ({
       <Header
         onPrev={onPrev}
         onNext={handlePublish}
-        title="New Post"
+        title="Publication"
         disabledNext={
           description.length === 0 || description.length > 500 || isUploading || isPublishing
         }
@@ -82,7 +82,7 @@ export const PublishStep: React.FC<Props> = ({
       />
       <div className={styles.carouselContainer}>
         <div className={styles.photoPreview}>
-          <EmblaCarousel photos={files.map(f => f.preview)} filtersState={filtersState} />
+          <Carousel slides={files.map(f => f.preview)} filtersState={filtersState} />
         </div>
         <SeparatorBlc />
         <SeparatorBlc />

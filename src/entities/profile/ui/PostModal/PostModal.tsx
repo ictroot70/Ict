@@ -9,7 +9,7 @@ import { BookmarkOutline, HeartOutline, PaperPlane, Separator } from '@ictroot/u
 import { ControlledInput } from '@/features/formControls'
 import { useForm } from 'react-hook-form'
 import { Avatar } from '@/shared/composites'
-import Carousel from '@/entities/users/ui/public/PublicPost/Carousel/Carousel'
+import { Carousel } from '@/shared/composites'
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/features/posts/utils/useAuth'

@@ -1,15 +1,15 @@
 'use client'
-import React, { useCallback, useState } from 'react'
-import styles from './FilterStep.module.scss'
-import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
-import { Header } from '@/features/posts/ui/Header/header'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { toast } from 'react-toastify/unstyled'
-import { ToastAlert } from '@/shared/composites'
-import { Card } from '@/shared/ui'
+import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
 import { UploadedFile } from '@/features/posts/model/types'
-import EmblaCarousel from '@/entities/posts/ui/EmblaCarousel/EmblaCarousel'
+import { Header } from '@/features/posts/ui/Header/header'
 import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
+import { ToastAlert } from '@/shared/composites'
+import { Carousel } from '@/shared/composites'
+import { Card } from '@/shared/ui'
+import React, { useCallback, useState } from 'react'
+import { toast } from 'react-toastify/unstyled'
+import styles from './FilterStep.module.scss'
 
 interface Props {
   onNext: () => void
@@ -117,8 +117,8 @@ export const FilterStep: React.FC<Props> = ({
       <Header onPrev={onPrev} onNext={handleNext} title="Filters" nextStepTitle="Next" />
       <div className={styles.carouselContainer}>
         <div className={styles.carouselWrapper}>
-          <EmblaCarousel
-            photos={files.map(f => f.preview)}
+          <Carousel
+            slides={files.map(f => f.preview)}
             filtersState={filtersState}
             onSlideChange={setCurrentIndex}
           />
