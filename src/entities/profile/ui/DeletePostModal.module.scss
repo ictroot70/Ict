@@ -10,49 +10,9 @@
   gap: 30px;
 }
 
-.message {
-  font-family: Inter;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(255, 255, 255, 1);
-  text-align: left;
-  margin: 0;
-  letter-spacing: 0%;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 24px;
+  gap: 1.5rem;
   margin-top: 0;
-}
-
-.cancelButton {
-  width: 96px;
-  height: 36px;
-  border-color: #397df6;
-  color: #397df6;
-
-  &:hover:not(:disabled) {
-    background: rgba(57, 125, 246, 0.1);
-  }
-}
-
-.confirmButton {
-  width: 96px;
-  height: 36px;
-  background: #397df6;
-  border-color: #397df6;
-
-  &:hover:not(:disabled) {
-    background: #2d6bd8;
-    border-color: #2d6bd8;
-  }
-
-  &:disabled {
-    background: #1e4a9b;
-    border-color: #1e4a9b;
-    opacity: 0.5;
-  }
 }

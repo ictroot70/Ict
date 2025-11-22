@@ -1,4 +1,3 @@
-
 'use client'
 
 import { ReactElement } from 'react'
@@ -17,9 +16,8 @@ export const DeletePostModal = ({
   isOpen,
   onClose,
   onConfirm,
-  isLoading = false
+  isLoading = false,
 }: DeletePostModalProps): ReactElement => {
-
   const handleConfirmClick = () => {
     console.log('DeletePostModal: подтверждение удаления')
     onConfirm()
@@ -31,33 +29,16 @@ export const DeletePostModal = ({
   }
 
   return (
-    <Modal
-      open={isOpen}
-      onClose={onClose}
-      modalTitle="Delete Post"
-      className={s.modal}
-    >
+    <Modal open={isOpen} onClose={onClose} modalTitle="Delete Post" className={s.modal}>
       <div className={s.content}>
-        <Typography variant="regular_16" className={s.message}>
-          Are you sure you want to delete this post?
-        </Typography>
+        <Typography variant="regular_16">Are you sure you want to delete this post?</Typography>
 
         <div className={s.actions}>
-          <Button
-            variant="outlined"
-            onClick={handleCancelClick}
-            disabled={isLoading}
-            className={s.cancelButton}
-          >
-            No
-          </Button>
-          <Button
-            variant="primary"
-            onClick={handleConfirmClick}
-            disabled={isLoading}
-            className={s.confirmButton}
-          >
+          <Button variant="outlined" onClick={handleConfirmClick} disabled={isLoading}>
             {isLoading ? 'Deleting...' : 'Yes'}
+          </Button>
+          <Button variant="primary" onClick={handleCancelClick} disabled={isLoading}>
+            No
           </Button>
         </div>
       </div>

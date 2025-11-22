@@ -53,8 +53,8 @@ export const EditModeDescriptionForm: React.FC<DescriptionFormProps> = ({
             rules={{
               maxLength: {
                 value: maxCharacters,
-                message: `Description must be less than ${maxCharacters} characters`
-              }
+                message: `Description must be less than ${maxCharacters} characters`,
+              },
             }}
           />
 

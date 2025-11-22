@@ -1,5 +1,5 @@
 // components/EditModeHeader.tsx
-import { Button, Typography } from '@/shared/ui'
+import { Button, Close, Typography } from '@/shared/ui'
 import { Header } from '@/features/posts/ui/Header/header'
 import s from '../EditMode.module.scss'
 
@@ -7,7 +7,7 @@ interface EditModeHeaderProps {
   isEditing: boolean
   title: string
   onClose: () => void
-  onSave?: () => void
+  onSave: () => void
   isSaveDisabled?: boolean
   saveButtonText?: string
 }
@@ -27,7 +27,7 @@ export const EditModeHeader: React.FC<EditModeHeaderProps> = ({
           {title}
         </Typography>
         <Button variant="text" onClick={onClose} className={s.closeButton}>
-          ✕
+          <Close />
         </Button>
       </div>
     )

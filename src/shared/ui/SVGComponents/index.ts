@@ -27,4 +27,5 @@ export {
   EditOutline,
   ImageOutline,
   MoreHorizontal,
+  Close,
 } from '@ictroot/ui-kit'
