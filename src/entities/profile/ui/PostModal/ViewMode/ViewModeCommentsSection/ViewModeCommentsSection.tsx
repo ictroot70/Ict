@@ -13,10 +13,7 @@ interface CommentsSectionProps {
   comments: string[]
 }
 
-export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
-  postData,
-  comments,
-}) => {
+export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postData, comments }) => {
   return (
     <>
       <Separator />

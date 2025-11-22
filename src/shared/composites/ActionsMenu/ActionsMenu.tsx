@@ -64,6 +64,7 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
                 className={s.item}
                 onClick={() => handleItemClick({ onClick })}
                 aria-label="Edit Post"
+                key={label}
               >
                 <span className={s.icon}>{icon}</span>
                 <Typography asChild variant="regular_14" className={s.text}>

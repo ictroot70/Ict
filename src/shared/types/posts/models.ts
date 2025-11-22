@@ -130,6 +130,7 @@
 //   ownerId: post.ownerId,
 // })
 
+import { UserImage } from '@/entities/users/api/api.types'
 import { LikeStatus } from '../base/enums'
 import { UserBase } from '../user/models'
 
@@ -171,7 +172,7 @@ export interface PostViewModel {
   userName: string
   description?: string
   location?: string
-  images: PostImageViewModel[]
+  images: UserImage[]
   createdAt: string
   updatedAt: string
   ownerId: number
@@ -243,7 +244,7 @@ export interface CommentFormData {
 }
 
 export interface PostModalData {
-  images: PostImageViewModel[]
+  images: UserImage[]
   userName: string
   avatar: string
   description: string

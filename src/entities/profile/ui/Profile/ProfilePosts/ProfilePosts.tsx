@@ -20,11 +20,11 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
   onEditPost,
   onDeletePost,
   isEditing,
-  profileId
+  profileId,
 }) => {
   if (!posts?.length) {
     return (
-      <Typography variant="h1" className={s.profilePostsMessage}>
+      <Typography variant="h1" className={s.profile__message}>
         {isOwnProfile
           ? "You haven't published any posts yet"
           : "This user hasn't published any posts yet"}
@@ -33,7 +33,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
   }
 
   return (
-    <ul className={s.profilePosts}>
+    <ul className={s.profile__posts}>
       {posts.map(post => (
         <PostCard
           key={post.id}

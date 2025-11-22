@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
         pathname: '/trainee-instagram-api/**',
       },
     ],
-    unoptimized: process.env.NODE_ENV === 'development', // Отключить только в development
   },
 
   /* config options here */

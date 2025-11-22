@@ -6,61 +6,56 @@
   margin: 0 auto;
   min-height: 100%;
 
-  &Details {
+  &__details {
     display: flex;
     gap: 38px;
   }
 
-  &Info {
+  &__info {
     width: 100%;
-
-    &Header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
   }
 
-  &Stats {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  &__stats {
     display: flex;
     gap: 80px;
     margin-bottom: 1.5rem;
-
     &Item {
     }
   }
 
-  &About {
+  &__about {
   }
 
-  &SectionPosts {
+  &__section {
+    display: flex;
+    flex-grow: 1;
+    text-align: center;
   }
 
-  &Posts {
+  &__posts {
     width: 100%;
     display: grid;
     gap: 1rem 0.75rem;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
+  }
 
-    &Message {
-      width: 100%;
+  &__post {
+    cursor: pointer;
+    position: relative;
+    height: 228px;
+    &Image {
+      object-fit: cover;
+      object-position: center;
     }
   }
-}
 
-.profilePostsItem {
-  cursor: pointer;
-  position: relative;
-  height: 228px;
-}
-
-.profilePost {
-  cursor: pointer;
-  position: relative;
-  height: 228px;
-
-  &Image {
-    object-fit: cover;
-    object-position: center;
+  &__message {
+    width: 100%;
   }
 }

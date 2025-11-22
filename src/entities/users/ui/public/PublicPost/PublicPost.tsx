@@ -1,11 +1,12 @@
 'use client'
-import Image from 'next/image'
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar } from '@/shared/composites/Avatar'
 import { Typography } from '@ictroot/ui-kit'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+
 import s from './PublicPost.module.scss'
 import Carousel from './Carousel/Carousel'
 

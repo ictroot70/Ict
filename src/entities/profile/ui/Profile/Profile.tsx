@@ -40,7 +40,7 @@ export const Profile: React.FC<ProfileProps> = ({
     isDeleting,
     handleDeletePost,
     handleConfirmDelete,
-    handleCancelDelete
+    handleCancelDelete,
   } = useDeletePostLogic(profile.id, onRefetchPosts)
 
   const { editingPostId, handleEditPost } = useEditPostLogic(profile.id, onRefetchPosts)
@@ -60,10 +60,10 @@ export const Profile: React.FC<ProfileProps> = ({
   return (
     <>
       <div className={s.profile}>
-        <div className={s.profileDetails}>
+        <div className={s.profile__details}>
           <Avatar size={204} image={avatars[0]?.url} />
-          <div className={s.profileInfo}>
-            <div className={s.profileInfoHeader}>
+          <div className={s.profile__info}>
+            <div className={s.profile__header}>
               <Typography variant="h1">{userName}</Typography>
               <ProfileActions
                 isAuthenticated={isAuthenticated}
@@ -73,21 +73,21 @@ export const Profile: React.FC<ProfileProps> = ({
                 isFollowing={isFollowing}
               />
             </div>
-            <ul className={s.profileStats}>
+            <ul className={s.profile__stats}>
               {stats.map(({ label, value }) => (
-                <li key={label} className={s.profileStatsItem}>
+                <li key={label} className={s.profile__statsItem}>
                   <Typography variant="bold_14">{value}</Typography>
                   <Typography variant="regular_14">{label}</Typography>
                 </li>
               ))}
             </ul>
-            <Typography variant="regular_16" className={s.profileAbout}>
+            <Typography variant="regular_16" className={s.profile__about}>
               {aboutMe || 'No information has been added yet.'}
             </Typography>
           </div>
         </div>
 
-        <div className={s.profileSectionPosts}>
+        <div className={s.profile__section}>
           <ProfilePosts
             posts={posts}
             isOwnProfile={isOwnProfile}

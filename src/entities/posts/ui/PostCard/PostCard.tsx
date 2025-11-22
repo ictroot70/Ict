@@ -30,19 +30,25 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   const handleClosePost = () => router.replace(`/profile/${userId}`)
 
+  const params = new URLSearchParams({ postId: String(post.id) })
+
   return (
     <div className={styles.postCard}>
-      <div className={styles.postImageWrapper}>
-        <Link href={`/profile/${userId}?postId=${post.id}`} scroll={false}>
-          <Image
-            src={post.images[0]?.url || '/fallback-image.jpg'}
-            alt={`Post by ${post.userName}`}
-            width={342}
-            height={228}
-            className={styles.postImage}
-          />
-        </Link>
-      </div>
+      <Link
+        href={`/profile/${userId}?${params.toString()}`}
+        scroll={false}
+        prefetch={false}
+        className={styles.postImageWrapper}
+      >
+        <Image
+          src={post.images[0]?.url || '/fallback-image.jpg'}
+          alt={`Post by ${post.userName}`}
+          width={342}
+          height={228}
+          className={styles.postImage}
+          priority
+        />
+      </Link>
 
       <PostModal
         open={isPostModalOpen}
