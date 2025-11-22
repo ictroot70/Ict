@@ -1,59 +1,56 @@
-.modal-body {
-  flex: 1;
+.wrapper {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  background: #0d0d0d;
-}
-.carouselContainer{
-  display: flex;
-  width: max-content;
-}
-.formContainer{
-padding: 24px;
+  height: 100%;
+  background: var(--color-dark-300);
+  color: #fff;
 }
 
-.user{
+.carouselContainer {
+  display: flex;
+  width: max-content;
+  flex-grow: 1;
+}
+
+.formContainer {
+  padding: 24px;
+}
+
+.user {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 24px;
 }
 .photoPreview {
+  position: relative;
   width: 490px;
+  min-height: 100%;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  div img {
-    width: 490px;
-    height: 503px;
-    object-fit: cover;
-  }
 }
-.locationContainer{
+.locationContainer {
   padding: 24px;
 }
 .locationInput {
 }
-.locationInfo{
+.locationInfo {
   padding: 6px;
 }
-.location{
-  color: #8D9094;
+.location {
+  color: #8d9094;
 }
 .description {
-    width: 433px;
-    height: 120px;
-    color: #fff;
+  width: 433px;
+  height: 120px;
+  color: #fff;
 }
-
 
 .form {
   display: flex;
   flex-direction: column;
-
 
   textarea {
     width: 85%;
@@ -73,20 +70,4 @@ padding: 24px;
     color: #888;
     text-align: right;
   }
-}
-
-.clarendon {
-  filter: contrast(120%) saturate(125%);
-}
-
-.lark {
-  filter: brightness(110%) saturate(105%);
-}
-
-.gingham {
-  filter: contrast(90%) brightness(105%) sepia(10%);
-}
-
-.moon {
-  filter: grayscale(100%) contrast(110%);
 }

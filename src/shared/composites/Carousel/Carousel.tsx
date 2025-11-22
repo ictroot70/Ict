@@ -11,12 +11,14 @@ import { ArrowBackSimple, ArrowForwardSimple } from '@/shared/ui'
 type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0]
 
 type PropType = {
-  slides: UserImage[]
+  slides: UserImage[] | string[]
   options?: EmblaOptionsType
+  filtersState?: Record<number, string>
+  onSlideChange?: (index: number) => void
 }
 
-const Carousel: React.FC<PropType> = props => {
-  const { slides, options } = props
+export const Carousel: React.FC<PropType> = props => {
+  const { slides, options, filtersState, onSlideChange } = props
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -34,6 +36,11 @@ const Carousel: React.FC<PropType> = props => {
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return
+
+    const index = emblaApi.selectedScrollSnap()
+
+    if (onSlideChange) onSlideChange(index)
+
     setSelectedIndex(emblaApi.selectedScrollSnap())
     setPrevBtnEnabled(emblaApi.canScrollPrev())
     setNextBtnEnabled(emblaApi.canScrollNext())
@@ -41,7 +48,6 @@ const Carousel: React.FC<PropType> = props => {
 
   useEffect(() => {
     if (!emblaApi) return
-
     onInit()
     onSelect()
     emblaApi.on('reInit', onInit)
@@ -59,13 +65,21 @@ const Carousel: React.FC<PropType> = props => {
     <div className={s.carousel}>
       <div className={s.carousel__viewport} ref={emblaRef}>
         <div className={s.carousel__container}>
-          {slides.map((slide, index) => (
-            <div className={s.carousel__slide} key={index}>
-              <div className={s.carousel__image}>
-                <Image src={slide.url} alt={`Image ${index + 1}`} fill />
+          {slides.map((slide, index) => {
+            const filter = filtersState && filtersState[index] ? filtersState[index] : ''
+            return (
+              <div className={s.carousel__slide} key={index}>
+                <div className={s.carousel__image}>
+                  <Image
+                    src={typeof slide === 'string' ? slide : slide.url}
+                    alt={`Image ${index + 1}`}
+                    fill
+                    className={filter ? s[filter.toLowerCase()] : ''}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -110,5 +124,3 @@ const Carousel: React.FC<PropType> = props => {
     </div>
   )
 }
-
-export default Carousel

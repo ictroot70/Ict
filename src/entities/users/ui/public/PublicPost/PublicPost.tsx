@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 
 import s from './PublicPost.module.scss'
-import Carousel from './Carousel/Carousel'
+import { Carousel } from '@/shared/composites'
 
 type Props = {
   post: PublicPostResponse

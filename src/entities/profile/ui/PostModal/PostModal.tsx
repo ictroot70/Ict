@@ -18,7 +18,7 @@ export const PostModal = ({
   onClose,
   onEditPost,
   onDeletePost,
-  isEditing
+  isEditing,
 }: Props): ReactElement => {
   const {
     comments,
@@ -84,27 +84,13 @@ export const PostModal = ({
     <>
       {showCloseBtnOutside ? (
         // Вариант с кнопкой закрытия снаружи
-        <Modal
-          open={open}
-          onClose={handleCloseModal}
-          closeBtnOutside={true}
-          className={s.modal}
-        >
-          <div className={s.innerModal}>
-            {renderContent()}
-          </div>
+        <Modal open={open} onClose={handleCloseModal} closeBtnOutside={true} className={s.modal}>
+          <div className={s.innerModal}>{renderContent()}</div>
         </Modal>
       ) : (
         // Вариант без кнопки закрытия снаружи
-        <Modal
-          open={open}
-          onClose={handleCloseModal}
-          className={s.modal}
-
-        >
-          <div className={s.innerModal}>
-            {renderContent()}
-          </div>
+        <Modal open={open} onClose={handleCloseModal} className={s.modal}>
+          <div className={s.innerModal}>{renderContent()}</div>
         </Modal>
       )}
     </>

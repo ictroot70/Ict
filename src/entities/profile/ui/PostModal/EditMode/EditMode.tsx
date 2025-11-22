@@ -26,7 +26,7 @@ export const EditMode = ({
   watchDescription,
   postData,
   onClose,
-  isEditing = false
+  isEditing = false,
 }: EditModeProps) => {
   const descriptionValue = watchDescription('description') || ''
   const characterCount = descriptionValue.length
@@ -74,7 +74,7 @@ export const EditMode = ({
   return (
     <>
       <div className={s.modalOverlay} onClick={handleOverlayClick}>
-        <div className={s.editMode} onClick={(e) => e.stopPropagation()}>
+        <div className={s.editMode} onClick={e => e.stopPropagation()}>
           <EditModeHeader
             isEditing={isEditing}
             title="Edit Post"
