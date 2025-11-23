@@ -6,7 +6,6 @@ import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 
-
 interface ViewModeProps {
   onClose: () => void
   postData: PostModalData
@@ -25,7 +24,6 @@ interface ViewModeProps {
 }
 
 export const ViewMode = ({
-  onClose,
   postData,
   variant,
   handleEditPost,
@@ -37,11 +35,6 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
 }: ViewModeProps) => {
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) onClose()
-  }
-
   const handleFollow = () => console.log('Follow functionality')
 
   const handleCopyLink = async () => {
@@ -54,36 +47,31 @@ export const ViewMode = ({
   }
 
   return (
-    <div className={s.modalOverlay} onClick={handleOverlayClick}>
-      <div className={s.viewMode} onClick={(e) => e.stopPropagation()}>
-        <ViewModePhotoSection postData={postData} />
+    <div className={s.viewMode} onClick={e => e.stopPropagation()}>
+      <ViewModePhotoSection postData={postData} />
 
-        <div className={s.postSideBar}>
-          <ViewModePostHeader
-            postData={postData}
-            variant={variant}
-            onEdit={handleEditPost}
-            onDelete={handleDeletePost}
-            onFollow={handleFollow}
-            onCopyLink={handleCopyLink}
-          />
+      <div className={s.postSideBar}>
+        <ViewModePostHeader
+          postData={postData}
+          variant={variant}
+          onEdit={handleEditPost}
+          onDelete={handleDeletePost}
+          onFollow={handleFollow}
+          onCopyLink={handleCopyLink}
+        />
 
-          <ViewModeCommentsSection
-            postData={postData}
-            comments={comments}
-          />
+        <ViewModeCommentsSection postData={postData} comments={comments} />
 
-          <Separator />
+        <Separator />
 
-          <ViewModePostFooter
-            variant={variant}
-            formattedCreatedAt={formattedCreatedAt}
-            commentControl={commentControl}
-            handleCommentSubmit={handleCommentSubmit}
-            watchComment={watchComment}
-            handlePublish={handlePublish}
-          />
-        </div>
+        <ViewModePostFooter
+          variant={variant}
+          formattedCreatedAt={formattedCreatedAt}
+          commentControl={commentControl}
+          handleCommentSubmit={handleCommentSubmit}
+          watchComment={watchComment}
+          handlePublish={handlePublish}
+        />
       </div>
     </div>
   )

@@ -85,12 +85,12 @@ export const PostModal = ({
       {showCloseBtnOutside ? (
         // Вариант с кнопкой закрытия снаружи
         <Modal open={open} onClose={handleCloseModal} closeBtnOutside={true} className={s.modal}>
-          <div className={s.innerModal}>{renderContent()}</div>
+          {renderContent()}
         </Modal>
       ) : (
         // Вариант без кнопки закрытия снаружи
         <Modal open={open} onClose={handleCloseModal} className={s.modal}>
-          <div className={s.innerModal}>{renderContent()}</div>
+          {renderContent()}
         </Modal>
       )}
     </>
