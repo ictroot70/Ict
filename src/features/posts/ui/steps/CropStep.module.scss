@@ -5,7 +5,7 @@
   position: relative;
 }
 
-.header {
+/* .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -13,7 +13,7 @@
   border-bottom: 1px solid #333;
   background: #222;
   color: #fff;
-}
+} */
 
 .title {
   font-weight: 500;
@@ -60,6 +60,14 @@
   height: 503px;
   background: #333;
   overflow: hidden;
+}
+
+.cropper {
+  background-color: transparent;
+  img {
+    min-width: 100%;
+    object-fit: contain;
+  }
 }
 
 .tools {

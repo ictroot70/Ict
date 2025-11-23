@@ -67,9 +67,7 @@
 }
 
 .description {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  word-break: break-word;
 }
 
 .descriptionTimestamp {

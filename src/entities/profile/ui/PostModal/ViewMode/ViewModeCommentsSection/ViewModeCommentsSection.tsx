@@ -21,7 +21,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postDa
         <div className={s.comment}>
           <Avatar size={36} image={postData.avatar} />
           <div>
-            <Typography variant="regular_14" color="light">
+            <Typography variant="regular_14" color="light" className={s.description}>
               <strong>{postData.userName}</strong> {postData.description}
             </Typography>
             <Typography variant="small_text" className={s.commentTimestamp}>
