@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useDeletePostMutation } from '@/entities/posts/api/postApi'
+import { useRouter } from 'next/navigation'
+import { APP_ROUTES } from '@/shared/constant'
 
 export const useDeletePostLogic = (
   profileId: number | string | undefined,
@@ -9,6 +11,8 @@ export const useDeletePostLogic = (
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  const router = useRouter()
 
   const handleDeletePost = (postId: string) => {
     console.log(`Открывается модалка удаления для поста с ID: ${postId}`)
@@ -37,6 +41,7 @@ export const useDeletePostLogic = (
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
       onRefetchPosts?.()
+      router.push(APP_ROUTES.PROFILE.ID(+profileId))
     } catch (error) {
       console.error('Ошибка при удалении поста:', error)
     } finally {
