@@ -57,14 +57,14 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
 
       {isMenuOpen && (
         <div className={s.menu}>
-          {items.map(({ icon, label, onClick }, index) => {
+          {items.map(({ icon, label, onClick }) => {
             return (
               <Button
                 variant="text"
                 className={s.item}
                 onClick={() => handleItemClick({ onClick })}
                 aria-label="Edit Post"
-                key={index}
+                key={label}
               >
                 <span className={s.icon}>{icon}</span>
                 <Typography asChild variant="regular_14" className={s.text}>

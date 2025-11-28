@@ -3,10 +3,8 @@ import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
 import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
-import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
-import { ToastAlert } from '@/shared/composites'
-import { Carousel } from '@/shared/composites'
-import { Card } from '@/shared/ui'
+import { Carousel, ToastAlert } from '@/shared/composites'
+import { Card, Typography } from '@/shared/ui'
 import React, { useCallback, useState } from 'react'
 import { toast } from 'react-toastify/unstyled'
 import styles from './FilterStep.module.scss'
@@ -123,9 +121,6 @@ export const FilterStep: React.FC<Props> = ({
             onSlideChange={setCurrentIndex}
           />
         </div>
-        {/*<Separator className={styles.separator} key={'filter-step'} />*/}
-        <SeparatorBlc />
-        <SeparatorBlc />
 
         <div className={styles.filtersRow}>
           {FILTERS.map(f => (
@@ -139,7 +134,7 @@ export const FilterStep: React.FC<Props> = ({
                 alt={f.name}
                 className={`${styles.filterThumb} ${f.className ? styles[f.className] : ''}`}
               />
-              <span className={styles.name}>{f.name}</span>
+              <Typography>{f.name}</Typography>
             </Card>
           ))}
         </div>

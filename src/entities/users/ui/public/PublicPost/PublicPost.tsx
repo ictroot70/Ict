@@ -1,6 +1,4 @@
-/** @prettier */
 'use client'
-
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar } from '@/shared/composites/Avatar'

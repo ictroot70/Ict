@@ -1,89 +1,111 @@
 'use client'
 
-import { Avatar } from '@/shared/composites'
-import { Typography } from '@/shared/ui'
 import s from './Profile.module.scss'
-
-import { PostViewModel } from '@/entities/posts/api'
+import { Typography } from '@/shared/ui'
+import { Avatar } from '@/shared/composites'
+import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
-import { ProfileActions } from './ProfileActions/ProfileActions'
-import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
+import { PostViewModel } from '@/shared/types'
+import { ProfilePosts } from './ProfilePosts/ProfilePosts'
+import { DeletePostModal } from '../DeletePostModal'
+import { useDeletePostLogic } from './hooks/useDeletePostLogic'
+import { useEditPostLogic } from './hooks/useEditPostLogic'
 
-interface Props {
+interface ProfileProps {
   profile: ProfileType
   posts?: PostViewModel[]
   isOwnProfile?: boolean
   isAuthenticated?: boolean
   onFollow?: () => void
   onMessage?: () => void
+  onRefetchPosts?: () => void
 }
 
-const DEFAULT_IMAGE = '/default-image.svg'
-
-export const Profile: React.FC<Props> = ({
+export const Profile: React.FC<ProfileProps> = ({
   profile,
   posts,
   isOwnProfile = false,
   isAuthenticated = false,
   onFollow,
   onMessage,
+  onRefetchPosts,
 }) => {
   const { userName, aboutMe, avatars, followers, following, publications, isFollowing } =
     useProfileData(profile)
 
-  const statsData = [
-    { label: 'Following', value: followers },
-    { label: 'Followers', value: following },
+  const {
+    isDeleteModalOpen,
+    selectedPostId,
+    isDeleting,
+    handleDeletePost,
+    handleConfirmDelete,
+    handleCancelDelete,
+  } = useDeletePostLogic(profile.id, onRefetchPosts)
+
+  const { editingPostId, handleEditPost } = useEditPostLogic(profile.id, onRefetchPosts)
+
+  const stats = [
+    { label: 'Following', value: following },
+    { label: 'Followers', value: followers },
     { label: 'Publications', value: publications },
   ]
 
-  const ProfileType = isAuthenticated ? (isOwnProfile ? 'myPost' : 'userPost') : 'public'
+  const modalVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
+    ? 'public'
+    : isOwnProfile
+      ? 'myPost'
+      : 'userPost'
 
   return (
-    <div className={s.profile}>
-      <div className={s.profile__details}>
-        <Avatar size={204} image={avatars[0]?.url} />
-        <div className={s.profile__info}>
-          <div className={s.profile__header}>
-            <Typography variant="h1">{userName}</Typography>
-            <ProfileActions
-              isAuthenticated={isAuthenticated}
-              isOwnProfile={isOwnProfile}
-              onFollow={onFollow}
-              onMessage={onMessage}
-              isFollowing={isFollowing}
-            />
+    <>
+      <div className={s.profile}>
+        <div className={s.profile__details}>
+          <Avatar size={204} image={avatars[0]?.url} />
+          <div className={s.profile__info}>
+            <div className={s.profile__header}>
+              <Typography variant="h1">{userName}</Typography>
+              <ProfileActions
+                isAuthenticated={isAuthenticated}
+                isOwnProfile={isOwnProfile}
+                onFollow={onFollow}
+                onMessage={onMessage}
+                isFollowing={isFollowing}
+              />
+            </div>
+            <ul className={s.profile__stats}>
+              {stats.map(({ label, value }) => (
+                <li key={label} className={s.profile__statsItem}>
+                  <Typography variant="bold_14">{value}</Typography>
+                  <Typography variant="regular_14">{label}</Typography>
+                </li>
+              ))}
+            </ul>
+            <Typography variant="regular_16" className={s.profile__about}>
+              {aboutMe || 'No information has been added yet.'}
+            </Typography>
           </div>
-          <ul className={s.profile__stats}>
-            {statsData.map(({ label, value }, index) => (
-              <li key={index} className={s.profile__statsItem}>
-                <Typography variant="bold_14">{value}</Typography>
-                <Typography variant="regular_14">{label}</Typography>
-              </li>
-            ))}
-          </ul>
-          <Typography variant="regular_16" className={s.profile__about}>
-            {aboutMe || 'No information has been added yet.'}
-          </Typography>
+        </div>
+
+        <div className={s.profile__section}>
+          <ProfilePosts
+            posts={posts}
+            isOwnProfile={isOwnProfile}
+            modalVariant={modalVariant}
+            onEditPost={isOwnProfile ? handleEditPost : undefined}
+            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
+            isEditing={editingPostId}
+            profileId={profile.id}
+          />
         </div>
       </div>
 
-      <div className={s.profile__section}>
-        {posts && posts.length ? (
-          <ul className={s.profile__posts}>
-            {posts.map(post => (
-              <PostCard key={post.id} id={post.id} image={post.images[0].url} userId={profile.id} />
-            ))}
-          </ul>
-        ) : (
-          <Typography variant="h1" className={s.profile__message}>
-            {isOwnProfile
-              ? "You haven't published any posts yet"
-              : "This user hasn't published any posts yet"}
-          </Typography>
-        )}
-      </div>
-    </div>
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+      />
+    </>
   )
 }

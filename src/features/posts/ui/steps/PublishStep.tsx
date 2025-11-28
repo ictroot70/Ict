@@ -1,16 +1,14 @@
 'use client'
-import React, { useState } from 'react'
-import styles from './PublishStep.module.scss'
-import { UploadedFile } from '../../model/types'
-import { Avatar, ToastAlert } from '@/shared/composites'
-import { toast } from 'react-toastify/unstyled'
-import { Input, Separator, TextArea, Typography } from '@/shared/ui'
-import { Header } from '@/features/posts/ui/Header/header'
-import { useGetMyProfileQuery } from '@/entities/profile'
-import { PostViewModel } from '@/shared/types'
 import { PostImageViewModel } from '@/entities/posts/api/posts.types'
-import { SeparatorBlc } from '@/features/posts/ui/Seporator/Separator'
-import { Carousel } from '@/shared/composites'
+import { useGetMyProfileQuery } from '@/entities/profile'
+import { Header } from '@/features/posts/ui/Header/header'
+import { Avatar, Carousel, ToastAlert } from '@/shared/composites'
+import { PostViewModel } from '@/shared/types'
+import { Input, Separator, TextArea, Typography } from '@/shared/ui'
+import React, { useState } from 'react'
+import { toast } from 'react-toastify/unstyled'
+import { UploadedFile } from '../../model/types'
+import styles from './PublishStep.module.scss'
 
 interface Props {
   onPrev: () => void
@@ -84,8 +82,6 @@ export const PublishStep: React.FC<Props> = ({
         <div className={styles.photoPreview}>
           <Carousel slides={files.map(f => f.preview)} filtersState={filtersState} />
         </div>
-        <SeparatorBlc />
-        <SeparatorBlc />
 
         <div className={styles.form}>
           <div className={styles.formContainer}>
@@ -95,7 +91,7 @@ export const PublishStep: React.FC<Props> = ({
             </div>
             <TextArea
               className={styles.description}
-              style={{ width: '433px', height: '120px', color: '#fff' }} // TODO: Delete when class triggers
+  
               label="Add publication descriptions"
               value={description}
               onChange={e => setDescription(e.target.value)}

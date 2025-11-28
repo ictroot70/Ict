@@ -17,40 +17,14 @@ interface EditDeletePostProps {
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
     className?: string;
+    isEditing?: boolean;
 }
-
-/*
- * Компонент выпадающего меню для управления постом (редактирование/уделение)
- * 
- * @component
- * @description Предоставляет компактное меню с опциями редактирования и удаления контента
- * 
- * @example
- * // Базовое использование
- * <EditDeletePost
- *   postId="post-123"
- *   onEdit={(id) => console.log('Edit post:', id)}
- *   onDelete={(id) => console.log('Delete post:', id)}
- * />
- * 
- * @example
- * // С кастомным классом
- * <EditDeletePost
- *   postId="post-123"
- *   onEdit={handleEdit}
- *   onDelete={handleDelete}
- *   className="custom-edit-delete-menu"
- * />
- * 
- * @param {EditDeletePostProps} props - Пропсы компонента
- * @returns {JSX.Element} Компонент меню управления постом
- */
-
 export const EditDeletePost: React.FC<EditDeletePostProps> = ({
     postId,
     onEdit,
     onDelete,
-    className = ''
+    className = '',
+    isEditing = false
 }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -70,12 +44,6 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
     };
 
     useEffect(() => {
-
-        /* 
-         * Обработчик клика вне области меню
-            * @function handleClickOutside
-         * @param { MouseEvent } event - Событие клика
-        */
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setIsMenuOpen(false);
@@ -96,6 +64,7 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                 onClick={handleMenuToggle}
                 aria-label="Open menu"
                 aria-expanded={isMenuOpen}
+                disabled={isEditing}
             >
                 <div className={styles.dotsIcon}>
                     <span></span>
@@ -104,7 +73,7 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                 </div>
             </Button>
 
-            {isMenuOpen && (
+            {isMenuOpen && !isEditing && (
                 <div
                     className={styles.container}
                     style={{
@@ -117,11 +86,6 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                         className={styles.button}
                         onClick={handleEditClick}
                         aria-label="Edit Post"
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '0'
-                        }}
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>
@@ -136,17 +100,11 @@ export const EditDeletePost: React.FC<EditDeletePostProps> = ({
                         </div>
                     </Button>
 
-
                     <Button
                         variant="text"
                         className={styles.button}
                         onClick={handleDeleteClick}
                         aria-label="Delete Post"
-                        style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '0'
-                        }}
                     >
                         <div className={styles.buttonContent}>
                             <div className={styles.iconWrapper}>

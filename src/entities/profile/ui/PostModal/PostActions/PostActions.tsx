@@ -1,3 +1,4 @@
+
 /**
  * Component for post actions with different variants depending on context
  *
@@ -23,19 +24,23 @@ import { CopyOutline, PersonAddOutline } from '@ictroot/ui-kit'
 
 type Props = {
   variant: 'myPost' | 'userPost'
+  onEdit?: () => void
+  onDelete?: () => void
+  onFollow?: () => void
+  onCopyLink?: () => void
 }
 
-export default function PostActions({ variant }: Props) {
+export default function PostActions({ variant, onEdit, onDelete, onFollow, onCopyLink }: Props) {
   const myPostActions: ActionsMenuItem[] = [
     {
       label: 'Edit Post',
       icon: <EditOutline />,
-      onClick: () => {},
+      onClick: () => onEdit?.(),
     },
     {
       label: 'Delete Post',
       icon: <TrashOutline />,
-      onClick: () => {},
+      onClick: () => onDelete?.(),
     },
   ]
 
@@ -43,12 +48,12 @@ export default function PostActions({ variant }: Props) {
     {
       label: 'Follow',
       icon: <PersonAddOutline />,
-      onClick: () => {},
+      onClick: () => onFollow?.(),
     },
     {
       label: 'Copy Link',
       icon: <CopyOutline />,
-      onClick: () => {},
+      onClick: () => onCopyLink?.(),
     },
   ]
 

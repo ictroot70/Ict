@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './Header.module.scss'
+import styles from './header.module.scss'
 import { Button, ArrowBackSimple, Typography } from '@/shared/ui'
 
 interface Props {
