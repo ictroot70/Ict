@@ -7,7 +7,13 @@ import { Button, Typography } from '@/shared/ui'
 
 import s from './CreateNewPasswordForm.module.scss'
 
-export function CreateNewPasswordForm() {
+type Props = {
+  urlCode: string
+  urlEmail: string
+  router: { push: (arg0: string) => void }
+}
+
+export function CreateNewPasswordForm({ urlCode, urlEmail, router }: Props) {
   const {
     control,
     handleSubmit,
@@ -15,7 +21,7 @@ export function CreateNewPasswordForm() {
     isSubmitting,
     isOpenModalWindow,
     handleCloseModalWindow,
-  } = useCreateNewPassword()
+  } = useCreateNewPassword(urlCode, urlEmail, router)
 
   if (isValidating) {
     return <Loading />

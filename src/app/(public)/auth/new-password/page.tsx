@@ -1,5 +1,7 @@
-import { CreateNewPasswordForm } from '@/features/auth/create-new-password/ui/CreateNewPasswordForm'
+'use client'
+
+import NewPasswordContainer from './NewPasswordContainer'
 
 export default function NewPassword() {
-  return <CreateNewPasswordForm />
+  return <NewPasswordContainer />
 }
