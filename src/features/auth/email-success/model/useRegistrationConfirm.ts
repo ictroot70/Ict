@@ -1,15 +1,12 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 
 import { useConfirmRegistrationMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
-import { useSearchParams, useRouter } from 'next/navigation'
 
-export function useRegistrationConfirm() {
+export function useRegistrationConfirm(urlCode: string, router: { push: (arg0: string) => void }) {
   const [isValidating, setIsValidating] = useState(true)
-
-  const router = useRouter()
-  const params = useSearchParams()
-  const urlCode = params?.get('code')
 
   const [confirmRegistration] = useConfirmRegistrationMutation()
 
