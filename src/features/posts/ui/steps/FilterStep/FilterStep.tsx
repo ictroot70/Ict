@@ -1,5 +1,5 @@
 'use client'
-import { PostImageViewModel } from '@/entities/posts/api/posts.types'
+// import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
 import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
@@ -8,6 +8,7 @@ import { Card, Typography } from '@/shared/ui'
 import React, { useCallback, useState } from 'react'
 import { toast } from 'react-toastify/unstyled'
 import styles from './FilterStep.module.scss'
+import { PostImageViewModel, UploadedImageViewModel } from '@/shared/types'
 
 interface Props {
   onNext: () => void
@@ -15,7 +16,7 @@ interface Props {
   files: UploadedFile[]
   filtersState: Record<number, FilterName>
   setFiltersState: React.Dispatch<React.SetStateAction<Record<number, FilterName>>>
-  handleUpload: (file: File | Blob) => Promise<any>
+  handleUpload: (file: File | Blob) => Promise<UploadedImageViewModel | undefined>
   setUploadedImage: React.Dispatch<React.SetStateAction<PostImageViewModel[]>>
   setIsUploading: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -81,9 +82,32 @@ export const FilterStep: React.FC<Props> = ({
             ctx.filter = 'none'
         }
 
-        ctx.drawImage(img, 0, 0)
+        // ctx.drawImage(img, 0, 0)
+        const MAX_DIMENSION = 1920
+        let width = img.width
+        let height = img.height
 
-        const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg'))
+        if (width > height) {
+          if (width > MAX_DIMENSION) {
+            height *= MAX_DIMENSION / width
+            width = MAX_DIMENSION
+          }
+        } else {
+          if (height > MAX_DIMENSION) {
+            width *= MAX_DIMENSION / height
+            height = MAX_DIMENSION
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        // Отрисовка с новым размером
+        ctx.drawImage(img, 0, 0, width, height)
+
+        const blob = await new Promise<Blob | null>(resolve =>
+          canvas.toBlob(resolve, 'image/jpeg', 0.8)
+        )
         if (!blob) return null
 
         return handleUpload(blob)
