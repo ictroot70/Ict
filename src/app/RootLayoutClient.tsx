@@ -7,7 +7,7 @@ import { useAuth } from '@/features/posts/utils/useAuth'
 import { Sidebar } from '@/widgets/Sidebar'
 import { Loading } from '@/shared/composites'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
-import { useCreatePostModal } from '../features/posts/hooks/useCreatePostModal'
+import { useCreatePostModal } from '@/features/posts/hooks/useCreatePostModal'
 
 export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth()
