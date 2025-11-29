@@ -4,7 +4,7 @@ import type { PostViewModel } from '@/shared/types'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 
-export const useCreateModal = () => {
+export const useCreatePostModal = () => {
   const { user } = useAuth()
 
   const router = useRouter()

@@ -7,11 +7,11 @@ import { useAuth } from '@/features/posts/utils/useAuth'
 import { Sidebar } from '@/widgets/Sidebar'
 import { Loading } from '@/shared/composites'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
-import { useCreateModal } from './useCreateModal'
+import { useCreatePostModal } from '../features/posts/hooks/useCreatePostModal'
 
 export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth()
-  const { isOpen, close, handlePublish } = useCreateModal()
+  const { isOpen, close, handlePublish } = useCreatePostModal()
 
   const isCreatePostOpen = isAuthenticated && isOpen
   if (isLoading) return <Loading />
