@@ -8,11 +8,10 @@ import { Modal, Typography, Button } from '@/shared/ui'
 import styles from './CreatePostForm.module.scss'
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
-import { PostImageViewModel } from '@/entities/posts/api/posts.types'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
-import { PostViewModel } from '@/shared/types'
+import { PostImageViewModel, PostViewModel } from '@/shared/types'
 import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
 
 interface Props {
