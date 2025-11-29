@@ -1,4 +1,3 @@
-// hooks/useAuth.ts
 import { useMeQuery } from '@/features/auth'
 
 export const useAuth = () => {
