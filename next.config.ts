@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import withBundleAnalyzer from '@next/bundle-analyzer'
 
 const nextConfig: NextConfig = {
   images: {
@@ -7,13 +8,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'staging-it-incubator.s3.eu-central-1.amazonaws.com',
-        port: '',
+        port: undefined,
         pathname: '/trainee-instagram-api/**',
       },
     ],
   },
-
-  /* config options here */
+  /* OTHER OPTIONS NEXT JS */
 }
 
-export default nextConfig
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})(nextConfig)
