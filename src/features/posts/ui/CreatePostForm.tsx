@@ -107,7 +107,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
   const handlePublishSuccess = (newPost: PostViewModel) => {
     onPublishPost(newPost)
-    onClose()
     const timeoutId = setTimeout(() => {
       resetForm()
     }, 100)
