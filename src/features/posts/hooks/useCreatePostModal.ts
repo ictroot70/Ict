@@ -1,15 +1,13 @@
-import  { useCallback, useMemo } from 'react'
+'use client'
+
+import { useCallback, useMemo } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { PostViewModel } from '@/shared/types'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 
-export const useCreatePostModal = () => {
+export const useCreatePostModal = (pathname: any, searchParams: any, router: any) => {
   const { user } = useAuth()
-
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   const action = useMemo(() => searchParams.get('action'), [searchParams])
   const isOpen = action === 'create'
