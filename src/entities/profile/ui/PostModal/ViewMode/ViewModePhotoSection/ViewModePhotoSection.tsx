@@ -14,7 +14,13 @@ export const ViewModePhotoSection: React.FC<PhotoSectionProps> = ({ postData }) 
       {postData.images.length > 1 ? (
         <Carousel slides={postData.images} options={{ align: 'center', loop: false }} />
       ) : postData.images.length === 1 ? (
-        <Image src={postData.images[0].url} alt="Post image" fill className={s.image} />
+        <Image
+          src={postData.images[0].url}
+          alt="Post image"
+          fill
+          sizes="width: 490px, height: 572px"
+          className={s.image}
+        />
       ) : null}
     </div>
   )

@@ -37,7 +37,7 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
         {images.length > 1 ? (
           <Carousel slides={images} />
         ) : (
-          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill className={s.post__image} />
+          <Image src={images[0]?.url || DEFAULT_IMAGE} alt="Image" fill sizes="width: 234px, height: 240px" className={s.post__image} />
         )}
       </div>
 
