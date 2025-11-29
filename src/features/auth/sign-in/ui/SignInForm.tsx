@@ -11,7 +11,11 @@ import Link from 'next/link'
 
 import s from './SignInForm.module.scss'
 
-export const SignInForm = (): ReactElement => {
+type SignInFormProps = {
+  router: { replace: (url: string) => void }
+}
+
+export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
   const {
     form: {
       control,
@@ -19,7 +23,7 @@ export const SignInForm = (): ReactElement => {
     },
     onSubmit,
     isLoading,
-  } = useSignIn()
+  } = useSignIn(router)
 
   if (isLoading) return <Loading />
   return (

@@ -1,5 +1,3 @@
-'use client'
-
 import { useForm } from 'react-hook-form'
 
 import { useLazyGetMyProfileQuery } from '@/entities/profile'
@@ -8,11 +6,9 @@ import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export const useSignIn = () => {
-  const router = useRouter()
+export const useSignIn = (router: { replace: (arg0: string) => void }) => {
   const [logIn, { isLoading }] = useLoginMutation()
   const [triggerProfile] = useLazyGetMyProfileQuery()
   const [isRedirecting, setIsRedirecting] = useState(false)
