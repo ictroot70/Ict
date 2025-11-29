@@ -1,8 +1,12 @@
-import { useCallback, useMemo } from 'react'
+import  { useCallback, useMemo } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { PostViewModel } from '@/shared/types'
+import { useAuth } from '@/features/posts/utils/useAuth'
+import { APP_ROUTES } from '@/shared/constant'
 
 export const useCreateModal = () => {
+  const { user } = useAuth()
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -20,9 +24,13 @@ export const useCreateModal = () => {
 
   const handlePublish = useCallback(
     (_post: PostViewModel) => {
-      close()
+      if (user?.userId) {
+        router.push(APP_ROUTES.PROFILE.ID(user.userId))
+      } else {
+        close()
+      }
     },
-    [close]
+    [user, router, close]
   )
 
   return {
