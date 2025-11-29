@@ -19,7 +19,6 @@ interface Props {
   createPost: (args: any) => Promise<any>
   userId: number
   onClose: (post: PostViewModel) => void
-  // uploadedImage: { uploadId: string; url: string }[]
   uploadedImage: PostImageViewModel[]
   onPublishPost: (post: PostViewModel) => void
   isUploading: boolean
@@ -90,7 +89,6 @@ export const PublishStep: React.FC<Props> = ({
             </div>
             <TextArea
               className={styles.description}
-  
               label="Add publication descriptions"
               value={description}
               onChange={e => setDescription(e.target.value)}
