@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -10,9 +12,12 @@ import {
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter, useSearchParams } from 'next/navigation'
 
-export const useCreateNewPassword = () => {
+export const useCreateNewPassword = (
+  urlCode: string,
+  urlEmail: string,
+  router: { push: (arg0: string) => void }
+) => {
   const [checkRecoveryCode] = useCheckRecoveryCodeMutation()
   const [newPassword] = useNewPasswordMutation()
 
@@ -29,11 +34,6 @@ export const useCreateNewPassword = () => {
 
   const [isValidating, setIsValidating] = useState(true)
   const [isOpenModalWindow, setIsOpenModalWindow] = useState(false)
-
-  const router = useRouter()
-  const params = useSearchParams()
-  const urlCode = params?.get('code')
-  const urlEmail = params?.get('email')
 
   useEffect(() => {
     const validateRecoveryCode = async () => {

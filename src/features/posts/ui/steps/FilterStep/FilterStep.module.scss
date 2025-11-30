@@ -1,0 +1,133 @@
+.wrapper {
+  display: block;
+  height: 100%;
+  background: var(--color-dark-300);
+  color: var(--color-light-100);
+}
+
+.carouselContainer {
+  display: flex;
+  width: max-content;
+}
+.preview {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 350px;
+    object-fit: contain;
+  }
+}
+
+.navBtn {
+  width: 61px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.navBtnText {
+  color: var(--color-primary-500);
+}
+
+.filtersRow {
+  width: max-content;
+  height: 498px;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 54px;
+  background: var(--color-dark-300);
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #0d0d0d;
+    border-radius: 3px;
+  }
+}
+
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: pointer;
+  min-width: 80px;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    outline: 2px solid var(--color-primary-300);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    outline: 2px solid var(--color-primary-700);
+  }
+
+  &.active {
+    outline: 2px solid var(--color-primary-500);
+    pointer-events: none;
+
+    p {
+      color: var(--color-primary-500);
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.filterThumb {
+  width: 108px;
+  height: 108px;
+  border-radius: 2px;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.clarendon {
+  filter: contrast(120%) saturate(125%);
+}
+
+.lark {
+  filter: brightness(110%) saturate(105%);
+}
+
+.gingham {
+  filter: contrast(90%) brightness(105%) sepia(10%);
+}
+
+.moon {
+  filter: grayscale(100%) contrast(110%);
+}
+
+.carouselWrapper {
+  position: relative;
+  height: 503px;
+  width: 490px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.separator {
+  width: 1px;
+  height: auto;
+  box-shadow: 3px 3px 6px 1px #fff;
+}
