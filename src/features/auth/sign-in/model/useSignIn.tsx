@@ -1,5 +1,4 @@
-'use client'
-
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useLazyGetMyProfileQuery } from '@/entities/profile'
@@ -8,12 +7,11 @@ import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
-import { useRouter } from 'next/navigation'
 
-export const useSignIn = () => {
-  const router = useRouter()
+export const useSignIn = (router: { replace: (arg0: string) => void }) => {
   const [logIn, { isLoading }] = useLoginMutation()
   const [triggerProfile] = useLazyGetMyProfileQuery()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const form = useForm<LoginFields>({
     defaultValues: {
@@ -27,20 +25,22 @@ export const useSignIn = () => {
 
   const onSubmit = form.handleSubmit(async data => {
     try {
+      setIsRedirecting(true)
       const response = await logIn(data).unwrap()
-      const decoded = jwtDecode<{ userId: string }>(response.accessToken)
+      const decoded = jwtDecode<{ userId: number }>(response.accessToken)
       const userId = decoded?.userId
 
       localStorage.setItem('access_token', response.accessToken)
 
       const profile = await triggerProfile().unwrap()
 
-      if (profile?.firstName) {
-        router.replace(APP_ROUTES.PROFILE.MY(userId || ''))
+      if (profile) {
+        router.replace(APP_ROUTES.PROFILE.ID(userId))
       } else {
-        router.replace(APP_ROUTES.PROFILE.EDIT(userId || ''))
+        router.replace(APP_ROUTES.PROFILE.EDIT)
       }
     } catch (error: any) {
+      setIsRedirecting(false)
       const message =
         error?.data?.messages || 'The email or password are incorrect. Try again please'
 
@@ -55,6 +55,6 @@ export const useSignIn = () => {
   return {
     form,
     onSubmit,
-    isLoading,
+    isLoading: isLoading || isRedirecting,
   }
 }

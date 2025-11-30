@@ -1,43 +1,75 @@
 'use client'
-import { useGetPublicUsersCounterQuery } from '@/entities/users/api'
+
+import { useEffect, useRef } from 'react'
+
+import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
+import { useAppStore } from '@/lib/hooks'
 import { Loading } from '@/shared/composites'
-import { Card, Typography } from '@/shared/ui'
+import { APP_ROUTES } from '@/shared/constant'
 
-import styles from './Public.module.scss'
+import s from './Public.module.scss'
 
+import { GetPublicPostsResponse } from '../../api/api.types'
+import { PublicPost } from './PublicPost/PublicPost'
+import { UsersCounter } from './UsersCounter/UsersCounter'
 
-export function Public() {
-  const { isLoading, isError, data } = useGetPublicUsersCounterQuery()
+type Props = {
+  postsData: GetPublicPostsResponse
+}
+
+export function Public({ postsData }: Props) {
+  const needInitPostsInStore = useRef(!!postsData)
+  const store = useAppStore()
+
+  const { data, isLoading, isError } = useGetPublicPostsQuery(
+    { pageSize: 4 },
+    {
+      skip: needInitPostsInStore.current,
+      pollingInterval: 60000,
+      refetchOnMountOrArgChange: true,
+    }
+  )
+
+  useEffect(() => {
+    if (needInitPostsInStore.current) {
+      store.dispatch(
+        publicUsersApi.util.upsertQueryData('getPublicPosts', { pageSize: 4 }, postsData)
+      )
+      needInitPostsInStore.current = false
+    }
+  }, [postsData, store])
+
+  const dataForRender = data || postsData
 
   if (isLoading) {
     return <Loading />
   }
+
   if (isError) {
     return <div>Something went wrong</div>
   }
-  if (!data) {
+
+  if (!dataForRender) {
     return null
   }
-  const rawCount = data.totalCount.toString()
-  const minLength = 6
-  const paddedCount = rawCount.padStart(Math.max(minLength, rawCount.length), '0')
-  const digits = paddedCount.split('')
+
+  const { items, totalUsers } = dataForRender
 
   return (
-    <>
-      <section className={styles.registeredUsersSection}>
-        <h2>Registered users:</h2>
-        <Card className={styles.counter}>
-          <div className={styles.digitsWrapper}>
-            {digits.map((digit, index) => (
-              <Typography variant={'h2'} className={styles.digitBox} key={index}>
-                {digit}
-              </Typography>
-            ))}
-          </div>
-        </Card>
+    <div className={s.container}>
+      <UsersCounter totalCount={totalUsers || 0} />
+      <div className={s.posts}>
+        {items.map(post => {
 
-      </section>
-    </>
+          return (
+            <PublicPost
+              key={post.id}
+              post={post}
+              urlProfile={APP_ROUTES.PROFILE.ID(post.ownerId)}
+            />
+          )
+        })}
+      </div>
+    </div>
   )
 }

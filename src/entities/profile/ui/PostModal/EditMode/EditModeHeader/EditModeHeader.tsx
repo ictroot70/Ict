@@ -1,0 +1,47 @@
+import React from 'react'
+
+import { Header } from '@/features/posts/ui/Header/header'
+import { Button, Close, Typography } from '@/shared/ui'
+
+import s from '../EditMode.module.scss'
+
+interface EditModeHeaderProps {
+  isEditing: boolean
+  title: string
+  onClose: () => void
+  onSave: () => void
+  isSaveDisabled?: boolean
+  saveButtonText?: string
+}
+
+export const EditModeHeader: React.FC<EditModeHeaderProps> = ({
+  isEditing,
+  title,
+  onClose,
+  onSave,
+  isSaveDisabled = false,
+  saveButtonText = 'Save',
+}) => {
+  if (isEditing) {
+    return (
+      <div className={s.editHeader}>
+        <Typography variant={'h1'} className={s.editTitle}>
+          {title}
+        </Typography>
+        <Button variant={'text'} onClick={onClose} className={s.closeButton}>
+          <Close />
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <Header
+      onPrev={onClose}
+      onNext={onSave}
+      title={title}
+      nextStepTitle={saveButtonText}
+      disabledNext={isSaveDisabled}
+    />
+  )
+}

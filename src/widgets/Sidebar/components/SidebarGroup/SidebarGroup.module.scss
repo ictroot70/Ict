@@ -1,0 +1,14 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  &:first-child {
+    padding-top: 15px;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+    padding-bottom: 15px;
+  }
+}
