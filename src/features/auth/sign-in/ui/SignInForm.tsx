@@ -25,7 +25,10 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
     isLoading,
   } = useSignIn(router)
 
-  if (isLoading) return <Loading />
+  if (isLoading) {
+    return <Loading />
+  }
+
   return (
     <Card className={s.wrapper}>
       <Typography variant={'h1'} className={s.title}>

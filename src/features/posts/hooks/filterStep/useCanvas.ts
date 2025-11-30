@@ -6,8 +6,10 @@ export const useCanvas = () => {
   const getCanvas = (): HTMLCanvasElement => {
     if (!canvasRef.current) {
       const canvas = document.createElement('canvas')
+
       canvasRef.current = canvas
     }
+
     return canvasRef.current
   }
 

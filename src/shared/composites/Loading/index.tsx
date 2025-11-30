@@ -5,5 +5,6 @@ interface Props {
 }
 export const Loading = (props: Props) => {
   const { size } = props
+
   return <span style={{ fontSize: size }} className={styles.loader}></span>
 }

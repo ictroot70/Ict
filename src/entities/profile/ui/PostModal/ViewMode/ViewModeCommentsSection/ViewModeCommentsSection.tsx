@@ -1,7 +1,8 @@
-import { Button, Typography } from '@/shared/ui'
+import React from 'react'
+
 import { Avatar } from '@/shared/composites'
-import { Separator } from '@ictroot/ui-kit'
-import { HeartOutline } from '@ictroot/ui-kit'
+import { Button, Typography, Separator, HeartOutline } from '@/shared/ui'
+
 import s from '../ViewMode.module.scss'
 
 interface CommentsSectionProps {
@@ -21,10 +22,10 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postDa
         <div className={s.comment}>
           <Avatar size={36} image={postData.avatar} />
           <div>
-            <Typography variant="regular_14" color="light" className={s.description}>
+            <Typography variant={'regular_14'} color={'light'} className={s.description}>
               <strong>{postData.userName}</strong> {postData.description}
             </Typography>
-            <Typography variant="small_text" className={s.commentTimestamp}>
+            <Typography variant={'small_text'} className={s.commentTimestamp}>
               2 minutes ago
             </Typography>
           </div>
@@ -34,15 +35,15 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postDa
           <div className={s.comment} key={index}>
             <Avatar size={36} image={postData.avatar} />
             <div>
-              <Typography variant="regular_14" color="light">
+              <Typography variant={'regular_14'} color={'light'}>
                 <strong>UserName</strong> {comment}
               </Typography>
-              <Typography variant="small_text" className={s.commentTimestamp}>
+              <Typography variant={'small_text'} className={s.commentTimestamp}>
                 2 minutes ago
               </Typography>
             </div>
-            <Button variant="text" className={s.commentLikeButton}>
-              <HeartOutline size={16} color="white" />
+            <Button variant={'text'} className={s.commentLikeButton}>
+              <HeartOutline size={16} color={'white'} />
             </Button>
           </div>
         ))}

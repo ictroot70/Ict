@@ -1,4 +1,6 @@
 export {
+  PaperPlane,
+  HeartOutline,
   GitHub,
   Google,
   BellOutline,

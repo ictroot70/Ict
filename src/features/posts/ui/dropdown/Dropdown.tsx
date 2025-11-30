@@ -1,7 +1,8 @@
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import { ReactNode } from 'react'
+import { ComponentProps, ReactNode } from 'react'
 
-interface DropdownProps extends DropdownMenu.DropdownMenuProps {
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+
+interface DropdownProps extends ComponentProps<typeof DropdownMenu.Root> {
   trigger: ReactNode
   children: ReactNode
   align?: 'start' | 'center' | 'end'

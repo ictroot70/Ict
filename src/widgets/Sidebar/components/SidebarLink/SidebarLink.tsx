@@ -1,7 +1,8 @@
-import clsx from 'clsx'
-import Link from 'next/link'
-import type { LinkProps } from 'next/link'
 import type { MouseEvent, ReactNode } from 'react'
+
+import clsx from 'clsx'
+import Link, { type LinkProps } from 'next/link'
+
 import s from './SidebarLink.module.scss'
 
 type SidebarLinkProps = {
@@ -37,14 +38,24 @@ export const SidebarLink = ({
 
   if (disabled) {
     return (
-      <span className={linkClasses} role="link" aria-disabled="true" aria-current={active ? 'page' : undefined}>
+      <span
+        className={linkClasses}
+        role={'link'}
+        aria-disabled={'true'}
+        aria-current={active ? 'page' : undefined}
+      >
         {content}
       </span>
     )
   }
 
   return (
-    <Link className={linkClasses} href={href} onClick={onClick} aria-current={active ? 'page' : undefined}>
+    <Link
+      className={linkClasses}
+      href={href}
+      onClick={onClick}
+      aria-current={active ? 'page' : undefined}
+    >
       {content}
     </Link>
   )

@@ -1,6 +1,7 @@
+import { clsx } from 'clsx'
 import Image from 'next/image'
+
 import s from './Avatar.module.scss'
-import clsx from 'clsx'
 
 type Props = {
   className?: string
@@ -12,8 +13,10 @@ export const Avatar = ({ image, alt, className, size = 40 }: Props) => {
   const DEFAULT_AVATAR = '/default-avatar.svg'
   const DEFAULT_AVATAR_ALT = 'Avatar'
   const classNames = clsx(s.avatar, className)
+
   return (
     <Image
+      priority
       src={image || DEFAULT_AVATAR}
       width={size}
       height={size}

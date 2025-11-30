@@ -1,8 +1,13 @@
-// components/PostHeader.tsx
-import { Typography } from '@/shared/ui'
+'use client'
+
+import React from 'react'
+
 import { Avatar } from '@/shared/composites'
 import { PostVariant } from '@/shared/types'
+import { Typography } from '@/shared/ui'
+
 import s from '../ViewMode.module.scss'
+
 import PostActions from '../../PostActions/PostActions'
 
 interface PostHeaderProps {
@@ -25,28 +30,24 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
   onFollow,
   onCopyLink,
 }) => {
+  let actions = null
+
+  if (variant === 'myPost') {
+    actions = <PostActions variant={'myPost'} onEdit={onEdit} onDelete={onDelete} />
+  } else if (variant === 'userPost') {
+    actions = <PostActions variant={'userPost'} onFollow={onFollow} onCopyLink={onCopyLink} />
+  }
+
   return (
     <div className={s.postHeader}>
       <div className={s.username}>
         <Avatar size={36} image={postData.avatar} />
-        <Typography variant="h3" color="light">
+        <Typography variant={'h3'} color={'light'}>
           {postData.userName}
         </Typography>
       </div>
 
-      {variant === 'myPost' ? (
-        <PostActions
-          variant="myPost"
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      ) : variant === 'userPost' ? (
-        <PostActions
-          variant="userPost"
-          onFollow={onFollow}
-          onCopyLink={onCopyLink}
-        />
-      ) : null}
+      {actions}
     </div>
   )
 }

@@ -1,14 +1,17 @@
 'use client'
+import React from 'react'
+
+import { Avatar } from '@/shared/composites'
+import { PostViewModel } from '@/shared/types'
+import { Typography } from '@/shared/ui'
 
 import s from './Profile.module.scss'
-import { Typography } from '@/shared/ui'
-import { Avatar } from '@/shared/composites'
-import { ProfileActions } from './ProfileActions/ProfileActions'
+
 import { ProfileType } from '../../api'
 import { useProfileData } from '../../hooks/useProfileData'
-import { PostViewModel } from '@/shared/types'
-import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { DeletePostModal } from '../DeletePostModal'
+import { ProfileActions } from './ProfileActions/ProfileActions'
+import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { useDeletePostLogic } from './hooks/useDeletePostLogic'
 import { useEditPostLogic } from './hooks/useEditPostLogic'
 
@@ -51,11 +54,15 @@ export const Profile: React.FC<ProfileProps> = ({
     { label: 'Publications', value: publications },
   ]
 
-  const modalVariant: 'public' | 'myPost' | 'userPost' = !isAuthenticated
-    ? 'public'
-    : isOwnProfile
-      ? 'myPost'
-      : 'userPost'
+  let modalVariant: 'public' | 'myPost' | 'userPost'
+
+  if (!isAuthenticated) {
+    modalVariant = 'public'
+  } else if (isOwnProfile) {
+    modalVariant = 'myPost'
+  } else {
+    modalVariant = 'userPost'
+  }
 
   return (
     <>
@@ -64,7 +71,7 @@ export const Profile: React.FC<ProfileProps> = ({
           <Avatar size={204} image={avatars[0]?.url} />
           <div className={s.profile__info}>
             <div className={s.profile__header}>
-              <Typography variant="h1">{userName}</Typography>
+              <Typography variant={'h1'}>{userName}</Typography>
               <ProfileActions
                 isAuthenticated={isAuthenticated}
                 isOwnProfile={isOwnProfile}
@@ -76,12 +83,12 @@ export const Profile: React.FC<ProfileProps> = ({
             <ul className={s.profile__stats}>
               {stats.map(({ label, value }) => (
                 <li key={label} className={s.profile__statsItem}>
-                  <Typography variant="bold_14">{value}</Typography>
-                  <Typography variant="regular_14">{label}</Typography>
+                  <Typography variant={'bold_14'}>{value}</Typography>
+                  <Typography variant={'regular_14'}>{label}</Typography>
                 </li>
               ))}
             </ul>
-            <Typography variant="regular_16" className={s.profile__about}>
+            <Typography variant={'regular_16'} className={s.profile__about}>
               {aboutMe || 'No information has been added yet.'}
             </Typography>
           </div>

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
+
 import useEmblaCarousel from 'embla-carousel-react'
+
 import styles from './EmblaCarousel.module.scss'
 
 interface Props {
@@ -16,12 +18,18 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
   const scrollNext = () => emblaApi && emblaApi.scrollNext()
 
   useEffect(() => {
-    if (!emblaApi) return
+    if (!emblaApi) {
+      return
+    }
     const onSelect = () => {
       const index = emblaApi.selectedScrollSnap()
+
       setSelectedIndex(index)
-      if (onSlideChange) onSlideChange(index)
+      if (onSlideChange) {
+        onSlideChange(index)
+      }
     }
+
     emblaApi.on('select', onSelect)
     onSelect()
   }, [emblaApi, onSlideChange])
@@ -32,6 +40,7 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
         <div className={styles.embla__container}>
           {photos.map((src, idx) => {
             const filter = filtersState && filtersState[idx] ? filtersState[idx] : ''
+
             return (
               <div className={styles.embla__slide} key={idx}>
                 <img
@@ -48,12 +57,14 @@ const EmblaCarousel: React.FC<Props> = ({ photos, filtersState, onSlideChange })
       {photos.length > 1 && (
         <>
           <button
+            type={'button'}
             className={`${styles.embla__button} ${styles.embla__button__prev}`}
             onClick={scrollPrev}
           >
             ‹
           </button>
           <button
+            type={'button'}
             className={`${styles.embla__button} ${styles.embla__button__next}`}
             onClick={scrollNext}
           >

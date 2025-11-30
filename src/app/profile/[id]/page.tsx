@@ -13,8 +13,10 @@ export default function ProfilePage() {
 
   const { user, isAuthenticated, isLoading } = useAuth()
 
-  if (isLoading) return <Loading />
-  if (Number.isNaN(userId))
+  if (isLoading) {
+    return <Loading />
+  }
+  if (Number.isNaN(userId)) {
     return (
       <div
         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
@@ -22,8 +24,11 @@ export default function ProfilePage() {
         Invalid user ID
       </div>
     )
+  }
 
-  if (!isAuthenticated) return <PublicUser id={userId} />
+  if (!isAuthenticated) {
+    return <PublicUser id={userId} />
+  }
 
   return userId === user?.userId ? <MyProfile /> : <UserProfile id={userId} />
 }

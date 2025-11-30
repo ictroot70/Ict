@@ -1,9 +1,16 @@
-// components/PostFooter.tsx
-import { Button, Typography } from '@/shared/ui'
-import { Separator } from '@ictroot/ui-kit'
-import { BookmarkOutline, HeartOutline, PaperPlane } from '@ictroot/ui-kit'
+import React from 'react'
+
 import { ControlledInput } from '@/features/formControls'
 import { CommentFormData } from '@/shared/types'
+import {
+  Button,
+  Typography,
+  BookmarkOutline,
+  HeartOutline,
+  PaperPlane,
+  Separator,
+} from '@/shared/ui'
+
 import s from '../ViewMode.module.scss'
 
 interface PostFooterProps {
@@ -27,14 +34,14 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
     <div className={s.footer}>
       {variant !== 'public' && (
         <div className={s.likeSendSave}>
-          <Button variant="text" className={s.postButton}>
-            <HeartOutline color="white" />
+          <Button variant={'text'} className={s.postButton}>
+            <HeartOutline color={'white'} />
           </Button>
-          <Button variant="text" className={s.postButton}>
-            <PaperPlane color="white" />
+          <Button variant={'text'} className={s.postButton}>
+            <PaperPlane color={'white'} />
           </Button>
-          <Button variant="text" className={s.postButton}>
-            <BookmarkOutline color="white" />
+          <Button variant={'text'} className={s.postButton}>
+            <BookmarkOutline color={'white'} />
           </Button>
         </div>
       )}
@@ -45,12 +52,12 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
           <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
           <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
         </div>
-        <Typography variant="regular_14" color="light">
+        <Typography variant={'regular_14'} color={'light'}>
           2,243 <strong>Likes</strong>
         </Typography>
       </div>
 
-      <Typography variant="small_text" className={s.timestamp}>
+      <Typography variant={'small_text'} className={s.timestamp}>
         {formattedCreatedAt}
       </Typography>
 
@@ -59,17 +66,13 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
           <Separator className={s.separator} />
           <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
             <ControlledInput
-              name="comment"
+              name={'comment'}
               control={commentControl}
-              inputType="text"
-              placeholder="Add a Comment"
+              inputType={'text'}
+              placeholder={'Add a Comment'}
               className={s.input}
             />
-            <Button
-              variant="text"
-              type="submit"
-              disabled={!watchComment('comment')?.trim()}
-            >
+            <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
               Publish
             </Button>
           </form>

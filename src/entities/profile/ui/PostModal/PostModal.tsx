@@ -1,12 +1,15 @@
 'use client'
 
 import { ReactElement, useEffect } from 'react'
+
+import { usePostModal } from '@/entities/posts/hooks'
+import { PostModalHandlers } from '@/shared/types'
 import { Modal } from '@/shared/ui'
+
 import s from './PostModal.module.scss'
+
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
-import { PostModalHandlers } from '@/shared/types'
-import { usePostModal } from '@/entities/posts/hooks'
 
 interface Props extends PostModalHandlers {
   open: boolean
@@ -43,6 +46,7 @@ export const PostModal = ({
 
   const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
     const trimmed = newDescription.trim()
+
     if (trimmed && onEditPost && postData.postId) {
       onEditPost(postData.postId, trimmed)
       setIsEditingDescription(false)
@@ -55,14 +59,12 @@ export const PostModal = ({
     }
   }
 
-  // Функция для закрытия модалки с проверкой на редактирование
   const handleCloseModal = () => {
     if (!isEditingDescription && !isEditing) {
       onClose()
     }
   }
 
-  // Обработка Escape - не закрываем при редактировании
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isEditingDescription && !isEditing) {
@@ -77,18 +79,15 @@ export const PostModal = ({
     return () => document.removeEventListener('keydown', handleEscape)
   }, [open, onClose, isEditingDescription, isEditing])
 
-  // Определяем, показывать ли кнопку закрытия снаружи
   const showCloseBtnOutside = !isEditingDescription && !isEditing
 
   return (
     <>
       {showCloseBtnOutside ? (
-        // Вариант с кнопкой закрытия снаружи
-        <Modal open={open} onClose={handleCloseModal} closeBtnOutside={true} className={s.modal}>
+        <Modal open={open} onClose={handleCloseModal} closeBtnOutside className={s.modal}>
           {renderContent()}
         </Modal>
       ) : (
-        // Вариант без кнопки закрытия снаружи
         <Modal open={open} onClose={handleCloseModal} className={s.modal}>
           {renderContent()}
         </Modal>
@@ -107,7 +106,7 @@ export const PostModal = ({
         watchDescription={watchDescription}
         postData={postData}
         onClose={handleCloseModal}
-        isEditing={true}
+        isEditing
       />
     ) : (
       <ViewMode
@@ -129,5 +128,3 @@ export const PostModal = ({
     )
   }
 }
-
-export default PostModal

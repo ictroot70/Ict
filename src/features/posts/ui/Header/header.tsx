@@ -1,6 +1,8 @@
 import React from 'react'
-import styles from './header.module.scss'
+
 import { Button, ArrowBackSimple, Typography } from '@/shared/ui'
+
+import styles from './header.module.scss'
 
 interface Props {
   onPrev: () => void
@@ -18,14 +20,14 @@ export const Header: React.FC<Props> = ({
 }) => {
   return (
     <div className={styles.header}>
-      <button onClick={onPrev} className={styles.navBtn}>
+      <button type={'button'} onClick={onPrev} className={styles.navBtn}>
         <ArrowBackSimple size={24} />
       </button>
-      <Typography variant="h1" className={styles.title}>
+      <Typography variant={'h1'} className={styles.title}>
         {title}
       </Typography>
-      <Button variant="text" onClick={onNext} className={styles.navBtn} disabled={disabledNext}>
-        <Typography variant="h3" className={styles.navBtnText}>
+      <Button variant={'text'} onClick={onNext} className={styles.navBtn} disabled={disabledNext}>
+        <Typography variant={'h3'} className={styles.navBtnText}>
           {nextStepTitle}
         </Typography>
       </Button>

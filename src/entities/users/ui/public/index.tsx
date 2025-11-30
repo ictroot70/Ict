@@ -1,18 +1,17 @@
-/** @prettier */
 'use client'
+
+import { useEffect, useRef } from 'react'
+
+import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
+import { useAppStore } from '@/lib/hooks'
+import { Loading } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
 
 import s from './Public.module.scss'
 
-import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
-import { Loading } from '@/shared/composites'
-
+import { GetPublicPostsResponse } from '../../api/api.types'
 import { PublicPost } from './PublicPost/PublicPost'
 import { UsersCounter } from './UsersCounter/UsersCounter'
-
-import { APP_ROUTES } from '@/shared/constant'
-import { GetPublicPostsResponse } from '../../api/api.types'
-import { useEffect, useRef } from 'react'
-import { useAppStore } from '@/lib/hooks'
 
 type Props = {
   postsData: GetPublicPostsResponse
@@ -38,7 +37,7 @@ export function Public({ postsData }: Props) {
       )
       needInitPostsInStore.current = false
     }
-  }, [])
+  }, [postsData, store])
 
   const dataForRender = data || postsData
 
@@ -61,7 +60,7 @@ export function Public({ postsData }: Props) {
       <UsersCounter totalCount={totalUsers || 0} />
       <div className={s.posts}>
         {items.map(post => {
-          console.log(typeof post.ownerId)
+
           return (
             <PublicPost
               key={post.id}

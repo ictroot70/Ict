@@ -10,6 +10,7 @@ export function middleware(req: NextRequest) {
   // Если есть оба параметра, удаляем action из URL
   if (hasPostId && hasActionCreate) {
     const url = req.nextUrl.clone()
+
     url.searchParams.delete('action')
 
     return NextResponse.redirect(url)

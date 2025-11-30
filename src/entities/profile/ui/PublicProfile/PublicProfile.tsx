@@ -16,7 +16,9 @@ export default function PublicUser({ id }: Props) {
 
   const isLoading = isProfileLoading || isPostsLoading
 
-  if (isLoading) return <Loading />
+  if (isLoading) {
+    return <Loading />
+  }
 
   if (!publicProfile) {
     return <div>User not found</div>

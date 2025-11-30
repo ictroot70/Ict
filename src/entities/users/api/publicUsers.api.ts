@@ -1,6 +1,7 @@
 import { GetPublicUsers } from '@/entities/users/model'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
+
 import { GetPublicPostsRequest, GetPublicPostsResponse } from './api.types'
 
 export const publicUsersApi = baseApi.injectEndpoints({

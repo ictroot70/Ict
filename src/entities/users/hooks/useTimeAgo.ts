@@ -19,6 +19,7 @@ export const useTimeAgo = (date: string) => {
 
     for (const interval of intervals) {
       const count = Math.floor(seconds / interval.seconds)
+
       if (count >= 1) {
         return count === 1 ? `1 ${interval.label} ago` : `${count} ${interval.label}s ago`
       }

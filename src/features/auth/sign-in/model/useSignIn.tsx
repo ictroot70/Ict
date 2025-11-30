@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useLazyGetMyProfileQuery } from '@/entities/profile'
@@ -6,7 +7,6 @@ import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
-import { useState } from 'react'
 
 export const useSignIn = (router: { replace: (arg0: string) => void }) => {
   const [logIn, { isLoading }] = useLoginMutation()

@@ -12,5 +12,5 @@ export const useHomeLink = () => {
     }
 
     // return isSuccess && user ? APP_ROUTES.PROFILE.MY : APP_ROUTES.ROOT
-  }, [isLoading, isSuccess, user])
+  }, [isLoading])
 }

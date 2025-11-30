@@ -1,8 +1,11 @@
 'use client'
 import React from 'react'
+
 import { ImageOutline, Card, Button } from '@/shared/ui'
-import { UploadedFile } from '../../model/types'
+
 import styles from './UploadStep.module.scss'
+
+import { UploadedFile } from '../../model/types'
 
 interface Props {
   onNext: () => void
@@ -36,7 +39,7 @@ export const UploadStep: React.FC<Props> = ({ openDialog, getRootProps, getInput
         <Button variant={'primary'} className={styles.primaryBtn} onClick={openDialog}>
           Select from Computer
         </Button>
-        <Button variant={'outlined'} className={styles.secondaryBtn} type="button">
+        <Button variant={'outlined'} className={styles.secondaryBtn} type={'button'}>
           Open Draft
         </Button>
       </div>

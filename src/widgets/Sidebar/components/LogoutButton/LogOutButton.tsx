@@ -1,8 +1,11 @@
-import s from './LogOutButton.module.scss'
 import { useState } from 'react'
+
 import { Button, LogOut } from '@/shared/ui'
-import { LogoutModal } from '../LogoutModal'
+
+import s from './LogOutButton.module.scss'
+
 import { useLogoutHandler } from '../../model/useLogoutHandler'
+import { LogoutModal } from '../LogoutModal'
 
 export const LogOutButton = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
@@ -21,7 +24,7 @@ export const LogOutButton = () => {
 
   return (
     <>
-      <Button as="button" variant="text" className={s.button} onClick={handlerOpenModal}>
+      <Button as={'button'} variant={'text'} className={s.button} onClick={handlerOpenModal}>
         <LogOut />
         <span>Log Out</span>
       </Button>

@@ -1,1 +1,1 @@
-import {EditDeletePost} from './EditDeletePost'
+import { EditDeletePost } from './EditDeletePost'

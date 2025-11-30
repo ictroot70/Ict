@@ -1,4 +1,3 @@
-import { API_ROUTES } from '@/shared/api'
 import {
   CreatePostInputDto,
   GetPostsByUserParams,
@@ -9,6 +8,7 @@ import {
   UpdatePostInputDto,
   UploadedImageViewModel,
 } from '@/entities/posts/api/posts.types'
+import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
 
 export const postApi = baseApi.injectEndpoints({
@@ -74,6 +74,7 @@ export const postApi = baseApi.injectEndpoints({
             { userId, endCursorPostId: 0 },
             (draft: PaginatedResponse<PostViewModel>) => {
               const post = draft.items.find(p => p.id === postId)
+
               if (post && body.description) {
                 post.description = body.description
                 post.updatedAt = new Date().toISOString()
@@ -160,6 +161,7 @@ export const postApi = baseApi.injectEndpoints({
       merge: (currentCache, newItems) => {
         const existingIds = new Set(currentCache.items.map(item => item.id))
         const newUniqueItems = newItems.items.filter(item => !existingIds.has(item.id))
+
         currentCache.items.push(...newUniqueItems)
         currentCache.items.sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

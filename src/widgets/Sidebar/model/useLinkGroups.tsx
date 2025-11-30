@@ -1,5 +1,7 @@
 /** @prettier */
 
+import { ReactElement } from 'react'
+
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 import {
@@ -16,7 +18,6 @@ import {
   Search,
   TrendingUp,
 } from '@/shared/ui'
-import { ReactElement } from 'react'
 
 export type SidebarLinkItem = {
   href: string
@@ -33,7 +34,10 @@ export type SidebarLinkGroup = {
 
 export const useLinkGroups = (): { linkGroups: SidebarLinkGroup[] } | null => {
   const { user } = useAuth()
-  if (!user) return null
+
+  if (!user) {
+    return null
+  }
 
   const linkGroups: SidebarLinkGroup[] = [
     {
@@ -89,5 +93,6 @@ export const useLinkGroups = (): { linkGroups: SidebarLinkGroup[] } | null => {
       ],
     },
   ]
+
   return { linkGroups }
 }

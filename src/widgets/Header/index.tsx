@@ -2,6 +2,7 @@
 import { ReactElement } from 'react'
 
 import { useMeQuery } from '@/features/auth'
+import { APP_ROUTES } from '@/shared/constant'
 import { Header, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
@@ -9,7 +10,6 @@ import s from './AppHeader.module.scss'
 
 import { AuthBtn, LanguageSelect, NotificationButton } from './components'
 import { useHomeLink } from './hooks'
-import { APP_ROUTES } from '@/shared/constant'
 
 export const AppHeader = (): ReactElement => {
   const { data: user, isLoading, isSuccess, isError } = useMeQuery()

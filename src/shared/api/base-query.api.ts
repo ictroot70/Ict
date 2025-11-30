@@ -43,6 +43,7 @@ export const baseQueryWithReauth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   const url = typeof args === 'string' ? args : args.url
+
   console.log('Making request to:', url)
   await mutex.waitForUnlock()
   let result = await baseQuery(args, api, extraOptions)

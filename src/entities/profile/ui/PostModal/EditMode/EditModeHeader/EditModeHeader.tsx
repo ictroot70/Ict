@@ -1,6 +1,8 @@
-// components/EditModeHeader.tsx
-import { Button, Close, Typography } from '@/shared/ui'
+import React from 'react'
+
 import { Header } from '@/features/posts/ui/Header/header'
+import { Button, Close, Typography } from '@/shared/ui'
+
 import s from '../EditMode.module.scss'
 
 interface EditModeHeaderProps {
@@ -23,10 +25,10 @@ export const EditModeHeader: React.FC<EditModeHeaderProps> = ({
   if (isEditing) {
     return (
       <div className={s.editHeader}>
-        <Typography variant="h1" className={s.editTitle}>
+        <Typography variant={'h1'} className={s.editTitle}>
           {title}
         </Typography>
-        <Button variant="text" onClick={onClose} className={s.closeButton}>
+        <Button variant={'text'} onClick={onClose} className={s.closeButton}>
           <Close />
         </Button>
       </div>

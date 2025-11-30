@@ -1,6 +1,8 @@
-import s from './ActionsMenu.module.scss'
 import React, { useState, useRef, useEffect, ReactNode } from 'react'
+
 import { Button, MoreHorizontal, Typography } from '@/shared/ui'
+
+import s from './ActionsMenu.module.scss'
 
 export interface ActionsMenuItem {
   label: string
@@ -36,6 +38,7 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
         closeMenu()
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => {
@@ -46,10 +49,10 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
   return (
     <div className={s.wrapper} ref={menuRef}>
       <Button
-        variant="text"
+        variant={'text'}
         className={s.toggle}
         onClick={handleMenuToggle}
-        aria-label="Open menu"
+        aria-label={'Open menu'}
         aria-expanded={isMenuOpen}
       >
         <MoreHorizontal />
@@ -60,14 +63,14 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
           {items.map(({ icon, label, onClick }) => {
             return (
               <Button
-                variant="text"
+                variant={'text'}
                 className={s.item}
                 onClick={() => handleItemClick({ onClick })}
-                aria-label="Edit Post"
+                aria-label={'Edit Post'}
                 key={label}
               >
                 <span className={s.icon}>{icon}</span>
-                <Typography asChild variant="regular_14" className={s.text}>
+                <Typography asChild variant={'regular_14'} className={s.text}>
                   <span>{label}</span>
                 </Typography>
               </Button>

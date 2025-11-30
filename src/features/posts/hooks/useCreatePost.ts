@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+
 import { Step, UploadedFile } from '@/features/posts/model/types'
 
 export const useCreatePost = () => {

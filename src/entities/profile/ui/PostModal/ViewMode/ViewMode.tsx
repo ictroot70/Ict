@@ -1,10 +1,12 @@
-import { Separator } from '@ictroot/ui-kit'
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { Separator } from '@/shared/ui'
+
 import s from './ViewMode.module.scss'
-import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
-import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
+
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
+import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
+import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
   onClose: () => void
@@ -35,12 +37,11 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
 }: ViewModeProps) => {
-  const handleFollow = () => console.log('Follow functionality')
+  const handleFollow = () => {}
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      console.log('Link copied to clipboard')
     } catch (err) {
       console.error('Failed to copy link:', err)
     }

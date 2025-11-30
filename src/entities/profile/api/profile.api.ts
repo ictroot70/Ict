@@ -5,7 +5,6 @@ import {
   PublicProfileRequest,
   PublicProfileResponse,
 } from '@/entities/profile/api/api.types'
-
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
 

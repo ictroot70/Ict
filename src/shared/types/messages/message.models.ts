@@ -1,5 +1,5 @@
-import { MessageType, MessageStatus } from '../base/enums'
 import { AvatarViewDto } from '../base/common'
+import { MessageType, MessageStatus } from '../base/enums'
 
 export interface MessageViewModel {
   id: number

@@ -17,7 +17,9 @@ export default function UserProfile({ id }: Props) {
 
   const isLoading = isUserProfileLoading || isUserPostsLoading
 
-  if (isLoading) return <Loading />
+  if (isLoading) {
+    return <Loading />
+  }
 
   if (!userProfile) {
     return <div>User not found</div>

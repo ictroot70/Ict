@@ -9,9 +9,9 @@ import {
   PasswordRecoveryResendingRequest,
   RefreshTokenResponse,
 } from '@/shared/api'
+import { baseApi } from '@/shared/api/base-api'
 import { authTokenStorage } from '@/shared/lib'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { baseApi } from '@/shared/api/base-api'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({

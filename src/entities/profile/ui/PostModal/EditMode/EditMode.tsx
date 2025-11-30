@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+
 import { PostModalData, DescriptionFormData } from '@/shared/types'
+
 import s from './EditMode.module.scss'
-import { EditModeHeader } from './EditModeHeader/EditModeHeader'
-import { ExitConfirmationModal } from './ExitConfirmationModal/ExitConfirmationModal'
+
 import { EditModeDescriptionForm } from './EditModeDescriptionForm/EditModeDescriptionForm'
+import { EditModeHeader } from './EditModeHeader/EditModeHeader'
 import { EditModeImageSection } from './EditModeImageSection/EditModeImageSection'
+import { ExitConfirmationModal } from './ExitConfirmationModal/ExitConfirmationModal'
 interface EditModeProps {
   descriptionControl: any
   handleDescriptionSubmit: any
@@ -25,7 +28,6 @@ export const EditMode = ({
   errors,
   watchDescription,
   postData,
-  onClose,
   isEditing = false,
 }: EditModeProps) => {
   const descriptionValue = watchDescription('description') || ''
@@ -49,7 +51,9 @@ export const EditMode = ({
   }
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) attemptClose()
+    if (e.target === e.currentTarget) {
+      attemptClose()
+    }
   }
 
   useEffect(() => {
@@ -61,6 +65,7 @@ export const EditMode = ({
     }
 
     document.addEventListener('keydown', handleEscape)
+
     return () => document.removeEventListener('keydown', handleEscape)
   }, [attemptClose])
 
@@ -77,11 +82,11 @@ export const EditMode = ({
         <div className={s.editMode} onClick={e => e.stopPropagation()}>
           <EditModeHeader
             isEditing={isEditing}
-            title="Edit Post"
+            title={'Edit Post'}
             onClose={attemptClose}
             onSave={handleDescriptionSubmit(handleFormSubmit)}
             isSaveDisabled={shouldDisableSave}
-            saveButtonText="Save"
+            saveButtonText={'Save'}
           />
 
           <div className={s.editContent}>

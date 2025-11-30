@@ -1,7 +1,10 @@
-import s from '../Profile.module.scss'
+import React from 'react'
+
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 import { PostViewModel } from '@/shared/types'
 import { Typography } from '@/shared/ui'
+
+import s from '../Profile.module.scss'
 
 interface ProfilePostsProps {
   posts?: PostViewModel[]
@@ -24,7 +27,7 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
 }) => {
   if (!posts?.length) {
     return (
-      <Typography variant="h1" className={s.profile__message}>
+      <Typography variant={'h1'} className={s.profile__message}>
         {isOwnProfile
           ? "You haven't published any posts yet"
           : "This user hasn't published any posts yet"}

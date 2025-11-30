@@ -1,15 +1,20 @@
 'use client'
 import React, { useRef, useState, useEffect } from 'react'
-import { clsx } from 'clsx'
 import { Cropper, CropperRef, ImageRestriction } from 'react-advanced-cropper'
-import 'react-advanced-cropper/dist/style.css'
-import styles from './CropStep.module.scss'
-import { UploadedFile } from '../../model/types'
-import { ImageOutline, Button, Typography, Expand, PlusCircle } from '@/shared/ui'
-import { fileToBase64 } from '@/features/posts/utils/fileToBase64'
+
+import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
 import { Dropdown } from '@/features/posts/ui/dropdown/Dropdown'
-import { MiniCarousel } from '@/features/posts/ui/miniCarusel/MiniCarousel'
+import { AspectRatiosDropdown } from '@/features/posts/ui/steps/CropStep/components/AspectRatiosDropdown'
+import { EmptyState } from '@/features/posts/ui/steps/CropStep/components/EmptyState'
+import { ThumbnailsDropdown } from '@/features/posts/ui/steps/CropStep/components/ThumbnailsDropdown'
+import { fileToBase64 } from '@/features/posts/utils/fileToBase64'
+import { ImageOutline, Button, Typography, Expand } from '@/shared/ui'
+import { clsx } from 'clsx'
+
+import 'react-advanced-cropper/dist/style.css'
+
+import styles from './CropStep.module.scss'
 
 interface Props {
   onNext: () => void
@@ -53,7 +58,6 @@ export const CropStep: React.FC<Props> = ({
   const [isOpen1, setIsOpen1] = useState(false)
   const shouldShowAddButton = files.length < 10
   const currentFile = files[currentIndex]
-  const safePreview = currentFile
   const cropperRef = useRef<CropperRef>(null)
 
   useEffect(() => {
@@ -70,8 +74,10 @@ export const CropStep: React.FC<Props> = ({
       }
 
       const canvas = cropperRef.current.getCanvas()
+
       if (canvas) {
         const croppedImage = canvas.toDataURL('image/jpeg')
+
         setFiles(prev =>
           prev.map((f, idx) => (idx === currentIndex ? { ...f, preview: croppedImage } : f))
         )
@@ -90,25 +96,33 @@ export const CropStep: React.FC<Props> = ({
   }
 
   const handleNext = () => {
-    if (aspect && currentFile) saveCrop()
+    if (aspect && currentFile) {
+      saveCrop()
+    }
     setIsOpen(false)
     onNext()
   }
 
   const handleAspectChange = async (aspect: number) => {
-    if (!currentFile) return
+    if (!currentFile) {
+      return
+    }
     let base64ToRestore: string | undefined
+
     if (!currentFile.original || !currentFile.original.startsWith('data:image')) {
       try {
         base64ToRestore = await fileToBase64(currentFile.file)
       } catch (error) {
         console.error('❌ Error converting file to base64:', error)
+
         return
       }
     } else {
       base64ToRestore = currentFile.original
     }
-    if (!base64ToRestore) return
+    if (!base64ToRestore) {
+      return
+    }
     setFiles(prev =>
       prev.map((f, idx) =>
         idx === currentIndex
@@ -132,41 +146,20 @@ export const CropStep: React.FC<Props> = ({
     }
   }
 
-  const shouldDisableNext =
-    files.length === 0 || !currentFile /* || !isValidBase64(getSafePreview(currentFile))*/
+  const shouldDisableNext = files.length === 0 || !currentFile
+
   if (files.length === 0) {
     return (
       <div className={styles.wrapper}>
         <Header
           onPrev={onPrev}
           onNext={handleNext}
-          title="Cropping"
-          nextStepTitle="Next"
+          title={'Cropping'}
+          nextStepTitle={'Next'}
           disabledNext={shouldDisableNext}
         />
 
-        <div className={styles.emptyState}>
-          <div className={styles.emptyStateText}>
-            <Typography variant="h1">No images selected</Typography>
-          </div>
-          <div className={styles.emptyStateText}>
-            <Typography variant="regular_14">Select a photo to continue cropping.</Typography>
-            <Button
-              variant={'outlined'}
-              className={styles.addPhotoBtn}
-              onClick={() => openDialog()}
-            >
-              Add Photo
-            </Button>
-            <input
-              {...getInputProps({
-                onClick: (event: React.MouseEvent<HTMLInputElement>) => {
-                  event.currentTarget.value = ''
-                },
-              })}
-            />
-          </div>
-        </div>
+        <EmptyState openDialog={openDialog} getInputProps={getInputProps} />
       </div>
     )
   }
@@ -176,8 +169,8 @@ export const CropStep: React.FC<Props> = ({
       <Header
         onPrev={onPrev}
         onNext={handleNext}
-        title="Cropping"
-        nextStepTitle="Next"
+        title={'Cropping'}
+        nextStepTitle={'Next'}
         disabledNext={shouldDisableNext}
       />
 
@@ -208,97 +201,42 @@ export const CropStep: React.FC<Props> = ({
           className={styles.dropdown}
           open={isOpen1}
           onOpenChange={open => {
-            if (open) setIsOpen(false)
+            if (open) {
+              setIsOpen(false)
+            }
             setIsOpen1(open)
           }}
           trigger={
-            <button className={clsx(styles.iconBtn, styles.left, isOpen1 && `${styles.active}`)}>
+            <button
+              type={'button'}
+              className={clsx(styles.iconBtn, styles.left, isOpen1 && `${styles.active}`)}
+            >
               <Expand size={24} />
             </button>
           }
         >
-          <div className={styles.aspectRatios}>
-            {aspectRatios.map(ar => (
-              <button
-                key={ar.label}
-                className={`${styles.aspectBtn} ${
-                  aspect === ar.value || (ar.value === 0 && aspect === undefined)
-                    ? styles.active
-                    : ''
-                }`}
-                onClick={() => handleAspectChange(ar.value)}
-              >
-                {ar.label}
-                {ar.icon}
-              </button>
-            ))}
-          </div>
+          <AspectRatiosDropdown
+            aspect={aspect}
+            aspectRatios={aspectRatios}
+            handleAspectChange={handleAspectChange}
+          />
         </Dropdown>
-        <Dropdown
-          className={styles.dropdown}
+
+        <ThumbnailsDropdown
+          files={files}
+          currentIndex={currentIndex}
+          onSelect={handleThumbClick}
+          onDelete={handleDelete}
           open={isOpen}
           onOpenChange={open => {
-            if (open) setIsOpen1(false)
+            if (open) {
+              setIsOpen1(false)
+            }
             setIsOpen(open)
           }}
-          trigger={
-            <button
-              type="button"
-              className={clsx(styles.iconBtn, styles.right, isOpen && `${styles.active}`)}
-            >
-              <ImageOutline className={clsx(isOpen && styles.iconActive)} />
-              {!isOpen && files.length > 0 && (
-                <span className={styles.countBadge}>{files.length}</span>
-              )}
-            </button>
-          }
-        >
-          <div className={styles.thumbs}>
-            <MiniCarousel>
-              {files.map((f, idx) => (
-                <div
-                  key={f.file.lastModified || idx}
-                  className={`${styles.thumb} ${idx === currentIndex ? styles.active : ''}`}
-                  onClick={() => handleThumbClick(idx)}
-                >
-                  <img
-                    src={f.preview}
-                    alt={`thumb-${idx}`}
-                    onError={e => {
-                      console.error(`❌ Thumbnail load error for index ${idx}`)
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className={styles.deleteBtn}
-                    onClick={e => {
-                      e.stopPropagation()
-                      handleDelete(idx)
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-            </MiniCarousel>
-            <>
-              {shouldShowAddButton && (
-                <button
-                  onClick={() => {
-                    openDialog()
-                    setIsOpen(false)
-                  }}
-                  className={styles.addThumbBtn}
-                >
-                  <PlusCircle className={styles.addThumb} />
-                </button>
-              )}
-              {isOpen && files.length > 0 && (
-                <span className={styles.countBadge}>{files.length}</span>
-              )}
-            </>
-          </div>
-        </Dropdown>
+          shouldShowAddButton={shouldShowAddButton}
+          openDialog={openDialog}
+        />
         <input
           {...getInputProps({
             onClick: (event: React.MouseEvent<HTMLInputElement>) => {

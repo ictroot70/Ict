@@ -5,16 +5,6 @@
   position: relative;
 }
 
-/* .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid #333;
-  background: #222;
-  color: #fff;
-} */
-
 .title {
   font-weight: 500;
 }
@@ -167,23 +157,8 @@
   background-color: #0d0d0d;
 }
 
-//.thumbs {
-//  position: absolute;
-//  right: -36px;
-//  bottom: 42px;
-//  display: flex;
-//  flex-wrap: nowrap;
-//  align-items: center;
-//  justify-content: flex-start;
-//  gap: 5px;
-//  max-width: 461px;
-//  padding: 5px;
-//  background: var(--color-dark-500-transparent);
-//}
-
 .thumbs {
   max-width: 461px;
-  //overflow: hidden;
   position: absolute;
   right: -36px;
   bottom: 42px;

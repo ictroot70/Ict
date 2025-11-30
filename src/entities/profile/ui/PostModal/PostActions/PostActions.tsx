@@ -1,4 +1,3 @@
-
 /**
  * Component for post actions with different variants depending on context
  *
@@ -57,7 +56,7 @@ export default function PostActions({ variant, onEdit, onDelete, onFollow, onCop
     },
   ]
 
-  let currentItems: ActionsMenuItem[] = variant === 'myPost' ? myPostActions : userPostActions
+  const currentItems: ActionsMenuItem[] = variant === 'myPost' ? myPostActions : userPostActions
 
   return <ActionsMenu items={currentItems} />
 }

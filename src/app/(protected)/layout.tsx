@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+
 import { AuthGuard } from '@/shared/guards'
 
 // import s from './ProtectedLayout.module.scss'

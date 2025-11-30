@@ -1,18 +1,20 @@
 'use client'
 import React, { useState } from 'react'
-import { clsx } from 'clsx'
-import { UploadStep } from './steps/UploadStep'
-import { CropStep } from './steps/CropStep'
-import { PublishStep } from './steps/PublishStep'
-import { Modal, Typography, Button } from '@/shared/ui'
-import styles from './CreatePostForm.module.scss'
 
 import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
-import { PostImageViewModel, PostViewModel } from '@/shared/types'
+import { CropStep } from '@/features/posts/ui/steps/CropStep/CropStep'
 import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
+import { PostImageViewModel, PostViewModel } from '@/shared/types'
+import { Button, Modal, Typography } from '@/shared/ui'
+import { clsx } from 'clsx'
+import { useParams } from 'next/navigation'
+
+import styles from './CreatePostForm.module.scss'
+
+import { PublishStep } from './steps/PublishStep'
+import { UploadStep } from './steps/UploadStep'
 
 interface Props {
   open: boolean
@@ -38,38 +40,23 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     error,
   } = useImageDropzone(files, setFiles, () => setStep('crop'))
 
-  const router = useRouter()
   const params = useParams()
-  const searchParams = useSearchParams()
   const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
-    // Todo: Later will add for this process
-    // const allowedTypes = ['image/jpeg', 'image/png']
-    // const maxSize = 1024 * 1024 * 20
-    // const maxCount = 10
-    if (!file) return
-
-    // if (uploadedImage.length >= maxCount) {
-    //   alert('You can upload no more than 10 photos.')
-    //   return
-    // }
-    //
-    // if (!allowedTypes.includes(finalFile.type)) {
-    //   alert('Only JPEG or PNG images are allowed')
-    //   return
-    // }
+    if (!file) {
+      return
+    }
 
     const finalFile =
       file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
-    // if (finalFile.size > maxSize) {
-    //   alert(`The file is too large. Max size is ${Math.round(maxSize / 1024)} KB`)
-    //   return
-    // }
+
     try {
       const formData = new FormData()
+
       formData.append('file', finalFile)
       const uploaded = await uploadImage(formData).unwrap()
+
       setUploadedImage(prev => [...prev, ...uploaded.images])
 
       return uploaded
@@ -87,7 +74,9 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     setIsUploading(false)
   }
   const handleModalClose = () => {
-    if (isUploading) return
+    if (isUploading) {
+      return
+    }
     if (step !== 'upload' || files.length > 0) {
       setShowConfirmModal(true)
     } else {
@@ -116,6 +105,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const showModalTitle = step === 'upload',
     filterStep = step === 'filter',
     publishStep = step === 'publish'
+
   return (
     <>
       <Modal

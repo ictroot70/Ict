@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
 import { EmailConfirmed } from '@/features/auth'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function EmailConfirmedContainer() {
   const router = useRouter()

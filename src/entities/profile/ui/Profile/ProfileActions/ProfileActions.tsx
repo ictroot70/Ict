@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { APP_ROUTES } from '@/shared/constant'
 import { Button } from '@ictroot/ui-kit'
 import Link from 'next/link'
@@ -24,11 +26,13 @@ export const ProfileActions: React.FC<Props> = ({
   onUnfollow,
   isLoading = false,
 }) => {
-  if (!isAuthenticated) return null
+  if (!isAuthenticated) {
+    return null
+  }
 
   if (isOwnProfile) {
     return (
-      <Button variant="secondary" as={Link} href={APP_ROUTES.PROFILE.EDIT}>
+      <Button variant={'secondary'} as={Link} href={APP_ROUTES.PROFILE.EDIT}>
         Profile Settings
       </Button>
     )
@@ -38,7 +42,7 @@ export const ProfileActions: React.FC<Props> = ({
     <div className={s.actions}>
       {isFollowing ? (
         <Button
-          variant="outlined"
+          variant={'outlined'}
           onClick={onUnfollow}
           disabled={isLoading}
           className={s.btnOutlined}
@@ -50,7 +54,7 @@ export const ProfileActions: React.FC<Props> = ({
           Follow
         </Button>
       )}
-      <Button variant="secondary" onClick={onMessage} disabled={isLoading}>
+      <Button variant={'secondary'} onClick={onMessage} disabled={isLoading}>
         Send Message
       </Button>
     </div>

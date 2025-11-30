@@ -1,14 +1,15 @@
 'use client'
-// import { PostImageViewModel } from '@/entities/posts/api/posts.types'
+import React, { useCallback, useState } from 'react'
+
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
 import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
 import { Carousel, ToastAlert } from '@/shared/composites'
-import { Card, Typography } from '@/shared/ui'
-import React, { useCallback, useState } from 'react'
-import { toast } from 'react-toastify/unstyled'
-import styles from './FilterStep.module.scss'
 import { PostImageViewModel, UploadedImageViewModel } from '@/shared/types'
+import { Card, Typography } from '@/shared/ui'
+import { toast } from 'react-toastify/unstyled'
+
+import styles from './FilterStep.module.scss'
 
 interface Props {
   onNext: () => void
@@ -40,7 +41,6 @@ export const FilterStep: React.FC<Props> = ({
         ...prev,
         [currentIndex]: filterName,
       }))
-      console.log(`[FilterStep] Applied filter "${filterName}" to image index ${currentIndex}`)
     },
     [currentIndex, setFiltersState]
   )
@@ -54,6 +54,7 @@ export const FilterStep: React.FC<Props> = ({
         const filter = filtersState[idx] || 'Normal'
 
         const img = new Image()
+
         img.src = file.preview
         await new Promise((resolve, reject) => {
           img.onload = resolve
@@ -61,6 +62,7 @@ export const FilterStep: React.FC<Props> = ({
         })
 
         const canvas = document.createElement('canvas')
+
         canvas.width = img.width
         canvas.height = img.height
         const ctx = canvas.getContext('2d')!
@@ -82,7 +84,6 @@ export const FilterStep: React.FC<Props> = ({
             ctx.filter = 'none'
         }
 
-        // ctx.drawImage(img, 0, 0)
         const MAX_DIMENSION = 1920
         let width = img.width
         let height = img.height
@@ -102,33 +103,39 @@ export const FilterStep: React.FC<Props> = ({
         canvas.width = width
         canvas.height = height
 
-        // Отрисовка с новым размером
         ctx.drawImage(img, 0, 0, width, height)
 
         const blob = await new Promise<Blob | null>(resolve =>
           canvas.toBlob(resolve, 'image/jpeg', 0.8)
         )
-        if (!blob) return null
+
+        if (!blob) {
+          return null
+        }
 
         return handleUpload(blob)
       })
 
       const results = await Promise.all(uploadPromises)
       const uploadedAll = results.flatMap(r => r?.images ?? [])
+
       if (uploadedAll.length > 0) {
         setUploadedImage(uploadedAll as PostImageViewModel[])
       }
     } catch (e: unknown) {
       let msg = 'Error loading files'
 
-      if (typeof e === 'string') msg = e
-      else if (e instanceof Error) msg = e.message
-      else if (typeof e === 'object' && e && 'data' in e) {
+      if (typeof e === 'string') {
+        msg = e
+      } else if (e instanceof Error) {
+        msg = e.message
+      } else if (typeof e === 'object' && e && 'data' in e) {
         const data = (e as any).data
+
         msg = typeof data === 'string' ? data : (data?.message ?? msg)
       }
 
-      toast(<ToastAlert type="error" message={`❌ ${msg}`} />)
+      toast(<ToastAlert type={'error'} message={`❌ ${msg}`} />)
     } finally {
       setIsUploading(false)
     }
@@ -136,7 +143,7 @@ export const FilterStep: React.FC<Props> = ({
 
   return (
     <div className={styles.wrapper}>
-      <Header onPrev={onPrev} onNext={handleNext} title="Filters" nextStepTitle="Next" />
+      <Header onPrev={onPrev} onNext={handleNext} title={'Filters'} nextStepTitle={'Next'} />
       <div className={styles.carouselContainer}>
         <div className={styles.carouselWrapper}>
           <Carousel

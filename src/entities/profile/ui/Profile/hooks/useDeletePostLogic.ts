@@ -1,7 +1,8 @@
 import { useState } from 'react'
+
 import { useDeletePostMutation } from '@/entities/posts/api/postApi'
-import { useRouter } from 'next/navigation'
 import { APP_ROUTES } from '@/shared/constant'
+import { useRouter } from 'next/navigation'
 
 export const useDeletePostLogic = (
   profileId: number | string | undefined,
@@ -15,29 +16,25 @@ export const useDeletePostLogic = (
   const router = useRouter()
 
   const handleDeletePost = (postId: string) => {
-    console.log(`Открывается модалка удаления для поста с ID: ${postId}`)
     setSelectedPostId(postId)
     setIsDeleteModalOpen(true)
   }
 
   const handleConfirmDelete = async () => {
     if (!selectedPostId || !profileId) {
-      console.error('Post ID or User ID not found')
       return
     }
-
-    console.log(`Удаляется пост с ID: ${selectedPostId}`)
 
     try {
       setIsDeleting(true)
 
       const postIdNumber = parseInt(selectedPostId)
+
       await deletePost({
         postId: postIdNumber,
         userId: Number(profileId),
       }).unwrap()
 
-      console.log(`Пост с ID: ${selectedPostId} успешно удален`)
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
       onRefetchPosts?.()
@@ -52,7 +49,6 @@ export const useDeletePostLogic = (
   const handleCancelDelete = () => {
     setIsDeleteModalOpen(false)
     setSelectedPostId(null)
-    console.log('Удаление отменено')
   }
 
   return {

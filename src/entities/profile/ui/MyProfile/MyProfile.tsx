@@ -21,7 +21,9 @@ export default function MyProfile() {
 
   const isLoading = isMyProfileLoading || isFullMyProfileLoading || isPostsLoading
 
-  if (isLoading) return <Loading />
+  if (isLoading) {
+    return <Loading />
+  }
 
   if (!fullMyProfile) {
     return <div>User not found</div>

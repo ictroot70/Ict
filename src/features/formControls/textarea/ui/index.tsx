@@ -6,7 +6,6 @@ import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 
 import { TextArea } from '@/shared/ui'
 
-
 interface TextareaProps extends ComponentPropsWithoutRef<'textarea'> {
   id?: string
   label?: string

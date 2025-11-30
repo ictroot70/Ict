@@ -1,11 +1,12 @@
-import { useCallback, useMemo } from 'react'
-import type { MouseEvent } from 'react'
+import { useCallback, useMemo, type MouseEvent } from 'react'
+
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { LogOutButton } from './components/LogoutButton/LogOutButton'
-import { SidebarGroup, SidebarLink } from './components'
-import { useLinkGroups } from './model/useLinkGroups'
-import type { SidebarLinkItem } from './model/useLinkGroups'
+
 import s from './Sidebar.module.scss'
+
+import { SidebarGroup, SidebarLink } from './components'
+import { LogOutButton } from './components/LogoutButton/LogOutButton'
+import { type SidebarLinkItem, useLinkGroups } from './model/useLinkGroups'
 
 export const Sidebar = () => {
   const pathname = usePathname()
@@ -22,6 +23,7 @@ export const Sidebar = () => {
     (event: MouseEvent<HTMLAnchorElement>, modalAction: string) => {
       event.preventDefault()
       const params = new URLSearchParams(searchParams.toString())
+
       params.set('action', modalAction)
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     },
@@ -30,7 +32,9 @@ export const Sidebar = () => {
 
   const getLinkHref = useCallback(
     (link: SidebarLinkItem) => {
-      if (!link.modalAction) return link.href
+      if (!link.modalAction) {
+        return link.href
+      }
 
       return {
         pathname,
@@ -48,6 +52,7 @@ export const Sidebar = () => {
       if (link.modalAction) {
         return action === link.modalAction
       }
+
       return !isCreateModalOpen && link.href === pathname
     },
     [action, isCreateModalOpen, pathname]
@@ -55,14 +60,19 @@ export const Sidebar = () => {
 
   const getLinkClickHandler = useCallback(
     (link: SidebarLinkItem) => {
-      if (!link.modalAction) return undefined
+      if (!link.modalAction) {
+        return undefined
+      }
 
-      return (event: MouseEvent<HTMLAnchorElement>) => handleModalLinkClick(event, link.modalAction!)
+      return (event: MouseEvent<HTMLAnchorElement>) =>
+        handleModalLinkClick(event, link.modalAction!)
     },
     [handleModalLinkClick]
   )
 
-  if (!linkGroupsData) return null
+  if (!linkGroupsData) {
+    return null
+  }
 
   const { linkGroups } = linkGroupsData
 
