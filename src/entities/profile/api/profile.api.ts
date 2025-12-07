@@ -52,13 +52,13 @@ export const profileApi = baseApi.injectEndpoints({
       invalidatesTags: () => ['profile'],
     }),
 
-    /// Todo: move to public user entity
+    /// Todo: Move public profile to API during refactoring
     getPublicProfile: builder.query<PublicProfileResponse, PublicProfileRequest>({
       query: ({ profileId }) => ({
         url: API_ROUTES.PUBLIC_USER.PROFILE(+profileId),
       }),
     }),
-    // Todo: should be used
+    // Todo: And this endpoint should be moved to the user's I API during refactoring 
     getProfileByUserName: builder.query<ProfileWithPostsResponse, { userName: string }>({
       query: ({ userName }) => ({ url: `v1/users/${userName}` }),
     }),
