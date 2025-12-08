@@ -86,5 +86,3 @@ export interface FullProfileResponse {
   followersCount: number
   publicationsCount: number
 }
-
-export type ProfileType = FullProfileResponse | PublicProfileResponse

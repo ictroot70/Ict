@@ -9,7 +9,6 @@ import s from '../Profile.module.scss'
 interface ProfilePostsProps {
   posts?: PostViewModel[]
   isOwnProfile: boolean
-  modalVariant: 'public' | 'myPost' | 'userPost'
   onEditPost?: (postId: string, description: string) => void
   onDeletePost?: (postId: string) => void
   isEditing: string | null
@@ -19,7 +18,6 @@ interface ProfilePostsProps {
 export const ProfilePosts: React.FC<ProfilePostsProps> = ({
   posts,
   isOwnProfile,
-  modalVariant,
   onEditPost,
   onDeletePost,
   isEditing,
@@ -41,7 +39,6 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
         <PostCard
           key={post.id}
           post={post}
-          modalVariant={modalVariant}
           onEditPost={onEditPost}
           onDeletePost={onDeletePost}
           isEditing={isEditing === post.id.toString()}

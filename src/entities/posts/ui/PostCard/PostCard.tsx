@@ -12,7 +12,6 @@ import styles from './PostCard.module.scss'
 
 interface PostCardProps {
   post: PostViewModel
-  modalVariant: 'public' | 'myPost' | 'userPost'
   onEditPost?: (postId: string, description: string) => void
   onDeletePost?: (postId: string) => void
   isEditing?: boolean

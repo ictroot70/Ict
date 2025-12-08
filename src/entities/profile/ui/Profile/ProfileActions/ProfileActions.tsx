@@ -7,7 +7,6 @@ import Link from 'next/link'
 import s from './ProfileActions.module.scss'
 
 interface Props {
-  isAuthenticated: boolean
   isOwnProfile: boolean
   onEdit?: () => void
   onFollow?: () => void
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export const ProfileActions: React.FC<Props> = ({
-  isAuthenticated,
   isOwnProfile,
   onFollow,
   onMessage,
@@ -26,10 +24,6 @@ export const ProfileActions: React.FC<Props> = ({
   onUnfollow,
   isLoading = false,
 }) => {
-  if (!isAuthenticated) {
-    return null
-  }
-
   if (isOwnProfile) {
     return (
       <Button variant={'secondary'} as={Link} href={APP_ROUTES.PROFILE.EDIT}>
