@@ -1,27 +1,21 @@
 import React from 'react'
 
-import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
-import { PostViewModel } from '@/shared/types'
-import { Typography } from '@/shared/ui'
-
 import s from '../Profile.module.scss'
 
-interface ProfilePostsProps {
-  posts?: PostViewModel[]
+import { PostViewModel } from '@/entities/posts/api'
+
+import { Typography } from '@/shared/ui'
+import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
+
+
+type Props = {
+  posts: PostViewModel[]
   isOwnProfile: boolean
-  onEditPost?: (postId: string, description: string) => void
-  onDeletePost?: (postId: string) => void
-  isEditing: string | null
-  profileId: number
 }
 
-export const ProfilePosts: React.FC<ProfilePostsProps> = ({
+export const ProfilePosts: React.FC<Props> = ({
   posts,
-  isOwnProfile,
-  onEditPost,
-  onDeletePost,
-  isEditing,
-  profileId,
+  isOwnProfile
 }) => {
   if (!posts?.length) {
     return (
@@ -39,10 +33,10 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
         <PostCard
           key={post.id}
           post={post}
-          onEditPost={onEditPost}
-          onDeletePost={onDeletePost}
-          isEditing={isEditing === post.id.toString()}
-          userId={profileId}
+        /*         onEditPost={onEditPost}
+                onDeletePost={onDeletePost}
+                isEditing={isEditing === post.id.toString()}
+                userId={profileId} */
         />
       ))}
     </ul>

@@ -1,49 +1,36 @@
 'use client'
 import React from 'react'
 
-import { PostViewModel, PublicProfileResponse } from '@/shared/types'
-
-import { Avatar } from '@/shared/composites'
-import { Typography } from '@/shared/ui'
-
 import s from './Profile.module.scss'
+
+import { useAuth } from '@/features/posts/utils/useAuth'
+import { useProfileData } from '../../hooks/useProfileData'
+
+import { Typography } from '@/shared/ui'
+import { Avatar, Loading } from '@/shared/composites'
 
 import { ProfileActions } from './ProfileActions/ProfileActions'
 import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { ProfileBio } from './ProfileBio/ProfileBio'
 import { ProfileStats } from './ProfileStats/ProfileStats'
 
-import { DeletePostModal } from '../../../posts/ui/PostModal/DeletePostModal/DeletePostModal'
-import { useDeletePostLogic } from '../../../posts/hooks/useDeletePostLogic'
-import { useEditPostLogic } from '../../../posts/hooks/useEditPostLogic'
 
+export const Profile = () => {
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+  const { profile, posts, isLoading: isProfileDataLoading } = useProfileData()
 
-interface ProfileProps {
-  profile: PublicProfileResponse
-  posts: PostViewModel[]
-  isOwnProfile: boolean
-  isAuthenticated: boolean
-}
+  const isLoading = isAuthLoading || isProfileDataLoading
 
-export const Profile: React.FC<ProfileProps> = ({
-  profile,
-  posts = [],
-  isOwnProfile = false,
-  isAuthenticated = false,
-}) => {
-  const { userName, aboutMe, avatars, isFollowing, userMetadata } = profile
+  if (isLoading) {
+    return <Loading />
+  }
 
-  const {
-    isDeleteModalOpen,
-    isDeleting,
-    handleConfirmDelete,
-    handleCancelDelete,
-    handleDeletePost
-  } = useDeletePostLogic(profile.id)
+  if (!profile) {
+    return <div>User not found</div>
+  }
 
-  const { editingPostId, handleEditPost } = useEditPostLogic(profile.id)
-
-
+  const { id, userName, avatars, userMetadata, isFollowing, aboutMe } = profile
+  const isOwnProfile = id === user?.userId
 
   return (
     <>
@@ -60,8 +47,6 @@ export const Profile: React.FC<ProfileProps> = ({
             </div>
             <ProfileStats stats={userMetadata} />
             <ProfileBio aboutMe={aboutMe} />
-
-
           </div>
         </div>
 
@@ -69,20 +54,9 @@ export const Profile: React.FC<ProfileProps> = ({
           <ProfilePosts
             posts={posts}
             isOwnProfile={isOwnProfile}
-            onEditPost={isOwnProfile ? handleEditPost : undefined}
-            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
-            isEditing={editingPostId}
-            profileId={profile.id}
           />
         </div>
       </div>
-
-      <DeletePostModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        isLoading={isDeleting}
-      />
     </>
   )
 }
