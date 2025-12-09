@@ -10,8 +10,7 @@ import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
-import { DeletePostModal } from './DeletePostModal/DeletePostModal'
-import { useDeletePostLogic } from '../../hooks/useDeletePostLogic'
+
 
 interface Props extends PostModalHandlers {
   open: boolean
@@ -46,13 +45,6 @@ export const PostModal = ({
     handleCancelEdit,
   } = usePostModal(open)
 
-  /*   const {
-      isDeleteModalOpen,
-      isDeleting,
-      handleConfirmDelete,
-      handleCancelDelete,
-      handleDeletePost
-    } = useDeletePostLogic(profile.id) */
 
   const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
     const trimmed = newDescription.trim()
@@ -102,11 +94,6 @@ export const PostModal = ({
           {renderContent()}
         </Modal>
       )}
-      {/*   <DeletePostModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        isLoading={isDeleting} /> */}
     </>
   )
 

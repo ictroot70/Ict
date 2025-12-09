@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { APP_ROUTES } from '@/shared/constant'
-import { Button } from '@ictroot/ui-kit'
+import { Button } from '@/shared/ui'
 import Link from 'next/link'
 
 import s from './ProfileActions.module.scss'
@@ -11,8 +11,8 @@ interface Props {
   onEdit?: () => void
   onFollow?: () => void
   onMessage?: () => void
-  isFollowing?: boolean
   onUnfollow?: () => void
+  isFollowing?: boolean
   isLoading?: boolean
 }
 
