@@ -12,8 +12,6 @@ export default function ProfilePage() {
 
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
 
-
-
   const { data: userProfile, isLoading: isUserProfileLoading } = useGetPublicProfileQuery({
     profileId: userId,
   })
@@ -31,9 +29,5 @@ export default function ProfilePage() {
     return <div>User not found</div>
   }
 
-  if (!isAuthenticated) {
-    return <Profile profile={userProfile} posts={userPosts?.items} />
-  }
-
-  return <Profile profile={userProfile} posts={userPosts?.items} isOwnProfile={userId === user?.userId} />
+  return <Profile profile={userProfile} posts={userPosts?.items || []} isOwnProfile={userId === user?.userId} isAuthenticated={isAuthenticated} />
 }

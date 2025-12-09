@@ -2,13 +2,13 @@
 
 import React from 'react'
 
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import styles from './PostCard.module.scss'
+import { PostModal } from '../PostModal/PostModal'
 
 interface PostCardProps {
   post: PostViewModel

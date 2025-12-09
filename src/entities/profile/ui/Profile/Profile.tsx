@@ -13,21 +13,23 @@ import { ProfilePosts } from './ProfilePosts/ProfilePosts'
 import { ProfileBio } from './ProfileBio/ProfileBio'
 import { ProfileStats } from './ProfileStats/ProfileStats'
 
-import { DeletePostModal } from '../DeletePostModal'
-import { useDeletePostLogic } from './hooks/useDeletePostLogic'
-import { useEditPostLogic } from './hooks/useEditPostLogic'
+import { DeletePostModal } from '../../../posts/ui/PostModal/DeletePostModal/DeletePostModal'
+import { useDeletePostLogic } from '../../../posts/hooks/useDeletePostLogic'
+import { useEditPostLogic } from '../../../posts/hooks/useEditPostLogic'
 
 
 interface ProfileProps {
   profile: PublicProfileResponse
-  posts?: PostViewModel[]
-  isOwnProfile?: boolean
+  posts: PostViewModel[]
+  isOwnProfile: boolean
+  isAuthenticated: boolean
 }
 
 export const Profile: React.FC<ProfileProps> = ({
   profile,
-  posts,
+  posts = [],
   isOwnProfile = false,
+  isAuthenticated = false,
 }) => {
   const { userName, aboutMe, avatars, isFollowing, userMetadata } = profile
 
@@ -51,10 +53,10 @@ export const Profile: React.FC<ProfileProps> = ({
           <div className={s.profile__info}>
             <div className={s.profile__header}>
               <Typography variant={'h1'}>{userName}</Typography>
-              <ProfileActions
+              {isAuthenticated && <ProfileActions
                 isOwnProfile={isOwnProfile}
                 isFollowing={isFollowing}
-              />
+              />}
             </div>
             <ProfileStats stats={userMetadata} />
             <ProfileBio aboutMe={aboutMe} />
