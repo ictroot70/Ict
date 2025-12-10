@@ -1,32 +1,35 @@
 import React from 'react'
-
-import { APP_ROUTES } from '@/shared/constant'
-import { Button } from '@/shared/ui'
-import Link from 'next/link'
-
 import s from './ProfileActions.module.scss'
+import { Button } from '@/shared/ui'
+
 
 interface Props {
   isOwnProfile: boolean
-  onEdit?: () => void
-  onFollow?: () => void
-  onMessage?: () => void
-  onUnfollow?: () => void
-  isFollowing?: boolean
-  isLoading?: boolean
+  isFollowing: boolean
+  onFollow: () => void
+  onUnfollow: () => void
+  onEditProfile: () => void
+  onSendMessage: () => void
 }
 
 export const ProfileActions: React.FC<Props> = ({
   isOwnProfile,
+  isFollowing,
   onFollow,
-  onMessage,
-  isFollowing = false,
   onUnfollow,
-  isLoading = false,
+  onEditProfile,
+  onSendMessage,
 }) => {
+
+
+  const followButtonText = isFollowing ? 'Unfollow' : 'Follow'
+  const followButtonVariant = isFollowing ? 'outlined' : 'primary'
+  const handleFollowClick = isFollowing ? onUnfollow : onFollow
+
+
   if (isOwnProfile) {
     return (
-      <Button variant={'secondary'} as={Link} href={APP_ROUTES.PROFILE.EDIT}>
+      <Button variant={'secondary'} onClick={onEditProfile}>
         Profile Settings
       </Button>
     )
@@ -34,21 +37,15 @@ export const ProfileActions: React.FC<Props> = ({
 
   return (
     <div className={s.actions}>
-      {isFollowing ? (
-        <Button
-          variant={'outlined'}
-          onClick={onUnfollow}
-          disabled={isLoading}
-          className={s.btnOutlined}
-        >
-          Unfollow
-        </Button>
-      ) : (
-        <Button onClick={onFollow} disabled={isLoading}>
-          Follow
-        </Button>
-      )}
-      <Button variant={'secondary'} onClick={onMessage} disabled={isLoading}>
+      <Button
+        variant={followButtonVariant}
+        onClick={handleFollowClick}
+        className={isFollowing ? s.btnUnfollow : ''}
+      >
+        {followButtonText}
+      </Button>
+
+      <Button variant={'secondary'} onClick={onSendMessage}>
         Send Message
       </Button>
     </div>
