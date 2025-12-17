@@ -36,13 +36,14 @@ export const postApi = baseApi.injectEndpoints({
       ],
       async onQueryStarted({ userId }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              draft.totalCount += 1
+          postApi.util.updateQueryData('getPostsByUser', { userId }, draft => {
+            if (draft.pages.length > 0) {
+              const firstPage = draft.pages[0]
+              if (firstPage) {
+                firstPage.totalCount += 1
+              }
             }
-          )
+          })
         )
 
         try {
@@ -69,18 +70,14 @@ export const postApi = baseApi.injectEndpoints({
       ],
       async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              const post = draft.items.find(p => p.id === postId)
+          postApi.util.updateQueryData('getPostsByUser', { userId }, draft => {
+            const post = draft.pages.flatMap(p => p.items).find(p => p.id === postId)
 
-              if (post && body.description) {
-                post.description = body.description
-                post.updatedAt = new Date().toISOString()
-              }
+            if (post && body.description) {
+              post.description = body.description
+              post.updatedAt = new Date().toISOString()
             }
-          )
+          })
         )
 
         try {
@@ -103,14 +100,18 @@ export const postApi = baseApi.injectEndpoints({
       ],
       async onQueryStarted({ postId, userId }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              draft.items = draft.items.filter(p => p.id !== postId)
-              draft.totalCount = Math.max(0, draft.totalCount - 1)
+          postApi.util.updateQueryData('getPostsByUser', { userId }, draft => {
+            draft.pages = draft.pages.map(items => {
+              items.items = items.items.filter(p => p.id !== postId)
+              return items
+            })
+            if (draft.pages.length > 0) {
+              const firstPage = draft.pages[0]
+              if (firstPage) {
+                firstPage.totalCount = Math.max(0, firstPage.totalCount - 1)
+              }
             }
-          )
+          })
         )
 
         try {
@@ -141,6 +142,55 @@ export const postApi = baseApi.injectEndpoints({
       providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
     }),
 
+    getPostsByUser: builder.infiniteQuery<
+      PaginatedResponse<PostViewModel>,
+      GetPostsByUserParams,
+      number | null
+    >({
+      infiniteQueryOptions: {
+        initialPageParam: null,
+        getNextPageParam: lastPage => {
+          const lastPostId = lastPage.items[lastPage.items.length - 1]?.id
+          return lastPostId || null
+        },
+      },
+      query: ({ pageParam, queryArg }) => {
+        const cursorId = pageParam === null ? 0 : pageParam
+        return {
+          url: API_ROUTES.POSTS.USER_POSTS(queryArg.userId, cursorId),
+          params: { pageSize: 8, sortDirection: 'desc', endCursorPostId: pageParam },
+        }
+      },
+      providesTags: (result, error, arg) =>
+        result
+          ? [
+              ...result.pages.flatMap(page =>
+                page.items.map(({ id }) => ({ type: 'Post' as const, id }))
+              ),
+              { type: 'Post', id: 'LIST' },
+              { type: 'Post', id: `USER-${arg.userId}` },
+            ]
+          : [
+              { type: 'Post', id: 'LIST' },
+              { type: 'Post', id: `USER-${arg.userId}` },
+            ],
+      serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.userId}`,
+    }),
+
+    updateLikeStatus: builder.mutation<
+      PostViewModel,
+      { postId: number; data: UpdateLikeStatusDto }
+    >({
+      query: ({ postId, data }) => ({
+        url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
+    }),
+
+    //! Old version
+    /* 
     getPostsByUser: builder.query<PaginatedResponse<PostViewModel>, GetPostsByUserParams>({
       query: ({ userId, endCursorPostId = 0, pageSize = 8, sortDirection = 'desc' }) => ({
         url: API_ROUTES.POSTS.USER_POSTS(userId, endCursorPostId),
@@ -171,9 +221,10 @@ export const postApi = baseApi.injectEndpoints({
       },
       forceRefetch: ({ currentArg, previousArg }) =>
         currentArg?.endCursorPostId !== previousArg?.endCursorPostId,
-    }),
+    }), */
 
-    getPosts: builder.query<PaginatedResponse<PostViewModel>, GetPostsParams>({
+    // ! Don't use
+    /*   getPosts: builder.query<PaginatedResponse<PostViewModel>, GetPostsParams>({
       query: ({ param, pageSize = 12, pageNumber = 1, sortDirection = 'desc', sortBy }) => ({
         url: API_ROUTES.POSTS.PARAM(param),
         params: { pageSize, pageNumber, sortDirection, sortBy },
@@ -185,19 +236,7 @@ export const postApi = baseApi.injectEndpoints({
               { type: 'Post', id: 'LIST' },
             ]
           : [{ type: 'Post', id: 'LIST' }],
-    }),
-
-    updateLikeStatus: builder.mutation<
-      PostViewModel,
-      { postId: number; data: UpdateLikeStatusDto }
-    >({
-      query: ({ postId, data }) => ({
-        url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
-        method: 'PUT',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
-    }),
+    }), */
   }),
 })
 
@@ -208,8 +247,6 @@ export const {
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,
-  useGetPostsByUserQuery,
-  useLazyGetPostsByUserQuery,
-  useGetPostsQuery,
   useUpdateLikeStatusMutation,
+  useGetPostsByUserInfiniteQuery,
 } = postApi

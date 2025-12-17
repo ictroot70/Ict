@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import s from './Profile.module.scss'
 
@@ -16,10 +16,34 @@ import { ProfileActions, ProfilePosts, ProfileBio, ProfileStats, useProfileData 
 
 export const Profile = () => {
   const router = useRouter()
+  const observerRef = React.useRef<HTMLDivElement | null>(null);
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
-  const { profile, posts, isLoading: isProfileDataLoading } = useProfileData()
+  const { profile, posts, isLoading: isProfileDataLoading, hasNextPage, loaderMorePosts } = useProfileData()
 
   const isLoading = isAuthLoading || isProfileDataLoading
+
+  useEffect(() => {
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries.length > 0 && entries[0].isIntersecting && hasNextPage) {
+        loaderMorePosts()
+      }
+    }, { root: null, rootMargin: "50px", threshold: .1 })
+
+    const currentRef = observerRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+
+
+  }, [loaderMorePosts, hasNextPage])
+
 
   if (isLoading) {
     return <Loading />
@@ -44,8 +68,6 @@ export const Profile = () => {
     if (!id) return
     router.push(`${APP_ROUTES.MESSENGER.DIALOGUE(id)}`)
   }
-
-
 
   return (
     <>
@@ -77,6 +99,11 @@ export const Profile = () => {
           />
         </div>
       </div>
+      {hasNextPage && (
+        <div ref={observerRef}>
+          <div style={{ height: "2px", }}></div>
+        </div>
+      )}
     </>
   )
 }

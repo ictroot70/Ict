@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetPublicProfileQuery } from '../api'
-import { useGetPostsByUserQuery } from '@/entities/posts/api'
+import { useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import { useAuth } from '@/features/posts/utils/useAuth'
 
 export function useProfileData() {
@@ -23,17 +23,33 @@ export function useProfileData() {
 
   const {
     data: userPosts,
-    isLoading: isUserPostsLoading,
+    isLoading: isUserPostsInfinityLoading,
+    isFetching: isUserPostsInfinityFetching,
     error: postsError,
-  } = useGetPostsByUserQuery({ userId: userId! }, { skip: !userId || !userProfile })
+    fetchNextPage,
+    hasNextPage,
+  } = useGetPostsByUserInfiniteQuery({ userId: userId! }, { skip: !userId || !userProfile })
 
-  const isLoading = isUserProfileLoading || isUserPostsLoading || isAuthLoading
+  const loaderMorePosts = () => {
+    if (hasNextPage && !isUserPostsInfinityFetching) fetchNextPage()
+  }
+
+  const isLoading = isUserProfileLoading || isAuthLoading || isUserPostsInfinityLoading
   const error = profileError || postsError
-  const posts = userPosts?.items || []
+  const posts = userPosts?.pages.flatMap(page => page.items) || []
 
   if (!isLoading && !error && !userProfile) {
     throw new Error('Profile data is unexpectedly undefined')
   }
 
-  return { profile: userProfile, posts, isOwnProfile, isAuth: isAuthenticated, isLoading, error }
+  return {
+    profile: userProfile,
+    posts,
+    isOwnProfile,
+    isAuth: isAuthenticated,
+    isLoading,
+    error,
+    loaderMorePosts,
+    hasNextPage,
+  }
 }

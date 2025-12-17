@@ -3,11 +3,11 @@ import { useAuth } from '@/features/posts/utils/useAuth'
 import { redirect } from 'next/navigation'
 
 export default function ProfileRedirect() {
-  const { user: myProfile } = useAuth()
+  const { user } = useAuth()
 
-  if (!myProfile) {
+  if (!user) {
     redirect('/')
   }
 
-  redirect(`/profile/${myProfile.userId}`)
+  redirect(`/profile/${user.userId}`)
 }

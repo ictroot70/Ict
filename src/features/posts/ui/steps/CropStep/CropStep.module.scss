@@ -54,10 +54,9 @@
 
 .cropper {
   background-color: transparent;
-  img {
-    min-width: 100%;
-    object-fit: contain;
-  }
+  transform: none;
+  height: 100%;
+  width: 100%;
 }
 
 .tools {
