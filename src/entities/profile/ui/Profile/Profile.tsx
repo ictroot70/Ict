@@ -1,49 +1,35 @@
 'use client'
-import React, { useEffect } from 'react'
 
 import s from './Profile.module.scss'
-
 import { useRouter } from 'next/navigation'
-
 import { useAuth } from '@/features/posts/utils/useAuth'
 
-import { Typography } from '@/shared/ui'
-import { APP_ROUTES } from '@/shared/constant'
 import { Avatar, Loading } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
+import { Typography } from '@/shared/ui'
 
-import { ProfileActions, ProfilePosts, ProfileBio, ProfileStats, useProfileData } from '@/entities/profile'
-
+import {
+  ProfileActions,
+  ProfileBio,
+  ProfilePosts,
+  ProfileStats,
+  useProfileData,
+  InfiniteScrollTrigger,
+} from '@/entities/profile'
 
 export const Profile = () => {
   const router = useRouter()
-  const observerRef = React.useRef<HTMLDivElement | null>(null);
+
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
-  const { profile, posts, isLoading: isProfileDataLoading, hasNextPage, loaderMorePosts } = useProfileData()
+  const {
+    profile,
+    posts,
+    isLoading: isProfileDataLoading,
+    hasNextPage,
+    loaderMorePosts,
+  } = useProfileData()
 
   const isLoading = isAuthLoading || isProfileDataLoading
-
-  useEffect(() => {
-
-    const observer = new IntersectionObserver(entries => {
-      if (entries.length > 0 && entries[0].isIntersecting && hasNextPage) {
-        loaderMorePosts()
-      }
-    }, { root: null, rootMargin: "50px", threshold: .1 })
-
-    const currentRef = observerRef.current
-    if (currentRef) {
-      observer.observe(currentRef)
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef)
-      }
-    }
-
-
-  }, [loaderMorePosts, hasNextPage])
-
 
   if (isLoading) {
     return <Loading />
@@ -56,9 +42,9 @@ export const Profile = () => {
   const { id, userName, avatars, userMetadata, isFollowing, aboutMe } = profile
   const isOwnProfile = id === user?.userId
 
-  const handleFollow = () => { }
+  const handleFollow = () => {}
 
-  const handleUnfollow = () => { }
+  const handleUnfollow = () => {}
 
   const handleEditProfile = () => {
     router.push(`${APP_ROUTES.PROFILE.EDIT}`)
@@ -77,7 +63,7 @@ export const Profile = () => {
           <div className={s.info}>
             <div className={s.header}>
               <Typography variant={'h1'}>{userName}</Typography>
-              {isAuthenticated &&
+              {isAuthenticated && (
                 <ProfileActions
                   isFollowing={isFollowing}
                   isOwnProfile={isOwnProfile}
@@ -85,7 +71,8 @@ export const Profile = () => {
                   onUnfollow={handleUnfollow}
                   onEditProfile={handleEditProfile}
                   onSendMessage={handleSendMessage}
-                />}
+                />
+              )}
             </div>
             <ProfileStats stats={userMetadata} />
             <ProfileBio message={aboutMe} />
@@ -93,17 +80,11 @@ export const Profile = () => {
         </div>
 
         <div className={s.section}>
-          <ProfilePosts
-            posts={posts}
-            isOwnProfile={isOwnProfile}
-          />
+          <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
         </div>
       </div>
-      {hasNextPage && (
-        <div ref={observerRef}>
-          <div style={{ height: "2px", }}></div>
-        </div>
-      )}
+
+      <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loaderMorePosts} />
     </>
   )
 }

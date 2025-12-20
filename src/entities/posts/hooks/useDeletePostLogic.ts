@@ -30,10 +30,7 @@ export const useDeletePostLogic = (
 
       const postIdNumber = parseInt(selectedPostId)
 
-      await deletePost({
-        postId: postIdNumber,
-        userId: Number(profileId),
-      }).unwrap()
+      await deletePost({ postId: postIdNumber }).unwrap()
 
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
