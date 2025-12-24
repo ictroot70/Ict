@@ -4,25 +4,5 @@
   row-gap: 3rem;
   width: 100%;
   margin: 0 auto;
-  min-height: 100%;
-}
-
-.details {
-  display: flex;
-  gap: 38px;
-}
-
-.info {
-  width: 100%;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.section {
-  display: flex;
-  text-align: center;
+  min-height: 100vh;
 }

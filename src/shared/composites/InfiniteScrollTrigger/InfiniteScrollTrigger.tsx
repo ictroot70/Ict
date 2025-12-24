@@ -1,4 +1,4 @@
-import { useInfiniteScroll } from '@/entities/profile/hooks'
+import { useInfiniteScroll } from '@/shared/hooks'
 
 type Prop = {
   hasNextPage: boolean
@@ -10,5 +10,5 @@ export const InfiniteScrollTrigger = ({ hasNextPage, onLoadMore }: Prop) => {
 
   if (!hasNextPage) return null
 
-  return <div ref={observerRef} style={{ height: '2px' }}></div>
+  return <div ref={observerRef} style={{ height: '8px' }}></div>
 }

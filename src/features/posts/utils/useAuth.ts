@@ -8,6 +8,6 @@ export const useAuth = () => {
     isLoading,
     isError,
     isAuthenticated: !!user,
-    isOwnContent: (ownerId: number) => user?.userId === ownerId,
+    isOwnProfile: (ownerId: number) => user?.userId === ownerId,
   }
 }

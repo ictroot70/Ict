@@ -2,7 +2,6 @@ import React from 'react'
 import s from './ProfileActions.module.scss'
 import { Button } from '@/shared/ui'
 
-
 interface Props {
   isOwnProfile: boolean
   isFollowing: boolean
@@ -20,12 +19,9 @@ export const ProfileActions: React.FC<Props> = ({
   onEditProfile,
   onSendMessage,
 }) => {
-
-
   const followButtonText = isFollowing ? 'Unfollow' : 'Follow'
   const followButtonVariant = isFollowing ? 'outlined' : 'primary'
   const handleFollowClick = isFollowing ? onUnfollow : onFollow
-
 
   if (isOwnProfile) {
     return (

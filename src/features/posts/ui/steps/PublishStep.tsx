@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { useGetMyProfileQuery } from '@/entities/profile'
+import { useGetMyProfileQuery } from '@/entities/profile/api'
 import { Header } from '@/features/posts/ui/Header/header'
 import { Avatar, Carousel, ToastAlert } from '@/shared/composites'
 import { PostImageViewModel, PostViewModel } from '@/shared/types'

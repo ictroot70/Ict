@@ -1,87 +1,57 @@
 'use client'
 
 import s from './Profile.module.scss'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/features/posts/utils/useAuth'
 
-import { Avatar, Loading } from '@/shared/composites'
-import { APP_ROUTES } from '@/shared/constant'
-import { Typography } from '@/shared/ui'
+import { useParams } from 'next/navigation'
 
-import {
-  ProfileActions,
-  ProfileBio,
-  ProfilePosts,
-  ProfileStats,
-  useProfileData,
-  InfiniteScrollTrigger,
-} from '@/entities/profile'
+import { useMeQuery } from '@/features/auth'
+import { useGetPublicProfileQuery } from '@/entities/profile/api'
+import { useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
+
+import { Loading, InfiniteScrollTrigger } from '@/shared/composites'
+import { ProfileInfo, ProfilePosts } from '@/entities/profile/ui'
 
 export const Profile = () => {
-  const router = useRouter()
+  const { id } = useParams<{ id: string }>()
+  const userId = Number(id)
 
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+  const { data: user, isLoading: isAuthLoading } = useMeQuery()
+  const { data: profile, isLoading: isProfileLoading } = useGetPublicProfileQuery(
+    { profileId: userId },
+    { skip: !id }
+  )
   const {
-    profile,
-    posts,
-    isLoading: isProfileDataLoading,
+    data: postsData,
+    isLoading: isPostsLoading,
+    isFetching: isFetchingPosts,
+    fetchNextPage,
     hasNextPage,
-    loaderMorePosts,
-  } = useProfileData()
+  } = useGetPostsByUserInfiniteQuery({ userId: userId }, { skip: !profile })
 
-  const isLoading = isAuthLoading || isProfileDataLoading
+  const isLoading = isAuthLoading || isProfileLoading || isPostsLoading
+
+  const posts = postsData?.pages.flatMap(page => page.items) || []
+
+  const loaderMorePosts = () => {
+    if (hasNextPage && !isFetchingPosts) fetchNextPage()
+  }
 
   if (isLoading) {
     return <Loading />
   }
 
   if (!profile) {
-    return <div>User not found</div>
+    return null
   }
 
-  const { id, userName, avatars, userMetadata, isFollowing, aboutMe } = profile
-  const isOwnProfile = id === user?.userId
-
-  const handleFollow = () => {}
-
-  const handleUnfollow = () => {}
-
-  const handleEditProfile = () => {
-    router.push(`${APP_ROUTES.PROFILE.EDIT}`)
-  }
-
-  const handleSendMessage = () => {
-    if (!id) return
-    router.push(`${APP_ROUTES.MESSENGER.DIALOGUE(id)}`)
-  }
+  const isAuthenticated = !!user
+  const isOwnProfile = profile.id === user?.userId
 
   return (
     <>
       <div className={s.profile}>
-        <div className={s.details}>
-          <Avatar size={204} image={avatars[0]?.url} />
-          <div className={s.info}>
-            <div className={s.header}>
-              <Typography variant={'h1'}>{userName}</Typography>
-              {isAuthenticated && (
-                <ProfileActions
-                  isFollowing={isFollowing}
-                  isOwnProfile={isOwnProfile}
-                  onFollow={handleFollow}
-                  onUnfollow={handleUnfollow}
-                  onEditProfile={handleEditProfile}
-                  onSendMessage={handleSendMessage}
-                />
-              )}
-            </div>
-            <ProfileStats stats={userMetadata} />
-            <ProfileBio message={aboutMe} />
-          </div>
-        </div>
-
-        <div className={s.section}>
-          <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
-        </div>
+        <ProfileInfo profile={profile} isAuth={isAuthenticated} isOwnProfile={isOwnProfile} />
+        <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
       </div>
 
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loaderMorePosts} />

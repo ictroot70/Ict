@@ -12,10 +12,7 @@ type Props = {
   isOwnProfile: boolean
 }
 
-export const ProfilePosts: React.FC<Props> = ({
-  posts,
-  isOwnProfile
-}) => {
+export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile }) => {
   if (!posts?.length) {
     return (
       <Typography variant={'h1'} className={s.message}>
@@ -27,13 +24,12 @@ export const ProfilePosts: React.FC<Props> = ({
   }
 
   return (
-    <ul className={s.posts}>
-      {posts.map(post => (
-        <PostCard
-          key={post.id}
-          post={post}
-        />
-      ))}
-    </ul>
+    <div className={s.wrapper}>
+      <ul className={s.posts}>
+        {posts.map(post => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </ul>
+    </div>
   )
 }
