@@ -9,10 +9,11 @@ import {
   PostVariant,
   CommentFormData, // ← добавил
   DescriptionFormData, // ← добавил
+  PostViewModel,
 } from '@/shared/types'
 import { useSearchParams } from 'next/navigation'
 
-export const usePostModal = (open: boolean) => {
+export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
 
@@ -37,12 +38,17 @@ export const usePostModal = (open: boolean) => {
   })
 
   const searchParams = useSearchParams()
+  // Используем переданный postId или пытаемся получить из query (для обратной совместимости)
   const postIdFromQuery = searchParams.get('postId')
-  const postId = postIdFromQuery ? Number(postIdFromQuery) : undefined
+  const finalPostId = postId || (postIdFromQuery ? Number(postIdFromQuery) : undefined)
 
-  const { data: postData } = useGetPostByIdQuery(postId as number, {
-    skip: !open || !postId,
+  // Используем RTK Query только если нет initialPostData
+  const { data: postDataFromQuery } = useGetPostByIdQuery(finalPostId as number, {
+    skip: !open || !finalPostId || !!initialPostData,
   })
+
+  // Приоритет: initialPostData > данные из RTK Query
+  const postData = initialPostData || postDataFromQuery
 
   const { user, isAuthenticated } = useAuth()
 

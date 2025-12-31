@@ -2,17 +2,15 @@
 
 import { ReactNode } from 'react'
 
-import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { Loading } from '@/shared/composites'
+import { ModalWrapper } from '@/shared/composites/ModalWrapper/ModalWrapper'
 import { Sidebar } from '@/widgets/Sidebar'
 
 import s from './RootLayoutClient.module.scss'
 
-export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
+export const RootLayoutClient = ({ children,  }: { children: ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth()
-
-  const isCreatePostOpen = isAuthenticated
 
   if (isLoading) {
     return <Loading />
@@ -28,7 +26,7 @@ export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
           {children}
         </div>
       </div>
-      {isCreatePostOpen && <CreatePostWrapper />}
+      <ModalWrapper />
     </main>
   )
 }

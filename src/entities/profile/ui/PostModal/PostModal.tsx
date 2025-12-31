@@ -1,10 +1,14 @@
 'use client'
 
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 
 import { usePostModal } from '@/entities/posts/hooks'
+import { postApi, useGetPostByIdQuery } from '@/entities/posts/api'
 import { PostModalHandlers } from '@/shared/types'
+import { PostViewModel } from '@/shared/types'
 import { Modal } from '@/shared/ui'
+import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 
 import s from './PostModal.module.scss'
 
@@ -14,6 +18,8 @@ import { ViewMode } from './ViewMode/ViewMode'
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
+  postData?: PostViewModel
+  postId?: number
 }
 
 export const PostModal = ({
@@ -22,7 +28,28 @@ export const PostModal = ({
   onEditPost,
   onDeletePost,
   isEditing,
+  postData: initialPostData,
+  postId,
 }: Props): ReactElement => {
+  const router = useRouter()
+  const dispatch = useAppDispatch()
+  
+  // Получаем данные из кеша RTK Query
+  const dataFromCache = useAppSelector((state) =>
+    postId ? postApi.endpoints.getPostById.select(postId)(state).data : undefined
+  )
+
+  const needHydrateStateRef = useRef(!!initialPostData && !dataFromCache)
+
+  // Гидрируем состояние если есть SSR данные но нет кеша
+  useEffect(() => {
+    if (needHydrateStateRef.current && initialPostData && postId) {
+      needHydrateStateRef.current = false
+      // const thunk = postApi.util.upsertQueryData('getPostById', postId, initialPostData)
+      dispatch(useGetPostByIdQuery(postId))
+    }
+  }, [dispatch, initialPostData, postId])
+
   const {
     comments,
     isEditingDescription,
@@ -42,7 +69,7 @@ export const PostModal = ({
     handlePublish,
     handleEditPost,
     handleCancelEdit,
-  } = usePostModal(open)
+  } = usePostModal(open, dataFromCache || initialPostData, postId)
 
   const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
     const trimmed = newDescription.trim()
@@ -61,14 +88,15 @@ export const PostModal = ({
 
   const handleCloseModal = () => {
     if (!isEditingDescription && !isEditing) {
-      onClose()
+      // Закрываем модалку через роутер (убираем postId из URL)
+      router.back()
     }
   }
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isEditingDescription && !isEditing) {
-        onClose()
+        handleCloseModal()
       }
     }
 
@@ -77,7 +105,7 @@ export const PostModal = ({
     }
 
     return () => document.removeEventListener('keydown', handleEscape)
-  }, [open, onClose, isEditingDescription, isEditing])
+  }, [open, isEditingDescription, isEditing])
 
   const showCloseBtnOutside = !isEditingDescription && !isEditing
 

@@ -2,41 +2,34 @@
 
 import type { PostViewModel } from '@/shared/types'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 
 import { useAuth } from '@/features/posts/utils/useAuth'
+import { useModalQuery } from '@/shared/hooks/useModalQuery'
 import { APP_ROUTES } from '@/shared/constant'
+import { useRouter } from 'next/navigation'
 
-export const useCreatePostModal = (pathname: any, searchParams: any, router: any) => {
+export const useCreatePostModal = () => {
   const { user } = useAuth()
-
-  const action = useMemo(() => searchParams.get('action'), [searchParams])
-  const isOpen = action === 'create'
-
-  const close = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString())
-
-    params.delete('action')
-    const queryString = params.toString()
-    const nextUrl = queryString ? `${pathname}?${queryString}` : pathname
-
-    router.replace(nextUrl, { scroll: false })
-  }, [pathname, router, searchParams])
+  const router = useRouter()
+  const modal = useModalQuery('action', 'create')
 
   const handlePublish = useCallback(
     (_post: PostViewModel) => {
       if (user?.userId) {
+        modal.close()
         router.push(APP_ROUTES.PROFILE.ID(user.userId))
       } else {
-        close()
+        modal.close()
       }
     },
-    [user, router, close]
+    [user, router, modal]
   )
 
   return {
-    isOpen,
-    close,
+    isOpen: modal.isOpen,
+    close: modal.close,
+    open: modal.open,
     handlePublish,
   }
 }
