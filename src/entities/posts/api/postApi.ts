@@ -25,8 +25,17 @@ export const postApi = baseApi.injectEndpoints({
       infiniteQueryOptions: {
         initialPageParam: null,
         getNextPageParam: lastPage => {
-          const lastPostId = lastPage.items[lastPage.items.length - 1]?.id
-          return lastPostId || null
+          if (!lastPage?.items || lastPage.items.length === 0) {
+            return null
+          }
+
+          const lastItem = lastPage.items[lastPage.items.length - 1]
+
+          if (lastItem?.id) {
+            return lastItem.id
+          }
+
+          return null
         },
       },
       query: ({ pageParam, queryArg }) => {

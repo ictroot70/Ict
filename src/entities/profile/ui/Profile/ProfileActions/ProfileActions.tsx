@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import s from './ProfileActions.module.scss'
 import { Button } from '@/shared/ui'

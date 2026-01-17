@@ -1,3 +1,4 @@
+'use client'
 import { useCallback, useMemo, type MouseEvent } from 'react'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -7,12 +8,15 @@ import s from './Sidebar.module.scss'
 import { SidebarGroup, SidebarLink } from './components'
 import { LogOutButton } from './components/LogoutButton/LogOutButton'
 import { type SidebarLinkItem, useLinkGroups } from './model/useLinkGroups'
+import { useMeQuery } from '@/features/auth'
 
 export const Sidebar = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
   const linkGroupsData = useLinkGroups()
+
+  const { isLoading } = useMeQuery()
 
   const action = searchParams.get('action')
   const isCreateModalOpen = action === 'create'

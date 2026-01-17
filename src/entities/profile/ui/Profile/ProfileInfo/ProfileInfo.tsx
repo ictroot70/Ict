@@ -1,3 +1,4 @@
+'use client'
 import s from './ProfileInfo.module.scss'
 
 import { Avatar } from '@/shared/composites'
@@ -5,8 +6,10 @@ import { Typography } from '@/shared/ui'
 import { APP_ROUTES } from '@/shared/constant'
 
 import { useRouter } from 'next/navigation'
-import { ProfileActions, ProfileStats, ProfileBio } from '@/entities/profile/ui'
 import { type PublicProfileData } from '@/entities/profile/api'
+import { ProfileActions } from '../ProfileActions'
+import { ProfileStats } from '../ProfileStats'
+import { ProfileBio } from '../ProfileBio'
 
 type Props = {
   profile: PublicProfileData

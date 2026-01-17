@@ -18,8 +18,9 @@ interface PostCardProps {
   post: PostViewModel
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+const DEFAULT_IMAGE = '/default-image.svg'
 
+export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const isPostModalOpen = searchParams.get('postId') === String(post.id)
@@ -28,11 +29,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   const { editingPostId, handleEditPost } = useEditPostLogic(post.ownerId)
 
-  const { isDeleteModalOpen,
+  const {
+    isDeleteModalOpen,
     isDeleting,
     handleConfirmDelete,
     handleCancelDelete,
-    handleDeletePost } = useDeletePostLogic(post.ownerId)
+    handleDeletePost,
+  } = useDeletePostLogic(post.ownerId)
 
   return (
     <div className={s.postCard}>
@@ -43,7 +46,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         className={s.postImageWrapper}
       >
         <Image
-          src={post.images[0]?.url || '/fallback-image.jpg'}
+          src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}
           width={342}
           height={228}
@@ -64,8 +67,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        isLoading={isDeleting} />
-
+        isLoading={isDeleting}
+      />
     </div>
   )
 }
