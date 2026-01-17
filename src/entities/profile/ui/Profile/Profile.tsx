@@ -17,6 +17,7 @@ import { profileApi, PublicProfileData } from '../../api'
 import s from './Profile.module.scss'
 import { ProfileInfo } from './ProfileInfo'
 import { ProfilePosts } from './ProfilePosts'
+import { useInitializeProfile } from '../../hooks'
 
 type Props = {
   profileDataServer: PublicProfileData
@@ -26,22 +27,14 @@ type Props = {
 export function Profile({ profileDataServer, postsDataServer }: Props) {
   const { id } = useParams<{ id: string }>()
   const userId = Number(id)
-  const store = useAppStore()
 
   const { data: user } = useMeQuery()
 
-  const needInitProfileInStore = useRef(!!profileDataServer)
-  const needInitPostsInStore = useRef(!!postsDataServer)
-
-  const [isInit, setInit] = useState(false)
-
-  console.log('needInitPostsInStore', needInitPostsInStore)
+  const { isInit } = useInitializeProfile(userId, profileDataServer, postsDataServer)
 
   const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     { profileId: userId },
-    {
-      skip: !userId || needInitProfileInStore.current,
-    }
+    { skip: !userId || !isInit }
   )
 
   const {
@@ -53,44 +46,9 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
   } = useGetPostsByUserInfiniteQuery(
     { userId: userId },
     {
-      skip: !userId || needInitPostsInStore.current || !isInit,
+      skip: !userId || !isInit,
     }
   )
-
-  useEffect(() => {
-    if (needInitProfileInStore.current) {
-      store.dispatch(
-        profileApi.util.upsertQueryData(
-          'getPublicProfile',
-          { profileId: userId },
-          profileDataServer
-        )
-      )
-      needInitProfileInStore.current = false
-    }
-  }, [userId, profileDataServer, store])
-
-  useEffect(() => {
-    if (needInitPostsInStore.current) {
-      const initialData: InfiniteData<PaginatedResponse<PostViewModel>, number | null> = {
-        pages: [postsDataServer],
-        pageParams: [null],
-      }
-
-      store.dispatch(postApi.util.upsertQueryData('getPostsByUser', { userId }, initialData))
-
-      needInitPostsInStore.current = false
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      store.dispatch(postApi.util.invalidateTags(['Posts']))
-    }
-  }, [])
-  useEffect(() => {
-    setInit(true)
-  }, [needInitPostsInStore.current])
 
   const posts = useMemo(() => {
     if (postsData?.pages) {

@@ -10,5 +10,5 @@ export const InfiniteScrollTrigger = ({ hasNextPage, onLoadMore }: Prop) => {
 
   if (!hasNextPage) return null
 
-  return <div ref={observerRef} style={{ height: '2px', backgroundColor: 'red' }}></div>
+  return <div ref={observerRef} style={{ height: '2px' }}></div>
 }
