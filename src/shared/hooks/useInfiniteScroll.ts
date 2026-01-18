@@ -9,7 +9,7 @@ interface Props {
 
 export const useInfiniteScroll = ({
   hasNextPage,
-  rootMargin = '70px',
+  rootMargin = '100px',
   threshold = 0.1,
   onLoadMore,
 }: Props) => {

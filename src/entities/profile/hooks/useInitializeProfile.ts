@@ -10,14 +10,15 @@ export const useInitializeProfile = (
   postsDataServer: PaginatedResponse<PostViewModel>
 ) => {
   const store = useAppStore()
-
-  const needInitProfileInStore = useRef(!!profileDataServer)
-  const needInitPostsInStore = useRef(!!postsDataServer)
-
+  const isInitialized = useRef(false)
   const [isInit, setInit] = useState(false)
 
   useEffect(() => {
-    if (needInitProfileInStore.current) {
+    if (isInitialized.current || (!profileDataServer && !postsDataServer)) {
+      return
+    }
+
+    if (profileDataServer) {
       store.dispatch(
         profileApi.util.upsertQueryData(
           'getPublicProfile',
@@ -25,32 +26,26 @@ export const useInitializeProfile = (
           profileDataServer
         )
       )
-      needInitProfileInStore.current = false
     }
-  }, [userId, profileDataServer])
 
-  useEffect(() => {
-    if (needInitPostsInStore.current) {
+    if (postsDataServer) {
       const initialData: InfiniteData<PaginatedResponse<PostViewModel>, number | null> = {
         pages: [postsDataServer],
         pageParams: [null],
       }
 
       store.dispatch(postApi.util.upsertQueryData('getPostsByUser', { userId }, initialData))
-
-      needInitPostsInStore.current = false
     }
-  }, [userId, postsDataServer])
 
-  useEffect(() => {
+    isInitialized.current = true
     setInit(true)
-  }, [needInitPostsInStore.current])
+  }, [userId, profileDataServer, postsDataServer, store])
 
   useEffect(() => {
     return () => {
-      store.dispatch(postApi.util.invalidateTags(['Posts']))
+      store.dispatch(postApi.util.invalidateTags([{ type: 'UserPosts', id: userId }]))
     }
-  }, [])
+  }, [store, userId])
 
   return { isInit }
 }

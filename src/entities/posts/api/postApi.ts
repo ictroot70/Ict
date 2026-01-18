@@ -24,18 +24,14 @@ export const postApi = baseApi.injectEndpoints({
     >({
       infiniteQueryOptions: {
         initialPageParam: null,
-        getNextPageParam: lastPage => {
-          if (!lastPage?.items || lastPage.items.length === 0) {
+        getNextPageParam: ({ items }) => {
+          if (!items || items.length === 0) {
             return null
           }
 
-          const lastItem = lastPage.items[lastPage.items.length - 1]
+          const lastItem = items[items.length - 1]
 
-          if (lastItem?.id) {
-            return lastItem.id
-          }
-
-          return null
+          return lastItem ? lastItem.id : null
         },
       },
       query: ({ pageParam, queryArg }) => {
@@ -45,7 +41,7 @@ export const postApi = baseApi.injectEndpoints({
           params: { pageSize: 8, sortDirection: 'desc' },
         }
       },
-      providesTags: ['Posts'],
+      providesTags: (result, error, arg) => ['Posts', { type: 'UserPosts', id: arg.userId }],
     }),
 
     createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto }>({
