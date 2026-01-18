@@ -17,11 +17,7 @@ export const postApi = baseApi.injectEndpoints({
       providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
     }),
 
-    getPostsByUser: builder.infiniteQuery<
-      PaginatedResponse<PostViewModel>,
-      GetPostsByUserParams,
-      number | null
-    >({
+    getPostsByUser: builder.infiniteQuery<PaginatedPosts, GetPostsByUserParams, number | null>({
       infiniteQueryOptions: {
         initialPageParam: null,
         getNextPageParam: ({ items }) => {

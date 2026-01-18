@@ -2,7 +2,6 @@ import { fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
 
 import { Profile } from '@/entities/profile/ui'
-import { redirect } from 'next/navigation'
 
 type Props = {
   params: Promise<{ id: string }>

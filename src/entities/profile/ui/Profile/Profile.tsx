@@ -5,11 +5,7 @@ import { useParams } from 'next/navigation'
 import { useMeQuery } from '@/features/auth'
 import { useInitializeProfile } from '@/entities/profile/hooks'
 import { useGetPublicProfileQuery, PublicProfileData } from '@/entities/profile/api'
-import {
-  PaginatedResponse,
-  PostViewModel,
-  useGetPostsByUserInfiniteQuery,
-} from '@/entities/posts/api'
+import { PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
 import { ProfileInfo } from './ProfileInfo'
@@ -17,7 +13,7 @@ import { ProfilePosts } from './ProfilePosts'
 
 type Props = {
   profileDataServer: PublicProfileData
-  postsDataServer: PaginatedResponse<PostViewModel>
+  postsDataServer: PaginatedPosts
 }
 
 export function Profile({ profileDataServer, postsDataServer }: Props) {

@@ -1,13 +1,13 @@
-import { PaginatedResponse, postApi, PostViewModel } from '@/entities/posts/api'
-import { profileApi, PublicProfileData } from '../api'
-import { useEffect, useRef, useState } from 'react'
-import { InfiniteData } from '@reduxjs/toolkit/query'
+import { PaginatedPosts, postApi } from '@/entities/posts/api'
 import { useAppStore } from '@/lib/hooks'
+import { InfiniteData } from '@reduxjs/toolkit/query'
+import { useEffect, useRef, useState } from 'react'
+import { profileApi, PublicProfileData } from '../api'
 
 export const useInitializeProfile = (
   userId: number,
   profileDataServer: PublicProfileData,
-  postsDataServer: PaginatedResponse<PostViewModel>
+  postsDataServer: PaginatedPosts
 ) => {
   const store = useAppStore()
   const isInitialized = useRef(false)
@@ -29,7 +29,7 @@ export const useInitializeProfile = (
     }
 
     if (postsDataServer) {
-      const initialData: InfiniteData<PaginatedResponse<PostViewModel>, number | null> = {
+      const initialData: InfiniteData<PaginatedPosts, number | null> = {
         pages: [postsDataServer],
         pageParams: [null],
       }
