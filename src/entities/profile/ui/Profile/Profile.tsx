@@ -25,7 +25,7 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
 
   const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     { profileId: userId },
-    { skip: !userId || !isInit }
+    { skip: !isInit }
   )
 
   const {
@@ -34,7 +34,7 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
     isFetching: isFetchingPosts,
     fetchNextPage,
     hasNextPage,
-  } = useGetPostsByUserInfiniteQuery({ userId: userId }, { skip: !userId || !isInit })
+  } = useGetPostsByUserInfiniteQuery({ userId: userId }, { skip: !isInit })
 
   const isLoading = isProfileLoading || isPostsLoading
 
