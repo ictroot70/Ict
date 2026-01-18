@@ -1,7 +1,7 @@
 import {
   CreatePostInputDto,
   GetPostsByUserParams,
-  PaginatedResponse,
+  PaginatedPosts,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
