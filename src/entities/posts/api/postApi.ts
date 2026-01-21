@@ -21,7 +21,9 @@ export const postApi = baseApi.injectEndpoints({
       infiniteQueryOptions: {
         initialPageParam: null,
         getNextPageParam: ({ items }) => {
-          if (!items || items.length === 0) {
+          const expectedPageSize = 8
+
+          if (!items || items.length < expectedPageSize) {
             return null
           }
 
@@ -32,9 +34,11 @@ export const postApi = baseApi.injectEndpoints({
       },
       query: ({ pageParam, queryArg }) => {
         const cursorId = pageParam === null ? 0 : pageParam
+        const pageSize = cursorId === 0 ? 8 : 9
+
         return {
           url: API_ROUTES.POSTS.USER_POSTS(queryArg.userId, cursorId),
-          params: { pageSize: 8, sortDirection: 'desc' },
+          params: { pageSize, sortDirection: 'desc' },
         }
       },
       providesTags: (result, error, arg) => ['Posts', { type: 'UserPosts', id: arg.userId }],

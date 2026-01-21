@@ -1,11 +1,11 @@
 'use client'
-import s from './Profile.module.scss'
 import { useParams } from 'next/navigation'
+import s from './Profile.module.scss'
 
-import { useMeQuery } from '@/features/auth'
-import { useInitializeProfile } from '@/entities/profile/hooks'
-import { useGetPublicProfileQuery, PublicProfileData } from '@/entities/profile/api'
 import { PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
+import { PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
+import { useInitializeProfile } from '@/entities/profile/hooks'
+import { useMeQuery } from '@/features/auth'
 
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
 import { ProfileInfo } from './ProfileInfo'
@@ -39,6 +39,7 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
   const isLoading = isProfileLoading || isPostsLoading
 
   const profile = profileData || profileDataServer
+
   const posts = postsData?.pages?.flatMap(page => page.items || []) || postsDataServer?.items || []
 
   const loadMorePostsHandler = () => {
