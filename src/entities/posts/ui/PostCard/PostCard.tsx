@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import styles from './PostCard.module.scss'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 interface PostCardProps {
   post: PostViewModel
@@ -15,6 +16,7 @@ interface PostCardProps {
   onDeletePost?: (postId: string) => void
   isEditing?: boolean
   userId: number
+  searchParams?: Promise<{postId?: number}>
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
@@ -25,12 +27,23 @@ export const PostCard: React.FC<PostCardProps> = ({
   userId,
 }) => {
   // Формируем URL для intercepting route
-  const postUrl = `/post/${post.id}`
+  // const postUrl = `?postId=${post.id}`
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const postId = post.id.toString();
+
+  const createUrl = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('postId', postId);
+    return `${pathname}?${params.toString()}`;
+  };
 
   return (
     <div className={styles.postCard}>
       <Link
-        href={postUrl}
+        // href={`?postId=${postId}`}
+        href={createUrl()}
         scroll={false}
         prefetch={false}
         className={styles.postImageWrapper}

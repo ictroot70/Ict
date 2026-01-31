@@ -1,19 +1,15 @@
-'use client'
-
-import { ReactElement, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useCallback } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import { usePostModal } from '@/entities/posts/hooks'
-import { postApi, useGetPostByIdQuery } from '@/entities/posts/api'
-import { PostModalHandlers } from '@/shared/types'
-import { PostViewModel } from '@/shared/types'
+import { postApi, PostViewModel, useGetPostByIdQuery } from '@/entities/posts/api'
 import { Modal } from '@/shared/ui'
-import { useAppDispatch, useAppSelector } from '@/lib/hooks'
+import { useAppDispatch } from '@/lib/hooks'
 
 import s from './PostModal.module.scss'
-
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
+import { PostModalHandlers } from '@/shared/types'
 
 interface Props extends PostModalHandlers {
   open: boolean
@@ -23,20 +19,22 @@ interface Props extends PostModalHandlers {
 }
 
 export const PostModal = ({
-  open,
-  onClose,
-  onEditPost,
-  onDeletePost,
-  isEditing,
-  postData: initialPostData,
-  postId,
-}: Props): ReactElement => {
+                            open,
+                            onClose,
+                            onEditPost,
+                            onDeletePost,
+                            isEditing = false,
+                            postData: initialPostData,
+                            postId
+                          }: Props) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const dispatch = useAppDispatch()
-  
+
   // Получаем данные из кеша RTK Query
-  const dataFromCache = useAppSelector((state) =>
-    postId ? postApi.endpoints.getPostById.select(postId)(state).data : undefined
+  const { data: dataFromCache, isLoading, isError } = useGetPostByIdQuery(
+    postId || 0,
+    { skip: !postId }
   )
 
   const needHydrateStateRef = useRef(!!initialPostData && !dataFromCache)
@@ -45,10 +43,15 @@ export const PostModal = ({
   useEffect(() => {
     if (needHydrateStateRef.current && initialPostData && postId) {
       needHydrateStateRef.current = false
-      // const thunk = postApi.util.upsertQueryData('getPostById', postId, initialPostData)
-      dispatch(useGetPostByIdQuery(postId))
+      // Диспатчим данные в кеш
+      dispatch(
+        postApi.util.upsertQueryData('getPostById', postId, initialPostData)
+      )
     }
   }, [dispatch, initialPostData, postId])
+
+  // Используем кешированные данные или SSR данные
+  const post = dataFromCache || initialPostData
 
   const {
     comments,
@@ -61,7 +64,7 @@ export const PostModal = ({
     handleDescriptionSubmit,
     watchDescription,
     errors,
-    postData,
+    postData: modalPostData,
     variant,
     isAuthenticated,
     isOwnProfile,
@@ -69,30 +72,46 @@ export const PostModal = ({
     handlePublish,
     handleEditPost,
     handleCancelEdit,
-  } = usePostModal(open, dataFromCache || initialPostData, postId)
+  } = usePostModal(open, post, postId)
 
-  const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
+  // Обработка закрытия модалки с очисткой URL
+  const handleCloseModal = useCallback(() => {
+    if (!isEditingDescription && !isEditing) {
+      // Получаем текущие параметры
+      const currentParams = new URLSearchParams(searchParams.toString())
+
+      // Удаляем параметры связанные с постом
+      currentParams.delete('postId')
+      currentParams.delete('edit')
+
+      router.back()
+
+      // Вызываем коллбэк если есть
+      onClose?.()
+    }
+  }, [router, searchParams, isEditingDescription, isEditing, onClose])
+
+  // Обработка сохранения описания
+  const handleSaveDescription = useCallback(({ description: newDescription }: { description: string }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData.postId) {
-      onEditPost(postData.postId, trimmed)
+    if (trimmed && onEditPost && modalPostData.postId) {
+      onEditPost(modalPostData.postId, trimmed)
       setIsEditingDescription(false)
     }
-  }
+  }, [onEditPost, modalPostData.postId, setIsEditingDescription])
 
-  const handleDeletePostAction = () => {
-    if (onDeletePost && postData.postId) {
-      onDeletePost(postData.postId)
+  // Обработка удаления поста
+  const handleDeletePostAction = useCallback(() => {
+    if (onDeletePost && modalPostData.postId) {
+      onDeletePost(modalPostData.postId)
+
+      // Закрываем модалку после удаления
+      handleCloseModal()
     }
-  }
+  }, [onDeletePost, modalPostData.postId, handleCloseModal])
 
-  const handleCloseModal = () => {
-    if (!isEditingDescription && !isEditing) {
-      // Закрываем модалку через роутер (убираем postId из URL)
-      router.back()
-    }
-  }
-
+  // Обработка Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isEditingDescription && !isEditing) {
@@ -102,44 +121,68 @@ export const PostModal = ({
 
     if (open) {
       document.addEventListener('keydown', handleEscape)
+      // Блокируем скролл
+      document.body.style.overflow = 'hidden'
     }
 
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [open, isEditingDescription, isEditing])
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
+    }
+  }, [open, isEditingDescription, isEditing, handleCloseModal])
 
-  const showCloseBtnOutside = !isEditingDescription && !isEditing
+  // Обработка клика вне модалки
+  const handleOverlayClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && !isEditingDescription && !isEditing) {
+      handleCloseModal()
+    }
+  }, [isEditingDescription, isEditing, handleCloseModal])
 
-  return (
-    <>
-      {showCloseBtnOutside ? (
-        <Modal open={open} onClose={handleCloseModal} closeBtnOutside className={s.modal}>
-          {renderContent()}
-        </Modal>
-      ) : (
-        <Modal open={open} onClose={handleCloseModal} className={s.modal}>
-          {renderContent()}
-        </Modal>
-      )}
-    </>
-  )
+  // Рендер контента
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className={s.loading}>
+          <div className={s.spinner}></div>
+          <p>Загрузка поста...</p>
+        </div>
+      )
+    }
 
-  function renderContent() {
-    return isEditingDescription ? (
-      <EditMode
-        descriptionControl={descriptionControl}
-        handleDescriptionSubmit={handleDescriptionSubmit}
-        handleSaveDescription={handleSaveDescription}
-        handleCancelEdit={handleCancelEdit}
-        errors={errors}
-        watchDescription={watchDescription}
-        postData={postData}
-        onClose={handleCloseModal}
-        isEditing
-      />
-    ) : (
+    if (isError || !modalPostData) {
+      return (
+        <div className={s.error}>
+          <p>Не удалось загрузить пост</p>
+          <button
+            onClick={handleCloseModal}
+            className={s.closeButton}
+          >
+            Закрыть
+          </button>
+        </div>
+      )
+    }
+
+    if (isEditingDescription) {
+      return (
+        <EditMode
+          descriptionControl={descriptionControl}
+          handleDescriptionSubmit={handleDescriptionSubmit}
+          handleSaveDescription={handleSaveDescription}
+          handleCancelEdit={handleCancelEdit}
+          errors={errors}
+          watchDescription={watchDescription}
+          postData={modalPostData}
+          onClose={handleCloseModal}
+          isEditing={true}
+        />
+      )
+    }
+
+    return (
       <ViewMode
         onClose={handleCloseModal}
-        postData={postData}
+        postData={modalPostData}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
@@ -155,4 +198,19 @@ export const PostModal = ({
       />
     )
   }
+
+  const showCloseBtnOutside = !isEditingDescription && !isEditing
+
+  // Если модалка не открыта, не рендерим ничего
+  if (!open) return null
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleCloseModal}
+      className={s.modal}
+    >
+      {renderContent()}
+    </Modal>
+  )
 }

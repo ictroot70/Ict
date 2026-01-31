@@ -1,12 +1,12 @@
 import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
-import { PostViewModel } from '@/shared/types'
+import { PostViewModel } from '@/entities/posts/api'
 
 export default async function InterceptedPostModalPage({ 
-  params 
+  searchParams
 }: { 
-  params: Promise<{ postId: string }>
+  searchParams: Promise<{ postId: string }>
 }) {
-  const { postId } = await params
+  const { postId } = await searchParams
   
   // Получаем данные поста на сервере для SSR
   const response = await fetch(`https://ictroot.uk/api/v1/posts/id/${postId}`, {
