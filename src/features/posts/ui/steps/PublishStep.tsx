@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { useGetMyProfileQuery } from '@/entities/profile'
+import { useGetMyProfileQuery } from '@/entities/profile/api'
 import { Header } from '@/features/posts/ui/Header/header'
 import { Avatar, Carousel, ToastAlert } from '@/shared/composites'
 import { PostImageViewModel, PostViewModel } from '@/shared/types'
@@ -20,7 +20,6 @@ interface Props {
   setDescription: (v: string) => void
   handleUpload: (file: File | Blob) => Promise<any>
   createPost: (args: any) => Promise<any>
-  userId: number
   onClose: (post: PostViewModel) => void
   uploadedImage: PostImageViewModel[]
   onPublishPost: (post: PostViewModel) => void
@@ -34,7 +33,6 @@ export const PublishStep: React.FC<Props> = ({
   description,
   setDescription,
   createPost,
-  userId,
   onClose,
   onPublishPost,
   uploadedImage,
@@ -53,7 +51,6 @@ export const PublishStep: React.FC<Props> = ({
     setIsPublishing(true)
     try {
       const newPost = await createPost({
-        userId,
         body: {
           description,
           childrenMetadata: uploadedImage.map(img => ({ uploadId: img.uploadId })),

@@ -2,61 +2,73 @@
 
 import React from 'react'
 
-import { PostViewModel } from '@/shared/types'
-import Image from 'next/image'
 import Link from 'next/link'
+import Image from 'next/image'
 
-import styles from './PostCard.module.scss'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { PostViewModel } from '@/shared/types'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+import s from './PostCard.module.scss'
+import { PostModal } from '../PostModal/PostModal'
+import { useEditPostLogic } from '../../hooks/useEditPostLogic'
+import { useDeletePostLogic } from '../../hooks/useDeletePostLogic'
+import { DeletePostModal } from '../PostModal/DeletePostModal/DeletePostModal'
 
 interface PostCardProps {
   post: PostViewModel
-  modalVariant: 'public' | 'myPost' | 'userPost'
-  onEditPost?: (postId: string, description: string) => void
-  onDeletePost?: (postId: string) => void
-  isEditing?: boolean
-  userId: number
-  searchParams?: Promise<{postId?: number}>
 }
 
-export const PostCard: React.FC<PostCardProps> = ({
-  post,
-  onEditPost,
-  onDeletePost,
-  isEditing,
-  userId,
-}) => {
-  // Формируем URL для intercepting route
-  // const postUrl = `?postId=${post.id}`
+const DEFAULT_IMAGE = '/default-image.svg'
 
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const postId = post.id.toString();
+export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const isPostModalOpen = searchParams.get('postId') === String(post.id)
+  const params = new URLSearchParams({ postId: String(post.id) })
+  const handleClosePost = () => router.replace(`/profile/${post.ownerId}`)
 
-  const createUrl = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('postId', postId);
-    return `${pathname}?${params.toString()}`;
-  };
+  const { editingPostId, handleEditPost } = useEditPostLogic(post.ownerId)
+
+  const {
+    isDeleteModalOpen,
+    isDeleting,
+    handleConfirmDelete,
+    handleCancelDelete,
+    handleDeletePost,
+  } = useDeletePostLogic(post.ownerId)
 
   return (
-    <div className={styles.postCard}>
+    <div className={s.postCard}>
       <Link
-        // href={`?postId=${postId}`}
-        href={createUrl()}
+        href={`/profile/${post.ownerId}?${params.toString()}`}
         scroll={false}
         prefetch={false}
-        className={styles.postImageWrapper}
+        className={s.postImageWrapper}
       >
         <Image
-          src={post.images[0]?.url || '/fallback-image.jpg'}
+          src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}
           width={342}
           height={228}
-          className={styles.postImage}
+          className={s.postImage}
           priority
         />
       </Link>
+
+      <PostModal
+        open={isPostModalOpen}
+        onClose={handleClosePost}
+        onEditPost={handleEditPost}
+        onDeletePost={handleDeletePost}
+        isEditing={editingPostId === post.ownerId.toString()}
+      />
+
+      <DeletePostModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+      />
     </div>
   )
 }

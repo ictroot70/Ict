@@ -1,8 +1,7 @@
 import {
   CreatePostInputDto,
   GetPostsByUserParams,
-  GetPostsParams,
-  PaginatedResponse,
+  PaginatedPosts,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
@@ -13,8 +12,41 @@ import { baseApi } from '@/shared/api/base-api'
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto; userId: number }>({
+    getPostById: builder.query<PostViewModel, number>({
+      query: postId => API_ROUTES.POSTS.BY_ID(postId),
+      providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
+    }),
+
+    getPostsByUser: builder.infiniteQuery<PaginatedPosts, GetPostsByUserParams, number | null>({
+      infiniteQueryOptions: {
+        initialPageParam: null,
+        getNextPageParam: ({ items }) => {
+          const expectedPageSize = 8
+
+          if (!items || items.length < expectedPageSize) {
+            return null
+          }
+
+          const lastItem = items[items.length - 1]
+
+          return lastItem ? lastItem.id : null
+        },
+      },
+      query: ({ pageParam, queryArg }) => {
+        const cursorId = pageParam === null ? 0 : pageParam
+        const pageSize = cursorId === 0 ? 8 : 9
+
+        return {
+          url: API_ROUTES.POSTS.USER_POSTS(queryArg.userId, cursorId),
+          params: { pageSize, sortDirection: 'desc' },
+        }
+      },
+      providesTags: (result, error, arg) => ['Posts', { type: 'UserPosts', id: arg.userId }],
+    }),
+
+    createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto }>({
       query: ({ body }) => {
+        //TODO:Change.It is better to do such checking at the UI level or in another form before sending the request.
         if (body.childrenMetadata.length === 0) {
           throw new Error('At least one image is required')
         }
@@ -30,95 +62,7 @@ export const postApi = baseApi.injectEndpoints({
           body: validatedBody,
         }
       },
-      invalidatesTags: (result, error, { userId }) => [
-        { type: 'Post', id: 'LIST' },
-        { type: 'Post', id: `USER-${userId}` },
-      ],
-      async onQueryStarted({ userId }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              draft.totalCount += 1
-            }
-          )
-        )
-
-        try {
-          await queryFulfilled
-        } catch {
-          patchResult.undo()
-        }
-      },
-    }),
-
-    updatePost: builder.mutation<
-      PostViewModel,
-      { postId: number; body: UpdatePostInputDto; userId: number }
-    >({
-      query: ({ postId, body }) => ({
-        url: API_ROUTES.POSTS.BY_POST_ID(postId),
-        method: 'PUT',
-        body,
-      }),
-      invalidatesTags: (result, error, { postId, userId }) => [
-        { type: 'Post', id: postId },
-        { type: 'Post', id: 'LIST' },
-        { type: 'Post', id: `USER-${userId}` },
-      ],
-      async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              const post = draft.items.find(p => p.id === postId)
-
-              if (post && body.description) {
-                post.description = body.description
-                post.updatedAt = new Date().toISOString()
-              }
-            }
-          )
-        )
-
-        try {
-          await queryFulfilled
-        } catch {
-          patchResult.undo()
-        }
-      },
-    }),
-
-    deletePost: builder.mutation<void, { postId: number; userId: number }>({
-      query: ({ postId }) => ({
-        url: API_ROUTES.POSTS.BY_POST_ID(postId),
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, { postId, userId }) => [
-        { type: 'Post', id: postId },
-        { type: 'Post', id: 'LIST' },
-        { type: 'Post', id: `USER-${userId}` },
-      ],
-      async onQueryStarted({ postId, userId }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getPostsByUser',
-            { userId, endCursorPostId: 0 },
-            (draft: PaginatedResponse<PostViewModel>) => {
-              draft.items = draft.items.filter(p => p.id !== postId)
-              draft.totalCount = Math.max(0, draft.totalCount - 1)
-            }
-          )
-        )
-
-        try {
-          await queryFulfilled
-        } catch {
-          patchResult.undo()
-        }
-      },
+      invalidatesTags: ['Posts', 'Profile'],
     }),
 
     uploadImage: builder.mutation<UploadedImageViewModel, FormData>({
@@ -136,55 +80,24 @@ export const postApi = baseApi.injectEndpoints({
       }),
     }),
 
-    getPostById: builder.query<PostViewModel, number>({
-      query: postId => API_ROUTES.POSTS.BY_ID(postId),
-      providesTags: (result, error, postId) => [{ type: 'Post', id: postId }],
+    updatePost: builder.mutation<
+      PostViewModel,
+      { postId: number; body: UpdatePostInputDto; userId: number }
+    >({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.BY_POST_ID(postId),
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
     }),
 
-    getPostsByUser: builder.query<PaginatedResponse<PostViewModel>, GetPostsByUserParams>({
-      query: ({ userId, endCursorPostId = 0, pageSize = 8, sortDirection = 'desc' }) => ({
-        url: API_ROUTES.POSTS.USER_POSTS(userId, endCursorPostId),
-        params: { pageSize, sortDirection },
+    deletePost: builder.mutation<void, { postId: number }>({
+      query: ({ postId }) => ({
+        url: API_ROUTES.POSTS.BY_POST_ID(postId),
+        method: 'DELETE',
       }),
-      providesTags: (result, error, { userId }) =>
-        result
-          ? [
-              ...result.items.map(({ id }) => ({ type: 'Post' as const, id })),
-              { type: 'Post', id: 'LIST' },
-              { type: 'Post', id: `USER-${userId}` },
-            ]
-          : [
-              { type: 'Post', id: 'LIST' },
-              { type: 'Post', id: `USER-${userId}` },
-            ],
-      serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.userId}`,
-      merge: (currentCache, newItems) => {
-        const existingIds = new Set(currentCache.items.map(item => item.id))
-        const newUniqueItems = newItems.items.filter(item => !existingIds.has(item.id))
-
-        currentCache.items.push(...newUniqueItems)
-        currentCache.items.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        currentCache.pageSize = newItems.pageSize
-        currentCache.totalCount = newItems.totalCount
-      },
-      forceRefetch: ({ currentArg, previousArg }) =>
-        currentArg?.endCursorPostId !== previousArg?.endCursorPostId,
-    }),
-
-    getPosts: builder.query<PaginatedResponse<PostViewModel>, GetPostsParams>({
-      query: ({ param, pageSize = 12, pageNumber = 1, sortDirection = 'desc', sortBy }) => ({
-        url: API_ROUTES.POSTS.PARAM(param),
-        params: { pageSize, pageNumber, sortDirection, sortBy },
-      }),
-      providesTags: result =>
-        result
-          ? [
-              ...result.items.map(({ id }) => ({ type: 'Post' as const, id })),
-              { type: 'Post', id: 'LIST' },
-            ]
-          : [{ type: 'Post', id: 'LIST' }],
+      invalidatesTags: ['Posts', 'Profile'],
     }),
 
     updateLikeStatus: builder.mutation<
@@ -208,8 +121,6 @@ export const {
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,
-  useGetPostsByUserQuery,
-  useLazyGetPostsByUserQuery,
-  useGetPostsQuery,
   useUpdateLikeStatusMutation,
+  useGetPostsByUserInfiniteQuery,
 } = postApi

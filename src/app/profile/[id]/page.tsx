@@ -1,34 +1,30 @@
-'use client'
+import { fetchUserPosts } from '@/entities/posts/lib'
+import { fetchProfileData } from '@/entities/profile/lib'
 
-import MyProfile from '@/entities/profile/ui/MyProfile/MyProfile'
-import PublicUser from '@/entities/profile/ui/PublicProfile/PublicProfile'
-import UserProfile from '@/entities/profile/ui/UserProfile/UserProfile'
-import { useAuth } from '@/features/posts/utils/useAuth'
-import { Loading } from '@/shared/composites'
-import { useParams } from 'next/navigation'
+import { Profile } from '@/entities/profile/ui'
 
-export default function ProfilePage() {
-  const { id } = useParams<{ id: string }>()
+type Props = {
+  params: Promise<{ id: string }>
+}
+
+export default async function ProfilePage({ params }: Props) {
+  const { id } = await params
   const userId = Number(id)
+  const pageSize = 8
 
-  const { user, isAuthenticated, isLoading } = useAuth()
+  try {
+    const [profileData, postsData] = await Promise.all([
+      fetchProfileData(userId),
+      fetchUserPosts(userId, pageSize),
+    ])
 
-  if (isLoading) {
-    return <Loading />
-  }
-  if (Number.isNaN(userId)) {
+    return <Profile profileDataServer={profileData} postsDataServer={postsData} />
+  } catch (error) {
+    console.error('Error fetching profile or posts data:', error)
     return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
-        Invalid user ID
+      <div>
+        <h1>Profile not found</h1>
       </div>
     )
   }
-
-  if (!isAuthenticated) {
-    return <PublicUser id={userId} />
-  }
-
-  return userId === user?.userId ? <MyProfile /> : <UserProfile id={userId} />
 }

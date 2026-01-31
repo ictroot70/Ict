@@ -9,7 +9,6 @@ import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
 import { PostImageViewModel, PostViewModel } from '@/shared/types'
 import { Button, Modal, Typography } from '@/shared/ui'
 import { clsx } from 'clsx'
-import { useParams } from 'next/navigation'
 
 import styles from './CreatePostForm.module.scss'
 
@@ -39,9 +38,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     getInputProps,
     error,
   } = useImageDropzone(files, setFiles, () => setStep('crop'))
-
-  const params = useParams()
-  const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
     if (!file) {
@@ -159,7 +155,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
             setDescription={setDescription}
             handleUpload={handleUpload}
             createPost={createPost}
-            userId={userId}
             onClose={handlePublishSuccess}
             uploadedImage={uploadedImage}
             onPublishPost={onPublishPost}
