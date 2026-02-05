@@ -11,7 +11,7 @@ export default function CreatePostWrapper(): ReactElement | null {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { isOpen, close, handlePublish } = useCreatePostModal(pathname, searchParams, router)
+  const { isOpen, close, handlePublish } = useCreatePostModal()
   const { isAuthenticated } = useAuth()
 
   if (!isOpen || !isAuthenticated) {

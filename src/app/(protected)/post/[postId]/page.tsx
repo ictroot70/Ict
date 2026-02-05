@@ -1,5 +1,5 @@
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 import { PostViewModel } from '@/entities/posts/api'
+import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
 
 export default async function PostPage({ 
   params 

@@ -1,5 +1,5 @@
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 import { postApi, useGetPostByIdQuery } from '@/entities/posts/api'
+import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
 
 export default async function PostModalPage({
                                                     params,
@@ -7,7 +7,7 @@ export default async function PostModalPage({
   params: Promise<{ postId: string }>
 }) {
   const { postId }  = await params;
-  // const post = await useGetPostByIdQuery(+postId); // SSR запрос
+  const post = await useGetPostByIdQuery(+postId); // SSR запрос
 
   return (
     <PostModal

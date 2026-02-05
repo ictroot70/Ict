@@ -2,10 +2,10 @@
 
 import { ReactElement } from 'react'
 
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 import { useCreatePostModal } from '@/features/posts/hooks/useCreatePostModal'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
 import { useModalQuery } from '@/shared/hooks/useModalQuery'
+import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
 
 /**
  * Универсальный компонент-обертка для всех модалок
