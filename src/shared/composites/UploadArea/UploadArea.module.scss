@@ -1,0 +1,65 @@
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+
+  .dropzone {
+    width: 220px;
+    height: 228px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-top: 40px;
+    transition: border-color 0.2s ease;
+
+    &:hover {
+      border-color: #397df6;
+    }
+    .iconWrapper {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+
+  .error {
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 220px;
+    padding-top: 60px;
+    .primaryBtn {
+      margin-top: 20px;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #2f6ad9;
+      }
+    }
+
+    .secondaryBtn {
+      margin-top: 10px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(57, 125, 246, 0.1);
+      }
+    }
+  }
+}
+
+
+
