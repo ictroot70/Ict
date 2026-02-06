@@ -1,10 +1,10 @@
-import { RootState } from '@/app/store'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { Action, PayloadAction } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { HYDRATE } from 'next-redux-wrapper'
+import { RootState } from '@/app/store'
 
-function isHydrateAction(action: Action): action is PayloadAction<RootState> {
+function isHydrateAction(action: Action): action is PayloadAction<Partial<RootState>> {
   return action.type === HYDRATE
 }
 
@@ -13,7 +13,7 @@ export const baseApi = createApi({
   endpoints: () => ({}),
   extractRehydrationInfo(action, { reducerPath }): any {
     if (isHydrateAction(action)) {
-      return action.payload[reducerPath]
+      return action.payload?.[reducerPath]
     }
   },
   reducerPath: 'baseApi',
@@ -28,6 +28,9 @@ export const baseApi = createApi({
     'Comments',
     'Likes',
     'Images',
+    'CountriesWithCities',
+    'Cities',
+    'Countries',
   ],
 })
 
