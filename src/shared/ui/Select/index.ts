@@ -1,1 +1,1 @@
-export { Select } from '@ictroot/ui-kit'
+export { Select, type SelectProps } from '@ictroot/ui-kit'

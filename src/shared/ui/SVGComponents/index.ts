@@ -30,4 +30,5 @@ export {
   ImageOutline,
   MoreHorizontal,
   Close,
+  Pin,
 } from '@ictroot/ui-kit'
