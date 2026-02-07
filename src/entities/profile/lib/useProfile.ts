@@ -31,6 +31,7 @@ export const useProfile = () => {
 
   const uploadAvatar = async (file: File) => {
     const formData = new FormData()
+
     formData.append('file', file)
     await uploadAvatarMutation(formData).unwrap()
   }

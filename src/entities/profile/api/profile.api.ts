@@ -1,12 +1,12 @@
-import { API_ROUTES } from '@/shared/api/api-routes'
-import { baseApi } from '@/shared/api/base-api'
-import { ExtractRtkActions } from '@/shared/lib/rtk/extract-actions'
 import {
   ProfileDto,
   ProfileUpdateDto,
   PublicProfileResponse,
   UploadAvatarResponse,
 } from '@/entities/profile/api/dto'
+import { API_ROUTES } from '@/shared/api/api-routes'
+import { baseApi } from '@/shared/api/base-api'
+import { ExtractRtkActions } from '@/shared/lib/rtk/extract-actions'
 import { ProfileWithPostsResponse, PublicProfileRequest } from '@/shared/types'
 
 export const profileApi = baseApi.injectEndpoints({
