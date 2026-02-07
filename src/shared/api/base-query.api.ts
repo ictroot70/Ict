@@ -1,7 +1,8 @@
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import { logout } from '@/shared/auth/authSlice'
 import { logger } from '@/shared/lib/logger'
+import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {
   BaseQueryFn,
   FetchArgs,
@@ -10,8 +11,6 @@ import {
   fetchBaseQuery,
 } from '@reduxjs/toolkit/query'
 import { Mutex } from 'async-mutex'
-
-import { logout } from '@/shared/auth/authSlice'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+
 import { useAppDispatch } from '@/lib/hooks'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { setAuthenticated, logout } from '@/shared/auth/authSlice'
-import { restoreAccessToken } from '@/shared/lib/restoreAccessToken'
 import { logger } from '@/shared/lib/logger'
+import { restoreAccessToken } from '@/shared/lib/restoreAccessToken'
+import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 
 /*
  * ALGORITHM:
@@ -20,7 +21,9 @@ export function useAuthRestore() {
   const hasAttemptedRef = useRef(false)
 
   useEffect(() => {
-    if (hasAttemptedRef.current) return
+    if (hasAttemptedRef.current) {
+      return
+    }
     hasAttemptedRef.current = true
 
     async function performRestore() {
@@ -29,6 +32,7 @@ export function useAuthRestore() {
         dispatch(setAuthenticated())
         setShouldPrefetch(true)
         setIsRestoring(false)
+
         return
       }
 

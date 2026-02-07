@@ -2,9 +2,10 @@
 
 import { ReactNode, useEffect } from 'react'
 import { useSelector } from 'react-redux'
+
+import { RootState } from '@/app/store'
 import { APP_ROUTES } from '@/shared/constant'
 import { usePathname, useRouter } from 'next/navigation'
-import { RootState } from '@/app/store'
 
 interface Props {
   children: ReactNode

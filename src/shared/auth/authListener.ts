@@ -1,17 +1,24 @@
-import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit'
-import { logout } from './authSlice'
 import { APP_ROUTES } from '@/shared/constant'
 import { logger } from '@/shared/lib/logger'
+import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit'
+
+import { logout } from './authSlice'
 
 const PUBLIC_PATHS = ['/', '/auth', '/legal', '/health', '/profile']
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some(publicPath => {
-    if (pathname === publicPath) return true
-    if (pathname.startsWith(publicPath + '/')) {
-      if (pathname.includes('/settings')) return false
+    if (pathname === publicPath) {
       return true
     }
+    if (pathname.startsWith(publicPath + '/')) {
+      if (pathname.includes('/settings')) {
+        return false
+      }
+
+      return true
+    }
+
     return false
   })
 }
@@ -43,6 +50,7 @@ authListenerMiddleware.startListening({
 
     if (isPublicPath(currentPath)) {
       logger.log('[authListener] Logout on public page, no redirect:', currentPath)
+
       return
     }
 

@@ -55,7 +55,9 @@ export const authTokenStorage = {
  * Run once during app initialization to migrate users
  */
 export function migrateFromLocalStorage() {
-  if (migrated || typeof window === 'undefined') return
+  if (migrated || typeof window === 'undefined') {
+    return
+  }
 
   const legacyKeys = ['accessToken', 'refreshToken']
 

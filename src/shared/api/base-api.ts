@@ -1,8 +1,8 @@
+import { RootState } from '@/app/store'
 import { baseQueryWithReauth } from '@/shared/api/base-query.api'
 import { Action, PayloadAction } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { HYDRATE } from 'next-redux-wrapper'
-import { RootState } from '@/app/store'
 
 function isHydrateAction(action: Action): action is PayloadAction<Partial<RootState>> {
   return action.type === HYDRATE

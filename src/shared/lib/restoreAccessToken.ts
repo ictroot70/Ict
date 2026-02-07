@@ -34,6 +34,7 @@ export async function restoreAccessToken(): Promise<{
 
       if (data.accessToken) {
         logger.log('[restoreAccessToken] Access token restored successfully')
+
         return { accessToken: data.accessToken, isAuthenticated: true }
       }
 
@@ -42,12 +43,14 @@ export async function restoreAccessToken(): Promise<{
 
     if (response.status === 401) {
       logger.log('[restoreAccessToken] No valid refresh token')
+
       return { accessToken: null, isAuthenticated: false }
     }
 
     throw new Error(`Unexpected response: ${response.status}`)
   } catch (error) {
     logger.error('[restoreAccessToken] Failed to restore auth:', error)
+
     return { accessToken: null, isAuthenticated: false }
   }
 }
