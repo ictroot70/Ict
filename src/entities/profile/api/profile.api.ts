@@ -38,7 +38,7 @@ export const profileApi = baseApi.injectEndpoints({
     uploadAvatar: builder.mutation<UploadAvatarResponse, FormData>({
       query: body => ({
         url: API_ROUTES.PROFILE.UPLOAD_AVATAR,
-        method: 'PUT',
+        method: 'POST',
         body,
       }),
       invalidatesTags: () => ['profile'],
