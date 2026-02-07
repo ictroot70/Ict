@@ -1,10 +1,11 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useAuthRestore, migrateFromLocalStorage } from '@/shared/lib'
-import { Loading } from '@/shared/composites'
+
 import { useMeQuery } from '@/features/auth'
 import { useGetCountriesQuery } from '@/shared/api'
+import { Loading } from '@/shared/composites'
+import { useAuthRestore, migrateFromLocalStorage } from '@/shared/lib'
 
 export function AuthRestoreProvider({ children }: { children: ReactNode }) {
   migrateFromLocalStorage()
