@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react'
-import { ApiError } from './api'
+
 import Image from 'next/image'
+
+import { ApiError } from './api'
 
 type ApiErrorBoundaryProps = {
   error: ApiError | null | undefined
@@ -8,12 +10,14 @@ type ApiErrorBoundaryProps = {
 }
 
 export function ApiErrorBoundary({ error, children }: ApiErrorBoundaryProps) {
-  if (!error) return <>{children}</>
+  if (!error) {
+    return <>{children}</>
+  }
 
   const Wrapper = ({ children }: { children: ReactNode }) => {
     return (
       <div
-        className="error-page"
+        className={'error-page'}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -59,6 +63,7 @@ export function ApiErrorBoundary({ error, children }: ApiErrorBoundaryProps) {
           </Wrapper>
         )
       }
+
       return (
         <Wrapper>
           <h2>Server error</h2>
