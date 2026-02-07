@@ -1,4 +1,3 @@
-// features/formControls/ControlledTextarea.tsx
 'use client'
 
 import { ComponentPropsWithoutRef, ReactElement } from 'react'
@@ -25,10 +24,11 @@ export const ControlledTextarea = <T extends FieldValues>({
 }: ControlledTextareaProps<T>): ReactElement => {
   const {
     field,
-    fieldState: { error },
+    fieldState: { error, isTouched },
   } = useController({ control, name })
+  const showError = Boolean(error && isTouched)
 
-  return <TextArea {...field} {...rest} error={error?.message} />
+  return <TextArea {...field} {...rest} error={showError ? error?.message : undefined} />
 }
 
 ControlledTextarea.displayName = 'ControlledTextarea'
