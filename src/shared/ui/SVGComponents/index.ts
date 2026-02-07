@@ -5,7 +5,6 @@ export {
   Google,
   BellOutline,
   RussiaFlag,
-  Select,
   UkFlag,
   ArrowBack,
   ArrowForwardSimple,

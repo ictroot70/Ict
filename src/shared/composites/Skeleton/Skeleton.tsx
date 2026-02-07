@@ -2,7 +2,7 @@ import { ComponentProps } from 'react'
 
 import s from './Skeleton.module.scss'
 
-import { themeVariant, ThemeVariant } from './lib/skeleton.theme'
+import { themeVariant, ThemeVariant } from './lib'
 
 type SkeletonProps = Omit<ComponentProps<'div'>, 'style'> & {
   variant?: ThemeVariant

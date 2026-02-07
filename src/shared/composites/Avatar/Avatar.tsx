@@ -1,4 +1,5 @@
 import { memo } from 'react'
+
 import { clsx } from 'clsx'
 import Image, { StaticImageData } from 'next/image'
 
