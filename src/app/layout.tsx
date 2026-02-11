@@ -3,9 +3,9 @@ import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 
 import { RootLayoutClient } from '@/app/RootLayoutClient'
-import { AuthRestoreProvider } from '@/app/providers/AuthRestoreProvider'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
+import { AuthRestoreProvider } from '@/features/auth/providers'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 
