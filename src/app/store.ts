@@ -1,6 +1,5 @@
 import { useDispatch, useSelector, useStore } from 'react-redux'
 
-import { avatarUploadReducer } from '@/features/profile/avatar-upload/model/avatarUpload.reducer'
 import { editProfileFormListenerMiddleware } from '@/features/profile/edit-profile/model/editProfileForm.listeners'
 import { editProfileFormReducer } from '@/features/profile/edit-profile/model/editProfileForm.slice'
 import { baseApi } from '@/shared/api/base-api'
@@ -14,7 +13,7 @@ export const makeStore = () => {
   return configureStore({
     reducer: combineSlices(...apiSlices, {
       auth: authReducer,
-      avatarUpload: avatarUploadReducer,
+      // avatarUpload: avatarUploadReducer,
       editProfileForm: editProfileFormReducer,
     }),
     middleware: getDefaultMiddleware =>

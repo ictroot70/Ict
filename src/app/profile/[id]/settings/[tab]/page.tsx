@@ -1,7 +1,4 @@
-import { AccountManagement } from '@/app/profile/[id]/settings/[tab]/components/AccountManagement'
-import { Devices } from '@/app/profile/[id]/settings/[tab]/components/Devices'
-import { GeneralInfo } from '@/app/profile/[id]/settings/[tab]/components/General/GeneralInfo'
-import { Payments } from '@/app/profile/[id]/settings/[tab]/components/Payments'
+import { AccountManagement, Devices, GeneralInfo, Payments } from '@/features/profile/settings'
 
 const TABS = {
   general: GeneralInfo,

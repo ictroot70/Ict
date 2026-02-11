@@ -1,6 +1,5 @@
+import { Profile } from '@/entities/profile/model'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-import { Profile } from '../model/domain/types'
 
 interface ProfileState {
   draft: Partial<Profile> | null
