@@ -2,23 +2,23 @@
 
 import { useMemo } from 'react'
 
-import { useProfile } from '@/entities/profile/lib'
+import { useProfileManagement } from '@/features/profile/edit-profile'
 import { useGetCountriesQuery } from '@/shared/api'
 import { OptionType } from '@/shared/api/location'
 import { buildCitiesMap, buildCountriesOptions } from '@/shared/lib'
 
 interface UseProfileFormDataReturn {
-  profile: ReturnType<typeof useProfile>['profile']
+  profile: ReturnType<typeof useProfileManagement>['profile']
   countries: OptionType[]
   citiesMap: Record<string, OptionType[]>
   isLoadingCountries: boolean
   isLoadingProfile: boolean
   isReady: boolean
-  updateProfile: ReturnType<typeof useProfile>['updateProfile']
-  uploadAvatar: ReturnType<typeof useProfile>['uploadAvatar']
-  removeAvatar: ReturnType<typeof useProfile>['removeAvatar']
-  uploadAvatarState: ReturnType<typeof useProfile>['uploadAvatarState']
-  deleteAvatarState: ReturnType<typeof useProfile>['deleteAvatarState']
+  updateProfile: ReturnType<typeof useProfileManagement>['updateProfile']
+  uploadAvatar: ReturnType<typeof useProfileManagement>['uploadAvatar']
+  removeAvatar: ReturnType<typeof useProfileManagement>['removeAvatar']
+  uploadAvatarState: ReturnType<typeof useProfileManagement>['uploadAvatarState']
+  deleteAvatarState: ReturnType<typeof useProfileManagement>['deleteAvatarState']
 }
 
 /**
@@ -44,7 +44,7 @@ export function useProfileFormData(lang: 'en' | 'ru'): UseProfileFormDataReturn 
     removeAvatar,
     uploadAvatarState,
     deleteAvatarState,
-  } = useProfile()
+  } = useProfileManagement()
 
   const { data: rawCountries, isLoading: isLoadingCountries } = useGetCountriesQuery(undefined, {
     refetchOnMountOrArgChange: false,

@@ -1,13 +1,13 @@
 import {
+  useDeleteAvatarMutation,
+  useDeleteMyProfileMutation,
   useGetMyProfileQuery,
   useUpdateMyProfileMutation,
   useUploadAvatarMutation,
-  useDeleteAvatarMutation,
-  useDeleteMyProfileMutation,
-} from '../api/profile.api'
-import { ProfileUpdate } from '../model/domain/types'
+} from '@/entities/profile'
+import { ProfileUpdate } from '@/entities/profile/model'
 
-export const useProfile = () => {
+export const useProfileManagement = () => {
   const {
     data: profile,
     isLoading: isProfileLoading,

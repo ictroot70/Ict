@@ -2,7 +2,6 @@
 import { ReactElement, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useWatch } from 'react-hook-form'
 
-import { useProfile } from '@/entities/profile/lib'
 import { AvatarSkeleton, AvatarUpload } from '@/features/profile/avatar-upload'
 import {
   ProfileForm,
@@ -19,6 +18,7 @@ import {
   submitProfileUpdateThunk,
   syncLocationFields,
   useEditProfileForm,
+  useProfileManagement,
 } from '@/features/profile/edit-profile'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { useGetCountriesQuery } from '@/shared/api'
@@ -40,7 +40,7 @@ export function GeneralSettings(): ReactElement {
     removeAvatar,
     uploadAvatarState,
     deleteAvatarState,
-  } = useProfile()
+  } = useProfileManagement()
 
   const {
     handleSubmit,
