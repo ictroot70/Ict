@@ -6,36 +6,18 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 import { PostViewModel } from '@/shared/types'
-import { useRouter, useSearchParams } from 'next/navigation'
 
 import s from './PostCard.module.scss'
-import { PostModal } from '../PostModal/PostModal'
-import { useEditPostLogic } from '../../hooks/useEditPostLogic'
-import { useDeletePostLogic } from '../../hooks/useDeletePostLogic'
-import { DeletePostModal } from '../PostModal/DeletePostModal/DeletePostModal'
 
 interface PostCardProps {
   post: PostViewModel
+  onOpenModal?: (postId: number) => void
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const isPostModalOpen = searchParams.get('postId') === String(post.id)
+export const PostCard: React.FC<PostCardProps> = ({ post, onOpenModal }) => {
   const params = new URLSearchParams({ postId: String(post.id) })
-  const handleClosePost = () => router.replace(`/profile/${post.ownerId}`)
-
-  const { editingPostId, handleEditPost } = useEditPostLogic(post.ownerId)
-
-  const {
-    isDeleteModalOpen,
-    isDeleting,
-    handleConfirmDelete,
-    handleCancelDelete,
-    handleDeletePost,
-  } = useDeletePostLogic(post.ownerId)
 
   return (
     <div className={s.postCard}>
@@ -44,6 +26,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         scroll={false}
         prefetch={false}
         className={s.postImageWrapper}
+        onClick={e => {
+          if (onOpenModal) {
+            e.preventDefault()
+            onOpenModal(post.id)
+          }
+        }}
       >
         <Image
           src={post.images[0]?.url || DEFAULT_IMAGE}
@@ -54,21 +42,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           priority
         />
       </Link>
-
-      <PostModal
-        open={isPostModalOpen}
-        onClose={handleClosePost}
-        onEditPost={handleEditPost}
-        onDeletePost={handleDeletePost}
-        isEditing={editingPostId === post.ownerId.toString()}
-      />
-
-      <DeletePostModal
-        isOpen={isDeleteModalOpen}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        isLoading={isDeleting}
-      />
     </div>
   )
 }

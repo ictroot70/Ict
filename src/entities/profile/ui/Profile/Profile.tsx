@@ -59,7 +59,7 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
     <>
       <div className={s.profile}>
         <ProfileInfo profile={profile} isAuth={isAuthenticated} isOwnProfile={isOwnProfile} />
-        <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
+        <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} userId={userId} />
       </div>
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMorePostsHandler} />
     </>
