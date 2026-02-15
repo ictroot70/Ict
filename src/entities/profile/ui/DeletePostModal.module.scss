@@ -1,0 +1,18 @@
+.modal {
+  max-width: 378px;
+  width: 100%;
+}
+
+.content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  margin-top: 0;
+}

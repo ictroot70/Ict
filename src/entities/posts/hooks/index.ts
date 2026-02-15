@@ -1,0 +1,1 @@
+export { usePostModal } from './usePostModal'

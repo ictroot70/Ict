@@ -1,0 +1,22 @@
+.sidebar {
+  position: fixed;
+  width: 160px;
+  height: calc(100vh - 60px);
+  top: 60px;
+  left: max(32px, calc((100vw - 1172px) / 2));
+
+  color: var(--color-light-100);
+  background-color: var(--color-dark-700);
+  border-right: 1px solid var(--color-dark-300);
+
+  padding-right: 6px;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+    padding-top: 72px;
+    padding-bottom: 36px;
+    height: 100%;
+  }
+}

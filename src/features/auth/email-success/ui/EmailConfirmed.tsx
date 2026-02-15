@@ -8,8 +8,12 @@ import Link from 'next/link'
 
 import styles from './EmailConfirmed.module.scss'
 
-export const EmailConfirmed = () => {
-  const { isValidating } = useRegistrationConfirm()
+type Props = {
+  urlCode: string
+  router: { push: (arg0: string) => void }
+}
+export const EmailConfirmed = ({ urlCode, router }: Props) => {
+  const { isValidating } = useRegistrationConfirm(urlCode, router)
 
   if (isValidating) {
     return <Loading />

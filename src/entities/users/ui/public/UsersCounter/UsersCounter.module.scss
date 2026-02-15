@@ -1,0 +1,37 @@
+.counter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: var(--color-dark-500);
+  padding: 0.75rem 1.5rem;
+
+  &__digits {
+    display: flex;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-dark-700);
+  }
+
+  &__digit {
+    width: 30px;
+    height: 30px;
+    padding: 4px 3px 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-left: 0;
+    }
+
+    &:not(:first-child) {
+      border-left: 1px solid var(--color-dark-300);
+    }
+  }
+}
