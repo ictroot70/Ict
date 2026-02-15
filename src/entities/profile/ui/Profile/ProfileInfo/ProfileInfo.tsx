@@ -1,11 +1,8 @@
-'use client'
 import s from './ProfileInfo.module.scss'
 
 import { Avatar } from '@/shared/composites'
 import { Typography } from '@/shared/ui'
-import { APP_ROUTES } from '@/shared/constant'
 
-import { useRouter } from 'next/navigation'
 import { type PublicProfileData } from '@/entities/profile/api'
 import { ProfileActions } from '../ProfileActions'
 import { ProfileStats } from '../ProfileStats'
@@ -15,21 +12,22 @@ type Props = {
   profile: PublicProfileData
   isAuth: boolean
   isOwnProfile: boolean
+  onFollow?: () => void
+  onUnfollow?: () => void
+  onEditProfile?: () => void
+  onSendMessage?: () => void
 }
 
-export function ProfileInfo({ profile, isAuth, isOwnProfile }: Props) {
-  const router = useRouter()
-  const { id, userName, avatars, userMetadata, isFollowing, aboutMe } = profile
-
-  const handleFollow = () => {}
-  const handleUnfollow = () => {}
-  const handleEditProfile = () => {
-    router.push(`${APP_ROUTES.PROFILE.EDIT}`)
-  }
-  const handleSendMessage = () => {
-    if (!id) return
-    router.push(`${APP_ROUTES.MESSENGER.DIALOGUE(id)}`)
-  }
+export function ProfileInfo({
+  isAuth,
+  profile,
+  isOwnProfile,
+  onFollow,
+  onUnfollow,
+  onEditProfile,
+  onSendMessage,
+}: Props) {
+  const { userName, avatars, userMetadata, isFollowing, aboutMe } = profile
 
   return (
     <div className={s.info}>
@@ -41,10 +39,10 @@ export function ProfileInfo({ profile, isAuth, isOwnProfile }: Props) {
             <ProfileActions
               isFollowing={isFollowing}
               isOwnProfile={isOwnProfile}
-              onFollow={handleFollow}
-              onUnfollow={handleUnfollow}
-              onEditProfile={handleEditProfile}
-              onSendMessage={handleSendMessage}
+              onFollow={onFollow}
+              onUnfollow={onUnfollow}
+              onEditProfile={onEditProfile}
+              onSendMessage={onSendMessage}
             />
           )}
         </div>

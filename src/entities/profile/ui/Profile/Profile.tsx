@@ -1,11 +1,9 @@
 'use client'
-import { useParams } from 'next/navigation'
 import s from './Profile.module.scss'
 
-import { PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
-import { PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
-import { useInitializeProfile } from '@/entities/profile/hooks'
-import { useMeQuery } from '@/features/auth'
+import { PaginatedPosts } from '@/entities/posts/api'
+import { PublicProfileData } from '@/entities/profile/api'
+import { useProfile } from '@/entities/profile/hooks'
 
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
 import { ProfileInfo } from './ProfileInfo'
@@ -17,48 +15,31 @@ type Props = {
 }
 
 export function Profile({ profileDataServer, postsDataServer }: Props) {
-  const { id } = useParams<{ id: string }>()
-  const userId = Number(id)
-
-  const { data: user } = useMeQuery()
-  const { isInit } = useInitializeProfile(userId, profileDataServer, postsDataServer)
-
-  const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
-    { profileId: userId },
-    { skip: !isInit }
-  )
-
   const {
-    data: postsData,
-    isLoading: isPostsLoading,
-    isFetching: isFetchingPosts,
-    fetchNextPage,
+    posts,
+    userId,
+    profile,
+    isLoading,
     hasNextPage,
-  } = useGetPostsByUserInfiniteQuery({ userId: userId }, { skip: !isInit })
-
-  const isLoading = isProfileLoading || isPostsLoading
-
-  const profile = profileData || profileDataServer
-
-  const posts = postsData?.pages?.flatMap(page => page.items || []) || postsDataServer?.items || []
-
-  const loadMorePostsHandler = () => {
-    if (hasNextPage && !isFetchingPosts) {
-      fetchNextPage()
-    }
-  }
+    isOwnProfile,
+    isAuthenticated,
+    profileInfoActions,
+    loadMorePostsHandler,
+  } = useProfile(profileDataServer, postsDataServer)
 
   if (isLoading) {
     return <Loading />
   }
 
-  const isAuthenticated = !!user
-  const isOwnProfile = profile.id === user?.userId
-
   return (
     <>
       <div className={s.profile}>
-        <ProfileInfo profile={profile} isAuth={isAuthenticated} isOwnProfile={isOwnProfile} />
+        <ProfileInfo
+          profile={profile}
+          isAuth={isAuthenticated}
+          isOwnProfile={isOwnProfile}
+          {...profileInfoActions}
+        />
         <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} userId={userId} />
       </div>
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMorePostsHandler} />
