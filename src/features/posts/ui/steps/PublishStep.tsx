@@ -25,6 +25,8 @@ interface Props {
   uploadedImage: PostImageViewModel[]
   onPublishPost: (post: PostViewModel) => void
   isUploading: boolean
+  uploadError: string | null
+  uploadProgress: { current: number; total: number }
 }
 
 export const PublishStep: React.FC<Props> = ({
@@ -39,16 +41,19 @@ export const PublishStep: React.FC<Props> = ({
   onPublishPost,
   uploadedImage,
   isUploading,
+  uploadError,
+  uploadProgress,
 }) => {
   const { data } = useGetMyProfileQuery()
   const userName = data?.userName
   const avatarUrl = data?.avatars[0]?.url
   const [isPublishing, setIsPublishing] = useState(false)
 
+  const isReadyToPublish = !isUploading && !uploadError && uploadedImage.length > 0
+  const isDescriptionValid = description.length > 0 && description.length <= 500
+
   const handlePublish = async () => {
-    if (isPublishing || uploadedImage.length === 0) {
-      return
-    }
+    if (isPublishing || !isReadyToPublish) return
 
     setIsPublishing(true)
     try {
@@ -76,11 +81,31 @@ export const PublishStep: React.FC<Props> = ({
         onPrev={onPrev}
         onNext={handlePublish}
         title={'Publication'}
-        disabledNext={
-          description.length === 0 || description.length > 500 || isUploading || isPublishing
-        }
-        nextStepTitle={'Publish'}
+        disabledNext={!isDescriptionValid || !isReadyToPublish || isPublishing}
+        nextStepTitle={isPublishing ? 'Publishing...' : 'Publish'}
       />
+
+      {/* Индикатор фоновой загрузки */}
+      {isUploading && (
+        <div className={styles.uploadProgress}>
+          <div className={styles.uploadProgressBar} />
+          <Typography variant={'small_text'} className={styles.uploadProgressText}>
+            {uploadProgress.total > 1
+              ? `Uploading ${uploadProgress.current} / ${uploadProgress.total}...`
+              : 'Uploading...'}
+          </Typography>
+        </div>
+      )}
+
+      {/* Ошибка загрузки */}
+      {uploadError && (
+        <div className={styles.uploadError}>
+          <Typography variant={'small_text'} className={styles.uploadErrorText}>
+            ⚠️ Upload failed: {uploadError}
+          </Typography>
+        </div>
+      )}
+
       <div className={styles.carouselContainer}>
         <div className={styles.photoPreview}>
           <Carousel slides={files.map(f => f.preview)} filtersState={filtersState} />

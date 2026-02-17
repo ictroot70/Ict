@@ -1,15 +1,17 @@
 'use client'
 import React, { useState } from 'react'
 
-import { useCreatePostMutation, useUploadImageMutation } from '@/entities/posts/api/postApi'
+import { useCreatePostMutation, postApi } from '@/entities/posts/api/postApi'
 import { useCreatePost, useImageDropzone } from '@/features/posts/hooks'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
 import { CropStep } from '@/features/posts/ui/steps/CropStep/CropStep'
 import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
+import { UploadedFile } from '@/features/posts/model/types'
 import { PostImageViewModel, PostViewModel } from '@/shared/types'
 import { Button, Modal, Typography } from '@/shared/ui'
 import { clsx } from 'clsx'
 import { useParams } from 'next/navigation'
+import { useAppDispatch } from '@/lib/hooks'
 
 import styles from './CreatePostForm.module.scss'
 
@@ -24,13 +26,15 @@ interface Props {
 
 const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const { step, setStep, files, setFiles } = useCreatePost()
+  const dispatch = useAppDispatch()
 
-  const [uploadImage] = useUploadImageMutation()
   const [createPost] = useCreatePostMutation()
   const [filtersState, setFiltersState] = useState<Record<number, FilterName>>({})
   const [uploadedImage, setUploadedImage] = useState<PostImageViewModel[]>([])
   const [description, setDescription] = useState('')
   const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 })
   const [showConfirmModal, setShowConfirmModal] = useState(false)
 
   const {
@@ -44,24 +48,72 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const userId = Number(params.userId)
 
   const handleUpload = async (file: File | Blob) => {
-    if (!file) {
-      return
-    }
+    if (!file) return
 
     const finalFile =
       file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
 
+    const formData = new FormData()
+    formData.append('file', finalFile)
+
+    // initiate создаёт независимый thunk-запрос без общего mutation стейта —
+    // это позволяет безопасно вызывать параллельно в отличие от useUploadImageMutation hook
+    const result = await dispatch(postApi.endpoints.uploadImage.initiate(formData))
+    if ('error' in result) throw result.error
+    return result.data
+  }
+
+  /**
+   * Вызывается из FilterStep после canvas-обработки.
+   * Немедленно переключает шаг на publish, затем в фоне загружает изображения на сервер.
+   * Пользователь пишет описание пока идёт загрузка.
+   */
+  const handleFilterDone = (processedFiles: UploadedFile[]) => {
+    setFiles(processedFiles)
+    setUploadedImage([])
+    setUploadError(null)
+    setUploadProgress({ current: 0, total: processedFiles.length })
+    setStep('publish')
+
+    // Фоновая загрузка — не блокирует UI
+    void startBackgroundUpload(processedFiles)
+  }
+
+  const startBackgroundUpload = async (processedFiles: UploadedFile[]) => {
+    setIsUploading(true)
+    setUploadError(null)
+    setUploadProgress({ current: 0, total: processedFiles.length })
+
     try {
-      const formData = new FormData()
+      // Строго последовательная загрузка — сервер не держит параллельные POST /v1/posts/image.
+      // Используем initiate вместо useUploadImageMutation hook чтобы избежать
+      // конфликта внутреннего стейта при вызове из вне React render цикла.
+      const uploaded: PostImageViewModel[] = []
 
-      formData.append('file', finalFile)
-      const uploaded = await uploadImage(formData).unwrap()
+      for (let i = 0; i < processedFiles.length; i++) {
+        const file = processedFiles[i]
 
-      setUploadedImage(prev => [...prev, ...uploaded.images])
+        if (!file.blob) continue
 
-      return uploaded
-    } catch (error) {
-      console.error('Failed to upload image:', error)
+        const result = await handleUpload(file.blob)
+
+        if (result?.images) {
+          uploaded.push(...result.images)
+        }
+
+        setUploadProgress({ current: i + 1, total: processedFiles.length })
+      }
+
+      if (uploaded.length === 0) {
+        throw new Error('No images were uploaded')
+      }
+
+      setUploadedImage(uploaded)
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Upload failed'
+      setUploadError(msg)
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -70,13 +122,15 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     setFiles([])
     setFiltersState({})
     setDescription('')
+    setUploadedImage([])
+    setUploadError(null)
+    setUploadProgress({ current: 0, total: 0 })
     setShowConfirmModal(false)
     setIsUploading(false)
   }
+
   const handleModalClose = () => {
-    if (isUploading) {
-      return
-    }
+    if (isUploading) return
     if (step !== 'upload' || files.length > 0) {
       setShowConfirmModal(true)
     } else {
@@ -95,16 +149,12 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
   const handlePublishSuccess = (newPost: PostViewModel) => {
     onPublishPost(newPost)
-    const timeoutId = setTimeout(() => {
-      resetForm()
-    }, 100)
-
+    const timeoutId = setTimeout(() => resetForm(), 100)
     return () => clearTimeout(timeoutId)
   }
 
-  const showModalTitle = step === 'upload',
-    filterStep = step === 'filter',
-    publishStep = step === 'publish'
+  const showModalTitle = step === 'upload'
+  const isWideStep = step === 'filter' || step === 'publish'
 
   return (
     <>
@@ -112,7 +162,7 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
         open={open}
         onClose={handleModalClose}
         modalTitle={showModalTitle ? 'Add Photo' : ''}
-        className={clsx(styles.modal, (filterStep || publishStep) && styles.filterStep)}
+        className={clsx(styles.modal, isWideStep && styles.filterStep)}
       >
         {step === 'upload' && (
           <UploadStep
@@ -140,13 +190,10 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
         {step === 'filter' && (
           <FilterStep
             onPrev={() => setStep('crop')}
-            onNext={() => setStep('publish')}
+            onNext={handleFilterDone}
             files={files}
             filtersState={filtersState}
             setFiltersState={setFiltersState}
-            handleUpload={handleUpload}
-            setUploadedImage={setUploadedImage}
-            setIsUploading={setIsUploading}
           />
         )}
 
@@ -164,6 +211,8 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
             uploadedImage={uploadedImage}
             onPublishPost={onPublishPost}
             isUploading={isUploading}
+            uploadError={uploadError}
+            uploadProgress={uploadProgress}
           />
         )}
       </Modal>

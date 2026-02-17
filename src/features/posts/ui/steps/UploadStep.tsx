@@ -20,7 +20,7 @@ interface Props {
 export const UploadStep: React.FC<Props> = ({ openDialog, getRootProps, getInputProps, error }) => {
   return (
     <div className={styles.wrapper}>
-      <Card {...getRootProps()} className={styles.dropzone}>
+      <Card {...getRootProps()} className={styles.dropzone} onClick={openDialog}>
         <input
           {...getInputProps({
             onClick: (event: React.MouseEvent<HTMLInputElement>) => {
