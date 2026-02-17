@@ -21,20 +21,6 @@ interface UseProfileFormDataReturn {
   deleteAvatarState: ReturnType<typeof useProfileManagement>['deleteAvatarState']
 }
 
-/**
- * Хук для получения всех данных, необходимых для формы редактирования профиля
- *
- * Объединяет:
- * - Данные профиля (useProfile)
- * - Данные стран и городов (RTK Query)
- * - Трансформацию данных для UI
- *
- * @param lang - Язык интерфейса ('en' | 'ru')
- * @returns Объект с данными профиля, странами, городами и методами
- *
- * @example
- * const { profile, countries, citiesMap, isReady } = useProfileFormData('en')
- */
 export function useProfileFormData(lang: 'en' | 'ru'): UseProfileFormDataReturn {
   const {
     profile,
@@ -50,7 +36,6 @@ export function useProfileFormData(lang: 'en' | 'ru'): UseProfileFormDataReturn 
     refetchOnMountOrArgChange: false,
   })
 
-  // Трансформация данных стран и городов
   const { countries, citiesMap } = useMemo(() => {
     if (!rawCountries) {
       return { countries: [], citiesMap: {} }
@@ -62,7 +47,6 @@ export function useProfileFormData(lang: 'en' | 'ru'): UseProfileFormDataReturn 
     }
   }, [rawCountries, lang])
 
-  // Флаг готовности всех данных
   const isReady = !isLoadingProfile && !isLoadingCountries && !!profile && countries.length > 0
 
   return {

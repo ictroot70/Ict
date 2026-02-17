@@ -13,7 +13,6 @@ export const makeStore = () => {
   return configureStore({
     reducer: combineSlices(...apiSlices, {
       auth: authReducer,
-      // avatarUpload: avatarUploadReducer,
       editProfileForm: editProfileFormReducer,
     }),
     middleware: getDefaultMiddleware =>

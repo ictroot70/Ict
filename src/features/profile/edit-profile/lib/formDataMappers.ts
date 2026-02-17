@@ -19,22 +19,33 @@ export function prepareProfileUpdatePayload({
   city?: string
   country?: string
   region?: string
-  dateOfBirth?: string
+  dateOfBirth: string | null
 } {
-  let dateOfBirth: string | undefined = undefined
+  const dateOfBirth: string | null =
+    data.date_of_birth instanceof Date && !isNaN(data.date_of_birth.getTime())
+      ? data.date_of_birth.toISOString()
+      : null
 
-  if (data.date_of_birth) {
-    dateOfBirth = data.date_of_birth.toISOString()
-  }
+  const strOrUndefined = (val: string | undefined): string | undefined =>
+    val && val.trim().length > 0 ? val : undefined
 
-  const payload = {
+  const payload: {
+    userName: string
+    firstName: string
+    lastName: string
+    aboutMe?: string
+    city?: string
+    country?: string
+    region?: string
+    dateOfBirth: string | null
+  } = {
     userName: data.userName,
     firstName: data.firstName,
     lastName: data.lastName,
-    aboutMe: data.aboutMe,
-    city: data.city,
-    country: data.country,
-    region: data.region,
+    ...(strOrUndefined(data.aboutMe) !== undefined && { aboutMe: strOrUndefined(data.aboutMe) }),
+    ...(strOrUndefined(data.city) !== undefined && { city: strOrUndefined(data.city) }),
+    ...(strOrUndefined(data.country) !== undefined && { country: strOrUndefined(data.country) }),
+    ...(strOrUndefined(data.region) !== undefined && { region: strOrUndefined(data.region) }),
     dateOfBirth,
   }
 

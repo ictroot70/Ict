@@ -13,7 +13,7 @@ export interface ProfileUpdateDto {
   city?: string
   country?: string
   region?: string
-  dateOfBirth?: string
+  dateOfBirth?: string | null
   aboutMe?: string
 }
 
@@ -40,7 +40,7 @@ export interface AvatarView {
   width: number
   height: number
   fileSize: number
-  createdAt: string // ISO 8601 format: "2025-07-01T08:15:20.008Z"
+  createdAt: string
 }
 
 // TODO: this type must be moved to the public user entity, in next refactoring !!!!!
@@ -54,33 +54,11 @@ export interface PublicProfileResponse {
   isFollowedBy: boolean
 }
 
-// export interface PublicProfileRequest {
-//   profileId: number
-// }
-
 export interface UserMetadata {
   followers: number
   following: number
   publications: number
 }
-//
-// export interface ProfileWithPostsResponse {
-//   aboutMe: string
-//   avatars: AvatarView[]
-//   city: string
-//   country: string
-//   dateOfBirth: string
-//   firstName: string
-//   followersCount: number
-//   followingCount: number
-//   id: number
-//   isFollowedBy: boolean
-//   isFollowing: boolean
-//   lastName: string
-//   publicationsCount: number
-//   region: string
-//   userName: string
-// }
 
 export interface FullProfileResponse {
   id: number

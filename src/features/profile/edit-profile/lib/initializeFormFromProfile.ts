@@ -66,7 +66,11 @@ export function initializeFormFromProfileData({
     country: location.country,
     city: location.city,
     region: profile.region ?? '',
-    date_of_birth: profile.dateOfBirth ? new Date(profile.dateOfBirth) : undefined,
+    date_of_birth: (() => {
+      if (!profile.dateOfBirth) return undefined
+      const parsed = new Date(profile.dateOfBirth)
+      return isNaN(parsed.getTime()) ? undefined : parsed
+    })(),
     detectLocation: undefined,
   }
 

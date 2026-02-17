@@ -34,6 +34,7 @@ interface InputFieldsProps {
   isValid: boolean
   profileId: number | undefined
   lang: 'en' | 'ru'
+  initialDateOfBirth?: Date
 }
 
 export const ProfileForm = ({
@@ -50,6 +51,7 @@ export const ProfileForm = ({
   isValid,
   profileId,
   lang = 'en',
+  initialDateOfBirth,
 }: InputFieldsProps) => {
   const { detectLocation, buttonText, isDetecting } = useDetectLocation({
     setValue,
@@ -75,21 +77,6 @@ export const ProfileForm = ({
   } else {
     cityPlaceholder = isRu ? 'Выберите город' : 'Choose city'
   }
-
-  // const countryPlaceholder =
-  //   optionsMap.country.length === 0
-  //     ? 'Loading countries...'
-  //     : lang === 'ru'
-  //       ? 'Выберите страну'
-  //       : 'Choose country'
-  //
-  // const cityPlaceholder = currentCountry
-  //   ? lang === 'ru'
-  //     ? 'Выберите город'
-  //     : 'Choose city'
-  //   : lang === 'ru'
-  //     ? 'Сначала выберите страну'
-  //     : 'Select country first'
 
   const isCountryLoading = optionsMap.country.length === 0
 
@@ -139,6 +126,7 @@ export const ProfileForm = ({
           name={'date_of_birth'}
           label={'Date of birth'}
           error={datePickerErrorText as string}
+          initialValue={initialDateOfBirth}
         />
       </div>
 

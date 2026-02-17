@@ -26,6 +26,6 @@ export interface ProfileUpdate {
   city?: string
   country?: string
   region?: string
-  dateOfBirth?: string
+  dateOfBirth?: string | null
   aboutMe?: string
 }
