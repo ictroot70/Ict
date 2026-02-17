@@ -18,7 +18,6 @@ interface Props {
   filtersState: Record<number, string>
   description: string
   setDescription: (v: string) => void
-  handleUpload: (file: File | Blob) => Promise<any>
   createPost: (args: any) => Promise<any>
   userId: number
   onClose: (post: PostViewModel) => void
@@ -85,7 +84,6 @@ export const PublishStep: React.FC<Props> = ({
         nextStepTitle={isPublishing ? 'Publishing...' : 'Publish'}
       />
 
-      {/* Индикатор фоновой загрузки */}
       {isUploading && (
         <div className={styles.uploadProgress}>
           <div className={styles.uploadProgressBar} />
@@ -97,7 +95,6 @@ export const PublishStep: React.FC<Props> = ({
         </div>
       )}
 
-      {/* Ошибка загрузки */}
       {uploadError && (
         <div className={styles.uploadError}>
           <Typography variant={'small_text'} className={styles.uploadErrorText}>

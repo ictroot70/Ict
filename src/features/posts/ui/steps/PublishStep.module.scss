@@ -90,7 +90,6 @@
   }
 }
 
-/* Upload progress bar */
 .uploadProgress {
   display: flex;
   align-items: center;
@@ -130,7 +129,6 @@
   font-size: 0.75rem;
 }
 
-/* Upload error */
 .uploadError {
   padding: 0.5rem 1.5rem;
   background: rgba(220, 38, 38, 0.1);
@@ -138,6 +136,6 @@
 }
 
 .uploadErrorText {
-  color: #f87171;
+  color: var(--color-danger-300);
   font-size: 0.75rem;
 }

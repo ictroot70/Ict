@@ -42,8 +42,6 @@ export const FilterStep: React.FC<Props> = ({
     try {
       setIsProcessing(true)
 
-      // Фаза 1: только canvas-обработка — быстро, на клиенте
-      // Сетевых запросов нет, переход на PublishStep происходит сразу после
       const processedFiles = await Promise.all(
         files.map(async (file, idx) => {
           const filter = filtersState[idx] || 'Normal'
@@ -56,7 +54,6 @@ export const FilterStep: React.FC<Props> = ({
         })
       )
 
-      // Немедленно переходим на PublishStep — загрузка на сервер будет фоновой
       onNext(processedFiles)
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error processing images'

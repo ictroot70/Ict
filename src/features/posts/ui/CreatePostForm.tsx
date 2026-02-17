@@ -47,26 +47,10 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
   const params = useParams()
   const userId = Number(params.userId)
 
-  const handleUpload = async (file: File | Blob) => {
-    if (!file) return
-
-    const finalFile =
-      file instanceof File ? file : new File([file], 'image.jpg', { type: 'image/jpeg' })
-
-    const formData = new FormData()
-    formData.append('file', finalFile)
-
-    // initiate создаёт независимый thunk-запрос без общего mutation стейта —
-    // это позволяет безопасно вызывать параллельно в отличие от useUploadImageMutation hook
-    const result = await dispatch(postApi.endpoints.uploadImage.initiate(formData))
-    if ('error' in result) throw result.error
-    return result.data
-  }
-
   /**
    * Вызывается из FilterStep после canvas-обработки.
-   * Немедленно переключает шаг на publish, затем в фоне загружает изображения на сервер.
-   * Пользователь пишет описание пока идёт загрузка.
+   * Немедленно переключает шаг на publish, затем в фоне загружает все изображения
+   * одним запросом — эндпоинт принимает file[] (array).
    */
   const handleFilterDone = (processedFiles: UploadedFile[]) => {
     setFiles(processedFiles)
@@ -75,7 +59,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     setUploadProgress({ current: 0, total: processedFiles.length })
     setStep('publish')
 
-    // Фоновая загрузка — не блокирует UI
     void startBackgroundUpload(processedFiles)
   }
 
@@ -85,9 +68,10 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
     setUploadProgress({ current: 0, total: processedFiles.length })
 
     try {
-      // Строго последовательная загрузка — сервер не держит параллельные POST /v1/posts/image.
-      // Используем initiate вместо useUploadImageMutation hook чтобы избежать
-      // конфликта внутреннего стейта при вызове из вне React render цикла.
+      // Todo: Последовательная загрузка — один файл за запрос.
+      //  ictroot.uk (staging) крашится при multiple files в одной FormData.
+      //  inctagram.work (prod) судя по Swagger поддерживает file[],
+      //  но пока используем staging — только sequential.
       const uploaded: PostImageViewModel[] = []
 
       for (let i = 0; i < processedFiles.length; i++) {
@@ -95,18 +79,19 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
 
         if (!file.blob) continue
 
-        const result = await handleUpload(file.blob)
+        const formData = new FormData()
 
-        if (result?.images) {
-          uploaded.push(...result.images)
-        }
+        formData.append('file', new File([file.blob], 'image.jpg', { type: 'image/jpeg' }))
+
+        const result = await dispatch(postApi.endpoints.uploadImage.initiate(formData))
+
+        if ('error' in result) throw result.error
+        if (result.data?.images) uploaded.push(...result.data.images)
 
         setUploadProgress({ current: i + 1, total: processedFiles.length })
       }
 
-      if (uploaded.length === 0) {
-        throw new Error('No images were uploaded')
-      }
+      if (uploaded.length === 0) throw new Error('No images were uploaded')
 
       setUploadedImage(uploaded)
     } catch (e: unknown) {
@@ -204,7 +189,6 @@ const CreatePost: React.FC<Props> = ({ open, onClose, onPublishPost }) => {
             filtersState={filtersState}
             description={description}
             setDescription={setDescription}
-            handleUpload={handleUpload}
             createPost={createPost}
             userId={userId}
             onClose={handlePublishSuccess}
