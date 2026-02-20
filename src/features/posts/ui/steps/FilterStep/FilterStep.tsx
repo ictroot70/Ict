@@ -2,19 +2,17 @@
 import React, { useCallback, useState } from 'react'
 
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
-import { applyFilterToImage } from '@/features/posts/lib/filterStep/applyFilterToImage'
-import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
-import { Carousel, ToastAlert } from '@/shared/composites'
+import { Carousel } from '@/shared/composites'
 import { Card, Typography } from '@/shared/ui'
-import { toast } from 'react-toastify/unstyled'
 
 import styles from './FilterStep.module.scss'
 
 interface Props {
-  onNext: (processedFiles: UploadedFile[]) => void
+  onNext: () => Promise<void>
   onPrev: () => void
-  files: UploadedFile[]
+  isProcessing: boolean
+  files: Array<{ preview: string }>
   filtersState: Record<number, FilterName>
   setFiltersState: React.Dispatch<React.SetStateAction<Record<number, FilterName>>>
 }
@@ -22,12 +20,12 @@ interface Props {
 export const FilterStep: React.FC<Props> = ({
   onNext,
   onPrev,
+  isProcessing,
   files,
   setFiltersState,
   filtersState,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [isProcessing, setIsProcessing] = useState(false)
 
   const currentFilter = filtersState[currentIndex] || 'Normal'
 
@@ -38,31 +36,9 @@ export const FilterStep: React.FC<Props> = ({
     [currentIndex, setFiltersState]
   )
 
-  const handleNext = useCallback(async () => {
-    try {
-      setIsProcessing(true)
-
-      const processedFiles = await Promise.all(
-        files.map(async (file, idx) => {
-          const filter = filtersState[idx] || 'Normal'
-          const blob = await applyFilterToImage(file.preview, filter, {
-            maxDimension: 1080, // Instagram-стандарт: уменьшает размер файла в ~3x vs 1920
-            quality: 0.8,
-          })
-
-          return { ...file, blob }
-        })
-      )
-
-      onNext(processedFiles)
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : 'Error processing images'
-
-      toast(<ToastAlert type={'error'} message={`❌ ${msg}`} />)
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [files, filtersState, onNext])
+  const handleNext = useCallback(() => {
+    void onNext()
+  }, [onNext])
 
   return (
     <div className={styles.wrapper}>

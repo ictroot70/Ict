@@ -1,15 +1,18 @@
 'use client'
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Cropper, CropperRef, ImageRestriction } from 'react-advanced-cropper'
 
+import {
+  restorePreviewForAspectChange,
+  saveCroppedFile,
+} from '@/features/posts/model/crop-persistence'
 import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
 import { Dropdown } from '@/features/posts/ui/dropdown/Dropdown'
 import { AspectRatiosDropdown } from '@/features/posts/ui/steps/CropStep/components/AspectRatiosDropdown'
 import { EmptyState } from '@/features/posts/ui/steps/CropStep/components/EmptyState'
 import { ThumbnailsDropdown } from '@/features/posts/ui/steps/CropStep/components/ThumbnailsDropdown'
-import { fileToBase64 } from '@/features/posts/utils/fileToBase64'
-import { ImageOutline, Button, Typography, Expand } from '@/shared/ui'
+import { Expand, ImageOutline } from '@/shared/ui'
 import { clsx } from 'clsx'
 
 import 'react-advanced-cropper/dist/style.css'
@@ -67,24 +70,20 @@ export const CropStep: React.FC<Props> = ({
       setAspect(undefined)
     }
   }, [currentFile])
-  const saveCrop = () => {
-    if (cropperRef.current) {
-      if (!aspect) {
-        return
-      }
 
+  const saveCrop = async () => {
+    if (cropperRef.current && aspect) {
       const canvas = cropperRef.current.getCanvas()
 
       if (canvas) {
-        const croppedImage = canvas.toDataURL('image/jpeg')
-
-        setFiles(prev =>
-          prev.map((f, idx) => (idx === currentIndex ? { ...f, preview: croppedImage } : f))
-        )
+        await saveCroppedFile({
+          canvas,
+          currentIndex,
+          setFiles,
+        })
       }
     }
   }
-
   const handleThumbClick = (idx: number) => {
     if (aspect && currentFile) {
       saveCrop()
@@ -107,29 +106,18 @@ export const CropStep: React.FC<Props> = ({
     if (!currentFile) {
       return
     }
-    let base64ToRestore: string | undefined
 
-    if (!currentFile.original || !currentFile.original.startsWith('data:image')) {
-      try {
-        base64ToRestore = await fileToBase64(currentFile.file)
-      } catch (error) {
-        console.error('❌ Error converting file to base64:', error)
-
-        return
-      }
-    } else {
-      base64ToRestore = currentFile.original
-    }
-    if (!base64ToRestore) {
+    try {
+      await restorePreviewForAspectChange({
+        currentFile,
+        currentIndex,
+        aspect,
+        setFiles,
+      })
+    } catch {
       return
     }
-    setFiles(prev =>
-      prev.map((f, idx) =>
-        idx === currentIndex
-          ? { ...f, preview: base64ToRestore, crop: undefined, zoom: 1, aspect }
-          : f
-      )
-    )
+
     cropperRef.current?.reset()
     setAspect(aspect)
   }

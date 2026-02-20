@@ -1,77 +1,99 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useGetMyProfileQuery } from '@/entities/profile'
+import { FilterName } from '@/features/posts/lib/constants/filter-configs'
+import { UploadErrorActionHint, UploadStage } from '@/features/posts/model/create-post-flow.types'
+import { usePublishProgressUiState } from '@/features/posts/model/usePublishProgressUiState'
 import { Header } from '@/features/posts/ui/Header/header'
-import { Avatar, Carousel, ToastAlert } from '@/shared/composites'
-import { PostImageViewModel, PostViewModel } from '@/shared/types'
+import { Avatar, Carousel } from '@/shared/composites'
 import { Input, Separator, TextArea, Typography } from '@/shared/ui'
-import { toast } from 'react-toastify/unstyled'
 
 import styles from './PublishStep.module.scss'
 
 import { UploadedFile } from '../../model/types'
 
 interface Props {
-  onPrev: () => void
+  onPrev: () => Promise<void> | void
+  onPublish: () => Promise<void>
   files: UploadedFile[]
-  filtersState: Record<number, string>
+  filtersState: Record<number, FilterName>
   description: string
   setDescription: (v: string) => void
-  createPost: (args: any) => Promise<any>
-  userId: number
-  onClose: (post: PostViewModel) => void
-  uploadedImage: PostImageViewModel[]
-  onPublishPost: (post: PostViewModel) => void
   isUploading: boolean
+  uploadStage: UploadStage
+  uploadErrorActionHint: UploadErrorActionHint | null
   uploadError: string | null
-  uploadProgress: { current: number; total: number }
+  canPublish: boolean
+  isPublishing: boolean
 }
 
 export const PublishStep: React.FC<Props> = ({
   onPrev,
+  onPublish,
   files,
   filtersState,
   description,
   setDescription,
-  createPost,
-  userId,
-  onClose,
-  onPublishPost,
-  uploadedImage,
   isUploading,
+  uploadStage,
+  uploadErrorActionHint,
   uploadError,
-  uploadProgress,
+  canPublish,
+  isPublishing,
 }) => {
   const { data } = useGetMyProfileQuery()
   const userName = data?.userName
   const avatarUrl = data?.avatars[0]?.url
-  const [isPublishing, setIsPublishing] = useState(false)
+  const [language, setLanguage] = useState<'en' | 'rus'>('en')
+  const { progressUiState, uploadMessageMode } = usePublishProgressUiState({
+    isUploading,
+    uploadStage,
+    canPublish,
+    uploadError,
+  })
 
-  const isReadyToPublish = !isUploading && !uploadError && uploadedImage.length > 0
   const isDescriptionValid = description.length > 0 && description.length <= 500
+  const uploadStatusTextByLanguage = {
+    en: {
+      uploading: 'Preparing images for publication...',
+      processing: 'Preparing images for publication...',
+      hint: 'Meanwhile, you can fill in the post description.',
+    },
+    rus: {
+      uploading: 'Подготавливаем изображения к публикации...',
+      processing: 'Подготавливаем изображения к публикации...',
+      hint: 'А пока можно заполнить описание поста.',
+    },
+  } as const
+  const uploadStatusText = uploadStatusTextByLanguage[language][uploadMessageMode]
+  const uploadActionHintByLanguage: Record<'en' | 'rus', Record<UploadErrorActionHint, string>> = {
+    en: {
+      auth: 'Refresh the page and sign in again.',
+      back: 'Press Back to replace the file.',
+      retry: 'Please try again.',
+    },
+    rus: {
+      auth: 'Обновите страницу и войдите снова.',
+      back: 'Нажмите Back, чтобы заменить файл.',
+      retry: 'Попробуйте снова.',
+    },
+  }
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language')
+
+    if (savedLanguage === 'en' || savedLanguage === 'rus') {
+      setLanguage(savedLanguage)
+    }
+  }, [])
 
   const handlePublish = async () => {
-    if (isPublishing || !isReadyToPublish) return
-
-    setIsPublishing(true)
-    try {
-      const newPost = await createPost({
-        userId,
-        body: {
-          description,
-          childrenMetadata: uploadedImage.map(img => ({ uploadId: img.uploadId })),
-        },
-      })
-
-      onPublishPost(newPost)
-      toast(<ToastAlert type={'success'} message={'✅ Post created!'} />)
-      onClose(newPost)
-    } catch (err) {
-      toast(<ToastAlert type={'error'} message={'❌ Failed to create post'} />)
-    } finally {
-      setIsPublishing(false)
+    if (isPublishing || !canPublish) {
+      return
     }
+
+    await onPublish()
   }
 
   return (
@@ -80,18 +102,24 @@ export const PublishStep: React.FC<Props> = ({
         onPrev={onPrev}
         onNext={handlePublish}
         title={'Publication'}
-        disabledNext={!isDescriptionValid || !isReadyToPublish || isPublishing}
+        disabledNext={!isDescriptionValid || !canPublish || isPublishing}
         nextStepTitle={isPublishing ? 'Publishing...' : 'Publish'}
       />
 
-      {isUploading && (
-        <div className={styles.uploadProgress}>
+      {progressUiState !== 'idle' && !isPublishing && (
+        <div
+          className={`${styles.uploadProgress} ${
+            progressUiState === 'success'
+              ? styles.uploadProgressSuccess
+              : styles.uploadProgressUploading
+          }`}
+        >
           <div className={styles.uploadProgressBar} />
-          <Typography variant={'small_text'} className={styles.uploadProgressText}>
-            {uploadProgress.total > 1
-              ? `Uploading ${uploadProgress.current} / ${uploadProgress.total}...`
-              : 'Uploading...'}
-          </Typography>
+          {progressUiState === 'uploading' && (
+            <Typography variant={'small_text'} className={styles.uploadProgressText}>
+              {uploadStatusText}
+            </Typography>
+          )}
         </div>
       )}
 
@@ -100,6 +128,11 @@ export const PublishStep: React.FC<Props> = ({
           <Typography variant={'small_text'} className={styles.uploadErrorText}>
             ⚠️ Upload failed: {uploadError}
           </Typography>
+          {uploadErrorActionHint && (
+            <Typography variant={'small_text'} className={styles.uploadErrorHint}>
+              {uploadActionHintByLanguage[language][uploadErrorActionHint]}
+            </Typography>
+          )}
         </div>
       )}
 
