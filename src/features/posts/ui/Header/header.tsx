@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Button, ArrowBackSimple, Typography } from '@/shared/ui'
+import { ArrowBackSimple, Button, Typography } from '@/shared/ui'
 
 import styles from './header.module.scss'
 
@@ -11,6 +11,7 @@ interface Props {
   nextStepTitle: string
   disabledNext?: boolean
 }
+
 export const Header: React.FC<Props> = ({
   onPrev,
   onNext,
@@ -26,6 +27,7 @@ export const Header: React.FC<Props> = ({
       <Typography variant={'h1'} className={styles.title}>
         {title}
       </Typography>
+
       <Button variant={'text'} onClick={onNext} className={styles.navBtn} disabled={disabledNext}>
         <Typography variant={'h3'} className={styles.navBtnText}>
           {nextStepTitle}

@@ -9,6 +9,12 @@
   display: flex;
   width: max-content;
 }
+
+.processingStatus {
+  padding: 8px 24px;
+  color: var(--color-light-900);
+  border-bottom: 1px solid var(--color-dark-100);
+}
 .preview {
   flex: 1;
   display: flex;
