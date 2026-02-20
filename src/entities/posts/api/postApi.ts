@@ -3,10 +3,10 @@ import {
   GetPostsByUserParams,
   GetPostsParams,
   PaginatedResponse,
+  PostImageViewModel,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
-  UploadedImageViewModel,
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
@@ -121,7 +121,7 @@ export const postApi = baseApi.injectEndpoints({
       },
     }),
 
-    uploadImage: builder.mutation<UploadedImageViewModel, FormData>({
+    uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
       query: formData => ({
         url: API_ROUTES.POSTS.IMAGE,
         method: 'POST',
