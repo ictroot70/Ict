@@ -30,4 +30,6 @@ export {
   ImageOutline,
   MoreHorizontal,
   Close,
+  PersonAddOutline,
+  CopyOutline,
 } from '@ictroot/ui-kit'

@@ -25,11 +25,6 @@ export const APP_ROUTES = {
     EDIT: `/settings`,
   },
 
-  // PUBLIC_USERS: {
-  //   PROFILE: '/public-users/profile',
-  //   EDIT_PROFILE: (id: number) => `/public-users/profile/${id}/edit`,
-  // },
-
   POSTS: {
     POST_BY_ID: (postId: string) => `/posts/${postId}`,
     USER_POSTS: (userId: string) => `/posts/user/${userId}`,
@@ -37,7 +32,7 @@ export const APP_ROUTES = {
 
   MESSENGER: {
     BASE: '/messenger',
-    DIALOGUE: (userId: string) => `/messenger/${userId}`,
+    DIALOGUE: (userId: number) => `/messenger/${userId}`,
   },
 
   NOTIFICATIONS: {

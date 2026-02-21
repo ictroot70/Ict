@@ -11,6 +11,7 @@ import s from './PostModal.module.scss'
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
 
+
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
@@ -43,6 +44,7 @@ export const PostModal = ({
     handleEditPost,
     handleCancelEdit,
   } = usePostModal(open)
+
 
   const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
     const trimmed = newDescription.trim()

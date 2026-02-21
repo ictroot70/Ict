@@ -19,7 +19,7 @@ export const baseApi = createApi({
   reducerPath: 'baseApi',
   tagTypes: [
     'Me',
-    'profile',
+    'Profile',
     'myPosts',
     'autoRenewal',
     'devices',

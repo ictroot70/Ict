@@ -1,13 +1,13 @@
 'use client'
-import { useAuth } from '@/features/posts/utils/useAuth'
+import { useMeQuery } from '@/features/auth'
 import { redirect } from 'next/navigation'
 
 export default function ProfileRedirect() {
-  const { user: myProfile } = useAuth()
+  const { data: user } = useMeQuery()
 
-  if (!myProfile) {
+  if (!user) {
     redirect('/')
   }
 
-  redirect(`/profile/${myProfile.userId}`)
+  redirect(`/profile/${user.userId}`)
 }
