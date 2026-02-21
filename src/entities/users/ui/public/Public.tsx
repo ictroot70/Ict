@@ -26,7 +26,6 @@ export function Public({ postsData }: Props) {
     {
       skip: needInitPostsInStore.current,
       pollingInterval: 60000,
-      refetchOnMountOrArgChange: true,
     }
   )
 
@@ -37,7 +36,7 @@ export function Public({ postsData }: Props) {
       )
       needInitPostsInStore.current = false
     }
-  }, [postsData, store])
+  }, [])
 
   const dataForRender = data || postsData
 
