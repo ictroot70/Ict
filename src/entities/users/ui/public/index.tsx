@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useStore } from 'react-redux'
 
 import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
-import { useAppStore } from '@/lib/hooks'
 import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 
@@ -19,7 +19,7 @@ type Props = {
 
 export function Public({ postsData }: Props) {
   const needInitPostsInStore = useRef(!!postsData)
-  const store = useAppStore()
+  const store = useStore()
 
   const { data, isLoading, isError } = useGetPublicPostsQuery(
     { pageSize: 4 },
@@ -32,7 +32,7 @@ export function Public({ postsData }: Props) {
 
   useEffect(() => {
     if (needInitPostsInStore.current) {
-      store.dispatch(
+      ;(store as any).dispatch(
         publicUsersApi.util.upsertQueryData('getPublicPosts', { pageSize: 4 }, postsData)
       )
       needInitPostsInStore.current = false

@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  flex-direction: column;
+}
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+.dateOfBirth {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+.location {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0 10px;
+}
+.location_myPosition {
+  display: flex;
+  padding-block: 0 24px;
+  align-items: center;
+  gap: 4px;
+}
+
+.aboutMe {
+  display: flex;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+
+.saveButton {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 24px;
+}
+
+.locationMyPositionSkeleton {
+  width: 180px;
+  height: 16px;
+}
+
+.separatorSkeleton {
+  height: 3px;
+}
+
+.saveButtonSkeleton {
+  width: 158px;
+  height: 36px;
+  border-radius: 4px;
+}

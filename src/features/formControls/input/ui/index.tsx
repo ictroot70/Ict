@@ -1,19 +1,11 @@
 'use client'
 
-import { ComponentPropsWithoutRef, ReactElement } from 'react'
+import { ReactElement, useState } from 'react'
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 
-import { Input } from '@/shared/ui'
+import { Input, type InputProps } from '@/shared/ui'
 
-interface InputProps extends ComponentPropsWithoutRef<'input'> {
-  id?: string
-  label?: string
-  error?: string
-  placeholder?: string
-  inputType: 'text' | 'hide-able' | 'search'
-  disabled?: boolean
-  required?: boolean
-} // This type we use the pantry do not export its original, it is temporary!
+import s from './style.module.scss'
 
 type ControlledInputProps<T extends FieldValues> = UseControllerProps<T> &
   Omit<InputProps, 'value' | 'onChange' | 'onBlur'>
@@ -25,10 +17,22 @@ export const ControlledInput = <T extends FieldValues>({
 }: ControlledInputProps<T>): ReactElement => {
   const {
     field,
-    fieldState: { error },
+    fieldState: { error, isDirty, isTouched },
   } = useController({ control, name })
+  const [isFocused, setIsFocused] = useState(false)
+  const isPlaceholderLike = !isDirty && field.value && !isFocused
+  const showError = Boolean(error)
 
-  return <Input {...field} {...rest} error={error?.message} />
+  return (
+    <Input
+      {...field}
+      {...rest}
+      error={showError ? error?.message : undefined}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      className={isPlaceholderLike ? s.placeholderLike : ''}
+    />
+  )
 }
 
 ControlledInput.displayName = 'ControlledInput'

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": "false",
   "scripts": {
+    "turbo1": "NODE_OPTIONS=--dns-result-order=ipv4first next dev --turbopack",
+    "dev1": "NODE_OPTIONS=--dns-result-order=ipv4first next dev",
     "turbo": "next dev --turbopack",
     "dev": "next dev",
     "build": "next build",
@@ -12,14 +14,15 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo \"Tests are not configured yet\" && exit 0"
+    "test": "echo \"Tests are not configured yet\" && exit 0",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3",
     "@fontsource-variable/inter": "^5.2.6",
     "@fontsource-variable/roboto": "^5.2.6",
     "@hookform/resolvers": "^5.1.1",
-    "@ictroot/ui-kit": "0.1.1-beta.4",
+    "@ictroot/ui-kit": "^1.0.5",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slider": "^1.3.6",
