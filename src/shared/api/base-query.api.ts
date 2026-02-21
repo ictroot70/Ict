@@ -50,7 +50,6 @@ export const baseQueryWithReauth: BaseQueryFn<
 
   console.log('Request result:', result)
   if (result.error && result.error.status === 401) {
-    // checking whether the mutex is locked
     if (!mutex.isLocked()) {
       const release = await mutex.acquire()
 
@@ -60,17 +59,12 @@ export const baseQueryWithReauth: BaseQueryFn<
           api,
           extraOptions
         )) as QueryReturnValue<unknown, FetchBaseQueryError>
-        // console.log('refreshResult', refreshResult)
 
         if (isRefreshTokenResponse(refreshResult.data)) {
           authTokenStorage.setAccessToken(refreshResult.data.accessToken)
-          // retry the initial query
           result = await baseQuery(args, api, extraOptions)
-
-          // console.log(result)
         } else {
           authTokenStorage.clear()
-          // you can make logout, redirect, or show the message
           console.warn('Invalid refresh token. Logging out.')
 
           return refreshResult.error
@@ -78,11 +72,9 @@ export const baseQueryWithReauth: BaseQueryFn<
             : { error: { status: 401, data: 'Unauthorized' } }
         }
       } finally {
-        // release must be called once the mutex should be released again.
         release()
       }
     } else {
-      // wait until the mutex is available without locking it
       await mutex.waitForUnlock()
       result = await baseQuery(args, api, extraOptions)
     }
