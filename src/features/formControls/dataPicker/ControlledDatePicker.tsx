@@ -26,6 +26,7 @@ export function ControlledDatePickerSingle<T extends FieldValues>({
       if (initialValue !== undefined) {
         onChange(initialValue)
       }
+
       return
     }
     onChange(date)

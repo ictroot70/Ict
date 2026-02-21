@@ -187,11 +187,7 @@ export function GeneralSettings(): ReactElement {
               errors={errors}
               profileId={profile?.id}
               lang={lang}
-              initialDateOfBirth={
-                profile?.dateOfBirth
-                  ? new Date(profile.dateOfBirth)
-                  : undefined
-              }
+              initialDateOfBirth={profile?.dateOfBirth ? new Date(profile.dateOfBirth) : undefined}
             />
           </>
         )}

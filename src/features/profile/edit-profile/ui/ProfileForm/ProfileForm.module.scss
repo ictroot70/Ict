@@ -4,46 +4,46 @@
   gap: 24px;
   padding-bottom: 24px;
 }
-.dateOfBirth{
+.dateOfBirth {
   display: flex;
   flex-direction: column;
   gap: 24px;
   padding-bottom: 24px;
 }
-.location{
+.location {
   display: flex;
   gap: 24px;
   padding: 24px 0 10px;
 }
-.location_myPosition{
+.location_myPosition {
   display: flex;
   padding-block: 0 24px;
   align-items: center;
   gap: 4px;
   color: var(--color-light-700);
-  &_button{
+  &_button {
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 4px;
     padding: 0 4px;
     color: var(--color-primary-100);
-    &:hover{
+    &:hover {
       text-decoration: underline;
     }
   }
 }
-.location_myPosition_button{
+.location_myPosition_button {
   display: flex;
   align-items: center;
   gap: 4px;
 }
-.aboutMe{
+.aboutMe {
   display: flex;
   gap: 24px;
   padding-bottom: 24px;
 }
-.saveButton{
+.saveButton {
   display: flex;
   justify-content: flex-end;
   padding-top: 24px;
