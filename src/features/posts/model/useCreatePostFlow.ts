@@ -22,8 +22,8 @@ import {
 } from '@/features/posts/model/create-post-flow.types'
 import { useFilterProcessing } from '@/features/posts/model/useFilterProcessing'
 import { useAppDispatch } from '@/lib/hooks'
+import { showToastAlert } from '@/shared/lib'
 import { useParams } from 'next/navigation'
-import { toast } from 'react-toastify/unstyled'
 
 type UploadRequestHandle = {
   abort?: () => void
@@ -120,7 +120,7 @@ export const useCreatePostFlow = ({
       const message =
         error instanceof Error && error.message ? error.message : 'Error processing images'
 
-      toast(`❌ ${message}`)
+      showToastAlert({ message, type: 'error' })
     }
   }, [backgroundUpload, files, filterProcessing, filtersState, isPublishing, setFiles, setStep])
 
@@ -186,13 +186,13 @@ export const useCreatePostFlow = ({
 
       onPublishPostAction(newPost)
       backgroundUpload.markPublished()
-      toast('✅ Post created!')
+      showToastAlert({ message: 'Post created!', type: 'success' })
       resetForm()
       onCloseAction()
     } catch (error) {
       const message = extractErrorMessage(error)
 
-      toast(`❌ ${message}`)
+      showToastAlert({ message, type: 'error' })
     } finally {
       setIsPublishing(false)
     }
