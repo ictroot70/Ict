@@ -8,8 +8,10 @@
     "build": "next build",
     "build:production": "npm run build",
     "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "echo \"Tests are not configured yet\" && exit 0"

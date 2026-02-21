@@ -8,7 +8,6 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  // extends: ['next/core-web-vitals', '@it-incubator/eslint-config'],
   ignorePatterns: ['node_modules/**', '.next/**', 'dist/**'],
   overrides: [
     {
@@ -17,7 +16,7 @@ module.exports = {
     },
   ],
   rules: {
-    'react-hooks/rules-of-hooks': 'off',
-    'react-hooks/exhaustive-deps': 'off',
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
   },
 }
