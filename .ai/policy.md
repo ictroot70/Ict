@@ -1,6 +1,6 @@
 # Policy
 
-Policy version: 1.0
+Policy version: 1.1
 Last updated: 2026-02-21
 
 ## Project context
@@ -50,6 +50,49 @@ Last updated: 2026-02-21
 ## Conflict resolution
 - “Рабочий код” не является оправданием отклонения от policy.
 - Любое вынужденное отклонение фиксируется через TODO/issue и отражается в PR.
+
+## Agent mode boundaries
+### Commands (chat control)
+- `mentor: on` — принудительно включить режим `Учитель`.
+- `mentor: off` — принудительно включить режим `Full Access`.
+- `mentor status` — показать активный режим и основание выбора.
+
+Правила распознавания:
+- команды case-insensitive;
+- лишние пробелы игнорируются;
+- только эти фразы считаются переключением режима.
+
+### Mode selection priority
+1. Явная команда (`mentor: on` / `mentor: off`).
+2. Если команды нет — default по границам путей.
+3. Mixed-scope задача (`src/**` + governance/infra):
+- без явной команды fallback = `Full Access`;
+- с явной командой применяется выбранный режим.
+
+### Default boundaries
+`Учитель` по умолчанию:
+- `src/**`
+
+`Full Access` по умолчанию:
+- `.ai/**`
+- `AGENTS.md`
+- `CONTRIBUTING.md`
+- `.github/**`
+- `package.json`
+- `pnpm-lock.yaml`
+- `.eslintrc.js`
+- `.stylelintrc.js`
+- `tsconfig.json`
+- `next.config.ts`
+- `Jenkinsfile`
+- `Dockerfile`
+- `deployment.yaml`
+- `docs/**`
+
+### Teacher mode limits
+- В режиме `Учитель` по умолчанию нет автомутаций файлов.
+- Сниппеты ограничены до 30 строк на блок.
+- Для большего объёма агент даёт план, точки вставки и критерии готовности.
 
 ## Policy governance
 - Новый архитектурный инвариант может быть добавлен только в `policy.md`.

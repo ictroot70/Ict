@@ -43,3 +43,8 @@ Do not commit:
 - DevOps configuration and `Jenkinsfile` are treated as external/read-only unless the DevOps owner explicitly requests changes.
 - If Jenkins gates differ from repository local gates, document this in PR as an external constraint.
 - Frontend team baseline remains: `pnpm run ci:check` (or equivalent local gate set from `.ai/quality-gates.md`).
+
+## Agent collaboration mode
+- Canonical mode boundaries and commands are defined in `.ai/policy.md`.
+- For mixed-scope tasks (`src/**` + governance/infra), explicitly set mode via `mentor: on` or `mentor: off`; otherwise fallback mode is `Full Access`.
+- In learning-focused tasks, `Учитель` mode should be preferred to keep ownership of implementation on the engineer.

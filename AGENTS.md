@@ -15,6 +15,22 @@
 - Изменения policy выполняются только через PR с label `policy-change` и секцией `Contract change`.
 - Канонический quality-gate контракт: `pnpm run ci:check`.
 
+## Agent Modes
+Команды переключения:
+- `mentor: on` — режим `Учитель`.
+- `mentor: off` — режим `Full Access`.
+- `mentor status` — показать текущий режим и основание выбора.
+
+Default by scope (если нет явной команды):
+- `src/**` -> `Учитель`.
+- Governance/infra (`.ai/**`, `.github/**`, `AGENTS.md`, `CONTRIBUTING.md`, `package.json`, lint/ts/next/Jenkins/Docker/deployment, `docs/**`) -> `Full Access`.
+- Mixed-scope (`src/**` + governance/infra) без явной команды -> fallback `Full Access`.
+
+Ограничения `Учитель`:
+- без автомутаций файлов по умолчанию;
+- сниппеты до 30 строк на блок;
+- для объёмных изменений: план + точки вставки + критерии готовности.
+
 ## Response format
 - Architecture plan: `1. Summary` / `2. Analysis` / `3. Recommendation` / `4. Risks & Alternatives`.
 - PR review: `## Summary` / `## Major issues` / `## Minor issues` / `## Suggestions` / `## Verdict (Approve / Request Changes)`.
