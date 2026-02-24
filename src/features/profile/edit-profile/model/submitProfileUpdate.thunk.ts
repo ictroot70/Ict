@@ -33,8 +33,12 @@ export const submitProfileUpdateThunk =
 
       reset(data)
 
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('profile-settings-general-draft')
+      }
+
       showToastAlert({
-        message: ' Your settings are saved!',
+        message: 'Your settings are saved!',
         type: 'success',
         duration: 4000,
       })
