@@ -42,15 +42,10 @@ export function useAvatarUpload({ onUpload, onDelete }: AvatarUploadProps) {
 
       dispatch({ type: 'SET_FILE', file, previewUrl: url })
     },
-    onDropRejected: rejections => {
-      const code = rejections[0]?.errors[0]?.code
-
+    onDropRejected: () => {
       dispatch({
         type: 'SET_ERROR',
-        value:
-          code === 'file-too-large'
-            ? 'The photo must be less than 10 Mb'
-            : 'The photo must be in JPEG or PNG format',
+        value: 'The photo must be less than 10 Mb and have JPEG or PNG format',
       })
     },
   })
