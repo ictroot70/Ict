@@ -12,6 +12,9 @@ interface InitializeFormParams {
   reset: UseFormReset<EditProfileFormValues>
 }
 
+const normalizeDateToLocalDay = (date: Date): Date =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate())
+
 function initializeLocationFields(
   profile: ProfileDto,
   countries: OptionType[],
@@ -72,7 +75,7 @@ export function initializeFormFromProfileData({
       }
       const parsed = new Date(profile.dateOfBirth)
 
-      return isNaN(parsed.getTime()) ? undefined : parsed
+      return isNaN(parsed.getTime()) ? undefined : normalizeDateToLocalDay(parsed)
     })(),
     detectLocation: undefined,
   }

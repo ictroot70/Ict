@@ -34,7 +34,7 @@ interface InputFieldsProps {
   isValid: boolean
   profileId: number | undefined
   lang: 'en' | 'ru'
-  initialDateOfBirth?: Date
+  onBeforePrivacyNavigate?: () => void
 }
 
 export const ProfileForm = ({
@@ -51,7 +51,7 @@ export const ProfileForm = ({
   isValid,
   profileId,
   lang = 'en',
-  initialDateOfBirth,
+  onBeforePrivacyNavigate,
 }: InputFieldsProps) => {
   const { detectLocation, buttonText, isDetecting } = useDetectLocation({
     setValue,
@@ -82,7 +82,11 @@ export const ProfileForm = ({
 
   const dobErrorCode = errors?.date_of_birth?.message
   const isTooYoung = dobErrorCode === 'too_young'
-  const datePickerErrorText = isTooYoung ? <AgePolicyError profileId={profileId} /> : dobErrorCode
+  const datePickerErrorText = isTooYoung ? (
+    <AgePolicyError profileId={profileId} onNavigate={onBeforePrivacyNavigate} />
+  ) : (
+    dobErrorCode
+  )
 
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -125,8 +129,7 @@ export const ProfileForm = ({
           }}
           name={'date_of_birth'}
           label={'Date of birth'}
-          error={datePickerErrorText as string}
-          initialValue={initialDateOfBirth}
+          error={datePickerErrorText}
         />
       </div>
 

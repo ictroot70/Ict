@@ -5,13 +5,14 @@ import { DatePickerSingle, DatePickerSingleProps } from '@/shared/ui'
 type ControlledDatePickerSingleProps<T extends FieldValues> = {
   control: Control<T>
   name: Path<T>
-  initialValue?: Date
 } & Omit<DatePickerSingleProps, 'value' | 'onDateChange'>
+
+const normalizeDateToLocalDay = (date: Date): Date =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate())
 
 export function ControlledDatePickerSingle<T extends FieldValues>({
   control,
   name,
-  initialValue,
   ...rest
 }: ControlledDatePickerSingleProps<T>) {
   const {
@@ -20,24 +21,18 @@ export function ControlledDatePickerSingle<T extends FieldValues>({
   } = useController({ control, name })
 
   const resolvedError = error?.message
+  const { error: externalError, ...restProps } = rest
 
   const handleDateChange = (date: Date | undefined) => {
-    if (date === undefined) {
-      if (initialValue !== undefined) {
-        onChange(initialValue)
-      }
-
-      return
-    }
-    onChange(date)
+    onChange(date ? normalizeDateToLocalDay(date) : undefined)
   }
 
   return (
     <DatePickerSingle
       value={value}
       onDateChange={handleDateChange}
-      error={resolvedError}
-      {...rest}
+      error={externalError ?? resolvedError}
+      {...restProps}
     />
   )
 }

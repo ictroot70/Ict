@@ -14,7 +14,7 @@ export const useProfileManagement = () => {
     isFetching: isProfileFetching,
     error: profileError,
     refetch: refetchProfile,
-  } = useGetMyProfileQuery()
+  } = useGetMyProfileQuery(undefined, { refetchOnMountOrArgChange: true })
 
   const [updateProfileMutation, updateProfileState] = useUpdateMyProfileMutation()
   const [deleteProfileMutation, deleteProfileState] = useDeleteMyProfileMutation()
