@@ -22,9 +22,11 @@ export const profileApi = baseApi.injectEndpoints({
       }),
     }),
     getPublicProfile: builder.query<PublicProfileData, PublicProfileRequest>({
-      query: ({ profileId }) => ({
-        url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
-      }),
+      query: ({ profileId }) => {
+        return {
+          url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
+        }
+      },
       providesTags: ['Profile'],
     }),
   }),

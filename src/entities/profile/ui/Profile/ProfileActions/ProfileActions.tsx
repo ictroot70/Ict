@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import s from './ProfileActions.module.scss'
 import { Button } from '@/shared/ui'
@@ -5,10 +7,10 @@ import { Button } from '@/shared/ui'
 interface Props {
   isOwnProfile: boolean
   isFollowing: boolean
-  onFollow: () => void
-  onUnfollow: () => void
-  onEditProfile: () => void
-  onSendMessage: () => void
+  onFollow?: () => void
+  onUnfollow?: () => void
+  onEditProfile?: () => void
+  onSendMessage?: () => void
 }
 
 export const ProfileActions: React.FC<Props> = ({

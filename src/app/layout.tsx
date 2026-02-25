@@ -2,14 +2,15 @@ import type { Metadata } from 'next'
 
 import { ReactNode } from 'react'
 
-import { RootLayoutClient } from '@/app/RootLayoutClient'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 
-import './globals.css'
 import 'react-toastify/ReactToastify.css'
+import './globals.css'
+import { Sidebar } from '@/widgets/Sidebar'
+import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 
 export const metadata: Metadata = {
   title: 'Ictroot — Modern Social Platform',
@@ -91,7 +92,11 @@ export default function RootLayout({
         <StoreProvider>
           <AppHeader />
           <ToastWrapper>
-            <RootLayoutClient>{children}</RootLayoutClient>
+            <div className="container">
+              <Sidebar />
+              <main>{children}</main>
+            </div>
+            <CreatePostWrapper />
           </ToastWrapper>
         </StoreProvider>
       </body>

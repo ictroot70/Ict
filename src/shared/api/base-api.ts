@@ -20,6 +20,7 @@ export const baseApi = createApi({
   tagTypes: [
     'Me',
     'Profile',
+    'UserPosts',
     'myPosts',
     'autoRenewal',
     'devices',

@@ -1,3 +1,4 @@
+'use client'
 import s from './ProfileStats.module.scss'
 import { UserMetadata } from '@/shared/types'
 import { Typography } from '@/shared/ui'

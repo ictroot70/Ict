@@ -1,6 +1,5 @@
 import {
   API_ROUTES,
-  baseQueryWithReauth,
   CheckRecoveryCodeRequest,
   LoginRequest,
   MeResponse,
@@ -11,7 +10,6 @@ import {
 } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
 import { authTokenStorage } from '@/shared/lib'
-import { createApi } from '@reduxjs/toolkit/query/react'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({

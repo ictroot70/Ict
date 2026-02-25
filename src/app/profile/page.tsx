@@ -1,13 +1,22 @@
 'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useMeQuery } from '@/features/auth'
-import { redirect } from 'next/navigation'
+import { Loading } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
 
 export default function ProfileRedirect() {
   const { data: user } = useMeQuery()
+  const router = useRouter()
 
-  if (!user) {
-    redirect('/')
-  }
+  useEffect(() => {
+    if (!user) {
+      router.push(APP_ROUTES.ROOT)
+    } else {
+      router.push(APP_ROUTES.PROFILE.ID(user.userId))
+    }
+  }, [user, router])
 
-  redirect(`/profile/${user.userId}`)
+  return <Loading />
 }

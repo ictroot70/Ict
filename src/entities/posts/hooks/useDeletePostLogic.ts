@@ -5,41 +5,36 @@ import { APP_ROUTES } from '@/shared/constant'
 import { useRouter } from 'next/navigation'
 
 export const useDeletePostLogic = (
-  profileId: number | string | undefined,
-  onRefetchPosts?: () => void
+  userId: number,
+  options?: { enabled?: boolean }
 ) => {
-  const [deletePost] = useDeletePostMutation()
+  const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const router = useRouter()
 
   const handleDeletePost = (postId: string) => {
+    if (options?.enabled === false) return
     setSelectedPostId(postId)
     setIsDeleteModalOpen(true)
   }
 
   const handleConfirmDelete = async () => {
-    if (!selectedPostId || !profileId) {
+    if (!selectedPostId || !userId) {
       return
     }
 
     try {
-      setIsDeleting(true)
-
       const postIdNumber = parseInt(selectedPostId)
 
       await deletePost({ postId: postIdNumber }).unwrap()
 
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
-      onRefetchPosts?.()
-      router.push(APP_ROUTES.PROFILE.ID(+profileId))
+      router.replace(APP_ROUTES.PROFILE.ID(userId))
     } catch (error) {
       console.error('Ошибка при удалении поста:', error)
-    } finally {
-      setIsDeleting(false)
     }
   }
 
@@ -50,7 +45,6 @@ export const useDeletePostLogic = (
 
   return {
     isDeleteModalOpen,
-    selectedPostId,
     isDeleting,
     handleDeletePost,
     handleConfirmDelete,
