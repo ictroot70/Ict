@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactElement, useState } from 'react'
+import { FocusEventHandler, ReactElement, useState } from 'react'
 import { FieldValues, useController, UseControllerProps } from 'react-hook-form'
 
 import { Input, type InputProps } from '@/shared/ui'
@@ -17,19 +17,29 @@ export const ControlledInput = <T extends FieldValues>({
 }: ControlledInputProps<T>): ReactElement => {
   const {
     field,
-    fieldState: { error, isDirty, isTouched },
+    fieldState: { error, isDirty },
   } = useController({ control, name })
   const [isFocused, setIsFocused] = useState(false)
   const isPlaceholderLike = !isDirty && field.value && !isFocused
   const showError = Boolean(error)
+
+  const handleFocus: FocusEventHandler<HTMLInputElement> = event => {
+    setIsFocused(true)
+    rest.onFocus?.(event)
+  }
+
+  const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
+    setIsFocused(false)
+    field.onBlur()
+  }
 
   return (
     <Input
       {...field}
       {...rest}
       error={showError ? error?.message : undefined}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       className={isPlaceholderLike ? s.placeholderLike : ''}
     />
   )
