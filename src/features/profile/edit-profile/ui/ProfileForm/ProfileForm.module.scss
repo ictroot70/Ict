@@ -57,13 +57,12 @@
 }
 
 .infoHint {
-  color: var(--color-primary-100);
+  color: var(--color-warning-300);
   animation: hintFadeIn 280ms ease-out;
 }
 
 .requiredHint {
-  border-color: var(--color-primary-300);
-  box-shadow: 0 0 0 1px var(--color-primary-300);
+  border-color: var(--color-warning-500);
   animation: requiredHintPulse 420ms ease-out;
 }
 
@@ -80,12 +79,12 @@
 
 @keyframes requiredHintPulse {
   0% {
-    box-shadow: 0 0 0 0 var(--color-primary-300);
+    box-shadow: 0 0 0 0 var(--color-warning-500);
   }
   60% {
-    box-shadow: 0 0 0 2px var(--color-primary-300);
+    box-shadow: 0 0 0 2px var(--color-warning-500);
   }
   100% {
-    box-shadow: 0 0 0 1px var(--color-primary-300);
+    box-shadow: 0 0 0 1px var(--color-warning-500);
   }
 }
