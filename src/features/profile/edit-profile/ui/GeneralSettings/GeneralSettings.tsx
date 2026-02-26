@@ -289,7 +289,7 @@ export function GeneralSettings(): ReactElement {
   const isReady = profile && isDataLoaded && isInitialized
 
   return (
-    <ScrollAreaRadix>
+    <div className={s.wrapper}>
       <div className={s.container}>
         {!isReady && (
           <>
@@ -336,6 +336,6 @@ export function GeneralSettings(): ReactElement {
       <div className={s.separatorContainer}>
         <Separator />
       </div>
-    </ScrollAreaRadix>
+    </div>
   )
 }
