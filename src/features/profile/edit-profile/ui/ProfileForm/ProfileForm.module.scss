@@ -45,10 +45,47 @@
 }
 .saveButton {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   justify-content: flex-end;
   padding-top: 24px;
 }
 
 .countrySelectWrapper {
   width: 100%;
+}
+
+.infoHint {
+  color: var(--color-primary-100);
+  animation: hintFadeIn 280ms ease-out;
+}
+
+.requiredHint {
+  border-color: var(--color-primary-300);
+  box-shadow: 0 0 0 1px var(--color-primary-300);
+  animation: requiredHintPulse 420ms ease-out;
+}
+
+@keyframes hintFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes requiredHintPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-primary-300);
+  }
+  60% {
+    box-shadow: 0 0 0 2px var(--color-primary-300);
+  }
+  100% {
+    box-shadow: 0 0 0 1px var(--color-primary-300);
+  }
 }

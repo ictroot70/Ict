@@ -1,5 +1,5 @@
-import type { ChangeEvent } from 'react'
-import { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
+import { type ChangeEvent, useEffect, useState } from 'react'
+import { Control, FieldErrors, UseFormSetValue, useFormState, useWatch } from 'react-hook-form'
 
 import {
   ControlledDatePickerSingle,
@@ -87,6 +87,72 @@ export const ProfileForm = ({
   ) : (
     dobErrorCode
   )
+  const userNameValue = useWatch({ control, name: 'userName' })
+  const firstNameValue = useWatch({ control, name: 'firstName' })
+  const lastNameValue = useWatch({ control, name: 'lastName' })
+  const { touchedFields, submitCount, dirtyFields } = useFormState({ control })
+  const userNameError = typeof errors?.userName?.message === 'string' ? errors.userName.message : ''
+  const firstNameError =
+    typeof errors?.firstName?.message === 'string' ? errors.firstName.message : ''
+  const lastNameError = typeof errors?.lastName?.message === 'string' ? errors.lastName.message : ''
+  const isUserNameMissing = !userNameValue?.trim()
+  const isFirstNameMissing = !firstNameValue?.trim()
+  const isLastNameMissing = !lastNameValue?.trim()
+  const hasMissingRequiredFields = isUserNameMissing || isFirstNameMissing || isLastNameMissing
+  const hasAnyFormErrors = Object.keys(errors).length > 0
+  const hasCompletedInteraction = Boolean(
+    touchedFields.userName ||
+      touchedFields.firstName ||
+      touchedFields.lastName ||
+      dirtyFields.date_of_birth ||
+      dirtyFields.country ||
+      dirtyFields.city ||
+      touchedFields.aboutMe ||
+      dirtyFields.detectLocation
+  )
+  const shouldQueueRequiredFieldsHint =
+    !isSubmitting && isDirty && hasMissingRequiredFields && !isValid && !hasAnyFormErrors
+  const [showRequiredFieldsHint, setShowRequiredFieldsHint] = useState(false)
+
+  useEffect(() => {
+    if (!shouldQueueRequiredFieldsHint || !hasCompletedInteraction) {
+      setShowRequiredFieldsHint(false)
+
+      return
+    }
+
+    const timerId = window.setTimeout(() => {
+      setShowRequiredFieldsHint(true)
+    }, 350)
+
+    return () => {
+      window.clearTimeout(timerId)
+    }
+  }, [shouldQueueRequiredFieldsHint, hasCompletedInteraction])
+
+  const shouldShowMissingError = (isMissing: boolean, isTouched?: boolean): boolean =>
+    isMissing && (Boolean(isTouched) || submitCount > 0)
+
+  const userNameDisplayError =
+    userNameError ||
+    (shouldShowMissingError(isUserNameMissing, touchedFields.userName) ? 'Required' : undefined)
+  const firstNameDisplayError =
+    firstNameError ||
+    (shouldShowMissingError(isFirstNameMissing, touchedFields.firstName) ? 'Required' : undefined)
+  const lastNameDisplayError =
+    lastNameError ||
+    (shouldShowMissingError(isLastNameMissing, touchedFields.lastName) ? 'Required' : undefined)
+  const shouldShowMissingHint = (isMissing: boolean, isTouched?: boolean): boolean =>
+    showRequiredFieldsHint && isMissing && !isTouched
+  const userNameHintClassName = shouldShowMissingHint(isUserNameMissing, touchedFields.userName)
+    ? styles.requiredHint
+    : undefined
+  const firstNameHintClassName = shouldShowMissingHint(isFirstNameMissing, touchedFields.firstName)
+    ? styles.requiredHint
+    : undefined
+  const lastNameHintClassName = shouldShowMissingHint(isLastNameMissing, touchedFields.lastName)
+    ? styles.requiredHint
+    : undefined
 
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -100,7 +166,8 @@ export const ProfileForm = ({
           control={control}
           name={'userName'}
           label={'Username'}
-          error={errors?.userName?.message}
+          error={userNameDisplayError}
+          className={userNameHintClassName}
           required
         />
 
@@ -108,7 +175,8 @@ export const ProfileForm = ({
           control={control}
           name={'firstName'}
           label={'First name'}
-          error={errors?.firstName?.message}
+          error={firstNameDisplayError}
+          className={firstNameHintClassName}
           required
         />
 
@@ -116,7 +184,8 @@ export const ProfileForm = ({
           control={control}
           name={'lastName'}
           label={'Last name'}
-          error={errors?.lastName?.message}
+          error={lastNameDisplayError}
+          className={lastNameHintClassName}
           required
         />
       </div>
@@ -183,6 +252,11 @@ export const ProfileForm = ({
         <Button disabled={!isDirty || !isValid || isSubmitting} variant={'primary'} type={'submit'}>
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
+        {showRequiredFieldsHint && (
+          <Typography variant={'small_text'} className={styles.infoHint}>
+            Fill in required fields above to save changes.
+          </Typography>
+        )}
       </div>
     </form>
   )

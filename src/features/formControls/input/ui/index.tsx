@@ -15,17 +15,18 @@ export const ControlledInput = <T extends FieldValues>({
   name,
   ...rest
 }: ControlledInputProps<T>): ReactElement => {
+  const { error: externalError, className: externalClassName, ...inputProps } = rest
   const {
     field,
     fieldState: { error, isDirty },
   } = useController({ control, name })
   const [isFocused, setIsFocused] = useState(false)
   const isPlaceholderLike = !isDirty && field.value && !isFocused
-  const showError = Boolean(error)
+  const resolvedError = externalError ?? error?.message
 
   const handleFocus: FocusEventHandler<HTMLInputElement> = event => {
     setIsFocused(true)
-    rest.onFocus?.(event)
+    inputProps.onFocus?.(event)
   }
 
   const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
@@ -33,14 +34,18 @@ export const ControlledInput = <T extends FieldValues>({
     field.onBlur()
   }
 
+  const resolvedClassName = [externalClassName, isPlaceholderLike ? s.placeholderLike : '']
+    .filter(Boolean)
+    .join(' ')
+
   return (
     <Input
       {...field}
-      {...rest}
-      error={showError ? error?.message : undefined}
+      {...inputProps}
+      error={resolvedError}
       onFocus={handleFocus}
       onBlur={handleBlur}
-      className={isPlaceholderLike ? s.placeholderLike : ''}
+      className={resolvedClassName}
     />
   )
 }
