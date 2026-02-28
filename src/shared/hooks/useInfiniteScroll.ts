@@ -26,6 +26,7 @@ export const useInfiniteScroll = ({
     )
 
     const currentRef = observerRef.current
+
     if (currentRef) {
       observer.observe(currentRef)
     }

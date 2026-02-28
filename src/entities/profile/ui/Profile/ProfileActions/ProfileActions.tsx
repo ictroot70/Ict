@@ -1,8 +1,10 @@
 'use client'
 
 import React from 'react'
-import s from './ProfileActions.module.scss'
+
 import { Button } from '@/shared/ui'
+
+import s from './ProfileActions.module.scss'
 
 interface Props {
   isOwnProfile: boolean

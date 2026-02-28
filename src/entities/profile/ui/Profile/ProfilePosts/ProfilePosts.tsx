@@ -1,16 +1,16 @@
 'use client'
-import { useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
-import s from './ProfilePosts.module.scss'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { useDeletePostLogic } from '@/entities/posts/hooks/useDeletePostLogic'
 import { useEditPostLogic } from '@/entities/posts/hooks/useEditPostLogic'
-
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 import { DeletePostModal } from '@/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal'
 import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
 import { Typography } from '@/shared/ui'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+import s from './ProfilePosts.module.scss'
 
 type Props = {
   posts: PostViewModel[]
@@ -44,6 +44,7 @@ export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile, userId }) =
 
   const handleOpenPostModal = (postId: number) => {
     const params = new URLSearchParams(searchParams.toString())
+
     params.set('postId', String(postId))
     router.replace(`/profile/${userId}?${params.toString()}`, { scroll: false })
   }

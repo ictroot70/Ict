@@ -6,5 +6,5 @@ type Props = {
 }
 
 export const ProfileBio = ({ message }: Props) => (
-  <Typography variant="regular_16">{message || 'No information has been added yet.'}</Typography>
+  <Typography variant={'regular_16'}>{message || 'No information has been added yet.'}</Typography>
 )

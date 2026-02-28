@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+
 import { useMeQuery } from '@/features/auth'
 import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
+import { useRouter } from 'next/navigation'
 
 export default function ProfileRedirect() {
   const { data: user } = useMeQuery()

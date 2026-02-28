@@ -8,7 +8,9 @@ type Prop = {
 export const InfiniteScrollTrigger = ({ hasNextPage, onLoadMore }: Prop) => {
   const { observerRef } = useInfiniteScroll({ hasNextPage, onLoadMore })
 
-  if (!hasNextPage) return null
+  if (!hasNextPage) {
+    return null
+  }
 
   return <div ref={observerRef} style={{ height: '2px' }}></div>
 }

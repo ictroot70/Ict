@@ -1,7 +1,8 @@
 'use client'
-import s from './ProfileStats.module.scss'
 import { UserMetadata } from '@/shared/types'
 import { Typography } from '@/shared/ui'
+
+import s from './ProfileStats.module.scss'
 
 type Props = {
   stats: UserMetadata
@@ -20,8 +21,8 @@ export const ProfileStats = ({ stats }: Props) => {
     <ul className={s.stats}>
       {statsData.map(({ label, value }) => (
         <li key={label}>
-          <Typography variant="bold_14">{value}</Typography>
-          <Typography variant="regular_14">{label}</Typography>
+          <Typography variant={'bold_14'}>{value}</Typography>
+          <Typography variant={'regular_14'}>{label}</Typography>
         </li>
       ))}
     </ul>

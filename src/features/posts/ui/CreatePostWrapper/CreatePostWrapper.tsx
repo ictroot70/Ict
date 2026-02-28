@@ -5,6 +5,7 @@ import { ReactElement } from 'react'
 import { useCreatePostModal } from '@/features/posts/hooks/useCreatePostModal'
 import CreatePost from '@/features/posts/ui/CreatePostForm'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+
 import { useAuth } from '../../utils/useAuth'
 
 export default function CreatePostWrapper(): ReactElement | null {

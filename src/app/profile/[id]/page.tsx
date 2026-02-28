@@ -1,6 +1,5 @@
 import { fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
-
 import { Profile } from '@/entities/profile/ui'
 
 type Props = {
@@ -21,6 +20,7 @@ export default async function ProfilePage({ params }: Props) {
     return <Profile profileDataServer={profileData} postsDataServer={postsData} />
   } catch (error) {
     console.error('Error fetching profile or posts data:', error)
+
     return (
       <div>
         <h1>Profile not found</h1>

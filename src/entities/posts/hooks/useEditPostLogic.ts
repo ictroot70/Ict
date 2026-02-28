@@ -2,15 +2,14 @@ import { useState } from 'react'
 
 import { useUpdatePostMutation } from '@/entities/posts/api/postApi'
 
-export const useEditPostLogic = (
-  userId: number,
-  options?: { enabled?: boolean }
-) => {
+export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }) => {
   const [updatePost] = useUpdatePostMutation()
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
 
   const handleEditPost = async (postId: string, newDescription: string) => {
-    if (options?.enabled === false) return
+    if (options?.enabled === false) {
+      return
+    }
 
     const updateData = {
       description: newDescription,

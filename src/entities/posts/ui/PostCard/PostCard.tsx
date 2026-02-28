@@ -2,10 +2,9 @@
 
 import React from 'react'
 
-import Link from 'next/link'
-import Image from 'next/image'
-
 import { PostViewModel } from '@/shared/types'
+import Image from 'next/image'
+import Link from 'next/link'
 
 import s from './PostCard.module.scss'
 

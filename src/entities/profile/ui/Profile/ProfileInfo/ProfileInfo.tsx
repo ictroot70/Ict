@@ -1,12 +1,12 @@
-import s from './ProfileInfo.module.scss'
-
+import { type PublicProfileData } from '@/entities/profile/api'
 import { Avatar } from '@/shared/composites'
 import { Typography } from '@/shared/ui'
 
-import { type PublicProfileData } from '@/entities/profile/api'
+import s from './ProfileInfo.module.scss'
+
 import { ProfileActions } from '../ProfileActions'
-import { ProfileStats } from '../ProfileStats'
 import { ProfileBio } from '../ProfileBio'
+import { ProfileStats } from '../ProfileStats'
 
 type Props = {
   profile: PublicProfileData

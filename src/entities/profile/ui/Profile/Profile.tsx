@@ -1,11 +1,11 @@
 'use client'
-import s from './Profile.module.scss'
-
 import { PaginatedPosts } from '@/entities/posts/api'
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
-
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
+
+import s from './Profile.module.scss'
+
 import { ProfileInfo } from './ProfileInfo'
 import { ProfilePosts } from './ProfilePosts'
 
