@@ -139,11 +139,11 @@
 }
 
 .characterError {
-  color: #ff4d4f;
+  color: var(--color-danger-300);
 }
 
 .errorMessage {
-  color: #ff4d4f;
+  color: var(--color-danger-300);
   margin-top: -8px;
   margin-bottom: 0;
 }

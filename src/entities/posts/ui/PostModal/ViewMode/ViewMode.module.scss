@@ -71,7 +71,7 @@
 }
 
 .descriptionTimestamp {
-  color: #8d9094;
+  color: var(--color-light-900);
 }
 
 .comments {
@@ -91,7 +91,7 @@
 }
 
 .commentTimestamp {
-  color: #8d9094;
+  color: var(--color-light-900);
 }
 
 .commentLikeButton {
@@ -149,7 +149,7 @@
 }
 
 .likeAvatar1 {
-  background: #7f1414;
+  background: var(--color-danger-700);
 }
 
 .likeAvatar2 {
@@ -159,13 +159,13 @@
 }
 
 .likeAvatar3 {
-  background: #0773e0;
+  background: var(--color-primary-500);
   margin-left: -8px;
   z-index: -2;
 }
 
 .timestamp {
-  color: #8d9094;
+  color: var(--color-light-900);
   padding-bottom: 7px;
 }
 
@@ -181,7 +181,7 @@
 .input {
   border: none;
   background: transparent;
-  color: white;
+  color: var(--color-light-100);
 
   &:focus {
     outline: none;
