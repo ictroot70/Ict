@@ -12,10 +12,12 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "typecheck": "tsc --noEmit",
+    "type-check": "pnpm run typecheck",
+    "ci:check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo \"Tests are not configured yet\" && exit 0",
-    "type-check": "tsc --noEmit"
+    "test": "echo \"Tests are not configured yet\" && exit 0"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3",
