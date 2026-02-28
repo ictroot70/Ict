@@ -11,6 +11,7 @@ export interface ProfileData {
   avatars: Avatar[]
   createdAt?: string
 }
+export type ProfileDto = ProfileData
 
 export interface PublicProfileData {
   id: number
@@ -21,6 +22,7 @@ export interface PublicProfileData {
   isFollowing: boolean
   isFollowedBy: boolean
 }
+export type PublicProfileResponse = PublicProfileData
 
 export interface Avatar {
   url: string
@@ -29,6 +31,7 @@ export interface Avatar {
   fileSize: number
   createdAt: string
 }
+export type AvatarDto = Avatar
 
 export interface UserMetadata {
   followers: number
@@ -36,16 +39,31 @@ export interface UserMetadata {
   publications: number
 }
 export interface ProfileUpdateRequest {
-  userName: string
-  firstName: string
-  lastName: string
+  userName?: string
+  firstName?: string
+  lastName?: string
   city?: string
   country?: string
   region?: string
-  dateOfBirth?: string
+  dateOfBirth?: null | string
   aboutMe?: string
+}
+export type ProfileUpdateDto = ProfileUpdateRequest
+
+export interface UploadAvatarResponse {
+  avatars: Avatar[]
 }
 
 export interface PublicProfileRequest {
   profileId: number
 }
+
+export interface FullProfileResponse extends ProfileData {
+  isFollowing: boolean
+  isFollowedBy: boolean
+  followingCount: number
+  followersCount: number
+  publicationsCount: number
+}
+
+export type ProfileType = FullProfileResponse | PublicProfileResponse

@@ -14,10 +14,11 @@ type PropType = {
   options?: EmblaOptionsType
   filtersState?: Record<number, string>
   onSlideChange?: (index: number) => void
+  priorityFirstImage?: boolean
 }
 
 export const Carousel: React.FC<PropType> = props => {
-  const { slides, options, filtersState, onSlideChange } = props
+  const { slides, options, filtersState, onSlideChange, priorityFirstImage = false } = props
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -82,6 +83,8 @@ export const Carousel: React.FC<PropType> = props => {
                     src={typeof slide === 'string' ? slide : slide.url}
                     alt={`Image ${index + 1}`}
                     fill
+                    priority={priorityFirstImage && index === 0}
+                    sizes={'(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
                     className={filter ? s[filter.toLowerCase()] : ''}
                   />
                 </div>

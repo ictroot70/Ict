@@ -1,12 +1,10 @@
 'use client'
-import { APP_ROUTES } from '@/shared/constant'
-
-import { useMeQuery } from '@/features/auth'
-import { useParams, useRouter } from 'next/navigation'
-import { useInitializeProfile } from '@/entities/profile/hooks'
-
 import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
+import { useInitializeProfile } from '@/entities/profile/hooks'
+import { useMeQuery } from '@/features/auth'
+import { APP_ROUTES } from '@/shared/constant'
+import { useParams, useRouter } from 'next/navigation'
 
 export const useProfile = (
   profileDataServer: PublicProfileData,
@@ -45,7 +43,7 @@ export const useProfile = (
   }
 
   const handleEditProfile = () => {
-    router.push(APP_ROUTES.PROFILE.EDIT)
+    router.push(APP_ROUTES.PROFILE.EDIT(userId))
   }
 
   const handleSendMessage = () => {

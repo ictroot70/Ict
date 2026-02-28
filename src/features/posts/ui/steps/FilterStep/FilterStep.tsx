@@ -2,148 +2,53 @@
 import React, { useCallback, useState } from 'react'
 
 import { FilterName, FILTERS } from '@/features/posts/lib/constants/filter-configs'
-import { UploadedFile } from '@/features/posts/model/types'
 import { Header } from '@/features/posts/ui/Header/header'
-import { Carousel, ToastAlert } from '@/shared/composites'
-import { PostImageViewModel, UploadedImageViewModel } from '@/shared/types'
+import { Carousel } from '@/shared/composites'
 import { Card, Typography } from '@/shared/ui'
-import { toast } from 'react-toastify/unstyled'
 
 import styles from './FilterStep.module.scss'
 
 interface Props {
-  onNext: () => void
+  onNext: () => Promise<void>
   onPrev: () => void
-  files: UploadedFile[]
+  isProcessing: boolean
+  files: Array<{ preview: string }>
   filtersState: Record<number, FilterName>
   setFiltersState: React.Dispatch<React.SetStateAction<Record<number, FilterName>>>
-  handleUpload: (file: File | Blob) => Promise<UploadedImageViewModel | undefined>
-  setUploadedImage: React.Dispatch<React.SetStateAction<PostImageViewModel[]>>
-  setIsUploading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const FilterStep: React.FC<Props> = ({
   onNext,
   onPrev,
+  isProcessing,
   files,
   setFiltersState,
   filtersState,
-  handleUpload,
-  setUploadedImage,
-  setIsUploading,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const currentFilter = filtersState[currentIndex] || 'Normal'
+
   const applyFilter = useCallback(
     (filterName: FilterName) => {
-      setFiltersState(prev => ({
-        ...prev,
-        [currentIndex]: filterName,
-      }))
+      setFiltersState(prev => ({ ...prev, [currentIndex]: filterName }))
     },
     [currentIndex, setFiltersState]
   )
 
-  const handleNext = useCallback(async () => {
-    onNext()
-
-    try {
-      setIsUploading(true)
-      const uploadPromises = files.map(async (file, idx) => {
-        const filter = filtersState[idx] || 'Normal'
-
-        const img = new Image()
-
-        img.src = file.preview
-        await new Promise((resolve, reject) => {
-          img.onload = resolve
-          img.onerror = reject
-        })
-
-        const canvas = document.createElement('canvas')
-
-        canvas.width = img.width
-        canvas.height = img.height
-        const ctx = canvas.getContext('2d')!
-
-        switch (filter) {
-          case 'Clarendon':
-            ctx.filter = 'contrast(1.2) saturate(1.35)'
-            break
-          case 'Gingham':
-            ctx.filter = 'contrast(0.9) brightness(1.1)'
-            break
-          case 'Moon':
-            ctx.filter = 'grayscale(1) contrast(1.1) brightness(1.1)'
-            break
-          case 'Lark':
-            ctx.filter = 'brightness(1.1) saturate(1.2)'
-            break
-          default:
-            ctx.filter = 'none'
-        }
-
-        const MAX_DIMENSION = 1920
-        let width = img.width
-        let height = img.height
-
-        if (width > height) {
-          if (width > MAX_DIMENSION) {
-            height *= MAX_DIMENSION / width
-            width = MAX_DIMENSION
-          }
-        } else {
-          if (height > MAX_DIMENSION) {
-            width *= MAX_DIMENSION / height
-            height = MAX_DIMENSION
-          }
-        }
-
-        canvas.width = width
-        canvas.height = height
-
-        ctx.drawImage(img, 0, 0, width, height)
-
-        const blob = await new Promise<Blob | null>(resolve =>
-          canvas.toBlob(resolve, 'image/jpeg', 0.8)
-        )
-
-        if (!blob) {
-          return null
-        }
-
-        return handleUpload(blob)
-      })
-
-      const results = await Promise.all(uploadPromises)
-      const uploadedAll = results.flatMap(r => r?.images ?? [])
-
-      if (uploadedAll.length > 0) {
-        setUploadedImage(uploadedAll as PostImageViewModel[])
-      }
-    } catch (e: unknown) {
-      let msg = 'Error loading files'
-
-      if (typeof e === 'string') {
-        msg = e
-      } else if (e instanceof Error) {
-        msg = e.message
-      } else if (typeof e === 'object' && e && 'data' in e) {
-        const data = (e as any).data
-
-        msg = typeof data === 'string' ? data : (data?.message ?? msg)
-      }
-
-      toast(<ToastAlert type={'error'} message={`❌ ${msg}`} />)
-    } finally {
-      setIsUploading(false)
-    }
-  }, [files, filtersState, handleUpload, setIsUploading, onNext, setUploadedImage])
+  const handleNext = useCallback(() => {
+    void onNext()
+  }, [onNext])
 
   return (
     <div className={styles.wrapper}>
-      <Header onPrev={onPrev} onNext={handleNext} title={'Filters'} nextStepTitle={'Next'} />
+      <Header
+        onPrev={onPrev}
+        onNext={handleNext}
+        title={'Filters'}
+        nextStepTitle={isProcessing ? 'Processing...' : 'Next'}
+        disabledNext={isProcessing}
+      />
       <div className={styles.carouselContainer}>
         <div className={styles.carouselWrapper}>
           <Carousel

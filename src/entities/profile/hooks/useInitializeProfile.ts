@@ -1,7 +1,9 @@
+import { useEffect, useRef, useState } from 'react'
+
 import { PaginatedPosts, postApi } from '@/entities/posts/api'
 import { useAppStore } from '@/lib/hooks'
 import { InfiniteData } from '@reduxjs/toolkit/query'
-import { useEffect, useRef, useState } from 'react'
+
 import { profileApi, PublicProfileData } from '../api'
 
 export const useInitializeProfile = (
@@ -34,7 +36,9 @@ export const useInitializeProfile = (
         pageParams: [null],
       }
 
-      store.dispatch(postApi.util.upsertQueryData('getPostsByUser', { userId }, initialData))
+      store.dispatch(
+        postApi.util.upsertQueryData('getInfinitePostsByUser', { userId }, initialData)
+      )
     }
 
     isInitialized.current = true

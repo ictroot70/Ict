@@ -14,11 +14,12 @@ import s from './PublicPost.module.scss'
 type Props = {
   post: PublicPostResponse
   urlProfile: string
+  isPriorityPost?: boolean
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
 
-export const PublicPost = ({ post, urlProfile }: Props) => {
+export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
   const { userName, images, avatarOwner, description, createdAt } = post
 
   const timeAgo = useTimeAgo(createdAt)
@@ -36,9 +37,16 @@ export const PublicPost = ({ post, urlProfile }: Props) => {
     <div className={s.post}>
       <div className={s.post__media}>
         {images.length > 1 ? (
-          <Carousel slides={images} />
+          <Carousel slides={images} priorityFirstImage={isPriorityPost} />
         ) : (
-          <Image priority src={images[0]?.url || DEFAULT_IMAGE} alt={"Image"} fill sizes={'(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'} className={s.post__image} />
+          <Image
+            priority={isPriorityPost}
+            src={images[0]?.url || DEFAULT_IMAGE}
+            alt={'Image'}
+            fill
+            sizes={'(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
+            className={s.post__image}
+          />
         )}
       </div>
 

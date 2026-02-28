@@ -4,10 +4,7 @@ import { useDeletePostMutation } from '@/entities/posts/api/postApi'
 import { APP_ROUTES } from '@/shared/constant'
 import { useRouter } from 'next/navigation'
 
-export const useDeletePostLogic = (
-  userId: number,
-  options?: { enabled?: boolean }
-) => {
+export const useDeletePostLogic = (userId: number, options?: { enabled?: boolean }) => {
   const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
@@ -15,7 +12,9 @@ export const useDeletePostLogic = (
   const router = useRouter()
 
   const handleDeletePost = (postId: string) => {
-    if (options?.enabled === false) return
+    if (options?.enabled === false) {
+      return
+    }
     setSelectedPostId(postId)
     setIsDeleteModalOpen(true)
   }
@@ -28,7 +27,7 @@ export const useDeletePostLogic = (
     try {
       const postIdNumber = parseInt(selectedPostId)
 
-      await deletePost({ postId: postIdNumber }).unwrap()
+      await deletePost({ postId: postIdNumber, userId }).unwrap()
 
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
