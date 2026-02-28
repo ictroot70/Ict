@@ -22,7 +22,7 @@ export const APP_ROUTES = {
 
   PROFILE: {
     ID: (id: number) => `/profile/${id}`,
-    EDIT: `/settings`,
+    EDIT: (id: number) => `/profile/${id}/settings/general`,
   },
 
   // PUBLIC_USERS: {

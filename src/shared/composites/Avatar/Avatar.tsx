@@ -1,15 +1,17 @@
+import { memo } from 'react'
+
 import { clsx } from 'clsx'
-import Image from 'next/image'
+import Image, { StaticImageData } from 'next/image'
 
 import s from './Avatar.module.scss'
 
 type Props = {
   className?: string
-  image?: null | string
+  image?: null | string | StaticImageData
   alt?: string
   size?: number
 }
-export const Avatar = ({ image, alt, className, size = 40 }: Props) => {
+export const Avatar = memo(function Avatar({ image, alt, className, size = 40 }: Props) {
   const DEFAULT_AVATAR = '/default-avatar.svg'
   const DEFAULT_AVATAR_ALT = 'Avatar'
   const classNames = clsx(s.avatar, className)
@@ -24,4 +26,4 @@ export const Avatar = ({ image, alt, className, size = 40 }: Props) => {
       className={classNames}
     />
   )
-}
+})

@@ -1,13 +1,10 @@
-import { ReactNode } from 'react'
-
 import { Bounce, ToastContainer } from 'react-toastify/unstyled'
 
 import 'react-toastify/dist/ReactToastify.css'
 
-export const ToastWrapper = ({ children }: { children: ReactNode }) => {
+export const ToastWrapper = () => {
   return (
     <>
-      {children}
       <ToastContainer
         limit={3}
         autoClose={5000}

@@ -5,7 +5,6 @@ export {
   Google,
   BellOutline,
   RussiaFlag,
-  Select,
   UkFlag,
   ArrowBack,
   ArrowForwardSimple,
@@ -30,4 +29,5 @@ export {
   ImageOutline,
   MoreHorizontal,
   Close,
+  Pin,
 } from '@ictroot/ui-kit'

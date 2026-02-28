@@ -3,6 +3,7 @@ import React from 'react'
 import { APP_ROUTES } from '@/shared/constant'
 import { Button } from '@ictroot/ui-kit'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 
 import s from './ProfileActions.module.scss'
 
@@ -26,13 +27,16 @@ export const ProfileActions: React.FC<Props> = ({
   onUnfollow,
   isLoading = false,
 }) => {
+  const { id } = useParams<{ id: string }>()
+  const userId = Number(id)
+
   if (!isAuthenticated) {
     return null
   }
 
   if (isOwnProfile) {
     return (
-      <Button variant={'secondary'} as={Link} href={APP_ROUTES.PROFILE.EDIT}>
+      <Button variant={'secondary'} as={Link} href={APP_ROUTES.PROFILE.EDIT(userId)}>
         Profile Settings
       </Button>
     )
