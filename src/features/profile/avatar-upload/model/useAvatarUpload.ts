@@ -27,6 +27,8 @@ export function useAvatarUpload({ onUpload, onDelete }: AvatarUploadProps) {
     },
     maxFiles: 1,
     maxSize: 10 * 1024 * 1024,
+    noClick: true,
+    noKeyboard: true,
     onDrop: files => {
       const file = files[0]
 

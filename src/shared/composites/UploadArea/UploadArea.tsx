@@ -32,20 +32,34 @@ export const UploadArea: React.FC<UploadAreaProps> = ({
   showCamera = false,
   onCameraClick,
 }) => {
+  const openFileDialog = () => openDialog()
+
   return (
     <div className={styles.wrapper}>
-      <Card {...getRootProps()} className={styles.dropzone}>
+      <Card
+        {...getRootProps({
+          onClick: openFileDialog,
+          onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              openFileDialog()
+            }
+          },
+        })}
+        className={styles.dropzone}
+      >
         <input
           {...getInputProps({
             onClick: (e: React.MouseEvent<HTMLInputElement>) => {
+              e.stopPropagation()
               e.currentTarget.value = ''
             },
           })}
         />
-        <ImageOutline size={48} />
+        <div className={styles.iconWrapper} aria-hidden={'true'}>
+          <ImageOutline size={48} />
+        </div>
       </Card>
-
-      {/*{error && <p className={styles.error}>{error}</p>}*/}
 
       <div className={styles.actions}>
         <Button variant={'primary'} onClick={openDialog}>
