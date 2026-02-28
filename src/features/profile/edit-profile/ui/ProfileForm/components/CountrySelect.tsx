@@ -42,6 +42,7 @@ export function CountrySelect({
         label={'Select your country'}
         disabled={disabled}
         placeholder={placeholder}
+        classNames={error ? { trigger: styles.selectTriggerError } : undefined}
       />
       {error && <Typography variant={'danger'}>{error.message}</Typography>}
     </div>

@@ -1,19 +1,33 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+}
+
+.inputField {
   padding-bottom: 24px;
+}
+
+.inputFieldWithError {
+  padding-bottom: 0;
 }
 .dateOfBirth {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 0;
   padding-bottom: 24px;
+}
+
+.dateOfBirthWithError {
+  padding-bottom: 8px;
 }
 .location {
   display: flex;
   gap: 24px;
-  padding: 24px 0 10px;
+  padding-block: 0 34px;
+}
+
+.locationWithError {
+  padding-bottom: 10px;
 }
 .location_myPosition {
   display: flex;
@@ -43,6 +57,10 @@
   gap: 24px;
   padding-bottom: 24px;
 }
+
+.aboutMeWithError {
+  padding-bottom: 0;
+}
 .saveButton {
   display: flex;
   flex-direction: column;
@@ -64,6 +82,38 @@
 .requiredHint {
   border-color: var(--color-warning-500);
   animation: requiredHintPulse 420ms ease-out;
+}
+
+input.fieldTextError.fieldTextError.fieldTextError:not(:disabled),
+textarea.fieldTextError.fieldTextError.fieldTextError:not(:disabled) {
+  color: var(--color-danger-500);
+}
+
+input.fieldTextError.fieldTextError.fieldTextError:not(:disabled)::placeholder,
+textarea.fieldTextError.fieldTextError.fieldTextError:not(:disabled)::placeholder {
+  color: var(--color-danger-500);
+  opacity: 0.8;
+}
+
+button.selectTriggerError.selectTriggerError.selectTriggerError {
+  border-color: var(--color-danger-500);
+  color: var(--color-danger-500);
+  background-color: var(--color-dark-500);
+}
+
+button.selectTriggerError.selectTriggerError.selectTriggerError:not([data-disabled]):hover {
+  border-color: var(--color-danger-500);
+  color: var(--color-danger-500);
+}
+
+button.selectTriggerError.selectTriggerError.selectTriggerError:not([data-disabled]):focus-visible {
+  border-color: transparent;
+  outline: 2px solid var(--color-danger-500);
+}
+
+button.selectTriggerError.selectTriggerError.selectTriggerError[data-state='open'] {
+  border-color: var(--color-danger-500);
+  color: var(--color-danger-500);
 }
 
 @keyframes hintFadeIn {

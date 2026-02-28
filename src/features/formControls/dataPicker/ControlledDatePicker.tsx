@@ -6,6 +6,7 @@ import { DatePickerSingle, DatePickerSingleProps } from '@/shared/ui'
 type ControlledDatePickerSingleProps<T extends FieldValues> = {
   control: Control<T>
   name: Path<T>
+  useFieldErrorFallback?: boolean
 } & Omit<DatePickerSingleProps, 'value' | 'onDateChange'>
 
 const normalizeDateToLocalDay = (date: Date): Date =>
@@ -39,7 +40,8 @@ export function ControlledDatePickerSingle<T extends FieldValues>({
   const [remountKey, setRemountKey] = useState(0)
 
   const resolvedError = error?.message
-  const { error: externalError, ...restProps } = rest
+  const { error: externalError, useFieldErrorFallback = true, ...restProps } = rest
+  const datePickerError = useFieldErrorFallback ? (externalError ?? resolvedError) : externalError
   const currentDate = isDateValue(value) ? normalizeDateToLocalDay(value) : undefined
   const currentDateTimestamp = currentDate?.getTime()
 
@@ -88,7 +90,7 @@ export function ControlledDatePickerSingle<T extends FieldValues>({
       key={remountKey}
       value={value}
       onDateChange={handleDateChange}
-      error={externalError ?? resolvedError}
+      error={datePickerError}
       {...restProps}
     />
   )
