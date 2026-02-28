@@ -1,29 +1,31 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
-import { useMeQuery } from '@/features/auth'
-import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 import { usePathname, useRouter } from 'next/navigation'
 
-export function AuthGuard({ children }: { children: ReactNode }) {
-  const { data, isLoading, isError, isFetching } = useMeQuery()
+interface Props {
+  children: ReactNode
+}
+
+type AuthGuardState = {
+  auth: {
+    isAuthenticated: boolean
+  }
+}
+
+export function AuthGuard({ children }: Props) {
+  const isAuthenticated = useSelector((state: AuthGuardState) => state.auth.isAuthenticated)
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    if (isError) {
+    if (!isAuthenticated) {
       router.replace(`${APP_ROUTES.AUTH.LOGIN}?from=${encodeURIComponent(pathname)}`)
     }
-  }, [isError, router, pathname])
-
-  if (isLoading || isFetching) {
-    return <Loading />
-  }
-  if (isError || !data) {
-    return null
-  }
+  }, [isAuthenticated, pathname, router])
 
   return <>{children}</>
 }

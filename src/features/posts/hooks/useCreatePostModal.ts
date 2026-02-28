@@ -7,7 +7,21 @@ import { useCallback, useMemo } from 'react'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 
-export const useCreatePostModal = (pathname: any, searchParams: any, router: any) => {
+type SearchParamsLike = {
+  get: (name: string) => null | string
+  toString: () => string
+}
+
+type RouterLike = {
+  push: (url: string) => void
+  replace: (url: string, options?: { scroll?: boolean }) => void
+}
+
+export const useCreatePostModal = (
+  pathname: string,
+  searchParams: SearchParamsLike,
+  router: RouterLike
+) => {
   const { user } = useAuth()
 
   const action = useMemo(() => searchParams.get('action'), [searchParams])

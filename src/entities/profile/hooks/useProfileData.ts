@@ -1,11 +1,11 @@
-import { ProfileType, AvatarViewDto } from '../api'
+import { ProfileType, AvatarDto } from '../api'
 import { isFullProfile, isPublicProfile } from '../model/type-guards'
 
 interface ProfileData {
   userName: string
   fullName?: string
   aboutMe: string
-  avatars: AvatarViewDto[]
+  avatars: AvatarDto[]
   following: number
   followers: number
   publications: number

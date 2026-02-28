@@ -5,6 +5,7 @@ import { ReactNode } from 'react'
 import { RootLayoutClient } from '@/app/RootLayoutClient'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
+import { AuthRestoreProvider } from '@/features/auth/providers'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 
@@ -16,22 +17,11 @@ export const metadata: Metadata = {
   description:
     'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
   keywords: [
-    'Ictroot',
-    'social platform',
-    'photo gallery',
-    'React',
-    'Next.js',
-    'Redux Toolkit',
-    'Zod',
-    'React Hook Form',
-    'RTK Query',
-    'TypeScript',
-    'Framer Motion',
-    'Docker',
-    'Jenkins',
-    'Storybook',
-    'Sass',
-    'UI library',
+    'social network',
+    'photo sharing',
+    'community platform',
+    'online gallery',
+    'social media',
   ],
   authors: [{ name: 'Ictroot Team', url: 'https://ictroot.uk' }],
   openGraph: {
@@ -86,14 +76,15 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
-    <html lang={'en'}>
-      <body className={`${inter.variable}`}>
+    <html lang={'en'} suppressHydrationWarning>
+      <body className={inter.variable} suppressHydrationWarning>
         <StoreProvider>
-          <AppHeader />
-          <ToastWrapper>
+          <AuthRestoreProvider>
+            <AppHeader />
             <RootLayoutClient>{children}</RootLayoutClient>
-          </ToastWrapper>
+          </AuthRestoreProvider>
         </StoreProvider>
+        <ToastWrapper />
       </body>
     </html>
   )

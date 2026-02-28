@@ -4,8 +4,6 @@ import { ReactNode } from 'react'
 
 import { AuthGuard } from '@/shared/guards'
 
-// import s from './ProtectedLayout.module.scss'
-
 export default function ProtectedLayout({
   children,
   modal,

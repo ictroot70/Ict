@@ -1,6 +1,5 @@
 import {
   API_ROUTES,
-  baseQueryWithReauth,
   CheckRecoveryCodeRequest,
   LoginRequest,
   MeResponse,
@@ -10,8 +9,8 @@ import {
   RefreshTokenResponse,
 } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { authTokenStorage } from '@/shared/lib'
-import { createApi } from '@reduxjs/toolkit/query/react'
+import { logout, setAuthenticated } from '@/shared/auth/authSlice'
+import { authTokenStorage, logger } from '@/shared/lib'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -24,6 +23,19 @@ export const authApi = baseApi.injectEndpoints({
       }),
 
       invalidatesTags: ['Me'],
+
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          if (data.accessToken) {
+            authTokenStorage.setAccessToken(data.accessToken)
+            dispatch(setAuthenticated())
+          }
+        } catch (error) {
+          logger.error('[login] Failed:', error)
+        }
+      },
     }),
     me: builder.query<MeResponse, void>({
       query: () => {
@@ -34,6 +46,15 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ['Me'],
       transformResponse: (user: MeResponse) => {
         return user
+      },
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          dispatch(setAuthenticated())
+        } catch (error) {
+          dispatch(logout())
+        }
       },
     }),
     logout: builder.mutation<void, void>({
@@ -47,11 +68,14 @@ export const authApi = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
-          authTokenStorage.removeAccessToken()
+
+          authTokenStorage.clear()
+
+          dispatch(logout())
           dispatch(authApi.util.invalidateTags(['Me']))
           dispatch(authApi.util.resetApiState())
         } catch (error) {
-          console.error('Logout failed:', error)
+          logger.error('Logout failed:', error)
         }
       },
     }),
