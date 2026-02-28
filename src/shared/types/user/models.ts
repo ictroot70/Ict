@@ -1,4 +1,8 @@
-import { AvatarView } from '@/entities/profile'
+import { AvatarViewDto } from '@/shared/types/base/common'
+
+type AvatarView = AvatarViewDto & {
+  createdAt: string
+}
 
 export interface UserBase {
   id: number

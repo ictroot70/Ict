@@ -4,13 +4,18 @@ function getErrorMessage(err: unknown, defaultMessage: string): string {
 
 const CAMERA_WARMUP_DELAY_MS = 300
 
+type NavigatorWithUAData = Navigator & {
+  userAgentData?: {
+    mobile?: boolean
+  }
+}
+
 export function isMobileDevice(): boolean {
   if (typeof window === 'undefined') {
     return false
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const uaDataMobile = (navigator as any).userAgentData?.mobile
+  const uaDataMobile = (navigator as NavigatorWithUAData).userAgentData?.mobile
 
   if (typeof uaDataMobile === 'boolean') {
     return uaDataMobile

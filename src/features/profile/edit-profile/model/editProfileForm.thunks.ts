@@ -1,6 +1,7 @@
-import { UseFormReset, UseFormSetValue } from 'react-hook-form'
+import type { Action, ThunkAction } from '@reduxjs/toolkit'
 
-import { AppThunk } from '@/app/store'
+import { UseFormReset } from 'react-hook-form'
+
 import { ProfileDto } from '@/entities/profile'
 import {
   EditProfileFormValues,
@@ -9,6 +10,8 @@ import {
   setInitialized,
 } from '@/features/profile/edit-profile'
 import { OptionType } from '@/shared/api/location'
+
+type AppThunk<ReturnType = void> = ThunkAction<ReturnType, unknown, unknown, Action>
 
 export const initializeFormFromProfile =
   (

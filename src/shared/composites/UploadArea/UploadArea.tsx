@@ -1,5 +1,7 @@
 'use client'
 
+import type { DropzoneState } from 'react-dropzone'
+
 import React from 'react'
 
 import { Button, Card, ImageOutline } from '@/shared/ui'
@@ -7,8 +9,8 @@ import { Button, Card, ImageOutline } from '@/shared/ui'
 import styles from './UploadArea.module.scss'
 
 interface UploadAreaProps {
-  getRootProps: () => any
-  getInputProps: (props?: any) => any
+  getRootProps: DropzoneState['getRootProps']
+  getInputProps: DropzoneState['getInputProps']
   openDialog: () => void
   error?: string | null
 

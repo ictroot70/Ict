@@ -1,4 +1,4 @@
-type MaybeUnwrap<T> = T & { unwrap?: () => Promise<any> }
+type MaybeUnwrap<T> = T & { unwrap?: () => Promise<unknown> }
 
 export type ExtractRtkActions<Api> = Api extends {
   endpoints: infer Endpoints

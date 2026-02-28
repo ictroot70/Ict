@@ -1,8 +1,14 @@
+type UserAccountData = {
+  userName: string
+  email: string
+  userId: number
+}
+
 type UserRootState = {
   user: {
-    accountData: any
+    accountData: UserAccountData
     isAuth: boolean
-    accessToken: unknown
+    accessToken: string | null
   }
 }
 

@@ -1,5 +1,7 @@
 'use client'
 
+import type { DropzoneState } from 'react-dropzone'
+
 import React, { useEffect, useState } from 'react'
 
 import { CameraCapture, shouldShowCameraButton } from '@/features/profile/avatar-upload'
@@ -9,8 +11,8 @@ import { Modal } from '@/shared/ui'
 import s from './UploadStep.module.scss'
 
 interface UploadStepProps {
-  getRootProps: () => any
-  getInputProps: (props?: any) => any
+  getRootProps: DropzoneState['getRootProps']
+  getInputProps: DropzoneState['getInputProps']
   openDialog: () => void
   error: string | null
   onErrorClose: () => void
