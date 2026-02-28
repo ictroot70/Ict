@@ -71,6 +71,7 @@
     "prettier": "3.5.3",
     "sass": "^1.87.0",
     "stylelint": "^16.19.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
   }
 }
