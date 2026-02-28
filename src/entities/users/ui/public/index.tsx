@@ -1,9 +1,9 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useStore } from 'react-redux'
 
 import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
+import { useAppStore } from '@/lib/hooks'
 import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 
@@ -17,9 +17,11 @@ type Props = {
   postsData: GetPublicPostsResponse
 }
 
+const LCP_PRIORITY_POSTS_COUNT = 4
+
 export function Public({ postsData }: Props) {
   const needInitPostsInStore = useRef(!!postsData)
-  const store = useStore()
+  const store = useAppStore()
 
   const { data, isLoading, isError } = useGetPublicPostsQuery(
     { pageSize: 4 },
@@ -32,9 +34,7 @@ export function Public({ postsData }: Props) {
 
   useEffect(() => {
     if (needInitPostsInStore.current) {
-      ;(store as any).dispatch(
-        publicUsersApi.util.upsertQueryData('getPublicPosts', { pageSize: 4 }, postsData)
-      )
+      store.dispatch(publicUsersApi.util.upsertQueryData('getPublicPosts', { pageSize: 4 }, postsData))
       needInitPostsInStore.current = false
     }
   }, [postsData, store])
@@ -59,13 +59,13 @@ export function Public({ postsData }: Props) {
     <div className={s.container}>
       <UsersCounter totalCount={totalUsers || 0} />
       <div className={s.posts}>
-        {items.map(post => {
-
+        {items.map((post, index) => {
           return (
             <PublicPost
               key={post.id}
               post={post}
               urlProfile={APP_ROUTES.PROFILE.ID(post.ownerId)}
+              isPriorityPost={index < LCP_PRIORITY_POSTS_COUNT}
             />
           )
         })}
