@@ -1,5 +1,5 @@
 import type { EditProfileFormValues } from './editProfileFormValues'
-import type { ProfileDto } from '@/entities/profile/api/dto'
+import type { ProfileDto } from '@/entities/profile'
 import type { OptionType } from '@/shared/api/location'
 import type { UseFormReset } from 'react-hook-form'
 

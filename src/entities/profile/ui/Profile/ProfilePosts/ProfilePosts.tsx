@@ -1,33 +1,57 @@
+'use client'
 import React from 'react'
 
+import { PostViewModel } from '@/entities/posts/api'
+import { useDeletePostLogic } from '@/entities/posts/hooks/useDeletePostLogic'
+import { useEditPostLogic } from '@/entities/posts/hooks/useEditPostLogic'
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
-import { PostViewModel } from '@/shared/types'
+import { DeletePostModal } from '@/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal'
+import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
 import { Typography } from '@/shared/ui'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-import s from '../Profile.module.scss'
+import s from './ProfilePosts.module.scss'
 
-interface ProfilePostsProps {
-  posts?: PostViewModel[]
+type Props = {
+  posts: PostViewModel[]
   isOwnProfile: boolean
-  modalVariant: 'public' | 'myPost' | 'userPost'
-  onEditPost?: (postId: string, description: string) => void
-  onDeletePost?: (postId: string) => void
-  isEditing: string | null
-  profileId: number
+  userId: number
 }
 
-export const ProfilePosts: React.FC<ProfilePostsProps> = ({
-  posts,
-  isOwnProfile,
-  modalVariant,
-  onEditPost,
-  onDeletePost,
-  isEditing,
-  profileId,
-}) => {
+export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile, userId }) => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const currentPostId = searchParams.get('postId')
+  const isPostModalOpen = !!currentPostId
+  const currentPost = posts.find(p => p.id === Number(currentPostId))
+
+  const { editingPostId, handleEditPost } = useEditPostLogic(userId, {
+    enabled: isOwnProfile,
+  })
+
+  const {
+    isDeleteModalOpen,
+    isDeleting,
+    handleConfirmDelete,
+    handleCancelDelete,
+    handleDeletePost,
+  } = useDeletePostLogic(userId, {
+    enabled: isOwnProfile,
+  })
+
+  const handleClosePost = () => router.replace(`/profile/${userId}`)
+
+  const handleOpenPostModal = (postId: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+
+    params.set('postId', String(postId))
+    router.replace(`/profile/${userId}?${params.toString()}`, { scroll: false })
+  }
+
   if (!posts?.length) {
     return (
-      <Typography variant={'h1'} className={s.profile__message}>
+      <Typography variant={'h1'} className={s.message}>
         {isOwnProfile
           ? "You haven't published any posts yet"
           : "This user hasn't published any posts yet"}
@@ -36,18 +60,32 @@ export const ProfilePosts: React.FC<ProfilePostsProps> = ({
   }
 
   return (
-    <ul className={s.profile__posts}>
-      {posts.map(post => (
-        <PostCard
-          key={post.id}
-          post={post}
-          modalVariant={modalVariant}
-          onEditPost={onEditPost}
-          onDeletePost={onDeletePost}
-          isEditing={isEditing === post.id.toString()}
-          userId={profileId}
-        />
-      ))}
-    </ul>
+    <div className={s.wrapper}>
+      <ul className={s.posts}>
+        {posts.map(post => (
+          <PostCard key={post.id} post={post} onOpenModal={handleOpenPostModal} />
+        ))}
+      </ul>
+
+      {isPostModalOpen && currentPost && (
+        <>
+          <PostModal
+            open={isPostModalOpen}
+            onClose={handleClosePost}
+            onEditPost={isOwnProfile ? handleEditPost : undefined}
+            onDeletePost={isOwnProfile ? handleDeletePost : undefined}
+            isEditing={editingPostId === currentPost.id.toString()}
+            /*   post={currentPost} */
+          />
+
+          <DeletePostModal
+            isOpen={isDeleteModalOpen}
+            onClose={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            isLoading={isDeleting}
+          />
+        </>
+      )}
+    </div>
   )
 }

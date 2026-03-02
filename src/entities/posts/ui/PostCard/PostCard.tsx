@@ -2,63 +2,45 @@
 
 import React from 'react'
 
-import { PostModal } from '@/entities/profile/ui/PostModal/PostModal'
 import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
 
-import styles from './PostCard.module.scss'
+import s from './PostCard.module.scss'
 
 interface PostCardProps {
   post: PostViewModel
-  modalVariant: 'public' | 'myPost' | 'userPost'
-  onEditPost?: (postId: string, description: string) => void
-  onDeletePost?: (postId: string) => void
-  isEditing?: boolean
-  userId: number
+  onOpenModal?: (postId: number) => void
 }
 
-export const PostCard: React.FC<PostCardProps> = ({
-  post,
-  onEditPost,
-  onDeletePost,
-  isEditing,
-  userId,
-}) => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const isPostModalOpen = searchParams.get('postId') === String(post.id)
+const DEFAULT_IMAGE = '/default-image.svg'
 
-  const handleClosePost = () => router.replace(`/profile/${userId}`)
-
+export const PostCard: React.FC<PostCardProps> = ({ post, onOpenModal }) => {
   const params = new URLSearchParams({ postId: String(post.id) })
 
   return (
-    <div className={styles.postCard}>
+    <div className={s.postCard}>
       <Link
-        href={`/profile/${userId}?${params.toString()}`}
+        href={`/profile/${post.ownerId}?${params.toString()}`}
         scroll={false}
         prefetch={false}
-        className={styles.postImageWrapper}
+        className={s.postImageWrapper}
+        onClick={e => {
+          if (onOpenModal) {
+            e.preventDefault()
+            onOpenModal(post.id)
+          }
+        }}
       >
         <Image
-          src={post.images[0]?.url || '/fallback-image.jpg'}
+          src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}
           width={342}
           height={228}
-          className={styles.postImage}
+          className={s.postImage}
           priority
         />
       </Link>
-
-      <PostModal
-        open={isPostModalOpen}
-        onClose={handleClosePost}
-        onEditPost={onEditPost}
-        onDeletePost={onDeletePost}
-        isEditing={isEditing}
-      />
     </div>
   )
 }

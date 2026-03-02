@@ -1,4 +1,4 @@
-import type { ProfileDto } from '@/entities/profile/api/dto'
+import type { ProfileDto } from '@/entities/profile'
 
 import { CountryWithCities, locationApi } from '@/shared/api/location'
 import { buildCitiesMap, buildCountriesOptions } from '@/shared/lib'

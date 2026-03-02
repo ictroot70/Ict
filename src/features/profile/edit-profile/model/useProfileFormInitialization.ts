@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { UseFormReset } from 'react-hook-form'
 
-import { ProfileDto } from '@/entities/profile/api/dto'
+import { ProfileDto } from '@/entities/profile'
 import { OptionType } from '@/shared/api/location'
 import { logger } from '@/shared/lib/logger'
 

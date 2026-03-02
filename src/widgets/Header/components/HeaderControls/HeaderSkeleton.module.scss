@@ -1,4 +1,13 @@
-.header__controls {
+.notificationSkeletonSlot {
   display: flex;
-  gap: 1rem;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.notificationSkeleton {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
 }

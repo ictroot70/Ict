@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import {
   postApi,
@@ -21,9 +21,9 @@ import {
   UseCreatePostFlowArgs,
 } from '@/features/posts/model/create-post-flow.types'
 import { useFilterProcessing } from '@/features/posts/model/useFilterProcessing'
+import { useAuth } from '@/features/posts/utils/useAuth'
 import { useAppDispatch } from '@/lib/hooks'
 import { showToastAlert } from '@/shared/lib'
-import { useParams } from 'next/navigation'
 
 type UploadRequestHandle = {
   abort?: () => void
@@ -35,14 +35,8 @@ export const useCreatePostFlow = ({
 }: UseCreatePostFlowArgs): CreatePostFlowState => {
   const { step, setStep, files, setFiles } = useCreatePost()
   const dispatch = useAppDispatch()
-  const params = useParams()
-
-  const userId = useMemo(() => {
-    const userIdParam = params?.userId
-    const rawUserId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam
-
-    return Number(rawUserId)
-  }, [params])
+  const { user } = useAuth()
+  const userId = user?.userId
 
   const [createPost] = useCreatePostMutation()
   const [deleteImage] = useDeleteImageMutation()
@@ -180,15 +174,19 @@ export const useCreatePostFlow = ({
 
     setIsPublishing(true)
     try {
+      if (!userId) {
+        showToastAlert({ message: 'Unable to identify current user', type: 'error' })
+
+        return
+      }
+
       const body = buildCreatePostBody(description, uploadedImages)
 
       const newPost = await createPost({ userId, body }).unwrap()
 
-      onPublishPostAction(newPost)
       backgroundUpload.markPublished()
+      onPublishPostAction(newPost)
       showToastAlert({ message: 'Post created!', type: 'success' })
-      resetForm()
-      onCloseAction()
     } catch (error) {
       const message = extractErrorMessage(error)
 
@@ -196,16 +194,7 @@ export const useCreatePostFlow = ({
     } finally {
       setIsPublishing(false)
     }
-  }, [
-    backgroundUpload,
-    createPost,
-    description,
-    isPublishing,
-    onCloseAction,
-    onPublishPostAction,
-    resetForm,
-    userId,
-  ])
+  }, [backgroundUpload, createPost, description, isPublishing, onPublishPostAction, userId])
 
   const uploadProgress = backgroundUpload.state.progress
   const uploadStage = backgroundUpload.state.uploadStage

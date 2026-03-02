@@ -31,7 +31,10 @@ export const submitProfileUpdateThunk =
 
       await updateProfile(payload)
 
-      reset(data)
+      reset({
+        ...data,
+        ...(payload.aboutMe !== undefined ? { aboutMe: payload.aboutMe } : {}),
+      })
 
       if (typeof window !== 'undefined') {
         sessionStorage.removeItem('profile-settings-general-draft')

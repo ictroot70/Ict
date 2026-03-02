@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useLazyGetMyProfileQuery } from '@/entities/profile'
+import { useLazyGetMyProfileQuery } from '@/entities/profile/api'
 import { type LoginFields, signInSchema, useLoginMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'

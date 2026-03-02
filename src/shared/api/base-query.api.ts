@@ -1,6 +1,7 @@
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { logout } from '@/shared/auth/authSlice'
+import { isBrowser } from '@/shared/environment/is-browser'
 import { logger } from '@/shared/lib/logger'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {
@@ -17,7 +18,11 @@ const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
 
   prepareHeaders: headers => {
-    const token = authTokenStorage.getAccessToken()
+    let token: null | string = null
+
+    if (isBrowser()) {
+      token = authTokenStorage.getAccessToken()
+    }
 
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)

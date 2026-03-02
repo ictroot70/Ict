@@ -82,11 +82,9 @@ export const ProfileForm = ({
 
   const dobErrorCode = errors?.date_of_birth?.message
   const isTooYoung = dobErrorCode === 'too_young'
-  const datePickerErrorText = isTooYoung ? (
-    <AgePolicyError profileId={profileId} onNavigate={onBeforePrivacyNavigate} />
-  ) : (
-    dobErrorCode
-  )
+  const datePickerErrorText = isTooYoung ? undefined : dobErrorCode
+  const datePickerError = isTooYoung ? true : datePickerErrorText
+  const hasDateOfBirthError = isTooYoung || Boolean(datePickerErrorText)
   const userNameValue = useWatch({ control, name: 'userName' })
   const firstNameValue = useWatch({ control, name: 'firstName' })
   const lastNameValue = useWatch({ control, name: 'lastName' })
@@ -142,6 +140,14 @@ export const ProfileForm = ({
   const lastNameDisplayError =
     lastNameError ||
     (shouldShowMissingError(isLastNameMissing, touchedFields.lastName) ? 'Required' : undefined)
+  const cityError = typeof errors?.city?.message === 'string' ? errors.city.message : undefined
+  const aboutMeError =
+    typeof errors?.aboutMe?.message === 'string' ? errors.aboutMe.message : undefined
+  const hasUserNameError = Boolean(userNameDisplayError)
+  const hasFirstNameError = Boolean(firstNameDisplayError)
+  const hasLastNameError = Boolean(lastNameDisplayError)
+  const hasCityError = Boolean(cityError)
+  const hasAboutMeError = Boolean(aboutMeError && touchedFields.aboutMe)
   const shouldShowMissingHint = (isMissing: boolean, isTouched?: boolean): boolean =>
     showRequiredFieldsHint && isMissing && !isTouched
   const userNameHintClassName = shouldShowMissingHint(isUserNameMissing, touchedFields.userName)
@@ -153,6 +159,9 @@ export const ProfileForm = ({
   const lastNameHintClassName = shouldShowMissingHint(isLastNameMissing, touchedFields.lastName)
     ? styles.requiredHint
     : undefined
+  const userNameClassName = hasUserNameError ? styles.fieldTextError : userNameHintClassName
+  const firstNameClassName = hasFirstNameError ? styles.fieldTextError : firstNameHintClassName
+  const lastNameClassName = hasLastNameError ? styles.fieldTextError : lastNameHintClassName
 
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -162,35 +171,49 @@ export const ProfileForm = ({
   return (
     <form onSubmit={handleSubmit} noValidate autoComplete={'on'}>
       <div className={styles.container}>
-        <ControlledInput
-          control={control}
-          name={'userName'}
-          label={'Username'}
-          error={userNameDisplayError}
-          className={userNameHintClassName}
-          required
-        />
+        <div
+          className={`${styles.inputField} ${hasUserNameError ? styles.inputFieldWithError : ''}`}
+        >
+          <ControlledInput
+            control={control}
+            name={'userName'}
+            label={'Username'}
+            error={userNameDisplayError}
+            className={userNameClassName || undefined}
+            required
+          />
+        </div>
 
-        <ControlledInput
-          control={control}
-          name={'firstName'}
-          label={'First name'}
-          error={firstNameDisplayError}
-          className={firstNameHintClassName}
-          required
-        />
+        <div
+          className={`${styles.inputField} ${hasFirstNameError ? styles.inputFieldWithError : ''}`}
+        >
+          <ControlledInput
+            control={control}
+            name={'firstName'}
+            label={'First name'}
+            error={firstNameDisplayError}
+            className={firstNameClassName || undefined}
+            required
+          />
+        </div>
 
-        <ControlledInput
-          control={control}
-          name={'lastName'}
-          label={'Last name'}
-          error={lastNameDisplayError}
-          className={lastNameHintClassName}
-          required
-        />
+        <div
+          className={`${styles.inputField} ${hasLastNameError ? styles.inputFieldWithError : ''}`}
+        >
+          <ControlledInput
+            control={control}
+            name={'lastName'}
+            label={'Last name'}
+            error={lastNameDisplayError}
+            className={lastNameClassName || undefined}
+            required
+          />
+        </div>
       </div>
 
-      <div className={styles.dateOfBirth}>
+      <div
+        className={`${styles.dateOfBirth} ${hasDateOfBirthError ? styles.dateOfBirthWithError : ''}`}
+      >
         <ControlledDatePickerSingle
           control={control}
           calendarProps={{
@@ -198,11 +221,15 @@ export const ProfileForm = ({
           }}
           name={'date_of_birth'}
           label={'Date of birth'}
-          error={datePickerErrorText}
+          error={datePickerError}
+          useFieldErrorFallback={!isTooYoung}
         />
+        {isTooYoung && (
+          <AgePolicyError profileId={profileId} onNavigate={onBeforePrivacyNavigate} />
+        )}
       </div>
 
-      <div className={styles.location}>
+      <div className={`${styles.location} ${hasCityError ? styles.locationWithError : ''}`}>
         <CountrySelect
           control={control}
           countries={optionsMap.country}
@@ -218,6 +245,7 @@ export const ProfileForm = ({
           label={lang === 'ru' ? 'Ваш город' : 'Select your city'}
           disabled={!optionsMap.city.length || !currentCountry}
           placeholder={cityPlaceholder}
+          classNames={hasCityError ? { trigger: styles.selectTriggerError } : undefined}
         />
       </div>
 
@@ -237,14 +265,15 @@ export const ProfileForm = ({
         </Typography>
       </div>
 
-      <div className={styles.aboutMe}>
+      <div className={`${styles.aboutMe} ${hasAboutMeError ? styles.aboutMeWithError : ''}`}>
         <ControlledTextarea
           control={control}
           name={'aboutMe'}
           label={'About me'}
           placeholder={'You can write about yourself here'}
-          error={errors?.aboutMe?.message}
+          error={aboutMeError}
           maxLength={200}
+          className={hasAboutMeError ? styles.fieldTextError : undefined}
         />
       </div>
 

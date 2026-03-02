@@ -26,8 +26,11 @@ export function prepareProfileUpdatePayload({
       ? data.date_of_birth.toISOString()
       : null
 
-  const strOrUndefined = (val: string | undefined): string | undefined =>
-    val && val.trim().length > 0 ? val : undefined
+  const strOrUndefined = (val: string | undefined): string | undefined => {
+    const trimmedValue = val?.trim()
+
+    return trimmedValue && trimmedValue.length > 0 ? trimmedValue : undefined
+  }
 
   const payload: {
     userName: string

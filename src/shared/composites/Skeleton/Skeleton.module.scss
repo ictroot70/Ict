@@ -19,13 +19,13 @@
 }
 
 .default {
-  --base: #1a1a1a;
-  --highlight: #222;
+  --base: var(--color-dark-500);
+  --highlight: var(--color-dark-400);
 }
 
 .dark {
-  --base: #0f0f0f;
-  --highlight: #1a1a1a;
+  --base: var(--color-dark-700);
+  --highlight: var(--color-dark-500);
 }
 
 @media (prefers-reduced-motion: reduce) {
