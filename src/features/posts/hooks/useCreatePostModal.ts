@@ -39,13 +39,17 @@ export const useCreatePostModal = (
 
   const handlePublish = useCallback(
     (_post: PostViewModel) => {
+      close()
+
       if (user?.userId) {
-        router.push(APP_ROUTES.PROFILE.ID(user.userId))
-      } else {
-        close()
+        const profileUrl = APP_ROUTES.PROFILE.ID(user.userId)
+
+        if (pathname !== profileUrl) {
+          router.replace(profileUrl)
+        }
       }
     },
-    [user, router, close]
+    [close, pathname, router, user]
   )
 
   return {
