@@ -2,7 +2,7 @@
 import { PaginatedPosts } from '@/entities/posts/api'
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
-import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
+import { InfiniteScrollTrigger } from '@/shared/composites'
 
 import s from './Profile.module.scss'
 
@@ -19,17 +19,14 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
     posts,
     userId,
     profile,
-    isLoading,
     hasNextPage,
     isOwnProfile,
     isAuthenticated,
+    shouldShowAuthActionSkeleton,
+    authActionSkeletonVariant,
     profileInfoActions,
     loadMorePostsHandler,
   } = useProfile(profileDataServer, postsDataServer)
-
-  if (isLoading) {
-    return <Loading />
-  }
 
   return (
     <>
@@ -37,6 +34,8 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
         <ProfileInfo
           profile={profile}
           isAuth={isAuthenticated}
+          shouldShowAuthActionSkeleton={shouldShowAuthActionSkeleton}
+          authActionSkeletonVariant={authActionSkeletonVariant}
           isOwnProfile={isOwnProfile}
           {...profileInfoActions}
         />
