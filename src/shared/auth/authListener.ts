@@ -1,5 +1,6 @@
 import { APP_ROUTES } from '@/shared/constant'
 import { logger } from '@/shared/lib/logger'
+import { clearAuthSessionHint } from '@/shared/lib/storage'
 import { createListenerMiddleware, isAnyOf } from '@reduxjs/toolkit'
 
 import { logout } from './authSlice'
@@ -45,6 +46,8 @@ authListenerMiddleware.startListening({
     if (typeof window === 'undefined') {
       return
     }
+
+    clearAuthSessionHint()
 
     const currentPath = window.location.pathname
 

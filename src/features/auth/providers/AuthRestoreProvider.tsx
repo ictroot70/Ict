@@ -1,28 +1,26 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 
 import { useMeQuery } from '@/features/auth'
 import { useGetCountriesQuery } from '@/shared/api'
-import { Loading } from '@/shared/composites'
-import { useAuthRestore, migrateFromLocalStorage } from '@/shared/lib'
+import { AuthRestoreContextProvider } from '@/shared/auth'
+import { migrateFromLocalStorage, useAuthRestore } from '@/shared/lib'
 
 export function AuthRestoreProvider({ children }: { children: ReactNode }) {
-  migrateFromLocalStorage()
+  useEffect(() => {
+    migrateFromLocalStorage()
+  }, [])
 
   const { isRestoring, shouldPrefetch } = useAuthRestore()
 
-  const { isLoading: isMeLoading } = useMeQuery(undefined, {
+  useMeQuery(undefined, {
     skip: !shouldPrefetch,
   })
 
-  const { isLoading: isCountriesLoading } = useGetCountriesQuery(undefined, {
+  useGetCountriesQuery(undefined, {
     skip: !shouldPrefetch,
   })
 
-  if (isRestoring || (shouldPrefetch && isMeLoading)) {
-    return <Loading />
-  }
-
-  return <>{children}</>
+  return <AuthRestoreContextProvider value={{ isRestoring }}>{children}</AuthRestoreContextProvider>
 }

@@ -4,26 +4,29 @@ import { ReactNode } from 'react'
 
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuth } from '@/features/posts/utils/useAuth'
-import { Loading } from '@/shared/composites'
-import { Sidebar } from '@/widgets/Sidebar'
+import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
 
 import s from './RootLayoutClient.module.scss'
 
-export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
+type Props = {
+  children: ReactNode
+  initialAuthHint: boolean
+}
+
+export const RootLayoutClient = ({ children, initialAuthHint }: Props) => {
   const { isAuthenticated, isLoading } = useAuth()
+  const showSidebar = isAuthenticated
+  const showSidebarSkeleton = !isAuthenticated && isLoading && initialAuthHint
+  const shouldReserveSidebarSpace = showSidebar || showSidebarSkeleton
 
   const isCreatePostOpen = isAuthenticated
-
-  if (isLoading) {
-    return <Loading />
-  }
 
   return (
     <main className={s.main}>
       <div className={s.wrapper}>
-        {isAuthenticated && <Sidebar />}
+        {shouldReserveSidebarSpace && (showSidebar ? <Sidebar /> : <SidebarSkeleton />)}
         <div
-          className={`${s.content} ${isAuthenticated ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
+          className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
         >
           {children}
         </div>

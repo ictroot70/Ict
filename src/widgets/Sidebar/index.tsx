@@ -102,3 +102,5 @@ export const Sidebar = () => {
     </nav>
   )
 }
+
+export { SidebarSkeleton } from './components/SidebarSkeleton'

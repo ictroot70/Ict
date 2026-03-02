@@ -5,7 +5,11 @@ import { ReactNode } from 'react'
 import { RootLayoutClient } from '@/app/RootLayoutClient'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
-import { AuthRestoreProvider } from '@/features/auth/providers'
+import { AuthSessionHintProvider } from '@/shared/auth'
+import {
+  getServerAuthSessionHint,
+  getServerAuthUserIdHint,
+} from '@/shared/lib/storage/auth-session-hint.server'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 
@@ -70,19 +74,24 @@ const inter = Inter({
   display: 'swap',
 })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode
 }>) {
+  const initialAuthHint = await getServerAuthSessionHint()
+  const initialAuthUserIdHint = await getServerAuthUserIdHint()
+
   return (
     <html lang={'en'} suppressHydrationWarning>
       <body className={inter.variable} suppressHydrationWarning>
         <StoreProvider>
-          <AuthRestoreProvider>
+          <AuthSessionHintProvider
+            value={{ hasAuthHint: initialAuthHint, authUserIdHint: initialAuthUserIdHint }}
+          >
             <AppHeader />
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </AuthRestoreProvider>
+            <RootLayoutClient initialAuthHint={initialAuthHint}>{children}</RootLayoutClient>
+          </AuthSessionHintProvider>
         </StoreProvider>
         <ToastWrapper />
       </body>

@@ -11,6 +11,8 @@ import {
 import { baseApi } from '@/shared/api/base-api'
 import { logout, setAuthenticated } from '@/shared/auth/authSlice'
 import { authTokenStorage, logger } from '@/shared/lib'
+import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import { jwtDecode } from 'jwt-decode'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -29,7 +31,18 @@ export const authApi = baseApi.injectEndpoints({
           const { data } = await queryFulfilled
 
           if (data.accessToken) {
+            let userId: number | undefined
+
+            try {
+              const decoded = jwtDecode<{ userId?: number }>(data.accessToken)
+
+              userId = typeof decoded.userId === 'number' ? decoded.userId : undefined
+            } catch (decodeError) {
+              logger.warn('[login] Failed to decode userId from accessToken:', decodeError)
+            }
+
             authTokenStorage.setAccessToken(data.accessToken)
+            markAuthSessionHint(userId)
             dispatch(setAuthenticated())
           }
         } catch (error) {
@@ -51,8 +64,10 @@ export const authApi = baseApi.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
+          markAuthSessionHint(data.userId)
           dispatch(setAuthenticated())
         } catch (error) {
+          clearAuthSessionHint()
           dispatch(logout())
         }
       },
@@ -70,6 +85,7 @@ export const authApi = baseApi.injectEndpoints({
           await queryFulfilled
 
           authTokenStorage.clear()
+          clearAuthSessionHint()
 
           dispatch(logout())
           dispatch(authApi.util.invalidateTags(['Me']))
@@ -89,7 +105,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+    confirmRegistration: builder.mutation<unknown, { confirmationCode: string }>({
       query: body => ({
         url: API_ROUTES.AUTH.REGISTRATION_CONFIRMATION,
         method: 'POST',
