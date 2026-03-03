@@ -1,4 +1,5 @@
 import { API_ROUTES } from '@/shared/api'
+import { buildApiUrl } from '@/shared/api/get-api-base-url'
 import { logger } from '@/shared/lib'
 
 /**
@@ -18,16 +19,13 @@ export async function restoreAccessToken(): Promise<{
   try {
     logger.log('[restoreAccessToken] Attempting to restore access token...')
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${API_ROUTES.AUTH.UPDATE_TOKENS}`,
-      {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const response = await fetch(buildApiUrl(API_ROUTES.AUTH.UPDATE_TOKENS), {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
 
     if (response.ok) {
       const data = await response.json()
