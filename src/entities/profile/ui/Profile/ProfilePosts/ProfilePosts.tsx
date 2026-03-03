@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { Suspense, useCallback, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { useDeletePostLogic } from '@/entities/posts/hooks/useDeletePostLogic'
@@ -7,6 +7,7 @@ import { useEditPostLogic } from '@/entities/posts/hooks/useEditPostLogic'
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 import { DeletePostModal } from '@/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal'
 import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
+import { APP_ROUTES, type PostOpenSource } from '@/shared/constant'
 import { Typography } from '@/shared/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -16,15 +17,83 @@ type Props = {
   posts: PostViewModel[]
   isOwnProfile: boolean
   userId: number
+  initialPostIdServer?: null | number
+  initialPostDataServer?: null | PostViewModel
+  initialPostSourceServer?: PostOpenSource
 }
 
-export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile, userId }) => {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+const isPostSource = (value: string): value is PostOpenSource =>
+  value === 'home' || value === 'profile' || value === 'direct'
 
-  const currentPostId = searchParams.get('postId')
-  const isPostModalOpen = !!currentPostId
-  const currentPost = posts.find(p => p.id === Number(currentPostId))
+type ModalUrlState = {
+  postId: null | number
+  source: PostOpenSource
+}
+
+const getPostIdFromParam = (value: null | string): null | number => {
+  const parsedPostId = value ? Number(value) : NaN
+
+  return Number.isInteger(parsedPostId) && parsedPostId > 0 ? parsedPostId : null
+}
+
+const getModalStateFromSearchParams = (
+  searchParams: URLSearchParams,
+  initialSource: PostOpenSource
+): ModalUrlState => {
+  const sourceParam = searchParams.get('from')
+  const source = sourceParam && isPostSource(sourceParam) ? sourceParam : initialSource
+
+  return {
+    postId: getPostIdFromParam(searchParams.get('postId')),
+    source,
+  }
+}
+
+const ProfilePostsSearchParamsSync = ({
+  initialSource,
+  onChange,
+}: {
+  initialSource: PostOpenSource
+  onChange: (value: ModalUrlState) => void
+}) => {
+  const searchParams = useSearchParams()
+
+  React.useEffect(() => {
+    onChange(getModalStateFromSearchParams(searchParams, initialSource))
+  }, [searchParams, initialSource, onChange])
+
+  return null
+}
+
+export const ProfilePosts: React.FC<Props> = ({
+  posts,
+  isOwnProfile,
+  userId,
+  initialPostIdServer = null,
+  initialPostDataServer = null,
+  initialPostSourceServer = 'direct',
+}) => {
+  const [modalUrlState, setModalUrlState] = useState<ModalUrlState>({
+    postId: initialPostIdServer,
+    source: initialPostSourceServer,
+  })
+  const router = useRouter()
+  const currentPostIdNumber = modalUrlState.postId
+  const isPostModalOpen = currentPostIdNumber !== null
+  const currentPost = currentPostIdNumber
+    ? posts.find(p => p.id === currentPostIdNumber)
+    : undefined
+  const modalSource = modalUrlState.source
+  // SSR payload is preferred for initial direct/profile open; otherwise fallback to list item.
+  const modalPostData =
+    initialPostDataServer && initialPostIdServer === currentPostIdNumber
+      ? initialPostDataServer
+      : currentPost
+  const handleModalStateFromUrl = useCallback((value: ModalUrlState) => {
+    setModalUrlState(prev =>
+      prev.postId === value.postId && prev.source === value.source ? prev : value
+    )
+  }, [])
 
   const { editingPostId, handleEditPost } = useEditPostLogic(userId, {
     enabled: isOwnProfile,
@@ -40,13 +109,16 @@ export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile, userId }) =
     enabled: isOwnProfile,
   })
 
-  const handleClosePost = () => router.replace(`/profile/${userId}`)
+  const handleClosePost = () => {
+    setModalUrlState(prev => ({ ...prev, postId: null }))
 
-  const handleOpenPostModal = (postId: number) => {
-    const params = new URLSearchParams(searchParams.toString())
+    if (modalSource === 'home') {
+      router.replace(APP_ROUTES.ROOT, { scroll: false })
 
-    params.set('postId', String(postId))
-    router.replace(`/profile/${userId}?${params.toString()}`, { scroll: false })
+      return
+    }
+
+    router.replace(APP_ROUTES.PROFILE.ID(userId), { scroll: false })
   }
 
   if (!posts?.length) {
@@ -61,21 +133,29 @@ export const ProfilePosts: React.FC<Props> = ({ posts, isOwnProfile, userId }) =
 
   return (
     <div className={s.wrapper}>
+      <Suspense fallback={null}>
+        <ProfilePostsSearchParamsSync
+          initialSource={initialPostSourceServer}
+          onChange={handleModalStateFromUrl}
+        />
+      </Suspense>
       <ul className={s.posts}>
         {posts.map(post => (
-          <PostCard key={post.id} post={post} onOpenModal={handleOpenPostModal} />
+          <PostCard key={post.id} post={post} />
         ))}
       </ul>
 
-      {isPostModalOpen && currentPost && (
+      {isPostModalOpen && (
         <>
           <PostModal
+            key={currentPostIdNumber}
             open={isPostModalOpen}
             onClose={handleClosePost}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
             onDeletePost={isOwnProfile ? handleDeletePost : undefined}
-            isEditing={editingPostId === currentPost.id.toString()}
-            /*   post={currentPost} */
+            isEditing={editingPostId === String(currentPostIdNumber)}
+            postId={currentPostIdNumber ?? undefined}
+            postData={modalPostData}
           />
 
           <DeletePostModal

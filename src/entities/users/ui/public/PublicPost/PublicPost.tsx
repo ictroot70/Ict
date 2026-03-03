@@ -5,6 +5,7 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Carousel } from '@/shared/composites'
 import { Avatar } from '@/shared/composites/Avatar'
+import { APP_ROUTES } from '@/shared/constant'
 import { Typography } from '@ictroot/ui-kit'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -20,9 +21,10 @@ type Props = {
 const DEFAULT_IMAGE = '/default-image.svg'
 
 export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
-  const { userName, images, avatarOwner, description, createdAt } = post
+  const { id, ownerId, userName, images, avatarOwner, description, createdAt } = post
 
   const timeAgo = useTimeAgo(createdAt)
+  const postUrl = APP_ROUTES.PROFILE.WITH_POST(ownerId, id, 'home')
 
   const MAX_CHAR_COUNT = 67
 
@@ -35,7 +37,20 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
 
   return (
     <div className={s.post}>
-      <div className={s.post__media}>
+      <Link
+        href={postUrl}
+        scroll={false}
+        prefetch={false}
+        className={s.post__media}
+        onClick={event => {
+          const target = event.target as HTMLElement
+
+          if (target.closest('button')) {
+            event.preventDefault()
+            event.stopPropagation()
+          }
+        }}
+      >
         {images.length > 1 ? (
           <Carousel slides={images} priorityFirstImage={isPriorityPost} />
         ) : (
@@ -48,7 +63,7 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
             className={s.post__image}
           />
         )}
-      </div>
+      </Link>
 
       <div className={s.post__user}>
         <Avatar image={avatarOwner} size={36} />

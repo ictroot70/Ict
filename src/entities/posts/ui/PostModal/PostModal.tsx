@@ -1,10 +1,11 @@
 'use client'
 
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useCallback, useEffect, useState } from 'react'
 
+import { PostViewModel } from '@/entities/posts/api'
 import { usePostModal } from '@/entities/posts/hooks'
 import { PostModalHandlers } from '@/shared/types'
-import { Modal } from '@/shared/ui'
+import { Close, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
 
@@ -14,6 +15,8 @@ import { ViewMode } from './ViewMode/ViewMode'
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
+  postData?: PostViewModel
+  postId?: number
 }
 
 export const PostModal = ({
@@ -22,7 +25,11 @@ export const PostModal = ({
   onEditPost,
   onDeletePost,
   isEditing,
+  postData: initialPostData,
+  postId,
 }: Props): ReactElement => {
+  const [isClientMounted, setIsClientMounted] = useState(false)
+  const [showSsrFallback, setShowSsrFallback] = useState(open)
   const {
     comments,
     isEditingDescription,
@@ -36,19 +43,36 @@ export const PostModal = ({
     errors,
     postData,
     variant,
+    isAuthLoading,
     isAuthenticated,
     isOwnProfile,
+    hasPostData,
+    isPostLoading,
+    isPostError,
+    uiText,
     formattedCreatedAt,
     handlePublish,
     handleEditPost,
     handleCancelEdit,
-  } = usePostModal(open)
+    handleCopyLink,
+    applyLocalDescription,
+  } = usePostModal(open, initialPostData, postId)
 
-  const handleSaveDescription = ({ description: newDescription }: { description: string }) => {
+  const handleSaveDescription = async ({
+    description: newDescription,
+  }: {
+    description: string
+  }) => {
     const trimmed = newDescription.trim()
 
     if (trimmed && onEditPost && postData.postId) {
-      onEditPost(postData.postId, trimmed)
+      const updated = await onEditPost(postData.postId, trimmed)
+
+      if (updated === false) {
+        return
+      }
+
+      applyLocalDescription(trimmed)
       setIsEditingDescription(false)
     }
   }
@@ -59,43 +83,106 @@ export const PostModal = ({
     }
   }
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     if (!isEditingDescription && !isEditing) {
       onClose()
     }
-  }
+  }, [isEditingDescription, isEditing, onClose])
 
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isEditingDescription && !isEditing) {
-        onClose()
-      }
+    setIsClientMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!open) {
+      setShowSsrFallback(false)
+
+      return
     }
 
-    if (open) {
-      document.addEventListener('keydown', handleEscape)
+    if (!isClientMounted) {
+      setShowSsrFallback(true)
+
+      return
     }
 
-    return () => document.removeEventListener('keydown', handleEscape)
-  }, [open, onClose, isEditingDescription, isEditing])
+    setShowSsrFallback(true)
+
+    let rafId1 = 0
+    let rafId2 = 0
+
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        setShowSsrFallback(false)
+      })
+    })
+
+    return () => {
+      cancelAnimationFrame(rafId1)
+      cancelAnimationFrame(rafId2)
+    }
+  }, [open, isClientMounted])
 
   const showCloseBtnOutside = !isEditingDescription && !isEditing
 
-  return (
+  if (!open) {
+    return <></>
+  }
+
+  const content = renderContent()
+
+  return showCloseBtnOutside ? (
     <>
-      {showCloseBtnOutside ? (
+      {showSsrFallback && (
+        <div className={s.fallbackOverlay} aria-hidden>
+          <div className={s.fallbackDialog}>
+            <span className={s.fallbackCloseButton}>
+              <Close svgProps={{ width: 24, height: 24 }} />
+            </span>
+            {content}
+          </div>
+        </div>
+      )}
+      {isClientMounted && (
         <Modal open={open} onClose={handleCloseModal} closeBtnOutside className={s.modal}>
-          {renderContent()}
+          {content}
         </Modal>
-      ) : (
+      )}
+    </>
+  ) : (
+    <>
+      {showSsrFallback && (
+        <div className={s.fallbackOverlay} aria-hidden>
+          <div className={s.fallbackDialog}>{content}</div>
+        </div>
+      )}
+      {isClientMounted && (
         <Modal open={open} onClose={handleCloseModal} className={s.modal}>
-          {renderContent()}
+          {content}
         </Modal>
       )}
     </>
   )
 
   function renderContent() {
+    if (isPostLoading) {
+      return (
+        <div className={s.stateContainer}>
+          <Typography variant={'h1'}>{uiText.loadingPost}</Typography>
+        </div>
+      )
+    }
+
+    if (!hasPostData) {
+      return (
+        <div className={s.stateContainer}>
+          <Typography variant={'h1'}>
+            {isPostError ? uiText.notFoundPost : uiText.unavailablePost}
+          </Typography>
+        </div>
+      )
+    }
+
     return isEditingDescription ? (
       <EditMode
         descriptionControl={descriptionControl}
@@ -121,7 +208,9 @@ export const PostModal = ({
         handleCommentSubmit={handleCommentSubmit}
         watchComment={watchComment}
         handlePublish={handlePublish}
+        onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
+        isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
       />

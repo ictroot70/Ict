@@ -2,6 +2,7 @@
 
 import React from 'react'
 
+import { APP_ROUTES } from '@/shared/constant'
 import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,28 +11,16 @@ import s from './PostCard.module.scss'
 
 interface PostCardProps {
   post: PostViewModel
-  onOpenModal?: (postId: number) => void
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
 
-export const PostCard: React.FC<PostCardProps> = ({ post, onOpenModal }) => {
-  const params = new URLSearchParams({ postId: String(post.id) })
+export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+  const href = APP_ROUTES.PROFILE.WITH_POST(post.ownerId, post.id, 'profile')
 
   return (
     <div className={s.postCard}>
-      <Link
-        href={`/profile/${post.ownerId}?${params.toString()}`}
-        scroll={false}
-        prefetch={false}
-        className={s.postImageWrapper}
-        onClick={e => {
-          if (onOpenModal) {
-            e.preventDefault()
-            onOpenModal(post.id)
-          }
-        }}
-      >
+      <Link href={href} scroll={false} prefetch={false} className={s.postImageWrapper}>
         <Image
           src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}

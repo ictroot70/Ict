@@ -1,5 +1,8 @@
 'use client'
-import { PaginatedPosts } from '@/entities/posts/api'
+
+import type { PaginatedPosts, PostViewModel } from '@/entities/posts/api'
+import type { PostOpenSource } from '@/shared/constant'
+
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
 import { InfiniteScrollTrigger } from '@/shared/composites'
@@ -12,9 +15,20 @@ import { ProfilePosts } from './ProfilePosts'
 type Props = {
   profileDataServer: PublicProfileData
   postsDataServer: PaginatedPosts
+  initialPostIdServer?: null | number
+  initialPostDataServer?: null | PostViewModel
+  initialPostSourceServer?: PostOpenSource
 }
 
-export function Profile({ profileDataServer, postsDataServer }: Props) {
+const PROFILE_POSTS_SKELETON_COUNT = 8
+
+export function Profile({
+  profileDataServer,
+  postsDataServer,
+  initialPostIdServer = null,
+  initialPostDataServer = null,
+  initialPostSourceServer = 'direct',
+}: Props) {
   const {
     posts,
     userId,
@@ -39,7 +53,14 @@ export function Profile({ profileDataServer, postsDataServer }: Props) {
           isOwnProfile={isOwnProfile}
           {...profileInfoActions}
         />
-        <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} userId={userId} />
+        <ProfilePosts
+          posts={posts}
+          isOwnProfile={isOwnProfile}
+          userId={userId}
+          initialPostIdServer={initialPostIdServer}
+          initialPostDataServer={initialPostDataServer}
+          initialPostSourceServer={initialPostSourceServer}
+        />
       </div>
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMorePostsHandler} />
     </>

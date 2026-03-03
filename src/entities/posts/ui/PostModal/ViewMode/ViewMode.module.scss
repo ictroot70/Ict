@@ -61,6 +61,13 @@
   gap: 8px;
 }
 
+.actionsSkeleton {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
 .descriptionSection {
   padding: 0 24px;
   margin-bottom: 17px;
@@ -131,6 +138,12 @@
   min-height: 0;
 }
 
+.postButtonSkeleton {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
 .likesRow {
   display: flex;
   gap: 8px;
@@ -171,7 +184,22 @@
 
 .inputForm {
   display: flex;
+  align-items: center;
   margin-bottom: 5px;
+}
+
+.inputSkeleton {
+  flex: 1;
+  height: 36px;
+  width: 331px;
+  border-radius: 4px;
+}
+
+.publishSkeleton {
+  margin-left: 5px;
+  width: 100px;
+  height: 36px;
+  border-radius: 4px;
 }
 
 .separator {

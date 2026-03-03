@@ -119,6 +119,15 @@ export const postApi = baseApi.injectEndpoints({
           return
         }
 
+        const postByIdPatchResult = dispatch(
+          postApi.util.updateQueryData('getPostById', postId, draft => {
+            if (body.description) {
+              draft.description = body.description
+              draft.updatedAt = new Date().toISOString()
+            }
+          })
+        )
+
         const patchResult = dispatch(
           postApi.util.updateQueryData(
             'getInfinitePostsByUser',
@@ -141,6 +150,7 @@ export const postApi = baseApi.injectEndpoints({
         try {
           await queryFulfilled
         } catch {
+          postByIdPatchResult.undo()
           patchResult.undo()
         }
       },
@@ -262,6 +272,7 @@ export const postApi = baseApi.injectEndpoints({
       GetPostsByUserParams,
       null | number
     >({
+      keepUnusedDataFor: 300,
       infiniteQueryOptions: {
         initialPageParam: null,
         getNextPageParam: ({ items }) => {

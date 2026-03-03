@@ -3,18 +3,39 @@ import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useAuth } from '@/features/posts/utils/useAuth'
+import { showToastAlert } from '@/shared/lib'
 import {
   mapPostToModalData,
   PostModalData,
   PostVariant,
-  CommentFormData, // ← добавил
-  DescriptionFormData, // ← добавил
+  CommentFormData,
+  DescriptionFormData,
+  PostViewModel,
 } from '@/shared/types'
-import { useSearchParams } from 'next/navigation'
 
-export const usePostModal = (open: boolean) => {
+type UiLanguage = 'en' | 'rus'
+
+const postModalTextByLanguage = {
+  en: {
+    loadingPost: 'Loading post...',
+    unavailablePost: 'Post is unavailable',
+    notFoundPost: 'Post not found or unavailable',
+    copySuccess: 'Link copied',
+    copyError: 'Failed to copy link',
+  },
+  rus: {
+    loadingPost: 'Загрузка поста...',
+    unavailablePost: 'Пост недоступен',
+    notFoundPost: 'Пост не найден или недоступен',
+    copySuccess: 'Ссылка скопирована',
+    copyError: 'Не удалось скопировать ссылку',
+  },
+} as const
+
+export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
   const {
     control: commentControl,
@@ -36,15 +57,24 @@ export const usePostModal = (open: boolean) => {
     mode: 'onChange',
   })
 
-  const searchParams = useSearchParams()
-  const postIdFromQuery = searchParams.get('postId')
-  const postId = postIdFromQuery ? Number(postIdFromQuery) : undefined
+  const resolvedPostId = postId
 
-  const { data: postData } = useGetPostByIdQuery(postId as number, {
-    skip: !open || !postId,
+  const {
+    data: postDataFromQuery,
+    isError: isPostError,
+    isFetching: isPostFetching,
+  } = useGetPostByIdQuery(resolvedPostId as number, {
+    skip: !open || !resolvedPostId || !!initialPostData,
   })
+  const basePostData = initialPostData ?? postDataFromQuery
+  const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
+  const postData = localPostData
+  const hasPostData = Boolean(postData)
+  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
+  const uiText = postModalTextByLanguage[uiLanguage]
 
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
+  const isAuthPending = isAuthLoading && !user && !isAuthenticated
 
   const isOwnProfile = Boolean(
     isAuthenticated && postData?.ownerId && user?.userId && postData.ownerId === user.userId
@@ -77,6 +107,18 @@ export const usePostModal = (open: boolean) => {
     resetDescription({ description: postModalData.description })
   }, [postModalData.description, resetDescription])
 
+  useEffect(() => {
+    setLocalPostData(basePostData)
+  }, [basePostData, resolvedPostId])
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('language')
+
+    if (savedLanguage === 'en' || savedLanguage === 'rus') {
+      setUiLanguage(savedLanguage)
+    }
+  }, [])
+
   const handlePublish = (data: CommentFormData) => {
     const trimmed = data.comment.trim()
 
@@ -96,6 +138,52 @@ export const usePostModal = (open: boolean) => {
     setIsEditingDescription(false)
   }
 
+  const applyLocalDescription = (description: string) => {
+    setLocalPostData(prev => {
+      if (!prev) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        description,
+        updatedAt: new Date().toISOString(),
+      }
+    })
+  }
+
+  const handleCopyLink = async () => {
+    const url = window.location.href
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url)
+      } else {
+        const textArea = document.createElement('textarea')
+
+        textArea.value = url
+        textArea.style.position = 'fixed'
+        textArea.style.opacity = '0'
+        textArea.style.pointerEvents = 'none'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+
+        const copied = document.execCommand('copy')
+
+        document.body.removeChild(textArea)
+
+        if (!copied) {
+          throw new Error('Copy command failed')
+        }
+      }
+
+      showToastAlert({ message: uiText.copySuccess, type: 'success' })
+    } catch {
+      showToastAlert({ message: uiText.copyError, type: 'error' })
+    }
+  }
+
   return {
     comments,
     isEditingDescription,
@@ -109,11 +197,18 @@ export const usePostModal = (open: boolean) => {
     errors,
     postData: postModalData,
     variant,
+    isAuthLoading: isAuthPending,
     isAuthenticated,
     isOwnProfile,
+    hasPostData,
+    isPostLoading,
+    isPostError,
+    uiText,
     formattedCreatedAt,
     handlePublish,
     handleEditPost,
     handleCancelEdit,
+    handleCopyLink,
+    applyLocalDescription,
   }
 }
