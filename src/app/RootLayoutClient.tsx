@@ -10,13 +10,12 @@ import s from './RootLayoutClient.module.scss'
 
 type Props = {
   children: ReactNode
-  initialAuthHint: boolean
 }
 
-export const RootLayoutClient = ({ children, initialAuthHint }: Props) => {
+export const RootLayoutClient = ({ children }: Props) => {
   const { isAuthenticated, isLoading } = useAuth()
   const showSidebar = isAuthenticated
-  const showSidebarSkeleton = !isAuthenticated && isLoading && initialAuthHint
+  const showSidebarSkeleton = !isAuthenticated && isLoading
   const shouldReserveSidebarSpace = showSidebar || showSidebarSkeleton
 
   const isCreatePostOpen = isAuthenticated

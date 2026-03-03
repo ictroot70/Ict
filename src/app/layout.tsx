@@ -90,7 +90,7 @@ export default async function RootLayout({
             value={{ hasAuthHint: initialAuthHint, authUserIdHint: initialAuthUserIdHint }}
           >
             <AppHeader />
-            <RootLayoutClient initialAuthHint={initialAuthHint}>{children}</RootLayoutClient>
+            <RootLayoutClient>{children}</RootLayoutClient>
           </AuthSessionHintProvider>
         </StoreProvider>
         <ToastWrapper />
