@@ -1,38 +1,30 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/roboto';
 @import '@ictroot/ui-kit/style.css';
+@import './vendor-overrides.css';
 
+/* Theme tokens */
 :root {
   --font-family: 'Inter Variable', 'Roboto Variable', sans-serif;
   --background: var(--color-dark-700);
   --color-dark-500-transparent: rgb(23 23 23 / 56%);
-
-}
-
-html {
-  scrollbar-gutter: stable;
-}
-
-@supports not (scrollbar-gutter: stable) {
-  body {
-    overflow-y: scroll;
-  }
 }
 
 html,
 body {
-  max-width: 100vw;
+  width: 100%;
   font-family: var(--font-family), Arial, sans-serif;
-
 }
 
 body {
+  overflow: hidden auto;
   background: var(--background);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -57,28 +49,4 @@ main {
 
 ul {
   list-style: none;
-}
-
-/*  
-Changes in styles for the modal window, can be removed after editing in ui-kit
-*/
-._overlay_1p3pc_119 {
-  z-index: 100;
-}
-
-._content_1p3pc_126 {
-  z-index: 101;
-}
-
-/*  
-Changes in styles for the alert, can be removed after editing in ui-kit
-*/
-._alert_vrmkq_1 {
-  min-height: 0;
-  max-height: none;
-}
-
-/* todo: this styles are temporary, remove after editing in ui-kit */
-.rdp-day {
-  padding-inline: 1px;
 }
