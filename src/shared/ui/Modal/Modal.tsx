@@ -12,6 +12,7 @@ type ScrollLockSnapshot = {
   bodyRight: string
   bodyWidth: string
   bodyOverflow: string
+  bodyPaddingRight: string
 }
 
 let activeLocks = 0
@@ -26,6 +27,7 @@ const lockBodyScroll = () => {
 
   if (activeLocks === 0) {
     const scrollY = window.scrollY
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
 
     snapshot = {
       scrollY,
@@ -35,6 +37,14 @@ const lockBodyScroll = () => {
       bodyRight: body.style.right,
       bodyWidth: body.style.width,
       bodyOverflow: body.style.overflow,
+      bodyPaddingRight: body.style.paddingRight,
+    }
+
+    if (scrollbarWidth > 0) {
+      const computedPaddingRight =
+        Number.parseFloat(window.getComputedStyle(body).paddingRight) || 0
+
+      body.style.paddingRight = `${computedPaddingRight + scrollbarWidth}px`
     }
 
     body.style.position = 'fixed'
@@ -70,6 +80,7 @@ const unlockBodyScroll = () => {
     body.style.right = snapshot.bodyRight
     body.style.width = snapshot.bodyWidth
     body.style.overflow = snapshot.bodyOverflow
+    body.style.paddingRight = snapshot.bodyPaddingRight
 
     window.scrollTo(0, scrollY)
   }

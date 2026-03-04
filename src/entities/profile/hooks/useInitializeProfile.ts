@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 
 import { PaginatedPosts, postApi } from '@/entities/posts/api'
 import { useAppStore } from '@/lib/hooks'
@@ -53,10 +53,4 @@ export const useInitializeProfile = ({
     hydrateKey: `profile-page-${userId}`,
     shouldHydrate: shouldHydrateProfile || shouldHydratePosts,
   })
-
-  useEffect(() => {
-    return () => {
-      store.dispatch(postApi.util.invalidateTags([{ type: 'UserPosts', id: userId }]))
-    }
-  }, [store, userId])
 }

@@ -29,7 +29,6 @@ export const PostModal = ({
   postId,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
-  const [showSsrFallback, setShowSsrFallback] = useState(open)
   const {
     comments,
     isEditingDescription,
@@ -93,36 +92,6 @@ export const PostModal = ({
     setIsClientMounted(true)
   }, [])
 
-  useEffect(() => {
-    if (!open) {
-      setShowSsrFallback(false)
-
-      return
-    }
-
-    if (!isClientMounted) {
-      setShowSsrFallback(true)
-
-      return
-    }
-
-    setShowSsrFallback(true)
-
-    let rafId1 = 0
-    let rafId2 = 0
-
-    rafId1 = requestAnimationFrame(() => {
-      rafId2 = requestAnimationFrame(() => {
-        setShowSsrFallback(false)
-      })
-    })
-
-    return () => {
-      cancelAnimationFrame(rafId1)
-      cancelAnimationFrame(rafId2)
-    }
-  }, [open, isClientMounted])
-
   const showCloseBtnOutside = !isEditingDescription && !isEditing
 
   if (!open) {
@@ -131,37 +100,29 @@ export const PostModal = ({
 
   const content = renderContent()
 
-  return showCloseBtnOutside ? (
-    <>
-      {showSsrFallback && (
-        <div className={s.fallbackOverlay} aria-hidden>
-          <div className={s.fallbackDialog}>
+  if (!isClientMounted) {
+    return (
+      <div className={s.fallbackOverlay} aria-hidden>
+        <div className={s.fallbackDialog}>
+          {showCloseBtnOutside && (
             <span className={s.fallbackCloseButton}>
               <Close svgProps={{ width: 24, height: 24 }} />
             </span>
-            {content}
-          </div>
-        </div>
-      )}
-      {isClientMounted && (
-        <Modal open={open} onClose={handleCloseModal} closeBtnOutside className={s.modal}>
+          )}
           {content}
-        </Modal>
-      )}
-    </>
+        </div>
+      </div>
+    )
+  }
+
+  return showCloseBtnOutside ? (
+    <Modal open={open} onClose={handleCloseModal} closeBtnOutside className={s.modal}>
+      {content}
+    </Modal>
   ) : (
-    <>
-      {showSsrFallback && (
-        <div className={s.fallbackOverlay} aria-hidden>
-          <div className={s.fallbackDialog}>{content}</div>
-        </div>
-      )}
-      {isClientMounted && (
-        <Modal open={open} onClose={handleCloseModal} className={s.modal}>
-          {content}
-        </Modal>
-      )}
-    </>
+    <Modal open={open} onClose={handleCloseModal} className={s.modal}>
+      {content}
+    </Modal>
   )
 
   function renderContent() {
