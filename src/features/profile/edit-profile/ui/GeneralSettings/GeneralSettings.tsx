@@ -106,8 +106,6 @@ export function GeneralSettings(): ReactElement {
     data: rawCountries,
     isSuccess,
     isError: isCountriesError,
-    isLoading: isCountriesLoading,
-    isFetching: isCountriesFetching,
     refetch: refetchCountries,
   } = useGetCountriesQuery(undefined, { refetchOnMountOrArgChange: true })
   const transformedData = useMemo(
@@ -129,6 +127,8 @@ export function GeneralSettings(): ReactElement {
     hasInitializedDataRef.current = true
     dispatch(setCountriesData(transformedData))
   }, [dispatch, isSuccess, transformedData])
+
+  const isLocationTemporarilyUnavailable = isCountriesError
 
   const countries = useAppSelector(selectCountries)
   const citiesMap = useAppSelector(selectCitiesMap)
@@ -225,6 +225,19 @@ export function GeneralSettings(): ReactElement {
     }
   }, [dispatch])
 
+  useEffect(() => {
+    if (!isLocationTemporarilyUnavailable || isDataLoaded) {
+      return
+    }
+
+    dispatch(
+      setCountriesData({
+        countries: [],
+        citiesMap: {},
+      })
+    )
+  }, [dispatch, isDataLoaded, isLocationTemporarilyUnavailable])
+
   const handleSubmitProfile = useCallback(
     async (data: EditProfileFormValues) => {
       await dispatch(
@@ -259,10 +272,7 @@ export function GeneralSettings(): ReactElement {
     [getValues, persistDraft]
   )
   const hasLoadError =
-    Boolean(profileError) ||
-    isCountriesError ||
-    (!profile && !isProfileLoading && !isProfileFetching) ||
-    (!rawCountries && !isCountriesLoading && !isCountriesFetching)
+    Boolean(profileError) || (!profile && !isProfileLoading && !isProfileFetching)
 
   if (hasLoadError) {
     return (
@@ -322,6 +332,7 @@ export function GeneralSettings(): ReactElement {
               errors={errors}
               profileId={profile?.id}
               lang={lang}
+              isLocationTemporarilyUnavailable={isLocationTemporarilyUnavailable}
               onBeforePrivacyNavigate={handleBeforePrivacyNavigate}
             />
           </>

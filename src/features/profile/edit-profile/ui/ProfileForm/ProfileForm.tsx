@@ -34,6 +34,7 @@ interface InputFieldsProps {
   isValid: boolean
   profileId: number | undefined
   lang: 'en' | 'ru'
+  isLocationTemporarilyUnavailable?: boolean
   onBeforePrivacyNavigate?: () => void
 }
 
@@ -51,6 +52,7 @@ export const ProfileForm = ({
   isValid,
   profileId,
   lang = 'en',
+  isLocationTemporarilyUnavailable = false,
   onBeforePrivacyNavigate,
 }: InputFieldsProps) => {
   const { detectLocation, buttonText, isDetecting } = useDetectLocation({
@@ -61,24 +63,34 @@ export const ProfileForm = ({
   })
 
   const isRu = lang === 'ru'
+  const locationUnavailableText = isRu
+    ? 'Геолокация временно недоступна'
+    : 'Location is temporarily unavailable'
 
   let countryPlaceholder: string
 
   if (optionsMap.country.length === 0) {
-    countryPlaceholder = 'Loading countries...'
+    countryPlaceholder = isLocationTemporarilyUnavailable
+      ? locationUnavailableText
+      : 'Loading countries...'
   } else {
     countryPlaceholder = isRu ? 'Выберите страну' : 'Choose country'
   }
 
   let cityPlaceholder: string
 
-  if (!currentCountry) {
+  if (isLocationTemporarilyUnavailable) {
+    cityPlaceholder = locationUnavailableText
+  } else if (!currentCountry) {
     cityPlaceholder = isRu ? 'Сначала выберите страну' : 'Select country first'
   } else {
     cityPlaceholder = isRu ? 'Выберите город' : 'Choose city'
   }
 
-  const isCountryLoading = optionsMap.country.length === 0
+  const isCountryLoading = optionsMap.country.length === 0 && !isLocationTemporarilyUnavailable
+  const detectLocationLabel = isLocationTemporarilyUnavailable
+    ? locationUnavailableText
+    : buttonText
 
   const dobErrorCode = errors?.date_of_birth?.message
   const isTooYoung = dobErrorCode === 'too_young'
@@ -183,7 +195,6 @@ export const ProfileForm = ({
             required
           />
         </div>
-
         <div
           className={`${styles.inputField} ${hasFirstNameError ? styles.inputFieldWithError : ''}`}
         >
@@ -196,7 +207,6 @@ export const ProfileForm = ({
             required
           />
         </div>
-
         <div
           className={`${styles.inputField} ${hasLastNameError ? styles.inputFieldWithError : ''}`}
         >
@@ -210,7 +220,6 @@ export const ProfileForm = ({
           />
         </div>
       </div>
-
       <div
         className={`${styles.dateOfBirth} ${hasDateOfBirthError ? styles.dateOfBirthWithError : ''}`}
       >
@@ -228,7 +237,6 @@ export const ProfileForm = ({
           <AgePolicyError profileId={profileId} onNavigate={onBeforePrivacyNavigate} />
         )}
       </div>
-
       <div className={`${styles.location} ${hasCityError ? styles.locationWithError : ''}`}>
         <CountrySelect
           control={control}
@@ -248,23 +256,20 @@ export const ProfileForm = ({
           classNames={hasCityError ? { trigger: styles.selectTriggerError } : undefined}
         />
       </div>
-
       <div className={styles.location_myPosition}>
         <Typography variant={'small_text'}>Or you can use your</Typography>
-
         <Typography variant={'small_text'}>
           <button
             className={styles.location_myPosition_button}
             type={'button'}
             onClick={detectLocation}
-            disabled={isDetecting || isCountryLoading}
+            disabled={isDetecting || isCountryLoading || isLocationTemporarilyUnavailable}
             aria-label={'Detect location'}
           >
-            {buttonText} <Pin size={20} />
+            {detectLocationLabel} <Pin size={20} />
           </button>
         </Typography>
       </div>
-
       <div className={`${styles.aboutMe} ${hasAboutMeError ? styles.aboutMeWithError : ''}`}>
         <ControlledTextarea
           control={control}

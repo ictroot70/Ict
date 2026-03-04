@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuth } from '@/features/posts/utils/useAuth'
+import { useEffectiveAuthHint } from '@/shared/auth'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
 
 import s from './RootLayoutClient.module.scss'
@@ -14,8 +15,10 @@ type Props = {
 
 export const RootLayoutClient = ({ children }: Props) => {
   const { isAuthenticated, isLoading } = useAuth()
+  const effectiveHasAuthHint = useEffectiveAuthHint()
+  const isAuthResolvingForUi = effectiveHasAuthHint && !isAuthenticated && isLoading
   const showSidebar = isAuthenticated
-  const showSidebarSkeleton = !isAuthenticated && isLoading
+  const showSidebarSkeleton = isAuthResolvingForUi
   const shouldReserveSidebarSpace = showSidebar || showSidebarSkeleton
 
   const isCreatePostOpen = isAuthenticated
