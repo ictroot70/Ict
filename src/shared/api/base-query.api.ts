@@ -1,5 +1,6 @@
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { logout } from '@/shared/auth/authSlice'
 import { isBrowser } from '@/shared/environment/is-browser'
 import { logger } from '@/shared/lib/logger'
@@ -15,7 +16,7 @@ import { Mutex } from 'async-mutex'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  baseUrl: getApiBaseUrl(),
 
   prepareHeaders: headers => {
     let token: null | string = null

@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { Avatar } from '@/shared/composites'
+import { Avatar, Skeleton } from '@/shared/composites'
 import { PostVariant } from '@/shared/types'
 import { Typography } from '@/shared/ui'
 
@@ -20,6 +20,7 @@ interface PostHeaderProps {
   onDelete: () => void
   onFollow: () => void
   onCopyLink: () => void
+  isAuthLoading: boolean
 }
 
 export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
@@ -29,10 +30,13 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
   onDelete,
   onFollow,
   onCopyLink,
+  isAuthLoading,
 }) => {
   let actions = null
 
-  if (variant === 'myPost') {
+  if (isAuthLoading) {
+    actions = <Skeleton className={s.actionsSkeleton} aria-hidden />
+  } else if (variant === 'myPost') {
     actions = <PostActions variant={'myPost'} onEdit={onEdit} onDelete={onDelete} />
   } else if (variant === 'userPost') {
     actions = <PostActions variant={'userPost'} onFollow={onFollow} onCopyLink={onCopyLink} />

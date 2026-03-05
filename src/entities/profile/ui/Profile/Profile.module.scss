@@ -6,3 +6,15 @@
   margin: 0 auto;
   min-height: 100%;
 }
+
+.postsFallback {
+  width: 100%;
+  display: grid;
+  gap: 1rem 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
+}
+
+.postCardSkeleton {
+  width: 100%;
+  aspect-ratio: 234 / 228;
+}

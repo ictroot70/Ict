@@ -1,0 +1,43 @@
+/* Scroll lock stabilization for Radix/react-remove-scroll.
+   react-remove-scroll injects `!important` rules dynamically, so we use:
+   - higher specificity (`html body[...]`)
+   - explicit CSS variable reset
+*/
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable both-edges;
+}
+
+html body[data-scroll-locked] {
+  --removed-body-scroll-bar-size: 0px !important;
+
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
+html body[data-scroll-locked] .width-before-scroll-bar {
+  margin-right: 0 !important;
+}
+
+html body[data-scroll-locked] .right-scroll-bar-position {
+  right: 0 !important;
+}
+
+/* Temporary ui-kit hashed class overrides (remove after ui-kit update) */
+._overlay_1p3pc_119 {
+  z-index: 1000;
+}
+
+._content_1p3pc_126 {
+  z-index: 1001;
+}
+
+._alert_vrmkq_1 {
+  min-height: 0;
+  max-height: none;
+}
+
+/* Temporary date-picker tweak */
+.rdp-day {
+  padding-inline: 1px;
+}

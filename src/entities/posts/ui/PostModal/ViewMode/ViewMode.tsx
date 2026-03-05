@@ -1,3 +1,5 @@
+import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
+
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
@@ -14,13 +16,15 @@ interface ViewModeProps {
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
+  onCopyLink: () => void
   isEditing?: boolean
   comments: string[]
-  commentControl: any
-  handleCommentSubmit: any
-  watchComment: (field: string) => string
+  commentControl: Control<CommentFormData>
+  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
+  watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
+  isAuthLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
 }
@@ -30,22 +34,16 @@ export const ViewMode = ({
   variant,
   handleEditPost,
   handleDeletePost,
+  onCopyLink,
   comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
   handlePublish,
   formattedCreatedAt,
+  isAuthLoading,
 }: ViewModeProps) => {
   const handleFollow = () => {}
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-    } catch (err) {
-      console.error('Failed to copy link:', err)
-    }
-  }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -58,7 +56,8 @@ export const ViewMode = ({
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
           onFollow={handleFollow}
-          onCopyLink={handleCopyLink}
+          onCopyLink={onCopyLink}
+          isAuthLoading={isAuthLoading}
         />
 
         <ViewModeCommentsSection postData={postData} comments={comments} />
@@ -72,6 +71,7 @@ export const ViewMode = ({
           handleCommentSubmit={handleCommentSubmit}
           watchComment={watchComment}
           handlePublish={handlePublish}
+          isAuthLoading={isAuthLoading}
         />
       </div>
     </div>

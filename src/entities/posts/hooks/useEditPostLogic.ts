@@ -8,7 +8,7 @@ export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }
 
   const handleEditPost = async (postId: string, newDescription: string) => {
     if (options?.enabled === false) {
-      return
+      return false
     }
 
     const updateData = {
@@ -25,9 +25,13 @@ export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }
       }).unwrap()
 
       setEditingPostId(null)
+
+      return true
     } catch (error) {
       console.error('Ошибка при редактировании поста:', error)
       setEditingPostId(null)
+
+      return false
     }
   }
 

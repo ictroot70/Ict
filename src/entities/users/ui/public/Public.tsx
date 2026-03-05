@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 
 import { publicUsersApi, useGetPublicPostsQuery } from '@/entities/users/api'
-import { useAppStore } from '@/lib/hooks'
+import { useAppSelector, useAppStore } from '@/lib/hooks'
 import { Loading } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
+import { useGuardedHydration } from '@/shared/lib/ssr/useGuardedHydration'
 
 import s from './Public.module.scss'
 
@@ -18,27 +19,38 @@ type Props = {
 }
 
 const LCP_PRIORITY_POSTS_COUNT = 4
+const PUBLIC_POSTS_QUERY_ARGS = { endCursorPostId: 0, pageSize: 4 }
 
 export function Public({ postsData }: Props) {
-  const needInitPostsInStore = useRef(!!postsData)
   const store = useAppStore()
+  const publicPostsFromCache = useAppSelector(
+    publicUsersApi.endpoints.getPublicPosts.select(PUBLIC_POSTS_QUERY_ARGS)
+  )?.data
+  const hasServerPosts = Boolean(postsData)
+  const hasPostsDataInCache = Boolean(publicPostsFromCache)
+  const hydratePublicPosts = useCallback(() => {
+    if (postsData && !hasPostsDataInCache) {
+      store.dispatch(
+        publicUsersApi.util.upsertQueryData('getPublicPosts', PUBLIC_POSTS_QUERY_ARGS, postsData)
+      )
+    }
+  }, [hasPostsDataInCache, postsData, store])
+
+  useGuardedHydration({
+    hydrate: hydratePublicPosts,
+    hydrateKey: 'public-posts-feed',
+    shouldHydrate: hasServerPosts && !hasPostsDataInCache,
+  })
 
   const { data, isLoading, isError } = useGetPublicPostsQuery(
-    { pageSize: 4 },
+    PUBLIC_POSTS_QUERY_ARGS,
     {
-      skip: needInitPostsInStore.current,
+      skip: hasServerPosts && !hasPostsDataInCache,
       pollingInterval: 60000,
     }
   )
 
-  useEffect(() => {
-    if (needInitPostsInStore.current) {
-      store.dispatch(publicUsersApi.util.upsertQueryData('getPublicPosts', { pageSize: 4 }, postsData))
-      needInitPostsInStore.current = false
-    }
-  }, [])
-
-  const dataForRender = data || postsData
+  const dataForRender = data || publicPostsFromCache || postsData
 
   if (isLoading) {
     return <Loading />

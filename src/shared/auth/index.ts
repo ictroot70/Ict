@@ -10,3 +10,4 @@ export {
   useAuthSessionHintContext,
   type AuthSessionHintContextValue,
 } from './authSessionHintContext'
+export { useEffectiveAuthHint } from './useEffectiveAuthHint'

@@ -1,6 +1,8 @@
 import React from 'react'
+import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { ControlledInput } from '@/features/formControls'
+import { Skeleton } from '@/shared/composites'
 import { CommentFormData } from '@/shared/types'
 import {
   Button,
@@ -16,10 +18,11 @@ import s from '../ViewMode.module.scss'
 interface PostFooterProps {
   variant: 'public' | 'myPost' | 'userPost'
   formattedCreatedAt: string
-  commentControl: any
-  handleCommentSubmit: any
-  watchComment: (field: string) => string
+  commentControl: Control<CommentFormData>
+  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
+  watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
+  isAuthLoading: boolean
 }
 
 export const ViewModePostFooter: React.FC<PostFooterProps> = ({
@@ -29,20 +32,40 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
   handleCommentSubmit,
   watchComment,
   handlePublish,
+  isAuthLoading,
 }) => {
+  const shouldShowAuthActions = variant !== 'public'
+  const shouldShowAuthSkeleton = isAuthLoading
+
   return (
     <div className={s.footer}>
-      {variant !== 'public' && (
+      {(shouldShowAuthActions || shouldShowAuthSkeleton) && (
         <div className={s.likeSendSave}>
-          <Button variant={'text'} className={s.postButton}>
-            <HeartOutline color={'white'} />
-          </Button>
-          <Button variant={'text'} className={s.postButton}>
-            <PaperPlane color={'white'} />
-          </Button>
-          <Button variant={'text'} className={s.postButton}>
-            <BookmarkOutline color={'white'} />
-          </Button>
+          {shouldShowAuthSkeleton ? (
+            <>
+              <Button variant={'text'} className={s.postButton} disabled tabIndex={-1} aria-hidden>
+                <Skeleton className={s.postButtonSkeleton} />
+              </Button>
+              <Button variant={'text'} className={s.postButton} disabled tabIndex={-1} aria-hidden>
+                <Skeleton className={s.postButtonSkeleton} />
+              </Button>
+              <Button variant={'text'} className={s.postButton} disabled tabIndex={-1} aria-hidden>
+                <Skeleton className={s.postButtonSkeleton} />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant={'text'} className={s.postButton}>
+                <HeartOutline color={'white'} />
+              </Button>
+              <Button variant={'text'} className={s.postButton}>
+                <PaperPlane color={'white'} />
+              </Button>
+              <Button variant={'text'} className={s.postButton}>
+                <BookmarkOutline color={'white'} />
+              </Button>
+            </>
+          )}
         </div>
       )}
 
@@ -61,22 +84,32 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         {formattedCreatedAt}
       </Typography>
 
-      {variant !== 'public' && (
+      {shouldShowAuthSkeleton ? (
         <>
           <Separator className={s.separator} />
-          <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-            <ControlledInput
-              name={'comment'}
-              control={commentControl}
-              inputType={'text'}
-              placeholder={'Add a Comment'}
-              className={s.input}
-            />
-            <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
-              Publish
-            </Button>
-          </form>
+          <div className={s.inputForm} aria-hidden>
+            <Skeleton className={s.inputSkeleton} />
+            <Skeleton className={s.publishSkeleton} />
+          </div>
         </>
+      ) : (
+        shouldShowAuthActions && (
+          <>
+            <Separator className={s.separator} />
+            <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
+              <ControlledInput
+                name={'comment'}
+                control={commentControl}
+                inputType={'text'}
+                placeholder={'Add a Comment'}
+                className={s.input}
+              />
+              <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
+                Publish
+              </Button>
+            </form>
+          </>
+        )
       )}
     </div>
   )
