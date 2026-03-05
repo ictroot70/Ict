@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactElement, useCallback, useEffect, useState } from 'react'
+import { ReactElement, useCallback, useLayoutEffect, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { usePostModal } from '@/entities/posts/hooks'
@@ -88,7 +88,7 @@ export const PostModal = ({
     }
   }, [isEditingDescription, isEditing, onClose])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIsClientMounted(true)
   }, [])
 

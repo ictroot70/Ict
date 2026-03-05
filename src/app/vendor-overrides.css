@@ -25,11 +25,11 @@ html body[data-scroll-locked] .right-scroll-bar-position {
 
 /* Temporary ui-kit hashed class overrides (remove after ui-kit update) */
 ._overlay_1p3pc_119 {
-  z-index: 100;
+  z-index: 1000;
 }
 
 ._content_1p3pc_126 {
-  z-index: 101;
+  z-index: 1001;
 }
 
 ._alert_vrmkq_1 {
