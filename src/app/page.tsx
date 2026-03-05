@@ -1,49 +1,22 @@
-'use client'
-
-import { useGetPublicPostsQuery } from '@/entities/users/api'
+import { GetPublicPostsResponse } from '@/entities/users/api/api.types'
 import { Public } from '@/entities/users/ui'
 import { ApiErrorBoundary } from '@/lib/ApiErrorBoundary'
-import { ApiError } from '@/lib/api'
-import { Loading } from '@/shared/composites'
+import { apiFetch, ApiError } from '@/lib/api'
+import { API_ROUTES } from '@/shared/api'
+import { buildApiUrl } from '@/shared/api/get-api-base-url'
 
-export default function HomePage() {
-  const { data, error, isLoading } = useGetPublicPostsQuery({ endCursorPostId: 0, pageSize: 4 })
+const PUBLIC_POSTS_PAGE_SIZE = 4
+const INITIAL_PUBLIC_POST_CURSOR = 0
 
-  if (isLoading) {
-    return <Loading />
-  }
+const fetchPublicPostsForSSR = async () => {
+  const url = `${buildApiUrl(API_ROUTES.PUBLIC_POSTS.ALL(INITIAL_PUBLIC_POST_CURSOR))}?pageSize=${PUBLIC_POSTS_PAGE_SIZE}`
 
-  const apiError: ApiError | null = (() => {
-    if (!error) {
-      return null
-    }
+  return apiFetch<GetPublicPostsResponse>(url)
+}
 
-    if ('status' in error && error.status === 'FETCH_ERROR') {
-      return {
-        type: 'FETCH_ERROR',
-        message: 'Сервер недоступен. Проверьте соединение с интернетом.',
-      }
-    }
-
-    if ('status' in error && typeof error.status === 'number') {
-      const status = error.status
-      let message = 'Ошибка сервера'
-
-      if (status === 400) {
-        message = 'Неверный запрос'
-      } else if (status === 401) {
-        message = 'Необходима авторизация'
-      } else if (status === 403) {
-        message = 'Нет доступа'
-      } else if (status === 404) {
-        message = 'Не найдено'
-      }
-
-      return { type: 'HTTP_ERROR', message, status }
-    }
-
-    return { type: 'FETCH_ERROR', message: 'Неизвестная ошибка' }
-  })()
+export default async function HomePage() {
+  const { data, error } = await fetchPublicPostsForSSR()
+  const apiError: ApiError | null = error || null
 
   return (
     <ApiErrorBoundary error={apiError}>

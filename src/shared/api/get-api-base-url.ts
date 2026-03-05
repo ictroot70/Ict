@@ -17,6 +17,14 @@ export const getApiBaseUrl = () => {
     return ensureLeadingSlash(normalizedBase)
   }
 
+  if (normalizedBase.startsWith('/')) {
+    const apiProxyTarget = trimTrailingSlash(process.env.API_PROXY_TARGET || '')
+
+    if (apiProxyTarget) {
+      return apiProxyTarget
+    }
+  }
+
   const internalOrigin = trimTrailingSlash(
     process.env.INTERNAL_APP_ORIGIN || process.env.NEXT_PUBLIC_APP_ORIGIN || DEFAULT_INTERNAL_ORIGIN
   )
