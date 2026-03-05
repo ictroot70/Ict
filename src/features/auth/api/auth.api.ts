@@ -24,8 +24,6 @@ export const authApi = baseApi.injectEndpoints({
         credentials: 'include',
       }),
 
-      invalidatesTags: ['Me'],
-
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
@@ -44,6 +42,7 @@ export const authApi = baseApi.injectEndpoints({
             authTokenStorage.setAccessToken(data.accessToken)
             markAuthSessionHint(userId)
             dispatch(setAuthenticated())
+            dispatch(authApi.util.invalidateTags(['Me']))
           }
         } catch (error) {
           logger.error('[login] Failed:', error)
