@@ -1,11 +1,11 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
-import { useAuth } from '@/features/posts/utils/useAuth'
-import { useEffectiveAuthHint } from '@/shared/auth'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
+import { useSearchParams } from 'next/navigation'
 
 import s from './RootLayoutClient.module.scss'
 
@@ -14,19 +14,39 @@ type Props = {
 }
 
 export const RootLayoutClient = ({ children }: Props) => {
-  const { isAuthenticated, isLoading } = useAuth()
-  const effectiveHasAuthHint = useEffectiveAuthHint()
-  const isAuthResolvingForUi = effectiveHasAuthHint && !isAuthenticated && isLoading
-  const showSidebar = isAuthenticated
-  const showSidebarSkeleton = isAuthResolvingForUi
-  const shouldReserveSidebarSpace = showSidebar || showSidebarSkeleton
+  const { status } = useAuthUiState()
+  const searchParams = useSearchParams()
+  const showSidebar = status === 'authenticated'
+  const showSidebarSkeleton = status === 'loading'
+  const postIdParam = searchParams.get('postId')
+  const parsedPostId = postIdParam ? Number(postIdParam) : NaN
+  const isPostModalOpen = Number.isInteger(parsedPostId) && parsedPostId > 0
+  const [shouldPreserveSidebarSpaceForModal, setShouldPreserveSidebarSpaceForModal] =
+    useState(false)
 
-  const isCreatePostOpen = isAuthenticated
+  useEffect(() => {
+    if (!isPostModalOpen) {
+      setShouldPreserveSidebarSpaceForModal(false)
+
+      return
+    }
+
+    if (showSidebar || showSidebarSkeleton) {
+      setShouldPreserveSidebarSpaceForModal(true)
+    }
+  }, [isPostModalOpen, showSidebar, showSidebarSkeleton])
+
+  const shouldReserveSidebarSpace =
+    showSidebar || showSidebarSkeleton || (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
+  const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
+
+  const isCreatePostOpen = status === 'authenticated'
 
   return (
     <main className={s.main}>
       <div className={s.wrapper}>
-        {shouldReserveSidebarSpace && (showSidebar ? <Sidebar /> : <SidebarSkeleton />)}
+        {showSidebar && <Sidebar />}
+        {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
         <div
           className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
         >

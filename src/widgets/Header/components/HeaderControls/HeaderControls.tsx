@@ -1,19 +1,16 @@
 'use client'
-import { useAuth } from '@/features/posts/utils/useAuth'
-import { useEffectiveAuthHint } from '@/shared/auth'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { AuthBtn, LanguageSelect, NotificationButton } from '@/widgets/Header/components'
 
 import { HeaderSkeleton } from './HeaderSkeleton'
 
 export const HeaderControls = () => {
-  const { isLoading, isAuthenticated } = useAuth()
-  const effectiveHasAuthHint = useEffectiveAuthHint()
-  const isAuthResolvingForUi = effectiveHasAuthHint && !isAuthenticated && isLoading
+  const { status } = useAuthUiState()
   let leadingControl = null
 
-  if (isAuthResolvingForUi) {
+  if (status === 'loading') {
     leadingControl = <HeaderSkeleton />
-  } else if (isAuthenticated) {
+  } else if (status === 'authenticated') {
     leadingControl = <NotificationButton />
   }
 
@@ -21,7 +18,7 @@ export const HeaderControls = () => {
     <>
       {leadingControl}
       <LanguageSelect />
-      {!isAuthenticated && !isAuthResolvingForUi && <AuthBtn />}
+      {status === 'guest' && <AuthBtn />}
     </>
   )
 }

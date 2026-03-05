@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import { useAuth } from '@/features/posts/utils/useAuth'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
   mapPostToModalData,
@@ -73,16 +73,15 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
 
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
-  const isAuthPending = isAuthLoading && !user && !isAuthenticated
+  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
   const isOwnProfile = Boolean(
-    isAuthenticated && postData?.ownerId && user?.userId && postData.ownerId === user.userId
+    isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
   let variant: PostVariant = 'public'
 
-  if (isAuthenticated) {
+  if (isAuthenticatedUi) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
   const postModalData: PostModalData = postData
@@ -156,28 +155,11 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     const url = window.location.href
 
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url)
-      } else {
-        const textArea = document.createElement('textarea')
-
-        textArea.value = url
-        textArea.style.position = 'fixed'
-        textArea.style.opacity = '0'
-        textArea.style.pointerEvents = 'none'
-        document.body.appendChild(textArea)
-        textArea.focus()
-        textArea.select()
-
-        const copied = document.execCommand('copy')
-
-        document.body.removeChild(textArea)
-
-        if (!copied) {
-          throw new Error('Copy command failed')
-        }
+      if (!window.isSecureContext || !navigator.clipboard?.writeText) {
+        throw new Error('Clipboard API unavailable')
       }
 
+      await navigator.clipboard.writeText(url)
       showToastAlert({ message: uiText.copySuccess, type: 'success' })
     } catch {
       showToastAlert({ message: uiText.copyError, type: 'error' })
@@ -197,8 +179,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     errors,
     postData: postModalData,
     variant,
-    isAuthLoading: isAuthPending,
-    isAuthenticated,
+    isAuthLoading: isAuthUiLoading,
+    isAuthenticated: isAuthenticatedUi,
     isOwnProfile,
     hasPostData,
     isPostLoading,
