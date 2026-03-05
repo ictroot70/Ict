@@ -7,6 +7,7 @@
     "dev1": "NODE_OPTIONS=--dns-result-order=ipv4first next dev",
     "turbo": "next dev --turbopack",
     "dev": "next dev",
+    "dev:https": "next dev --experimental-https --hostname localhost --port 3000",
     "build": "next build",
     "build:production": "next build",
     "start": "next start",
