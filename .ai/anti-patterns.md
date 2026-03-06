@@ -1,6 +1,7 @@
 # Anti-patterns
 
 Запрещено:
+
 - Business logic в UI/presentation components.
 - State machine/таймеры в presentation components.
 - Смешивание data fetching и UI concern-ов без orchestration слоя.
