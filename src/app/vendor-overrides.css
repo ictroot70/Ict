@@ -1,7 +1,6 @@
 /* Scroll lock stabilization for Radix/react-remove-scroll.
-   react-remove-scroll injects `!important` rules dynamically, so we use:
-   - higher specificity (`html body[...]`)
-   - explicit CSS variable reset
+   Keep one scroll-lock mechanism (Radix/remove-scroll) and neutralize
+   dynamic scrollbar compensation to avoid layout shift.
 */
 html {
   scrollbar-gutter: stable both-edges;
