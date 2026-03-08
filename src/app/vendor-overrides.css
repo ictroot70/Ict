@@ -4,24 +4,14 @@
    - explicit CSS variable reset
 */
 html {
-  overflow-y: scroll;
   scrollbar-gutter: stable both-edges;
 }
 
-html body[data-scroll-locked] {
-  --removed-body-scroll-bar-size: 0px !important;
-
-  margin-right: 0 !important;
-  padding-right: 0 !important;
+html:has(body[data-scroll-locked]) {
+  overflow: hidden;
 }
 
-html body[data-scroll-locked] .width-before-scroll-bar {
-  margin-right: 0 !important;
-}
 
-html body[data-scroll-locked] .right-scroll-bar-position {
-  right: 0 !important;
-}
 
 /* Temporary ui-kit hashed class overrides (remove after ui-kit update) */
 ._overlay_1p3pc_119 {
