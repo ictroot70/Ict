@@ -12,6 +12,7 @@ import { Typography } from '@/shared/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import s from './ProfilePosts.module.scss'
+import { Post } from '@/entities/posts/ui/Post/Post'
 
 type Props = {
   posts: PostViewModel[]
@@ -144,8 +145,8 @@ export const ProfilePosts: React.FC<Props> = ({
           <PostCard key={post.id} post={post} />
         ))}
       </ul>
-
-      {isPostModalOpen && (
+      {modalPostData && <Post post={modalPostData} />}
+      {/*   {isPostModalOpen && (
         <>
           <PostModal
             key={currentPostIdNumber}
@@ -165,7 +166,7 @@ export const ProfilePosts: React.FC<Props> = ({
             isLoading={isDeleting}
           />
         </>
-      )}
+      )} */}
     </div>
   )
 }

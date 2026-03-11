@@ -1,0 +1,27 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem 0.75rem;
+  &::-webkit-scrollbar {
+    width: 4px;
+    &:horizontal {
+      height: 4px;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-dark-300);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background: var(--color-dark-100);
+    border-radius: 2px;
+    &:hover {
+      background: var(--color-light-900);
+    }
+  }
+}

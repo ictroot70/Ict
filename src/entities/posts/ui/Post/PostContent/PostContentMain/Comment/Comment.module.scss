@@ -1,0 +1,18 @@
+.comment {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.commentTimestamp {
+  color: #8d9094;
+}
+
+.commentLikeButton {
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: 16px;
+  height: 16px;
+  padding-top: 10px;
+  margin-left: auto;
+}
