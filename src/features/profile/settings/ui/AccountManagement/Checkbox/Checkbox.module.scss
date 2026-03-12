@@ -1,0 +1,52 @@
+.checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+
+  &__input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  &__control {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #555555;
+    border-radius: 4px;
+    background-color: transparent;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &Checked {
+      background-color: #ffffff;
+      border-color: #ffffff;
+      position: relative;
+
+      &::after {
+        content: '';
+        width: 10px;
+        height: 10px;
+        background-color: #171717;
+        border-radius: 2px;
+      }
+    }
+  }
+
+  &__label {
+    font-size: 14px;
+    font-weight: 400;
+    color: #ffffff;
+    line-height: 20px;
+  }
+
+  &:hover &__control {
+    border-color: #777777;
+  }
+}

@@ -1,0 +1,42 @@
+.accountManagementPage {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.section {
+  width: 100%;
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 24px;
+    margin-bottom: 18px;
+    padding-left: 24px;
+  }
+}
+
+// Разделитель между секциями
+.divider {
+  height: 1px;
+  background-color: #333333;
+  margin: 32px 24px;
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .accountManagementPage {
+    padding: 16px 0;
+  }
+
+  .section__title {
+    padding-left: 16px;
+  }
+
+  .divider {
+    margin: 24px 16px;
+  }
+}

@@ -1,0 +1,144 @@
+.section {
+  width: 100%;
+
+  &__title {
+    margin-bottom: 18px;
+    padding-left: 24px;
+
+    @media (max-width: 768px) {
+      padding-left: 16px;
+    }
+  }
+}
+
+.plansList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+.plansCard {
+  width: 100%;
+  background-color: #171717;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  box-sizing: border-box;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: #555555;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+}
+
+.planCard {
+  width: 100%;
+  min-height: 84px;
+  background-color: #171717;
+  border: 1px solid #333333;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 16px 24px;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: #555555;
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    min-height: auto;
+  }
+
+  &Selected {
+    border-color: #ffffff;
+    background-color: #222222;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+}
+
+.planRadio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+
+  &__circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #555555;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &Selected {
+      border-color: #ffffff;
+    }
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    border-radius: 50%;
+  }
+
+  &__label {
+    color: #ffffff;
+    flex: 1;
+  }
+}
+
+.planInfo {
+  width: 100%;
+  padding: 16px 24px;
+  border-top: 1px solid #333333;
+  margin-top: 8px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  &__text {
+    color: #8d9094;
+    line-height: 20px;
+  }
+}
