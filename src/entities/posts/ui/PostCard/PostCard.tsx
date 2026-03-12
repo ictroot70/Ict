@@ -25,8 +25,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           {...IMAGE_LOADING_STRATEGY.default}
           src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}
-          width={342}
-          height={228}
+          fill
           sizes={IMAGE_SIZES.POST_CARD}
           className={s.postImage}
         />
