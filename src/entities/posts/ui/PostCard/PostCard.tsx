@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import { APP_ROUTES } from '@/shared/constant'
+import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
 import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -22,12 +22,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     <div className={s.postCard}>
       <Link href={href} scroll={false} prefetch={false} className={s.postImageWrapper}>
         <Image
+          {...IMAGE_LOADING_STRATEGY.default}
           src={post.images[0]?.url || DEFAULT_IMAGE}
           alt={`Post by ${post.userName}`}
           width={342}
           height={228}
+          sizes={IMAGE_SIZES.POST_CARD}
           className={s.postImage}
-          priority
         />
       </Link>
     </div>
