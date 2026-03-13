@@ -26,3 +26,12 @@
     max-width: 972px;
   }
 }
+
+:global(html[data-auth-hint='1']) .content--withoutSidebar {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  margin-left: 160px;
+  padding-left: 24px;
+  max-width: none;
+}
