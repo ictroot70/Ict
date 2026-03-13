@@ -1,6 +1,6 @@
 import { expect, Page, Route, test } from '@playwright/test'
 
-const ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjF9.signature'
+const ACCESS_TOKEN = 'mock-access-token-for-e2e'
 const ONE_PIXEL_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3e8AAAAASUVORK5CYII=',
   'base64'

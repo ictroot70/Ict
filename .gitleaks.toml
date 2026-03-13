@@ -1,0 +1,9 @@
+title = "ICT gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allow historical mock JWT-like value in Playwright smoke tests"
+regexes = ['''eyJhbGciOiJIUzI1NiJ9\.eyJ1c2VySWQiOjF9\.signature''']
+paths = ['''tests/e2e/smoke/full-check\.smoke\.spec\.ts''']
