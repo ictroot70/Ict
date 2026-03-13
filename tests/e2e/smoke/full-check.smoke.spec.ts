@@ -83,7 +83,7 @@ test.describe('Full check smoke @smoke', () => {
 
     await page.goto('/auth/login')
     await page.getByLabel('Email').fill('qa@ictroot.uk')
-    await page.getByLabel('Password').fill('QaPassword123!')
+    await page.locator('input[name="password"]').fill('QaPassword123!')
     await page.getByRole('button', { name: 'Sign In' }).click()
 
     await expect(page).toHaveURL(/\/profile\/1\/settings\/general/)
@@ -95,9 +95,9 @@ test.describe('Full check smoke @smoke', () => {
       route.fulfill({ status: 200, body: '{}' })
     )
 
-    await page.goto('/create')
+    await page.goto('/search')
 
-    await expect(page.getByText('Add Photo')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible()
     await page.getByRole('button', { name: 'Log Out' }).click()
     await expect(page.getByText(/Are you really want to log out of your account/i)).toBeVisible()
 

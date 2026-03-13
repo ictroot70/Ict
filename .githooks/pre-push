@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+if [ "${SKIP_PRE_PUSH:-0}" = "1" ]; then
+  echo "[pre-push] SKIP_PRE_PUSH=1 -> skipped"
+  exit 0
+fi
+
+echo "[pre-push] Running auto gate (verify:auto)..."
+pnpm run verify:auto

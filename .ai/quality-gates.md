@@ -1,8 +1,12 @@
 # Quality Gates
 
+Операционный runbook для ручного запуска: `docs/quality-gates-runbook.md`.
+Пошаговый developer-flow по сценариям: `docs/developer-check-sequence.md`.
+
 ## Canonical CI command
 
 - Канонический CI-контракт: `pnpm run ci:check`.
+- Локальная автоматизация перед commit/push: `.githooks/pre-commit` и `.githooks/pre-push`.
 
 ## Must pass
 
@@ -22,6 +26,10 @@
 - `skip_full`, если нет влияния на `locked` зоны и infra-gates,
 - `run_full`, если есть runtime-impact, infra-impact или uncertainty.
 - Fail-safe правило: любой uncertainty => `run_full`.
+- Для авто-выбора команды доступен wrapper: `pnpm run verify:auto`:
+- `develop` -> `verify:full`,
+- feature/PR -> `verify:smart`,
+- нет изменений относительно `VERIFY_SMART_BASE_REF` -> skip.
 
 ## Full check (integration branch)
 

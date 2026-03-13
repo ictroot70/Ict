@@ -22,6 +22,13 @@ pnpm install
 pnpm dev
 ```
 
+Git hooks are installed automatically on `pnpm install` (`prepare` script).
+Manual reinstall:
+
+```bash
+pnpm run hooks:install
+```
+
 ## Canonical checks
 
 Before PR/merge, run:
@@ -41,6 +48,17 @@ For integration branch `develop`, run full gate on merge:
 ```bash
 pnpm run verify:full
 ```
+
+Automatic gate selection (branch + changed files):
+
+```bash
+pnpm run verify:auto
+```
+
+Manual usage guide (who runs what and when):
+
+- [`docs/quality-gates-runbook.md`](docs/quality-gates-runbook.md)
+- [`docs/developer-check-sequence.md`](docs/developer-check-sequence.md)
 
 ## Governance model
 

@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+if [ "${SKIP_PRE_COMMIT:-0}" = "1" ]; then
+  echo "[pre-commit] SKIP_PRE_COMMIT=1 -> skipped"
+  exit 0
+fi
+
+echo "[pre-commit] Running quick gate (verify:precommit)..."
+pnpm run verify:precommit
