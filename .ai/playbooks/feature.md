@@ -9,7 +9,8 @@
 5. Сверить решение с `../policy.md` и `../quality-gates.md`.
 6. Проверить влияние на `locked` требования из `../contracts/product-requirements-lock.json`.
 7. Прогнать `pnpm run contract:check` и `pnpm run test:contracts`.
-8. Если фича затрагивает auth/perf/критичные UX цепочки, прогнать `pnpm run verify:full`.
+8. Для PR/feature-веток прогнать `pnpm run verify:smart`.
+9. Если `verify:smart` принял решение `run_full`, приложить результат `pnpm run verify:full`.
 
 ## Checklist
 
@@ -18,7 +19,8 @@
 - Data-flow и ownership понятны.
 - Нет нарушения dependency direction.
 - `locked` продуктовые сценарии не нарушены.
-- Для auth/perf-изменений приложен результат `verify:full`.
+- Приложен результат `verify:smart`.
+- Если smart-gate выбрал `run_full`, приложен результат `verify:full`.
 
 ## PR evidence
 

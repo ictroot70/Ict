@@ -34,7 +34,8 @@ If architectural change is checked:
 ## Mandatory checklist
 
 - [ ] `pnpm run ci:check` is green
-- [ ] For refactor/optimization/auth-flow changes: `pnpm run verify:full` is green
+- [ ] `pnpm run verify:smart` is green (PR/feature scope)
+- [ ] If smart-gate decision is `run_full` (or merge into `develop`): `pnpm run verify:full` is green
 - [ ] No new `any` in production code
 - [ ] Manual verification scenarios are listed
 - [ ] Risks and rollback strategy are documented
@@ -45,6 +46,7 @@ If architectural change is checked:
 
 - Commands and result:
 - `Product contract impact`:
+- `Smart impact decision`:
 - `Full-check evidence`:
 
 ### Manual

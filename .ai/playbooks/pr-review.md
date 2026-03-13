@@ -8,7 +8,8 @@
 4. Проверить type-safety и отсутствие скрытого техдолга.
 5. Проверить фактические quality-gates из `../quality-gates.md`.
 6. Проверить impact по `locked` требованиям из `../contracts/product-requirements-lock.json`.
-7. Для refactor/optimization PR проверить результат `pnpm run verify:full`.
+7. Для PR/feature-веток проверить результат `pnpm run verify:smart`.
+8. Если smart-gate выбрал `run_full`, проверить evidence `pnpm run verify:full`.
 
 ## Checklist
 
@@ -18,7 +19,8 @@
 - Приложены результаты проверок.
 - Приложены результаты `contract:check` и `test:contracts`.
 - Для изменений `locked`-поведения есть секция `Product contract impact`.
-- Для refactor/optimization есть evidence по `verify:full`.
+- Есть секция `Smart impact decision`.
+- При `run_full` есть evidence по `verify:full`.
 
 ## PR evidence
 

@@ -14,14 +14,22 @@
 - `pnpm test:contracts`
 - `pnpm build`
 
-## Full check (refactor/optimization)
+## Smart check (PR/feature)
 
-- Для рефакторинга, performance-оптимизаций и изменений в `locked` критичных сценариях обязателен:
-- `pnpm run verify:full`
+- Для PR и feature-веток обязательный гейт: `pnpm run verify:smart`.
+- `verify:smart` всегда запускает `pnpm run ci:check`.
+- Дальше `verify:smart` через `scripts/detect-impact.mjs` выбирает:
+- `skip_full`, если нет влияния на `locked` зоны и infra-gates,
+- `run_full`, если есть runtime-impact, infra-impact или uncertainty.
+- Fail-safe правило: любой uncertainty => `run_full`.
+
+## Full check (integration branch)
+
+- Для интеграционной ветки `develop` обязателен `pnpm run verify:full` для каждого merge.
 - `verify:full` включает:
 - `pnpm run ci:check`
-- `pnpm run test:e2e:smoke`
-- `pnpm run perf:check`
+- `pnpm run test:e2e:smoke` (Chromium + Firefox + WebKit)
+- `pnpm run perf:check` (Lighthouse Desktop Chromium)
 
 ## Tests status
 
@@ -33,7 +41,7 @@
 
 ## Definition of Done
 
-- Все quality-gates зелёные.
+- Все требуемые gates для контекста задачи зелёные.
 - Не добавлены новые `any`.
 - Не нарушены FSD dependency boundaries.
 - Не нарушены `locked` требования из `.ai/contracts/product-requirements-lock.json`.
@@ -50,7 +58,8 @@
 - обновление `tests/contracts/**`,
 - секция `Product contract impact` в PR.
 - Если задача `planned` или `optional_or_blocked`, перевод в `locked` допускается только после реализации и добавления автопроверок.
-- Для оптимизаций/refactor PR в evidence обязательно прикладывать результат `verify:full`.
+- Для PR с `verify:smart` в evidence обязательна секция `Smart impact decision`.
+- Если `verify:smart` принял решение `run_full`, в evidence обязателен результат `verify:full`.
 
 ## Infrastructure constraints (educational project)
 

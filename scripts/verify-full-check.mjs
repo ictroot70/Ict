@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process'
 
 const APP_BASE_URL = process.env.APP_BASE_URL || 'http://127.0.0.1:3000'
+const SHOULD_SKIP_CI = process.env.VERIFY_FULL_SKIP_CI === '1'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -22,11 +23,19 @@ function runCommand(command, args, env = process.env) {
   })
 }
 
-async function waitForServer(url) {
+async function waitForServer(url, getServerState) {
   const timeoutMs = 120000
   const start = Date.now()
 
   while (Date.now() - start < timeoutMs) {
+    const serverState = getServerState?.()
+
+    if (serverState?.exited) {
+      throw new Error(
+        `Server process exited before readiness check completed (code: ${serverState.code ?? 'unknown'})`
+      )
+    }
+
     try {
       const response = await fetch(url)
 
@@ -42,19 +51,31 @@ async function waitForServer(url) {
 }
 
 async function run() {
-  await runCommand('pnpm', ['run', 'ci:check'])
+  if (!SHOULD_SKIP_CI) {
+    await runCommand('pnpm', ['run', 'ci:check'])
+  }
 
   const parsedBaseUrl = new URL(APP_BASE_URL)
   const host = parsedBaseUrl.hostname
   const port = parsedBaseUrl.port || (parsedBaseUrl.protocol === 'https:' ? '443' : '80')
+
+  const serverState = {
+    exited: false,
+    code: null,
+  }
 
   const server = spawn('pnpm', ['start', '--hostname', host, '--port', port], {
     env: process.env,
     stdio: 'inherit',
   })
 
+  server.on('close', code => {
+    serverState.exited = true
+    serverState.code = code
+  })
+
   try {
-    await waitForServer(APP_BASE_URL)
+    await waitForServer(APP_BASE_URL, () => serverState)
 
     await runCommand('pnpm', ['run', 'test:e2e:smoke'], {
       ...process.env,

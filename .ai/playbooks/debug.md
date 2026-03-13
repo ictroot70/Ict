@@ -8,7 +8,8 @@
 4. Подтвердить root cause минимальным воспроизводимым сценарием.
 5. Проверить влияние фикса на `locked` требования из `../contracts/product-requirements-lock.json`.
 6. Спроектировать фикс без нарушения policy.
-7. Если фикс затрагивает perf/auth flow — прогнать `pnpm run verify:full`.
+7. Для PR/feature-веток прогнать `pnpm run verify:smart`.
+8. Если smart-gate выбрал `run_full`, приложить результат `pnpm run verify:full`.
 
 ## Checklist
 
@@ -17,7 +18,8 @@
 - Нет добавленного tech debt без фиксации.
 - Проверены quality-gates.
 - Проверены contract checks для затронутых `locked` сценариев.
-- Для perf/auth фиксов приложен результат `verify:full`.
+- Для фикса приложен результат `verify:smart`.
+- При `run_full` приложен результат `verify:full`.
 
 ## PR evidence
 

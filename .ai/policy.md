@@ -1,6 +1,6 @@
 # Policy
 
-Policy version: 1.2
+Policy version: 1.3
 Last updated: 2026-03-13
 
 ## Project context
@@ -60,7 +60,9 @@ Last updated: 2026-03-13
 - Зафиксированный продуктовый контракт хранится в `.ai/contracts/product-requirements-lock.json`.
 - Элементы со статусом `locked` считаются release-blocking инвариантами: их нельзя менять без обновления контракта и автопроверок.
 - Для `locked`-элементов обязательны автоматические проверки (`tests/contracts/**`) и прохождение `pnpm run contract:check`, `pnpm run test:contracts`.
-- Для refactor/performance/auth-flow изменений обязательна расширенная проверка `pnpm run verify:full`.
+- Для PR/feature-веток обязательный smart-gate: `pnpm run verify:smart`.
+- Для интеграционной ветки `develop` обязательна полная проверка `pnpm run verify:full` на каждом merge.
+- `verify:smart` использует fail-safe политику: любой uncertainty impact-детектора приводит к запуску full-check.
 - Любое изменение поведения в `locked`-сценарии должно быть явно отражено в PR секции `Product contract impact`.
 
 ## Conflict resolution

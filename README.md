@@ -33,6 +33,12 @@ pnpm run ci:check
 For refactor/performance/auth-flow changes, run extended checks:
 
 ```bash
+pnpm run verify:smart
+```
+
+For integration branch `develop`, run full gate on merge:
+
+```bash
 pnpm run verify:full
 ```
 
