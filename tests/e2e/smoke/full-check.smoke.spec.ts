@@ -1,6 +1,15 @@
 import { expect, Page, Route, test } from '@playwright/test'
 
-const ACCESS_TOKEN = 'mock-access-token-for-e2e'
+const createMockJwt = () => {
+  const encode = (value: object) => Buffer.from(JSON.stringify(value), 'utf8').toString('base64url')
+
+  const header = encode({ alg: 'none', typ: 'JWT' })
+  const payload = encode({ userId: 1, role: 'qa' })
+
+  return `${header}.${payload}.x`
+}
+
+const ACCESS_TOKEN = createMockJwt()
 const ONE_PIXEL_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3e8AAAAASUVORK5CYII=',
   'base64'
