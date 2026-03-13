@@ -1,7 +1,7 @@
 # Policy
 
-Policy version: 1.1
-Last updated: 2026-02-21
+Policy version: 1.2
+Last updated: 2026-03-13
 
 ## Project context
 
@@ -54,6 +54,14 @@ Last updated: 2026-02-21
 - animations/gesture APIs,
 - browser-only APIs.
 - По умолчанию использовать Server Components и App Router conventions.
+
+## Product requirement contract invariants
+
+- Зафиксированный продуктовый контракт хранится в `.ai/contracts/product-requirements-lock.json`.
+- Элементы со статусом `locked` считаются release-blocking инвариантами: их нельзя менять без обновления контракта и автопроверок.
+- Для `locked`-элементов обязательны автоматические проверки (`tests/contracts/**`) и прохождение `pnpm run contract:check`, `pnpm run test:contracts`.
+- Для refactor/performance/auth-flow изменений обязательна расширенная проверка `pnpm run verify:full`.
+- Любое изменение поведения в `locked`-сценарии должно быть явно отражено в PR секции `Product contract impact`.
 
 ## Conflict resolution
 

@@ -34,6 +34,7 @@ If architectural change is checked:
 ## Mandatory checklist
 
 - [ ] `pnpm run ci:check` is green
+- [ ] For refactor/optimization/auth-flow changes: `pnpm run verify:full` is green
 - [ ] No new `any` in production code
 - [ ] Manual verification scenarios are listed
 - [ ] Risks and rollback strategy are documented
@@ -43,6 +44,8 @@ If architectural change is checked:
 ### Automated
 
 - Commands and result:
+- `Product contract impact`:
+- `Full-check evidence`:
 
 ### Manual
 

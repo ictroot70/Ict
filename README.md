@@ -30,6 +30,12 @@ Before PR/merge, run:
 pnpm run ci:check
 ```
 
+For refactor/performance/auth-flow changes, run extended checks:
+
+```bash
+pnpm run verify:full
+```
+
 ## Governance model
 
 - Architecture and invariants: `.ai/policy.md` (single source of truth)
