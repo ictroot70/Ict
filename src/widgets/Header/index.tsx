@@ -17,7 +17,7 @@ export const AppHeader = (): ReactElement => {
   return (
     <Header className={s.header}>
       <div className={s.header__container}>
-        <Link href={APP_ROUTES.ROOT}>
+        <Link href={APP_ROUTES.ROOT} prefetch={false}>
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
         <div className={s.header__controls}>
