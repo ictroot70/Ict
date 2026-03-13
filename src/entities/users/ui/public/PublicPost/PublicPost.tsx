@@ -5,7 +5,7 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Carousel } from '@/shared/composites'
 import { Avatar } from '@/shared/composites/Avatar'
-import { APP_ROUTES } from '@/shared/constant'
+import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
 import { Typography } from '@ictroot/ui-kit'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -25,6 +25,9 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
 
   const timeAgo = useTimeAgo(createdAt)
   const postUrl = APP_ROUTES.PROFILE.WITH_POST(ownerId, id, 'home')
+  const imageLoadingStrategy = isPriorityPost
+    ? IMAGE_LOADING_STRATEGY.lcp
+    : IMAGE_LOADING_STRATEGY.default
 
   const MAX_CHAR_COUNT = 67
 
@@ -52,14 +55,18 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
         }}
       >
         {images.length > 1 ? (
-          <Carousel slides={images} priorityFirstImage={isPriorityPost} />
+          <Carousel
+            slides={images}
+            imageSizes={IMAGE_SIZES.PUBLIC_POST}
+            priorityFirstImage={isPriorityPost}
+          />
         ) : (
           <Image
-            priority={isPriorityPost}
+            {...imageLoadingStrategy}
             src={images[0]?.url || DEFAULT_IMAGE}
             alt={'Image'}
             fill
-            sizes={'(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'}
+            sizes={IMAGE_SIZES.PUBLIC_POST}
             className={s.post__image}
           />
         )}

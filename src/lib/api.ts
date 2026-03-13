@@ -5,12 +5,26 @@ export type ApiError = {
   status?: number
 }
 
+type ApiFetchOptions = globalThis.RequestInit & {
+  next?: {
+    revalidate?: false | number
+    tags?: string[]
+  }
+}
+
+function shouldApplyDefaultNoStore(options?: ApiFetchOptions): boolean {
+  return !options || (typeof options.cache === 'undefined' && typeof options.next === 'undefined')
+}
+
 export async function apiFetch<T>(
   url: string,
-  options?: globalThis.RequestInit
+  options?: ApiFetchOptions
 ): Promise<{ data?: T; error?: ApiError }> {
   try {
-    const res = await fetch(url, { cache: 'no-store', ...options })
+    const res = await fetch(url, {
+      ...(shouldApplyDefaultNoStore(options) ? { cache: 'no-store' } : {}),
+      ...options,
+    })
 
     if (!res.ok) {
       let message = `Ошибка сервера: ${res.status} ${res.statusText}`

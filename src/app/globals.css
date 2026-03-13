@@ -1,11 +1,9 @@
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/roboto';
 @import '@ictroot/ui-kit/style.css';
 @import './vendor-overrides.css';
 
 /* Theme tokens */
 :root {
-  --font-family: 'Inter Variable', 'Roboto Variable', sans-serif;
+  --font-family: Arial, sans-serif;
   --background: var(--color-dark-700);
   --color-dark-500-transparent: rgb(23 23 23 / 56%);
 }
