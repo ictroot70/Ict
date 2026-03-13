@@ -1,10 +1,9 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from 'react'
+import { lazy, ReactNode, Suspense, useEffect, useState } from 'react'
 
-import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
+import { SidebarSkeleton } from '@/widgets/Sidebar/components/SidebarSkeleton'
 import { useSearchParams } from 'next/navigation'
 
 import s from './RootLayoutClient.module.scss'
@@ -12,6 +11,16 @@ import s from './RootLayoutClient.module.scss'
 type Props = {
   children: ReactNode
 }
+
+const Sidebar = lazy(() =>
+  import('@/widgets/Sidebar').then(module => ({
+    default: module.Sidebar,
+  }))
+)
+
+const CreatePostWrapper = lazy(
+  () => import('@/features/posts/ui/CreatePostWrapper/CreatePostWrapper')
+)
 
 export const RootLayoutClient = ({ children }: Props) => {
   const { status } = useAuthUiState()
@@ -45,7 +54,11 @@ export const RootLayoutClient = ({ children }: Props) => {
   return (
     <main className={s.main}>
       <div className={s.wrapper}>
-        {showSidebar && <Sidebar />}
+        {showSidebar && (
+          <Suspense fallback={null}>
+            <Sidebar />
+          </Suspense>
+        )}
         {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
         <div
           className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
@@ -53,7 +66,11 @@ export const RootLayoutClient = ({ children }: Props) => {
           {children}
         </div>
       </div>
-      {isCreatePostOpen && <CreatePostWrapper />}
+      {isCreatePostOpen && (
+        <Suspense fallback={null}>
+          <CreatePostWrapper />
+        </Suspense>
+      )}
     </main>
   )
 }
