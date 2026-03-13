@@ -1,6 +1,8 @@
 'use client'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { AuthBtn, LanguageSelect, NotificationButton } from '@/widgets/Header/components'
+import { AuthBtn } from '@/widgets/Header/components/AuthBtn'
+import { LanguageSelect } from '@/widgets/Header/components/LanguageSelect'
+import { NotificationButton } from '@/widgets/Header/components/NotificationButton'
 
 import { HeaderSkeleton } from './HeaderSkeleton'
 
