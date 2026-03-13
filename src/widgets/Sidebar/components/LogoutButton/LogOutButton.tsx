@@ -24,7 +24,13 @@ export const LogOutButton = () => {
 
   return (
     <>
-      <Button as={'button'} variant={'text'} className={s.button} onClick={handlerOpenModal}>
+      <Button
+        as={'button'}
+        variant={'text'}
+        className={s.button}
+        onClick={handlerOpenModal}
+        aria-label={'Log Out'}
+      >
         <LogOut />
         <span>Log Out</span>
       </Button>
