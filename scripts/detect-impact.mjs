@@ -10,6 +10,8 @@ const CONTRACT_PATH = '.ai/contracts/product-requirements-lock.json'
 const CACHE_PATH = '.ai/cache/runtime-hash.json'
 
 const BASE_REF = process.env.VERIFY_SMART_BASE_REF || 'origin/develop'
+const DIFF_FROM_REF = process.env.VERIFY_SMART_DIFF_FROM || ''
+const DIFF_TO_REF = process.env.VERIFY_SMART_DIFF_TO || ''
 
 const INFRA_TRIGGER_PATHS = new Set([
   '.ai/quality-gates.md',
@@ -66,12 +68,16 @@ function runGit(args, { allowFailure = false } = {}) {
   return result.stdout
 }
 
-function baseRefExists(baseRef) {
-  const result = spawnSync('git', ['rev-parse', '--verify', '--quiet', baseRef], {
+function refExists(ref) {
+  const result = spawnSync('git', ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`], {
     encoding: 'utf8',
   })
 
   return result.status === 0
+}
+
+function baseRefExists(baseRef) {
+  return refExists(baseRef)
 }
 
 function parseNameStatus(output) {
@@ -467,12 +473,6 @@ function runtimeFingerprint(source, filePath) {
   return sha256(JSON.stringify(canonicalTree))
 }
 
-function getHeadBlobSha(filePath) {
-  const sha = runGit(['hash-object', '--', filePath], { allowFailure: true })
-
-  return sha?.trim() || sha256(fs.readFileSync(path.join(cwd, filePath), 'utf8'))
-}
-
 function getBaseBlob(baseRef, filePath) {
   const blobSha = runGit(['rev-parse', `${baseRef}:${filePath}`], { allowFailure: true })
 
@@ -506,9 +506,9 @@ function getCachedOrComputeHash({ cache, filePath, blobSha, source }) {
   return hash
 }
 
-function collectChangedEntries(baseRef) {
+function collectChangedEntries(diffSpec) {
   const output = runGit(
-    ['diff', '--name-status', '--find-renames', '--diff-filter=ACDMRTUXB', '-z', baseRef],
+    ['diff', '--name-status', '--find-renames', '--diff-filter=ACDMRTUXB', '-z', diffSpec],
     {
       allowFailure: true,
     }
@@ -521,10 +521,45 @@ function collectChangedEntries(baseRef) {
   return parseNameStatus(output)
 }
 
+function resolveDiffContext() {
+  const diffFromRef = DIFF_FROM_REF.trim()
+  const diffToRef = DIFF_TO_REF.trim()
+
+  if (diffFromRef && diffToRef && refExists(diffFromRef) && refExists(diffToRef)) {
+    return {
+      mode: 'explicit_range',
+      diffSpec: `${diffFromRef}..${diffToRef}`,
+      comparisonBaseRef: diffFromRef,
+      comparisonHeadRef: diffToRef,
+      fallbackReason: null,
+    }
+  }
+
+  if (!baseRefExists(BASE_REF)) {
+    return null
+  }
+
+  return {
+    mode: 'base_ref',
+    diffSpec: `${BASE_REF}...HEAD`,
+    comparisonBaseRef: BASE_REF,
+    comparisonHeadRef: 'HEAD',
+    fallbackReason:
+      diffFromRef || diffToRef ? 'explicit_range_hint_invalid_fallback_to_base_ref' : null,
+  }
+}
+
 function main() {
   const summary = {
     detectorVersion: DETECTOR_VERSION,
     baseRef: BASE_REF,
+    diffFromRef: DIFF_FROM_REF || null,
+    diffToRef: DIFF_TO_REF || null,
+    diffMode: null,
+    diffSpec: null,
+    diffFallbackReason: null,
+    comparisonBaseRef: null,
+    comparisonHeadRef: null,
     decision: 'run_full',
     reasons: [],
     changedFiles: [],
@@ -535,7 +570,9 @@ function main() {
   }
 
   try {
-    if (!baseRefExists(BASE_REF)) {
+    const diffContext = resolveDiffContext()
+
+    if (!diffContext) {
       summary.reasons.push('base_ref_unavailable')
       summary.uncertain.push(`Base ref not found: ${BASE_REF}`)
       console.log(JSON.stringify(summary, null, 2))
@@ -543,7 +580,13 @@ function main() {
       return
     }
 
-    const entries = collectChangedEntries(BASE_REF)
+    summary.diffMode = diffContext.mode
+    summary.diffSpec = diffContext.diffSpec
+    summary.diffFallbackReason = diffContext.fallbackReason
+    summary.comparisonBaseRef = diffContext.comparisonBaseRef
+    summary.comparisonHeadRef = diffContext.comparisonHeadRef
+
+    const entries = collectChangedEntries(diffContext.diffSpec)
 
     if (entries === null) {
       summary.reasons.push('unable_to_collect_diff')
@@ -656,18 +699,7 @@ function main() {
         return
       }
 
-      const absolutePath = path.join(cwd, filePath)
-
-      if (!fs.existsSync(absolutePath)) {
-        summary.reasons.push('protected_head_file_missing')
-        summary.uncertain.push(`missing_head_file:${filePath}`)
-        summary.decision = 'run_full'
-        console.log(JSON.stringify(summary, null, 2))
-
-        return
-      }
-
-      const baseBlob = getBaseBlob(BASE_REF, filePath)
+      const baseBlob = getBaseBlob(summary.comparisonBaseRef || BASE_REF, filePath)
 
       if (!baseBlob) {
         summary.reasons.push('protected_base_file_missing')
@@ -678,8 +710,16 @@ function main() {
         return
       }
 
-      const headSource = fs.readFileSync(absolutePath, 'utf8')
-      const headBlobSha = getHeadBlobSha(filePath)
+      const headBlob = getBaseBlob(summary.comparisonHeadRef || 'HEAD', filePath)
+
+      if (!headBlob) {
+        summary.reasons.push('protected_head_file_missing')
+        summary.uncertain.push(`missing_head_blob:${filePath}`)
+        summary.decision = 'run_full'
+        console.log(JSON.stringify(summary, null, 2))
+
+        return
+      }
 
       let baseHash
       let headHash
@@ -694,8 +734,8 @@ function main() {
         headHash = getCachedOrComputeHash({
           cache,
           filePath,
-          blobSha: headBlobSha,
-          source: headSource,
+          blobSha: headBlob.blobSha,
+          source: headBlob.content,
         })
       } catch (error) {
         summary.reasons.push('ast_parse_error')

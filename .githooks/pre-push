@@ -6,5 +6,34 @@ if [ "${SKIP_PRE_PUSH:-0}" = "1" ]; then
   exit 0
 fi
 
+PUSH_UPDATES="$(cat)"
+
+if [ -n "$PUSH_UPDATES" ]; then
+  SELECTED_LOCAL_SHA=""
+  SELECTED_REMOTE_SHA=""
+
+  while IFS=' ' read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+    if [ -z "$LOCAL_REF" ]; then
+      continue
+    fi
+
+    if [ "$LOCAL_SHA" = "0000000000000000000000000000000000000000" ]; then
+      continue
+    fi
+
+    SELECTED_LOCAL_SHA="$LOCAL_SHA"
+    SELECTED_REMOTE_SHA="$REMOTE_SHA"
+    break
+  done <<EOF
+$PUSH_UPDATES
+EOF
+
+  if [ -n "$SELECTED_LOCAL_SHA" ]; then
+    export VERIFY_AUTO_LOCAL_SHA="$SELECTED_LOCAL_SHA"
+    export VERIFY_AUTO_REMOTE_SHA="$SELECTED_REMOTE_SHA"
+    echo "[pre-push] Push range hint: ${SELECTED_REMOTE_SHA:-<none>}..$SELECTED_LOCAL_SHA"
+  fi
+fi
+
 echo "[pre-push] Running auto gate (verify:auto)..."
 pnpm run verify:auto

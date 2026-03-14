@@ -1,5 +1,11 @@
 import { spawn } from 'node:child_process'
 import { spawnSync } from 'node:child_process'
+import {
+  getCurrentHeadSha,
+  resolveRefSha,
+  shortSha,
+  writeVerificationStamp,
+} from './lib/verification-stamp.mjs'
 
 const FORCE_FULL = process.env.VERIFY_SMART_FORCE_FULL === '1'
 
@@ -53,11 +59,15 @@ function buildSummary({
   reason,
   forceFull,
   baseRef,
+  diffFrom,
+  diffTo,
 }) {
   return {
     gate: 'verify:smart',
     branch,
     baseRef,
+    diffFrom: diffFrom || null,
+    diffTo: diffTo || null,
     forceFull,
     ciCheck,
     decision,
@@ -67,9 +77,41 @@ function buildSummary({
   }
 }
 
+function attachVerificationStamp({ summary, headSha, baseRefSha }) {
+  const stamp = writeVerificationStamp({
+    headSha,
+    gate: 'verify:smart',
+    decision: summary.decision,
+    baseRef: summary.baseRef,
+    baseRefSha,
+    reason: summary.reason,
+    ciCheck: summary.ciCheck,
+    fullCheck: summary.fullCheck,
+    branch: summary.branch,
+  })
+
+  if (!stamp) {
+    return
+  }
+
+  summary.verificationStamp = {
+    headSha: stamp.headSha,
+    headShaShort: shortSha(stamp.headSha),
+    gate: stamp.gate,
+    decision: stamp.decision,
+    fullCheck: stamp.fullCheck,
+    verifiedAt: stamp.verifiedAt,
+    filePath: stamp.filePath,
+  }
+}
+
 async function run() {
   const branch = detectBranchName()
   const baseRef = process.env.VERIFY_SMART_BASE_REF || 'origin/develop'
+  const diffFrom = process.env.VERIFY_SMART_DIFF_FROM || null
+  const diffTo = process.env.VERIFY_SMART_DIFF_TO || null
+  const baseRefSha = resolveRefSha(baseRef)
+  const headSha = getCurrentHeadSha()
 
   await runCommand('pnpm', ['run', 'ci:check'])
 
@@ -83,6 +125,8 @@ async function run() {
       reason: 'forced_by_env',
       forceFull: true,
       baseRef,
+      diffFrom,
+      diffTo,
     })
 
     try {
@@ -98,6 +142,11 @@ async function run() {
       throw error
     }
 
+    attachVerificationStamp({
+      summary,
+      headSha,
+      baseRefSha,
+    })
     console.log(JSON.stringify(summary, null, 2))
 
     return
@@ -113,6 +162,8 @@ async function run() {
       reason: 'integration_branch_requires_full_check',
       forceFull: false,
       baseRef,
+      diffFrom,
+      diffTo,
     })
 
     try {
@@ -128,6 +179,11 @@ async function run() {
       throw error
     }
 
+    attachVerificationStamp({
+      summary,
+      headSha,
+      baseRefSha,
+    })
     console.log(JSON.stringify(summary, null, 2))
 
     return
@@ -146,6 +202,8 @@ async function run() {
       reason: 'detector_decision',
       forceFull: false,
       baseRef,
+      diffFrom,
+      diffTo,
     })
 
     try {
@@ -161,6 +219,11 @@ async function run() {
       throw error
     }
 
+    attachVerificationStamp({
+      summary,
+      headSha,
+      baseRefSha,
+    })
     console.log(JSON.stringify(summary, null, 2))
 
     return
@@ -175,8 +238,15 @@ async function run() {
     reason: 'detector_decision',
     forceFull: false,
     baseRef,
+    diffFrom,
+    diffTo,
   })
 
+  attachVerificationStamp({
+    summary,
+    headSha,
+    baseRefSha,
+  })
   console.log(JSON.stringify(summary, null, 2))
 }
 
