@@ -1,8 +1,10 @@
+import type { StaticImageData } from 'next/image'
+
 import { memo } from 'react'
 
 import { getAvatarImageSizes, IMAGE_LOADING_STRATEGY } from '@/shared/constant'
+import { SafeImage } from '@/shared/ui'
 import { clsx } from 'clsx'
-import Image, { StaticImageData } from 'next/image'
 
 import s from './Avatar.module.scss'
 
@@ -26,13 +28,15 @@ export const Avatar = memo(function Avatar({
   const imageLoadingStrategy = priority ? IMAGE_LOADING_STRATEGY.lcp : IMAGE_LOADING_STRATEGY.low
 
   return (
-    <Image
+    <SafeImage
       {...imageLoadingStrategy}
       src={image || DEFAULT_AVATAR}
+      fallbackSrc={DEFAULT_AVATAR}
       width={size}
       height={size}
       sizes={getAvatarImageSizes(size)}
       alt={alt ?? DEFAULT_AVATAR_ALT}
+      telemetryLabel={'Avatar'}
       className={classNames}
     />
   )
