@@ -1,0 +1,413 @@
+{
+  "traceabilityVersion": "1.0.0",
+  "updatedAt": "2026-03-14",
+  "purpose": "Map external TaskShifter technical specifications to locked product contract items and contract tests.",
+  "sources": [
+    {
+      "id": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "title": "Registration, login, OAuth2",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "Registration"
+        },
+        {
+          "id": "UC-2",
+          "title": "Log in"
+        },
+        {
+          "id": "UC-3",
+          "title": "Password recovery (frontend optional)"
+        },
+        {
+          "id": "UC-4",
+          "title": "Log out"
+        },
+        {
+          "id": "UC-5",
+          "title": "Google/GitHub auth (optional)"
+        }
+      ]
+    },
+    {
+      "id": "TZ-RECAPTCHA",
+      "title": "reCAPTCHA protection for forgot-password flow",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "Protect forgot-password submit with reCAPTCHA"
+        }
+      ]
+    },
+    {
+      "id": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
+      "title": "CRUD Posts, upload photo",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "Add post with photo upload"
+        },
+        {
+          "id": "UC-2",
+          "title": "Edit post"
+        },
+        {
+          "id": "UC-3",
+          "title": "Delete post"
+        },
+        {
+          "id": "UC-4",
+          "title": "View own posts"
+        }
+      ]
+    },
+    {
+      "id": "TZ-MAIN-PAGE-SSG-ISR",
+      "title": "Main page with public posts (SSG/ISR)",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "View public posts on the main page"
+        }
+      ]
+    },
+    {
+      "id": "TZ-SSR-FOR-POSTS-FRONTEND",
+      "title": "SSR for profile and post modal entry",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "View profile page"
+        },
+        {
+          "id": "UC-2",
+          "title": "View post from profile/main/direct link"
+        }
+      ]
+    },
+    {
+      "id": "TZ-PROFILE-FILL-AVATAR-EDIT",
+      "title": "Profile fill/edit and avatar upload",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "Fill profile information"
+        },
+        {
+          "id": "UC-2",
+          "title": "Upload/delete avatar"
+        },
+        {
+          "id": "UC-3",
+          "title": "Edit profile data"
+        }
+      ]
+    },
+    {
+      "id": "TZ-PAYMENTS",
+      "title": "Paid account and payments",
+      "uc": [
+        {
+          "id": "UC-1",
+          "title": "Buy paid account (Stripe/PayPal)"
+        },
+        {
+          "id": "UC-2",
+          "title": "Disable auto-renewal"
+        },
+        {
+          "id": "UC-3",
+          "title": "Buy additional subscriptions"
+        },
+        {
+          "id": "UC-4",
+          "title": "View My Payments table"
+        }
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "sourceId": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "auth-core"
+      ],
+      "contractItemIds": [
+        "AUTH-UC1-FORM-VALIDATION"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "Registration form validation and agreement gate are locked."
+    },
+    {
+      "sourceId": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "ucId": "UC-2",
+      "contractGroupIds": [
+        "auth-core"
+      ],
+      "contractItemIds": [
+        "AUTH-UC2-LOGIN-FLOW"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "Login flow and route contract are locked."
+    },
+    {
+      "sourceId": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "ucId": "UC-3",
+      "contractGroupIds": [
+        "auth-core"
+      ],
+      "contractItemIds": [
+        "AUTH-UC3-RECAPTCHA-FORGOT-PASSWORD"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "Forgot-password reCAPTCHA behavior is locked."
+    },
+    {
+      "sourceId": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "ucId": "UC-4",
+      "contractGroupIds": [
+        "auth-core"
+      ],
+      "contractItemIds": [
+        "AUTH-UC4-LOGOUT-CONFIRMATION"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "Logout confirmation flow is locked."
+    },
+    {
+      "sourceId": "TZ-REGISTRATION-LOGIN-OAUTH2",
+      "ucId": "UC-5",
+      "contractGroupIds": [
+        "oauth-social-sign-in"
+      ],
+      "contractItemIds": [
+        "AUTH-UC5-OAUTH"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "OAuth flow is tracked as optional_or_blocked in product contract."
+    },
+    {
+      "sourceId": "TZ-RECAPTCHA",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "auth-core"
+      ],
+      "contractItemIds": [
+        "AUTH-UC3-RECAPTCHA-FORGOT-PASSWORD"
+      ],
+      "evidenceTests": [
+        "tests/contracts/auth.contract.test.ts"
+      ],
+      "notes": "Dedicated recaptcha TZ maps to forgot-password recaptcha locked item."
+    },
+    {
+      "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "posts-crud"
+      ],
+      "contractItemIds": [
+        "POSTS-UC1-UPLOAD-CONSTRAINTS",
+        "POSTS-UC1-PUBLISH-DESCRIPTION-LIMIT"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Upload constraints, crop limits and publish description are locked and covered by contract tests."
+    },
+    {
+      "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
+      "ucId": "UC-2",
+      "contractGroupIds": [
+        "posts-crud"
+      ],
+      "contractItemIds": [
+        "POSTS-UC1-PUBLISH-DESCRIPTION-LIMIT",
+        "POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Edit modal behavior and description constraints are locked."
+    },
+    {
+      "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
+      "ucId": "UC-3",
+      "contractGroupIds": [
+        "posts-crud"
+      ],
+      "contractItemIds": [
+        "POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Delete post confirmation behavior is locked."
+    },
+    {
+      "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
+      "ucId": "UC-4",
+      "contractGroupIds": [
+        "profile-ssr"
+      ],
+      "contractItemIds": [
+        "SSR-UC1-PROFILE-PAGE"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Profile page server entry and initial post feed contract are locked."
+    },
+    {
+      "sourceId": "TZ-MAIN-PAGE-SSG-ISR",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "public-main-page"
+      ],
+      "contractItemIds": [
+        "MAIN-UC1-PUBLIC-FEED-FOUR-POSTS"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Initial 4 posts and client polling are locked by contract tests."
+    },
+    {
+      "sourceId": "TZ-SSR-FOR-POSTS-FRONTEND",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "profile-ssr"
+      ],
+      "contractItemIds": [
+        "SSR-UC1-PROFILE-PAGE"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Server profile entry contract is locked and covered."
+    },
+    {
+      "sourceId": "TZ-SSR-FOR-POSTS-FRONTEND",
+      "ucId": "UC-2",
+      "contractGroupIds": [
+        "profile-ssr"
+      ],
+      "contractItemIds": [
+        "SSR-UC2-POST-MODAL-ENTRY"
+      ],
+      "evidenceTests": [
+        "tests/contracts/posts-and-rendering.contract.test.ts"
+      ],
+      "notes": "Direct post entry via query parameters is locked and covered."
+    },
+    {
+      "sourceId": "TZ-PROFILE-FILL-AVATAR-EDIT",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "profile-avatar"
+      ],
+      "contractItemIds": [
+        "PROFILE-UC1-FORM-VALIDATION"
+      ],
+      "evidenceTests": [
+        "tests/contracts/profile-avatar.contract.test.ts"
+      ],
+      "notes": "Profile form validation contract is locked."
+    },
+    {
+      "sourceId": "TZ-PROFILE-FILL-AVATAR-EDIT",
+      "ucId": "UC-2",
+      "contractGroupIds": [
+        "profile-avatar"
+      ],
+      "contractItemIds": [
+        "PROFILE-UC2-AVATAR-UPLOAD-CONSTRAINTS"
+      ],
+      "evidenceTests": [
+        "tests/contracts/profile-avatar.contract.test.ts"
+      ],
+      "notes": "Avatar upload constraints and delete confirmation are locked."
+    },
+    {
+      "sourceId": "TZ-PROFILE-FILL-AVATAR-EDIT",
+      "ucId": "UC-3",
+      "contractGroupIds": [
+        "profile-avatar"
+      ],
+      "contractItemIds": [
+        "PROFILE-UC1-FORM-VALIDATION"
+      ],
+      "evidenceTests": [
+        "tests/contracts/profile-avatar.contract.test.ts"
+      ],
+      "notes": "Edit profile data uses the same locked validation contract."
+    },
+    {
+      "sourceId": "TZ-PAYMENTS",
+      "ucId": "UC-1",
+      "contractGroupIds": [
+        "payments"
+      ],
+      "contractItemIds": [
+        "PAYMENTS-UC1-UC4"
+      ],
+      "evidenceTests": [],
+      "notes": "Payments are marked as planned in product contract; implementation in progress."
+    },
+    {
+      "sourceId": "TZ-PAYMENTS",
+      "ucId": "UC-2",
+      "contractGroupIds": [
+        "payments"
+      ],
+      "contractItemIds": [
+        "PAYMENTS-UC1-UC4"
+      ],
+      "evidenceTests": [],
+      "notes": "Payments are marked as planned in product contract; implementation in progress."
+    },
+    {
+      "sourceId": "TZ-PAYMENTS",
+      "ucId": "UC-3",
+      "contractGroupIds": [
+        "payments"
+      ],
+      "contractItemIds": [
+        "PAYMENTS-UC1-UC4"
+      ],
+      "evidenceTests": [],
+      "notes": "Payments are marked as planned in product contract; implementation in progress."
+    },
+    {
+      "sourceId": "TZ-PAYMENTS",
+      "ucId": "UC-4",
+      "contractGroupIds": [
+        "payments"
+      ],
+      "contractItemIds": [
+        "PAYMENTS-UC1-UC4"
+      ],
+      "evidenceTests": [],
+      "notes": "Payments are marked as planned in product contract; implementation in progress."
+    }
+  ],
+  "knownGaps": [
+    {
+      "sourceId": "TZ-SSR-FOR-POSTS-FRONTEND",
+      "ucId": "UC-2",
+      "gapId": "SSR-POST-HTML-IMAGE-INLINING",
+      "description": "Current locked contract validates server entry and modal route behavior, but does not require post images to be embedded in the initial document preview."
+    }
+  ]
+}
