@@ -1,0 +1,44 @@
+.root {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.amount {
+  color: var(--color-primary-500);
+}
+
+.hint {
+  color: var(--color-light-900);
+}
+
+.stateCard {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.stateText {
+  color: var(--color-light-900);
+}
+
+.retryButton {
+  width: fit-content;
+}
+
+.loadingState {
+  min-height: 44px;
+  position: relative;
+}
