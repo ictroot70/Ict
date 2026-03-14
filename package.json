@@ -24,6 +24,7 @@
     "hooks:install": "node scripts/install-git-hooks.mjs",
     "verify:precommit": "pnpm run lint && pnpm run typecheck && pnpm run contract:check && pnpm run test:contracts",
     "perf:check": "node scripts/check-lighthouse-budgets.mjs",
+    "perf:check:auto": "PERF_BUDGET_ROUTE_MODE=auto node scripts/check-lighthouse-budgets.mjs",
     "detect:impact": "node scripts/detect-impact.mjs",
     "verify:auto": "node scripts/verify-auto.mjs",
     "verify:smart": "node scripts/verify-smart-check.mjs",

@@ -57,6 +57,12 @@ pnpm run hooks:install
 
 - `APP_BASE_URL` (default: `http://localhost:3000`)
 - `PERF_BUDGET_PROFILE_ROUTE` (default: `/profile/1`)
+- `PERF_BUDGET_ROUTE_MODE` (`static` | `auto`, default: `static`)
+- `PERF_INCLUDE_PROTECTED_ROUTES` (`1` | `0`, default: `1`)
+- `PERF_SKIP_AUTH_REDIRECTED_ROUTES` (`1` | `0`, default: `1`) — не падать на маршрутах, которые редиректят в `/auth/login`
+- `PERF_EXTRA_ROUTES` (CSV список дополнительных маршрутов, например `/search,/profile/1?action=create`)
+- `PERF_ROUTE_PARAM_ID` / `PERF_ROUTE_PARAM_TAB` / `PERF_ROUTE_PARAM_SLUG` (подстановка для dynamic routes в `auto` режиме)
+- `PERF_FAIL_ON_REDIRECT=1` (считать redirect нарушением budget-check)
 - `VERIFY_SMART_BASE_REF` (default: `origin/develop`)
 - `VERIFY_SMART_FORCE_FULL=1` (аварийно принудить полный прогон)
 - `VERIFY_AUTO_DRY_RUN=1` (только показать решение `verify:auto`, без запуска команд)
@@ -78,6 +84,12 @@ pnpm run detect:impact
 
 ```bash
 VERIFY_SMART_BASE_REF=HEAD pnpm run detect:impact
+```
+
+Прогнать Lighthouse budgets по авто-обнаруженным маршрутам из `.next/app-path-routes-manifest.json`:
+
+```bash
+pnpm run perf:check:auto
 ```
 
 ## PR message snippets (for template)
