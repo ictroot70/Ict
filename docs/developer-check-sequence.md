@@ -28,6 +28,8 @@ flowchart TD
 4. Любая uncertainty в detector => `run_full` (fail-safe).
 5. Для автоматического выбора команды можно использовать `pnpm run verify:auto`.
 6. Рекомендуемый default процесс: git hooks (`pre-commit` + `pre-push`), чтобы проверки стартовали автоматически перед commit/push.
+7. `pre-push` переиспользует локальный verification stamp для уже проверенного `HEAD`, чтобы не гонять тяжелые проверки повторно.
+8. В `pre-push` smart-detector может использовать explicit push-range, а не весь diff от `origin/develop`.
 
 ## Сценарии
 
@@ -62,6 +64,12 @@ flowchart TD
 
 ```bash
 VERIFY_SMART_FORCE_FULL=1 pnpm run verify:smart
+```
+
+Если нужно проигнорировать reuse stamp и запустить свежую верификацию:
+
+```bash
+VERIFY_AUTO_IGNORE_STAMP=1 pnpm run verify:auto
 ```
 
 ## Что приложить в PR

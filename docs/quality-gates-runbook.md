@@ -27,7 +27,7 @@ pnpm run hooks:install
 После этого проверки запускаются автоматически:
 
 - `pre-commit` -> `pnpm run verify:precommit` (быстрый gate)
-- `pre-push` -> `pnpm run verify:auto` (умный выбор smart/full)
+- `pre-push` -> `pnpm run verify:auto` (умный выбор smart/full + reuse stamp)
 
 ## Что запускать и когда
 
@@ -41,14 +41,17 @@ pnpm run hooks:install
 - `develop` -> `verify:full`
 - PR/feature-ветка -> `verify:smart`
 - нет изменений относительно `VERIFY_SMART_BASE_REF` -> skip
+- если текущий `HEAD` уже успешно проверен и stamp валиден -> reuse (без повторного прогона)
+- в `pre-push` при наличии remote/local SHA используется фактический push-range для smart-detector
 
 ## Как работает verify:smart
 
 1. Всегда запускает `ci:check`.
-2. Запускает `detect-impact` (по умолчанию база `origin/develop`).
+2. Запускает `detect-impact` (по умолчанию база `origin/develop`, либо explicit range от `pre-push`).
 3. Если решение `skip_full`, pipeline завершается успешно без `verify:full`.
 4. Если решение `run_full`, автоматически запускается `verify:full`.
 5. Fail-safe: при uncertainty решение всегда `run_full`.
+6. После успешного прогона записывается verification stamp в `.git/codex/verification-stamp.json`.
 
 ## Полезные env-переменные
 
@@ -57,6 +60,9 @@ pnpm run hooks:install
 - `VERIFY_SMART_BASE_REF` (default: `origin/develop`)
 - `VERIFY_SMART_FORCE_FULL=1` (аварийно принудить полный прогон)
 - `VERIFY_AUTO_DRY_RUN=1` (только показать решение `verify:auto`, без запуска команд)
+- `VERIFY_AUTO_IGNORE_STAMP=1` (игнорировать локальный verification stamp)
+- `VERIFY_AUTO_LOCAL_SHA` / `VERIFY_AUTO_REMOTE_SHA` (служебные подсказки range от `pre-push`)
+- `VERIFY_SMART_DIFF_FROM` / `VERIFY_SMART_DIFF_TO` (служебный explicit range для `detect-impact`)
 - `SKIP_PRE_COMMIT=1` (разово пропустить `pre-commit`)
 - `SKIP_PRE_PUSH=1` (разово пропустить `pre-push`)
 

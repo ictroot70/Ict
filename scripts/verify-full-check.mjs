@@ -1,4 +1,10 @@
-import { spawn } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
+import {
+  getCurrentHeadSha,
+  resolveRefSha,
+  shortSha,
+  writeVerificationStamp,
+} from './lib/verification-stamp.mjs'
 
 const APP_BASE_URL = process.env.APP_BASE_URL || 'http://127.0.0.1:3000'
 const SHOULD_SKIP_CI = process.env.VERIFY_FULL_SKIP_CI === '1'
@@ -21,6 +27,29 @@ function runCommand(command, args, env = process.env) {
       }
     })
   })
+}
+
+function runCommandCapture(command, args, env = process.env) {
+  const result = spawnSync(command, args, {
+    env,
+    encoding: 'utf8',
+  })
+
+  if (result.status !== 0) {
+    throw new Error(result.stderr || `${command} ${args.join(' ')} exited with code ${result.status}`)
+  }
+
+  return result.stdout.trim()
+}
+
+function detectBranchName() {
+  if (process.env.GITHUB_REF_NAME) {
+    return process.env.GITHUB_REF_NAME
+  }
+
+  const branch = runCommandCapture('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
+
+  return branch || 'unknown'
 }
 
 async function waitForServer(url, getServerState) {
@@ -51,6 +80,11 @@ async function waitForServer(url, getServerState) {
 }
 
 async function run() {
+  const branch = detectBranchName()
+  const baseRef = process.env.VERIFY_SMART_BASE_REF || 'origin/develop'
+  const baseRefSha = resolveRefSha(baseRef)
+  const headSha = getCurrentHeadSha()
+
   if (!SHOULD_SKIP_CI) {
     await runCommand('pnpm', ['run', 'ci:check'])
   }
@@ -85,6 +119,27 @@ async function run() {
       ...process.env,
       APP_BASE_URL,
     })
+
+    const stamp = writeVerificationStamp({
+      headSha,
+      gate: 'verify:full',
+      decision: 'run_full',
+      baseRef,
+      baseRefSha,
+      reason: SHOULD_SKIP_CI
+        ? 'verify_full_executed_ci_skipped_by_env'
+        : 'verify_full_executed_with_ci',
+      ciCheck: SHOULD_SKIP_CI ? 'skipped' : 'passed',
+      fullCheck: 'executed',
+      branch,
+      appBaseUrl: APP_BASE_URL,
+    })
+
+    if (stamp) {
+      console.log(
+        `[verify:full] Verification stamp updated for ${shortSha(stamp.headSha)} (${stamp.filePath})`
+      )
+    }
   } finally {
     if (!server.killed) {
       server.kill('SIGTERM')
