@@ -44,6 +44,7 @@ export function SubscriptionPricing() {
   }
 
   if (!data) {
+    // Global settings-tabs loading already covers this state, so no local pricing loader here.
     return null
   }
 
@@ -60,6 +61,8 @@ export function SubscriptionPricing() {
 
   return (
     <div className={styles.root}>
+      {/* TODO(SCRUM-199, T2/T3/T4): replace preview with final Account Management composition
+          and bind selected plan to payment flow (createSubscription + return/polling). */}
       <Typography variant={'h3'}>Change your subscription:</Typography>
       <Card className={styles.noticeCard}>
         <Typography className={styles.noticeTitle} variant={'regular_16'}>

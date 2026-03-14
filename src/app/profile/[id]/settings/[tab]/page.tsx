@@ -1,10 +1,9 @@
-import { Devices, GeneralInfo, Payments } from '@/features/profile/settings'
-import { SubscriptionPricing } from '@/features/subscriptions'
+import { AccountManagement, Devices, GeneralInfo, Payments } from '@/features/profile/settings'
 
 const TABS = {
   general: GeneralInfo,
   devices: Devices,
-  account: SubscriptionPricing,
+  account: AccountManagement,
   payments: Payments,
 } as const
 
