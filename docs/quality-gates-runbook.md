@@ -53,6 +53,15 @@ pnpm run hooks:install
 5. Fail-safe: при uncertainty решение всегда `run_full`.
 6. После успешного прогона записывается verification stamp в `.git/codex/verification-stamp.json`.
 
+## Traceability lock (TaskShifter -> Product contract)
+
+- Единый файл трассировки ТЗ: `.ai/contracts/taskshifter-traceability-lock.json`
+- Проверка консистентности трассировки: `pnpm run traceability:check`
+- `traceability:check` встроен в `verify:precommit` и `ci:check`.
+- Для каждого UC из TaskShifter должен быть:
+1. `mapping` на `locked` contract item(ы), или
+2. запись в `knownGaps` с явным описанием пробела.
+
 ## Полезные env-переменные
 
 - `APP_BASE_URL` (default: `http://localhost:3000`)
