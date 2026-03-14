@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
@@ -9,6 +9,7 @@ import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/consta
 import { SafeImage } from '@/shared/ui'
 import { Typography } from '@ictroot/ui-kit'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import s from './PublicPost.module.scss'
 
@@ -19,9 +20,11 @@ type Props = {
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
+const POST_MODAL_RETURN_KEY = 'post-modal-return-to'
 
 export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
   const { id, ownerId, userName, images, avatarOwner, description, createdAt } = post
+  const router = useRouter()
 
   const timeAgo = useTimeAgo(createdAt)
   const postUrl = APP_ROUTES.PROFILE.WITH_POST(ownerId, id, 'home')
@@ -38,12 +41,15 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
     setIsExpanded(prev => !prev)
   }
 
+  useEffect(() => {
+    router.prefetch(postUrl)
+  }, [postUrl, router])
+
   return (
     <div className={s.post}>
       <Link
         href={postUrl}
         scroll={false}
-        prefetch={false}
         className={s.post__media}
         onClick={event => {
           const target = event.target as HTMLElement
@@ -51,6 +57,19 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
           if (target.closest('button')) {
             event.preventDefault()
             event.stopPropagation()
+
+            return
+          }
+
+          const isPlainLeftClick =
+            event.button === 0 &&
+            !event.metaKey &&
+            !event.ctrlKey &&
+            !event.shiftKey &&
+            !event.altKey
+
+          if (isPlainLeftClick) {
+            window.sessionStorage.setItem(POST_MODAL_RETURN_KEY, 'home')
           }
         }}
       >
