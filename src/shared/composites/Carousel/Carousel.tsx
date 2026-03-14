@@ -4,7 +4,7 @@ import { lazy, Suspense, type FC } from 'react'
 
 import { UserImage } from '@/entities/users/api/api.types'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import Image from 'next/image'
+import { SafeImage } from '@/shared/ui'
 
 import s from './Carousel.module.scss'
 
@@ -22,6 +22,7 @@ const EmblaCarousel = lazy(() =>
     default: module.EmblaCarousel,
   }))
 )
+const DEFAULT_IMAGE = '/default-image.svg'
 
 const CarouselSingleSlide = ({
   slides,
@@ -42,12 +43,14 @@ const CarouselSingleSlide = ({
         <div className={s.carousel__container}>
           <div className={s.carousel__slide}>
             <div className={s.carousel__image}>
-              <Image
+              <SafeImage
                 {...imageLoadingStrategy}
                 src={typeof singleSlide === 'string' ? singleSlide : singleSlide.url}
+                fallbackSrc={DEFAULT_IMAGE}
                 alt={'Image 1'}
                 fill
                 sizes={imageSizes}
+                telemetryLabel={'CarouselSingleSlide'}
                 className={filter ? s[filter.toLowerCase()] : ''}
               />
             </div>

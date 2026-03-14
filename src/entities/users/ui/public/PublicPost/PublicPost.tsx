@@ -6,8 +6,8 @@ import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Carousel } from '@/shared/composites'
 import { Avatar } from '@/shared/composites/Avatar'
 import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
+import { SafeImage } from '@/shared/ui'
 import { Typography } from '@ictroot/ui-kit'
-import Image from 'next/image'
 import Link from 'next/link'
 
 import s from './PublicPost.module.scss'
@@ -61,12 +61,14 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
             priorityFirstImage={isPriorityPost}
           />
         ) : (
-          <Image
+          <SafeImage
             {...imageLoadingStrategy}
             src={images[0]?.url || DEFAULT_IMAGE}
+            fallbackSrc={DEFAULT_IMAGE}
             alt={'Image'}
             fill
             sizes={IMAGE_SIZES.PUBLIC_POST}
+            telemetryLabel={'PublicPost'}
             className={s.post__image}
           />
         )}

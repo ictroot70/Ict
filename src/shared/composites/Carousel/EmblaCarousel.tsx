@@ -2,9 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { UserImage } from '@/entities/users/api/api.types'
 import { IMAGE_LOADING_STRATEGY } from '@/shared/constant'
-import { ArrowBackSimple, ArrowForwardSimple } from '@/shared/ui'
+import { ArrowBackSimple, ArrowForwardSimple, SafeImage } from '@/shared/ui'
 import useEmblaCarousel from 'embla-carousel-react'
-import Image from 'next/image'
 
 import s from './Carousel.module.scss'
 
@@ -27,6 +26,7 @@ export const EmblaCarousel = ({
   imageSizes,
   priorityFirstImage,
 }: EmblaCarouselProps) => {
+  const DEFAULT_IMAGE = '/default-image.svg'
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -91,12 +91,14 @@ export const EmblaCarousel = ({
             return (
               <div className={s.carousel__slide} key={index}>
                 <div className={s.carousel__image}>
-                  <Image
+                  <SafeImage
                     {...imageLoadingStrategy}
                     src={typeof slide === 'string' ? slide : slide.url}
+                    fallbackSrc={DEFAULT_IMAGE}
                     alt={`Image ${index + 1}`}
                     fill
                     sizes={imageSizes}
+                    telemetryLabel={'EmblaCarousel'}
                     className={filter ? s[filter.toLowerCase()] : ''}
                   />
                 </div>
