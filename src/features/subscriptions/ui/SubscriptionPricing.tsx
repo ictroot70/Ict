@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 
 import { useGetPricingQuery } from '@/features/subscriptions/api'
 import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
-import { Loading } from '@/shared/composites'
 import { SubscriptionType } from '@/shared/types'
 import { Button, Card, Typography } from '@/shared/ui'
 
@@ -17,11 +16,11 @@ const SUBSCRIPTION_ORDER: Record<SubscriptionType, number> = {
 }
 
 export function SubscriptionPricing() {
-  const { data, isError, isLoading, refetch } = useGetPricingQuery()
+  const { data, isError, refetch } = useGetPricingQuery()
 
   const pricingPlans = useMemo(() => {
     if (!data) {
-      return null
+      return []
     }
 
     return [...data.data].sort(
@@ -29,17 +28,6 @@ export function SubscriptionPricing() {
         SUBSCRIPTION_ORDER[left.typeDescription] - SUBSCRIPTION_ORDER[right.typeDescription]
     )
   }, [data])
-
-  if (isLoading) {
-    return (
-      <Card className={styles.stateCard}>
-        <div className={styles.loadingState}>
-          <Loading size={8} />
-        </div>
-        <Typography variant={'regular_16'}>Loading pricing...</Typography>
-      </Card>
-    )
-  }
 
   if (isError) {
     return (
@@ -55,7 +43,11 @@ export function SubscriptionPricing() {
     )
   }
 
-  if (!pricingPlans || !pricingPlans.length) {
+  if (!data) {
+    return null
+  }
+
+  if (!pricingPlans.length) {
     return (
       <Card className={styles.stateCard}>
         <Typography variant={'h3'}>No pricing plans</Typography>
@@ -68,22 +60,34 @@ export function SubscriptionPricing() {
 
   return (
     <div className={styles.root}>
-      <Typography variant={'h3'}>Subscription plans</Typography>
-      <div className={styles.grid}>
-        {pricingPlans.map(plan => (
-          <Card key={plan.typeDescription} className={styles.card}>
-            <Typography variant={'regular_16'}>
-              {mapSubscriptionTypeToLabel(plan.typeDescription)}
-            </Typography>
-            <Typography className={styles.amount} variant={'h2'}>
-              {plan.amount}
-            </Typography>
-            <Typography className={styles.hint} variant={'small_text'}>
-              API pricing
-            </Typography>
-          </Card>
-        ))}
-      </div>
+      <Typography variant={'h3'}>Change your subscription:</Typography>
+      <Card className={styles.noticeCard}>
+        <Typography className={styles.noticeTitle} variant={'regular_16'}>
+          Temporary pricing preview
+        </Typography>
+        <Typography className={styles.noticeText} variant={'small_text'}>
+          Plans below are rendered from `useGetPricingQuery`.
+        </Typography>
+        <Typography className={styles.noticeText} variant={'small_text'}>
+          Next step for Account Management flow (T2+): connect selected plan with
+          `createSubscription` and subscription state from `getCurrentSubscription`.
+        </Typography>
+      </Card>
+      <Card className={styles.pricingCard}>
+        <div className={styles.pricingList}>
+          {pricingPlans.map((plan, index) => (
+            <div key={plan.typeDescription} className={styles.planRow}>
+              <span
+                aria-hidden
+                className={index === 0 ? styles.pseudoRadioSelected : styles.pseudoRadio}
+              />
+              <Typography variant={'regular_16'}>
+                ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
+              </Typography>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   )
 }

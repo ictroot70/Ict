@@ -1,11 +1,11 @@
-import { AccountManagement, Devices, GeneralInfo } from '@/features/profile/settings'
+import { Devices, GeneralInfo, Payments } from '@/features/profile/settings'
 import { SubscriptionPricing } from '@/features/subscriptions'
 
 const TABS = {
   general: GeneralInfo,
   devices: Devices,
-  account: AccountManagement,
-  payments: SubscriptionPricing,
+  account: SubscriptionPricing,
+  payments: Payments,
 } as const
 
 type TabKey = keyof typeof TABS
