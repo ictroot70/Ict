@@ -1,0 +1,80 @@
+.root {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.noticeCard {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.noticeTitle {
+  color: var(--color-light-100);
+}
+
+.noticeText {
+  color: var(--color-light-900);
+}
+
+.pricingCard {
+  padding: 0;
+}
+
+.pricingList {
+  display: grid;
+}
+
+.planRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--color-dark-100);
+}
+
+.planRow:first-child {
+  border-top: 0;
+}
+
+.pseudoRadio,
+.pseudoRadioSelected {
+  flex-shrink: 0;
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-light-100);
+  border-radius: 50%;
+}
+
+.pseudoRadioSelected {
+  position: relative;
+}
+
+.pseudoRadioSelected::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-light-100);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.stateCard {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.stateText {
+  color: var(--color-light-900);
+}
+
+.retryButton {
+  width: fit-content;
+}
