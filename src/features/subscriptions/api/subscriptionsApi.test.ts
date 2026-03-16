@@ -24,6 +24,16 @@ const asNoContentResponse = () =>
     status: 204,
   })
 
+const asRequest = (call: unknown[]) => {
+  const [input, init] = call as [Request | URL | string, Record<string, unknown> | undefined]
+
+  if (input instanceof Request) {
+    return input
+  }
+
+  return new Request(String(input), init as ConstructorParameters<typeof Request>[1])
+}
+
 describe('subscriptionsApi', () => {
   it('calls getPricing endpoint with correct route', async () => {
     const fetchMock = vi.fn().mockResolvedValue(asJsonResponse({ data: [] }))
@@ -35,9 +45,9 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url] = fetchMock.mock.calls[0]
+    const request = asRequest(fetchMock.mock.calls[0])
 
-    expect(String(url)).toContain(API_ROUTES.SUBSCRIPTIONS.COST_OF_PAYMENT)
+    expect(request.url).toContain(API_ROUTES.SUBSCRIPTIONS.COST_OF_PAYMENT)
   })
 
   it('calls createSubscription endpoint with POST body', async () => {
@@ -58,11 +68,11 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url, init] = fetchMock.mock.calls[0]
+    const request = asRequest(fetchMock.mock.calls[0])
 
-    expect(String(url)).toContain(API_ROUTES.SUBSCRIPTIONS.CREATE)
-    expect(init?.method).toBe('POST')
-    expect(init?.body).toBe(JSON.stringify(payload))
+    expect(request.url).toContain(API_ROUTES.SUBSCRIPTIONS.CREATE)
+    expect(request.method).toBe('POST')
+    await expect(request.text()).resolves.toBe(JSON.stringify(payload))
   })
 
   it('calls getCurrentSubscription endpoint with correct route', async () => {
@@ -77,9 +87,9 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url] = fetchMock.mock.calls[0]
+    const request = asRequest(fetchMock.mock.calls[0])
 
-    expect(String(url)).toContain(API_ROUTES.SUBSCRIPTIONS.CURRENT_PAYMENT)
+    expect(request.url).toContain(API_ROUTES.SUBSCRIPTIONS.CURRENT_PAYMENT)
   })
 
   it('calls getPayments endpoint with default query params', async () => {
@@ -96,8 +106,8 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url] = fetchMock.mock.calls[0]
-    const requestUrl = new URL(String(url))
+    const request = asRequest(fetchMock.mock.calls[0])
+    const requestUrl = new URL(request.url)
 
     expect(requestUrl.pathname).toContain(API_ROUTES.SUBSCRIPTIONS.MY_PAYMENTS)
     expect(requestUrl.searchParams.get('pageNumber')).toBe('1')
@@ -116,10 +126,10 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url, init] = fetchMock.mock.calls[0]
+    const request = asRequest(fetchMock.mock.calls[0])
 
-    expect(String(url)).toContain(API_ROUTES.SUBSCRIPTIONS.CANCEL_AUTO_RENEWAL)
-    expect(init?.method).toBe('POST')
+    expect(request.url).toContain(API_ROUTES.SUBSCRIPTIONS.CANCEL_AUTO_RENEWAL)
+    expect(request.method).toBe('POST')
   })
 
   it('calls renewAutoRenewal endpoint with POST', async () => {
@@ -132,9 +142,9 @@ describe('subscriptionsApi', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
-    const [url, init] = fetchMock.mock.calls[0]
+    const request = asRequest(fetchMock.mock.calls[0])
 
-    expect(String(url)).toContain(API_ROUTES.SUBSCRIPTIONS.RENEW_AUTO_RENEWAL)
-    expect(init?.method).toBe('POST')
+    expect(request.url).toContain(API_ROUTES.SUBSCRIPTIONS.RENEW_AUTO_RENEWAL)
+    expect(request.method).toBe('POST')
   })
 })

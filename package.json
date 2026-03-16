@@ -20,7 +20,8 @@
     "ci:check": "pnpm lint && pnpm typecheck && pnpm build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "echo \"Tests are not configured yet\" && exit 0"
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3",
@@ -70,6 +71,7 @@
     "@typescript-eslint/parser": "^6.7.5",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "msw": "^2.12.11",
     "prettier": "3.5.3",
     "sass": "^1.87.0",
     "stylelint": "^17.0.0",
