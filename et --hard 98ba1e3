@@ -1,0 +1,68 @@
+[33mcef25c4[m[33m ([m[1;36mHEAD -> [m[1;32mSCRUM-230-T3.1-Build-AccountManagementPage-container[m[33m)[m merge
+[33m98ba1e3[m fix bugs
+[33mf1b833b[m[33m ([m[1;31morigin/SCRUM-199-Payments-Delivery-UC-1.UC-4[m[33m)[m Scrum 205 t0 pricing api integration and remove hardcoded prices (#68)
+[33m372a63f[m[33m ([m[1;31morigin/SCRUM-206-T1-subscriptionsApi-types-mapper[m[33m)[m [T1.4] Add API layer tests-SCRUM-224, [T1.3] Add mapper for subscription type-SCRUM-223, [T1.2] Add DTO/request/response types-SCRUM-222, [T1.1] Implement subscriptionsApi methods-SCRUM-221, [T1] subscriptionsApi + types + mapper-SCRUM-206
+[33ma041336[m[33m ([m[1;31morigin/develop[m[33m, [m[1;31morigin/HEAD[m[33m)[m SCRUM-151-P0B-Public-Cache-Policy-no-store-Removal (#65)
+[33m502e687[m[33m ([m[1;31morigin/SCRUM-230-T3.1-Build-AccountManagementPage-container[m[33m)[m feat(account-management): implement account management page with subscription sections
+[33mf3c62f0[m[33m ([m[1;31morigin/SCRUM-210-T5-My-Payments-table-pagination-sorting-page-size[m[33m)[m Fix scroll loced (#58)
+[33m13c0af5[m fix: stabilize scroll lock for Modal/Select and prevent layout shift (#57)
+[33m276def0[m chore: commit all current workspace updates
+[33m62c561e[m merge(main->develop): resolve conflicts preferring develop
+[33m484a3e0[m[33m ([m[1;31morigin/backup/develop-2026-03-05[m[33m)[m chore(scripts): add shared https dev command (#56)
+[33m42b7272[m Scrum 126 uc 2 user post view ssr modal (#54)
+[33m8382308[m Merge scrum118 with develop profile priority (#53)
+[33m34f4c31[m chore(governance): restore rules pack and align local quality gates (#52)
+[33m5de8f40[m Scrum 119 user profile management (#49)
+[33mcab5436[m Scrum 139 fix filters (#50)
+[33m6ab0c59[m Scrum 140 follow up create post flow stabilization and UI typing polish (#51)
+[33m718e05e[m[33m ([m[1;31morigin/main[m[33m)[m Part 2 CRUD post, build (#46)
+[33mf7aedae[m[33m ([m[1;31morigin/SCRUM-138-Profile-Edit-general[m[33m, [m[1;31morigin/SCRUM-128-Refactoring-project[m[33m, [m[1;31morigin/SCRUM-123-UC-3-Profile-Editing[m[33m, [m[1;31morigin/SCRUM-122-UC-2-Avatar-Upload[m[33m)[m Posts update (#45)
+[33mc2f7cef[m Deploy (#33)
+[33m20cc58c[m Merge branch 'main' into develop
+[33maffaf5b[m Deploy (#32)
+[33m26110be[m This is second attempt to deploy (no functional changes (#27)
+[33m543f89a[m Deploy (#31)
+[33m6adde15[m Rebuild (#30)
+[33m5573f5d[m Hotfix/redeploy trigger (#29)
+[33m6ef34fb[m Hotfix/redeploy trigger (#28)
+[33m75e8843[m Merge branch 'main' into develop
+[33me027e3f[m chore: add special comment to trigger redeploy (no functional changes) (#26)
+[33m4471670[m Deploy project (#25)
+[33m5d710a1[m Scrum 86 refactoring auth (#24)
+[33m56e1bc7[m SCRUM-65 fix(Controlled components): change type signature (#15)
+[33mdc1db0c[m SCRUM-49 Registration form markup (#11)
+[33mb041a47[m SCRUM-48 Login form markup (#12)
+[33m6000ea6[m feat: add components and fix pages (#7)
+[33mae51643[m Form controls/checkbox (#8)
+[33mc348479[m Form controls/input (#9)
+[33ma253150[m Folder structure (#6)
+[33maf87fd5[m Merge pull request #5 from ictroot70/SCRUM-13-14
+[33m6fd9082[m Merge branch 'develop' into SCRUM-13-14
+[33m1941750[m SCRUM-13-14
+[33md31d95b[m ESLint, Prettier, Stylelint + @reduxjs/toolkit, react-hook-form
+[33m5773d72[m ESLint, Prettier Ð, Stylelint + @reduxjs/toolkit, react-hook-form
+[33m9439472[m Merge pull request #4 from ictroot70/SCRUM-11
+[33mcf75977[m SCRUM-11: <fixed Header>
+[33mc6e2f3c[m SCRUM-11: <plugged in the fonts Inter>
+[33m58d6f25[m SCRUM-11: <customized routing>
+[33m592f0e3[m SCRUM-11: <create branch SCRUM-11 and added Header.tsx>
+[33m4a4af6d[m Merge pull request #3 from ictroot70/SCRUM-15
+[33m7bcc9b9[m SCRUM-15 fix: update path mapping in tsconfig for module resolution
+[33m02b71dd[m SCRUM-15 feat: add SVG icons
+[33m8806303[m SCRUM-15 feat: add initial pages for authentication, user profile, and content management
+[33md1d9735[m Merge pull request #2 from ictroot70/develop
+[33m099b723[m npm run build
+[33m72a2716[m test 0
+[33mf07c7fe[m new develop branch
+[33m18e6229[m main modified
+[33md0fa870[m build prod del
+[33mbfbf4da[m Delete deployment.yaml
+[33m57f7129[m Delete preparingDeploy.sh
+[33m699a79a[m Delete nginx.conf
+[33m314c98f[m Delete Jenkinsfile
+[33mad941ce[m Delete Dockerfile
+[33mf47a427[m Delete .idea directory
+[33m73e3b95[m 3 commit
+[33meb2d3c5[m second commit
+[33m799b4fc[m first commit
+[33m80d3321[m Initial commit from Create Next App
