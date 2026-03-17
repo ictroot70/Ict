@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import styles from './AccountManagement.module.scss';
 import { useCurrentSubscription } from '@/features/subscriptions/model/hooks/useCurrentSubscription';
 import { usePricing } from '@/features/subscriptions/model/hooks/usePricing';
@@ -16,23 +16,29 @@ export const AccountManagement = () => {
   const { subscriptions, isLoading: subLoading } = useCurrentSubscription();
   const { plans, isLoading: plansLoading } = usePricing();
 
-  const view = resolveAccountManagementView({
-    accountType: selectedAccountType,
-    hasActiveSubscription: subscriptions.some(s => s.isActive)
-  });
-
-  const accountTypes = [
+  const accountTypes = useMemo(() => [
     { value: 'personal' as AccountTypeValue, label: 'Personal' },
     { value: 'business' as AccountTypeValue, label: 'Business' }
-  ];
+  ], []);
 
-  if (subLoading || plansLoading) {
+  const activeSubscription = useMemo(() =>
+    subscriptions.find(s => s.isActive), [subscriptions]
+  );
+
+  const view = resolveAccountManagementView({
+    accountType: selectedAccountType,
+    hasActiveSubscription: !!activeSubscription
+  });
+
+  const isLoading = subLoading || plansLoading;
+
+  if (isLoading) {
     return <div className={styles.loading}>Loading...</div>;
   }
 
   return (
     <div className={styles.accountManagementPage}>
-      <SubscriptionSection subscription={subscriptions[0]} />
+      <SubscriptionSection subscription={activeSubscription} />
 
       <AccountTypeSection
         accountTypes={accountTypes}
@@ -41,18 +47,14 @@ export const AccountManagement = () => {
       />
 
       {view === 'business-no-subscription' && (
-        <>
-          <BusinessNoSubscriptionView plans={plans} />
-        </>
+        <BusinessNoSubscriptionView plans={plans} />
       )}
 
-      {view === 'business-active-subscription' && subscriptions[0] && (
-        <>
-          <BusinessActiveSubscriptionView
-            subscription={subscriptions[0]}
-            plans={plans}
-          />
-        </>
+      {view === 'business-active-subscription' && activeSubscription && (
+        <BusinessActiveSubscriptionView
+          subscription={activeSubscription}
+          plans={plans}
+        />
       )}
     </div>
   );

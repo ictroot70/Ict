@@ -1,6 +1,6 @@
-import { SubscriptionPlan } from '@/features/profile/settings/model/types'
 import { mapPricingToPlans } from '../adapters/pricingAdapter'
 import { useGetPricingQuery } from '../../api'
+import { SubscriptionPlan } from '../types'
 
 interface UsePricingReturn {
   plans: SubscriptionPlan[]
