@@ -1,0 +1,128 @@
+
+> ict@0.1.0 build /Users/sem/inkubator/stz/instagramm
+> next build
+
+   ▲ Next.js 15.5.12
+   - Environments: .env.local, .env.production
+
+   Creating an optimized production build ...
+Webpack Bundle Analyzer saved report to /Users/sem/inkubator/stz/instagramm/.next/analyze/nodejs.html
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|javascript/auto|/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/next-flight-css-loader.js??ruleSet[1].rules[14].oneOf[7].use[0]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[1]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[14].oneOf[7].use[4]!/Users/sem/inkubator/stz/instagramm/src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss|ssr': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+Webpack Bundle Analyzer saved report to /Users/sem/inkubator/stz/instagramm/.next/analyze/edge.html
+Webpack Bundle Analyzer saved report to /Users/sem/inkubator/stz/instagramm/.next/analyze/client.html
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/@ictroot+ui-kit@2.0.0-beta.1_@types+react-dom@19.2.3_@types+react@19.2.13__@types+react_5d9dcddb2e446b009e79b08de694ac16/node_modules/@ictroot/ui-kit/dist/ui-kit.css': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 2 items } -> webpack/lib/ModuleWarning -> Warning
+<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[14].oneOf[7].use[4]!/Users/sem/inkubator/stz/instagramm/node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[14].oneOf[7].use[5]!/Users/sem/inkubator/stz/instagramm/src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss': No serializer registered for Warning
+<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> Array { 1 items } -> webpack/lib/ModuleWarning -> Warning
+ ⚠ Compiled with warnings in 10.5s
+
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss.webpack[javascript/auto]!=!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[14].oneOf[7].use[4]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[14].oneOf[7].use[5]!./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss
+Warning
+
+(1:846) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss.webpack[javascript/auto]!=!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[7].use[3]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/resolve-url-loader/index.js??ruleSet[1].rules[14].oneOf[7].use[4]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/compiled/sass-loader/cjs.js??ruleSet[1].rules[14].oneOf[7].use[5]!./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.tsx
+./src/features/profile/avatar-upload/ui/index.ts
+./src/features/profile/avatar-upload/index.ts
+./src/features/profile/edit-profile/ui/GeneralSettings/GeneralSettings.tsx
+./src/features/profile/settings/ui/General/GeneralInfo.tsx
+
+./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./node_modules/.pnpm/@ictroot+ui-kit@2.0.0-beta.1_@types+react-dom@19.2.3_@types+react@19.2.13__@types+react_5d9dcddb2e446b009e79b08de694ac16/node_modules/@ictroot/ui-kit/dist/ui-kit.css
+Warning
+
+(1:31150) autoprefixer: start value has mixed support, consider using flex-start instead
+
+Import trace for requested module:
+./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./node_modules/.pnpm/@ictroot+ui-kit@2.0.0-beta.1_@types+react-dom@19.2.3_@types+react@19.2.13__@types+react_5d9dcddb2e446b009e79b08de694ac16/node_modules/@ictroot/ui-kit/dist/ui-kit.css
+./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/app/globals.css
+./src/app/globals.css
+
+./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./node_modules/.pnpm/@ictroot+ui-kit@2.0.0-beta.1_@types+react-dom@19.2.3_@types+react@19.2.13__@types+react_5d9dcddb2e446b009e79b08de694ac16/node_modules/@ictroot/ui-kit/dist/ui-kit.css
+Warning
+
+(1:31698) autoprefixer: start value has mixed support, consider using flex-start instead
+
+Import trace for requested module:
+./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./node_modules/.pnpm/@ictroot+ui-kit@2.0.0-beta.1_@types+react-dom@19.2.3_@types+react@19.2.13__@types+react_5d9dcddb2e446b009e79b08de694ac16/node_modules/@ictroot/ui-kit/dist/ui-kit.css
+./src/app/globals.css.webpack[javascript/auto]!=!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[2]!./node_modules/.pnpm/next@15.5.12_react-dom@19.2.4_react@19.2.4__react@19.2.4_sass@1.97.3/node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[10].use[3]!./src/app/globals.css
+./src/app/globals.css
+
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss
+Warning
+
+(1:846) autoprefixer: end value has mixed support, consider using flex-end instead
+
+Import trace for requested module:
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.module.scss
+./src/features/profile/avatar-upload/ui/CropStep/CropStep.tsx
+./src/features/profile/avatar-upload/ui/index.ts
+./src/features/profile/avatar-upload/index.ts
+./src/features/profile/edit-profile/ui/GeneralSettings/GeneralSettings.tsx
+./src/features/profile/settings/ui/General/GeneralInfo.tsx
+
+   Linting and checking validity of types ...
+
+ ⚠ The Next.js plugin was not detected in your ESLint configuration. See https://nextjs.org/docs/app/api-reference/config/eslint#migrating-existing-config
+
+./src/features/posts/hooks/useBackgroundUpload.utils.ts
+48:9  Warning: Unexpected console statement.  no-console
+65:9  Warning: Unexpected console statement.  no-console
+
+./src/features/posts/lib/filterStep/applyFilterToImage.ts
+26:3  Warning: Unexpected console statement.  no-console
+40:3  Warning: Unexpected console statement.  no-console
+
+./src/shared/hooks/useInfiniteScroll.ts
+39:6  Warning: React Hook useEffect has missing dependencies: 'rootMargin' and 'threshold'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/shared/lib/logger.ts
+19:7  Warning: Unexpected console statement.  no-console
+35:7  Warning: Unexpected console statement.  no-console
+41:7  Warning: Unexpected console statement.  no-console
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/19) ...
+   Generating static pages (4/19) 
+   Generating static pages (9/19) 
+   Generating static pages (14/19) 
+ ✓ Generating static pages (19/19)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ƒ /                                    4.75 kB         249 kB
+├ ƒ /_not-found                            997 B         103 kB
+├ ƒ /(.)create                             347 B         376 kB
+├ ƒ /auth/email-expired                    321 B         287 kB
+├ ƒ /auth/login                            313 B         287 kB
+├ ƒ /auth/new-password                     382 B         287 kB
+├ ƒ /auth/password-recovery                276 B         287 kB
+├ ƒ /auth/registration                     276 B         287 kB
+├ ƒ /auth/registration-confirmation        410 B         287 kB
+├ ƒ /create                                349 B         376 kB
+├ ƒ /favorites                             148 B         102 kB
+├ ƒ /feed                                  148 B         102 kB
+├ ƒ /legal/privacy-policy                3.17 kB         220 kB
+├ ƒ /legal/terms-of-service              3.15 kB         220 kB
+├ ƒ /messenger                             148 B         102 kB
+├ ƒ /messenger/[id]                        148 B         102 kB
+├ ƒ /profile                               382 B         287 kB
+├ ƒ /profile/[id]                          195 B         297 kB
+├ ƒ /profile/[id]/settings                 148 B         102 kB
+├ ƒ /profile/[id]/settings/[tab]         14.8 kB         351 kB
+└ ƒ /search                                148 B         102 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/2601-e4da5fffe929d9df.js      45.5 kB
+  ├ chunks/d0068610-e22f526f5b44ec20.js  54.2 kB
+  └ other shared chunks (total)             2 kB
+
+
+ƒ Middleware                             34.1 kB
+
+ƒ  (Dynamic)  server-rendered on demand
+

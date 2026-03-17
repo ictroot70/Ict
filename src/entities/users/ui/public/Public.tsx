@@ -18,7 +18,7 @@ type Props = {
   postsData: GetPublicPostsResponse
 }
 
-const LCP_PRIORITY_POSTS_COUNT = 4
+const LCP_PRIORITY_POSTS_COUNT = 1
 const PUBLIC_POSTS_QUERY_ARGS = { endCursorPostId: 0, pageSize: 4 }
 
 export function Public({ postsData }: Props) {

@@ -4,7 +4,7 @@
   &__title {
     font-size: 16px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-light-100);
     line-height: 24px;
     margin-bottom: 18px;
     padding-left: 24px;
@@ -20,28 +20,21 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  padding-left: 24px;
-  padding-right: 24px;
   box-sizing: border-box;
   margin-bottom: 24px;
-
-  @media (max-width: 768px) {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
 }
 
 .subscriptionCard {
   width: 100%;
   min-height: 84px;
-  background-color: #171717;
-  border: 1px solid #333333;
-  border-radius: 8px;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
+  border-radius: 1px;
   display: flex;
   align-items: center;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  padding: 16px 24px;
+  padding: 12px 24px;
   box-sizing: border-box;
 
   &:hover {
@@ -49,16 +42,16 @@
   }
 
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 12px;
     min-height: auto;
   }
 
   &Inactive {
     opacity: 0.8;
-    background-color: #1a1a1a;
+    background-color: var(--color-dark-400);
 
     .subscriptionField__date {
-      color: #999999;
+      color: var(--color-light-900);
     }
   }
 
@@ -87,7 +80,7 @@
   &__label {
     font-size: 14px;
     font-weight: 400;
-    color: #8d9094;
+    color: var(--color-light-900);
     letter-spacing: 0.5px;
     line-height: 24px;
   }
@@ -95,7 +88,7 @@
   &__date {
     font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--color-light-100);
     line-height: 24px;
   }
 }
@@ -103,7 +96,7 @@
 .autoRenewalContainer {
   width: 100%;
   padding: 16px 24px;
-  border-top: 1px solid #333333;
+  border-top: 1px solid var(--color-dark-300);
   margin-top: 8px;
   box-sizing: border-box;
 

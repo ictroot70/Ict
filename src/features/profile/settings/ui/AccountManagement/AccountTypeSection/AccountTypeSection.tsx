@@ -2,8 +2,12 @@ import React from 'react';
 import { Card, Typography } from '@/shared/ui';
 import { RadioGroupRadix } from '@ictroot/ui-kit';
 import styles from './AccountTypeSection.module.scss';
-import { AccountTypeSectionProps, AccountTypeValue } from '../../../model/types';
 
+interface AccountTypeSectionProps {
+  accountTypes: Array<{ value: 'personal' | 'business'; label: string }>;
+  selectedType: 'personal' | 'business';
+  onTypeChange: (type: 'personal' | 'business') => void;
+}
 
 export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
   accountTypes,
@@ -28,7 +32,7 @@ export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
             <RadioGroupRadix
               label="Account type"
               value={selectedType}
-              onValueChange={(value) => onTypeChange(value as AccountTypeValue)}
+              onValueChange={(value) => onTypeChange(value as 'personal' | 'business')}
               options={radioOptions}
               orientation="vertical"
             />

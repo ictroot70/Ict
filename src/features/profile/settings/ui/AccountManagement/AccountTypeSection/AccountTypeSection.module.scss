@@ -4,6 +4,10 @@
   &__title {
     margin-bottom: 18px;
     padding-left: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-light-100);
+    line-height: 24px;
 
     @media (max-width: 768px) {
       padding-left: 16px;
@@ -16,8 +20,6 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  padding-left: 24px;
-  padding-right: 24px;
   box-sizing: border-box;
   margin-bottom: 24px;
 
@@ -30,9 +32,9 @@
 .accountTypeCard {
   width: 100%;
   min-height: auto;
-  background-color: #171717;
-  border: 1px solid #333333;
-  border-radius: 8px;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
+  border-radius: 1px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   padding: 24px;
@@ -40,7 +42,7 @@
 
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-color: #555555;
+    border-color: var(--color-dark-100);
   }
 
   @media (max-width: 768px) {
@@ -48,8 +50,8 @@
   }
 
   &Selected {
-    border-color: #ffffff;
-    background-color: #222222;
+    border-color: var(--color-light-100);
+    background-color: var(--color-dark-400);
   }
 
   &__content {
@@ -60,12 +62,10 @@
   }
 }
 
-// Удален блок .accountTypeDescriptions и .accountTypeDescription
-
 .accountTypeInfo {
   width: 100%;
   padding: 16px 24px;
-  border-top: 1px solid #333333;
+  border-top: 1px solid var(--color-dark-300);
   margin-top: 8px;
   box-sizing: border-box;
 
@@ -74,7 +74,7 @@
   }
 
   &__text {
-    color: #8d9094;
+    color: var(--color-light-900);
     line-height: 20px;
   }
 }

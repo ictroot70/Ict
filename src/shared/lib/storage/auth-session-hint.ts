@@ -3,8 +3,18 @@ const AUTH_SESSION_HINT_VALUE = '1'
 const AUTH_USER_ID_HINT_KEY = 'auth_user_id_hint'
 const AUTH_SESSION_HINT_MAX_AGE = 60 * 60 * 24 * 30
 
+export const AUTH_SESSION_HINT_CHANGE_EVENT = 'auth-session-hint-change'
+
 function canUseStorage(): boolean {
   return typeof window !== 'undefined'
+}
+
+function notifyAuthSessionHintChanged(): void {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.dispatchEvent(new Event(AUTH_SESSION_HINT_CHANGE_EVENT))
 }
 
 function getCookieValue(name: string): string | null {
@@ -120,6 +130,8 @@ export function markAuthSessionHint(userId?: number): void {
   } else {
     clearAuthUserIdHint()
   }
+
+  notifyAuthSessionHintChanged()
 }
 
 export function clearAuthSessionHint(): void {
@@ -130,4 +142,5 @@ export function clearAuthSessionHint(): void {
   window.localStorage.removeItem(AUTH_SESSION_HINT_KEY)
   clearHintCookie()
   clearAuthUserIdHint()
+  notifyAuthSessionHintChanged()
 }
