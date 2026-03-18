@@ -1,135 +1,71 @@
 'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/shared/composites/Table'
-import { TableHeaderRow } from '@/shared/composites/Table/TableHeaderRow/TableHeaderRow'
-import { useState } from 'react'
+import { useMemo } from 'react'
 
-export type PaymentsSortBy = 'dateOfPayment' | 'endDate' | 'price' | 'paymentType' | 'createdAt'
+import { PaymentsSortBy } from '@/shared/types'
+import { usePaymentsTable } from '@/features/subscriptions/hooks'
+import { mapPaymentTypeToLabel, mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
 
-type Sort = {
-  key: PaymentsSortBy
-  direction: 'asc' | 'desc' | null
-}
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  SortableHeaderCell,
+} from '@/shared/composites/Table'
+
+import { Typography } from '@/shared/ui'
+import { formatDate, formatPrice } from '@/shared/lib/formatters'
+
+const USE_MOCK = true
 
 const columns = [
-  {
-    key: 'dateOfPayment',
-    title: 'Date of payment',
-    sortable: true,
-  },
-  {
-    key: 'endDate',
-    title: 'End date',
-    sortable: true,
-  },
-  {
-    key: 'price',
-    title: 'Price',
-    sortable: true,
-    align: 'right' as const,
-  },
-  {
-    key: 'subscriptionType',
-    title: 'Subscription',
-  },
-  {
-    key: 'paymentType',
-    title: 'Payment',
-  },
+  { key: PaymentsSortBy.DATE_OF_PAYMENT, title: 'Date of payment', sortable: true },
+  { key: PaymentsSortBy.END_DATE, title: 'End date', sortable: true },
+  { key: PaymentsSortBy.PRICE, title: 'Price', sortable: true },
+  { key: PaymentsSortBy.CREATED_AT, title: 'Subscription Type', sortable: true },
+  { key: PaymentsSortBy.PAYMENT_TYPE, title: 'Payment Type', sortable: true },
 ]
 
-export const mockPayments = {
-  totalCount: 10,
-  pagesCount: 1,
-  page: 1,
-  pageSize: 12,
-  items: [
-    {
-      userId: 1,
-      subscriptionId: 'sub_001',
-      dateOfPayment: '2026-03-10T10:15:30.000Z',
-      endDateOfSubscription: '2026-04-10T10:15:30.000Z',
-      price: 10,
-      subscriptionType: 'MONTHLY',
-      paymentType: 'STRIPE',
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub_002',
-      dateOfPayment: '2026-02-10T08:22:10.000Z',
-      endDateOfSubscription: '2026-03-10T08:22:10.000Z',
-      price: 10,
-      subscriptionType: 'MONTHLY',
-      paymentType: 'STRIPE',
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub_003',
-      dateOfPayment: '2026-01-10T14:05:00.000Z',
-      endDateOfSubscription: '2026-02-10T14:05:00.000Z',
-      price: 10,
-      subscriptionType: 'MONTHLY',
-      paymentType: 'STRIPE',
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub_004',
-      dateOfPayment: '2025-12-10T09:40:15.000Z',
-      endDateOfSubscription: '2026-01-10T09:40:15.000Z',
-      price: 10,
-      subscriptionType: 'MONTHLY',
-      paymentType: 'STRIPE',
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub_005',
-      dateOfPayment: '2025-11-10T12:12:45.000Z',
-      endDateOfSubscription: '2025-12-10T12:12:45.000Z',
-      price: 10,
-      subscriptionType: 'MONTHLY',
-      paymentType: 'STRIPE',
-    },
-  ],
-}
-
 export function Payments() {
-  const [page, setPage] = useState(1)
-  const [sort, setSort] = useState<Sort>({
-    key: 'endDate',
-    direction: 'desc',
-  })
+  const { payments, sort, handleSort, mockItems, sortMock } = usePaymentsTable()
+
+  const items = useMemo(
+    () => (USE_MOCK ? sortMock(mockItems) : (payments.data?.items ?? [])),
+    [payments.data?.items, sort]
+  )
+
+  if (items.length === 0) {
+    return <Typography variant={'h1'}>No payments yet</Typography>
+  }
 
   return (
     <Table>
       <TableHead>
-        <TableHeaderRow
-          columns={columns}
-          sort={sort}
-          onSortChange={newSort => {
-            if (!newSort) return
-
-            setSort({
-              key: newSort.key as PaymentsSortBy,
-              direction: newSort.direction ?? 'asc',
-            })
-
-            setPage(1)
-          }}
-        />
+        <TableRow>
+          {columns.map(column => (
+            <SortableHeaderCell
+              key={column.key}
+              columnKey={column.key}
+              title={column.title}
+              sortable={column.sortable}
+              activeKey={sort.key}
+              direction={sort.direction}
+              onSort={handleSort}
+            />
+          ))}
+        </TableRow>
       </TableHead>
 
       <TableBody>
-        {mockPayments?.items.map(payment => (
-          <TableRow key={payment.subscriptionId}>
-            <TableCell>{new Date(payment.dateOfPayment).toLocaleDateString()}</TableCell>
-
-            <TableCell>{new Date(payment.endDateOfSubscription).toLocaleDateString()}</TableCell>
-
-            <TableCell>{payment.price}$</TableCell>
-
-            <TableCell>{payment.subscriptionType}</TableCell>
-
-            <TableCell>{payment.paymentType}</TableCell>
+        {items.map(item => (
+          <TableRow key={item.subscriptionId}>
+            <TableCell>{formatDate(item.dateOfPayment)}</TableCell>
+            <TableCell>{formatDate(item.endDateOfSubscription)}</TableCell>
+            <TableCell>{formatPrice(item.price)}</TableCell>
+            <TableCell>{mapSubscriptionTypeToLabel(item.subscriptionType)}</TableCell>
+            <TableCell>{mapPaymentTypeToLabel(item.paymentType)}</TableCell>
           </TableRow>
         ))}
       </TableBody>
