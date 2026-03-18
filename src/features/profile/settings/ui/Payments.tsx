@@ -18,8 +18,6 @@ import {
 import { Typography } from '@/shared/ui'
 import { formatDate, formatPrice } from '@/shared/lib/formatters'
 
-const USE_MOCK = true
-
 const columns = [
   { key: PaymentsSortBy.DATE_OF_PAYMENT, title: 'Date of payment', sortable: true },
   { key: PaymentsSortBy.END_DATE, title: 'End date', sortable: true },
@@ -29,12 +27,9 @@ const columns = [
 ]
 
 export function Payments() {
-  const { payments, sort, handleSort, mockItems, sortMock } = usePaymentsTable()
+  const { payments, sort, handleSort } = usePaymentsTable()
 
-  const items = useMemo(
-    () => (USE_MOCK ? sortMock(mockItems) : (payments.data?.items ?? [])),
-    [payments.data?.items, sort]
-  )
+  const items = useMemo(() => payments.data?.items ?? [], [payments.data?.items, sort])
 
   if (items.length === 0) {
     return <Typography variant={'h1'}>No payments yet</Typography>
