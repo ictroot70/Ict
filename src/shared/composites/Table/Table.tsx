@@ -28,7 +28,7 @@ export const TableRow = forwardRef<ComponentRef<'tr'>, ComponentPropsWithoutRef<
   }
 )
 
-export const TableHeader = forwardRef<ComponentRef<'th'>, ComponentPropsWithoutRef<'th'>>(
+export const TableHeaderCell = forwardRef<ComponentRef<'th'>, ComponentPropsWithoutRef<'th'>>(
   ({ className, ...rest }, ref) => {
     return <th className={clsx(s.tableHeader, className)} {...rest} ref={ref} />
   }
@@ -44,5 +44,5 @@ Table.displayName = 'Table'
 TableHead.displayName = 'TableHead'
 TableBody.displayName = 'TableBody'
 TableRow.displayName = 'TableRow'
-TableHeader.displayName = 'TableHeader'
+TableHeaderCell.displayName = 'TableHeaderCell'
 TableCell.displayName = 'TableCell'

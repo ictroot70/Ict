@@ -6,6 +6,11 @@ import { useState } from 'react'
 
 export type PaymentsSortBy = 'dateOfPayment' | 'endDate' | 'price' | 'paymentType' | 'createdAt'
 
+type Sort = {
+  key: PaymentsSortBy
+  direction: 'asc' | 'desc' | null
+}
+
 const columns = [
   {
     key: 'dateOfPayment',
@@ -89,10 +94,7 @@ export const mockPayments = {
 
 export function Payments() {
   const [page, setPage] = useState(1)
-  const [sort, setSort] = useState<{
-    key: PaymentsSortBy
-    direction: 'asc' | 'desc'
-  }>({
+  const [sort, setSort] = useState<Sort>({
     key: 'endDate',
     direction: 'desc',
   })

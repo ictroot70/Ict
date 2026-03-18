@@ -1,10 +1,10 @@
 import Image from 'next/image'
-import { TableRow, TableHeader } from '../Table'
+import { TableRow, TableHeaderCell } from '../Table'
 
 export type Sort = {
   key: string
-  direction: 'asc' | 'desc'
-} | null
+  direction: 'asc' | 'desc' | null
+}
 
 export type Column = {
   key: string
@@ -34,7 +34,7 @@ export const TableHeaderRow = ({ columns, sort, onSortChange }: Props) => {
     }
 
     if (sort.direction === 'desc') {
-      onSortChange(null)
+      onSortChange({ key, direction: null })
       return
     }
   }
@@ -43,45 +43,39 @@ export const TableHeaderRow = ({ columns, sort, onSortChange }: Props) => {
     <TableRow>
       {columns.map(column => {
         const isActive = sort?.key === column.key
-
         return (
-          <TableHeader
-            scope="col"
-            key={column.key}
-            onClick={() => handleSort(column.key, column.sortable)}
-          >
-            <span
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-              }}
-            >
-              {column.title}
-
-              {column.sortable && (
-                <span
-                  style={{
-                    display: 'inline-flex',
-                  }}
-                >
-                  {!isActive && (
-                    <Image src="/noActiveFilter.svg" alt="no filter" width={8} height={12} />
-                  )}
-
-                  {isActive && sort?.direction === 'asc' && (
-                    <Image src="/asc.svg" alt="asc" width={8} height={6} />
-                  )}
-
-                  {isActive && sort?.direction === 'desc' && (
-                    <Image src="/desc.svg" alt="desc" width={8} height={6} />
-                  )}
-                </span>
-              )}
-            </span>
-          </TableHeader>
+          <TableHeaderCell key={column.key} scope="col">
+            {column.sortable ? (
+              <button
+                type="button"
+                onClick={() => handleSort(column.key)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                {column.title}
+                <SortIcon direction={isActive ? sort?.direction : null} />
+              </button>
+            ) : (
+              <span>{column.title}</span>
+            )}
+          </TableHeaderCell>
         )
       })}
     </TableRow>
+  )
+}
+
+function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
+  return (
+    <span>
+      {direction ? (
+        <Image src={`/${direction}.svg`} alt={direction} width={8} height={6} />
+      ) : (
+        <Image src="/unsorted.svg" alt="no filter" width={8} height={12} />
+      )}
+    </span>
   )
 }
