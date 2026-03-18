@@ -1,13 +1,6 @@
 'use client'
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/shared/composites/Table'
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/shared/composites/Table'
 import { TableHeaderRow } from '@/shared/composites/Table/TableHeaderRow/TableHeaderRow'
 import { useState } from 'react'
 
@@ -130,7 +123,7 @@ export function Payments() {
 
             <TableCell>{new Date(payment.endDateOfSubscription).toLocaleDateString()}</TableCell>
 
-            <TableCell style={{ textAlign: 'right' }}>{payment.price}$</TableCell>
+            <TableCell>{payment.price}$</TableCell>
 
             <TableCell>{payment.subscriptionType}</TableCell>
 

@@ -46,35 +46,39 @@ export const TableHeaderRow = ({ columns, sort, onSortChange }: Props) => {
 
         return (
           <TableHeader
-            key={column.key}
             scope="col"
+            key={column.key}
             onClick={() => handleSort(column.key, column.sortable)}
-            style={{ textAlign: column.align }}
           >
-            {column.title}
+            <span
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {column.title}
 
-            {column.sortable && (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  marginLeft: '6px',
-                  height: '100%',
-                  border: '1px solid red',
-                }}
-              >
-                {!isActive && (
-                  <Image src="/noActiveFilter.svg" alt="no filter" width={8} height={12} />
-                )}
+              {column.sortable && (
+                <span
+                  style={{
+                    display: 'inline-flex',
+                  }}
+                >
+                  {!isActive && (
+                    <Image src="/noActiveFilter.svg" alt="no filter" width={8} height={12} />
+                  )}
 
-                {isActive && sort?.direction === 'asc' && (
-                  <Image src="/asc.svg" alt="asc" width={8} height={6} />
-                )}
+                  {isActive && sort?.direction === 'asc' && (
+                    <Image src="/asc.svg" alt="asc" width={8} height={6} />
+                  )}
 
-                {isActive && sort?.direction === 'desc' && (
-                  <Image src="/desc.svg" alt="desc" width={8} height={6} />
-                )}
-              </span>
-            )}
+                  {isActive && sort?.direction === 'desc' && (
+                    <Image src="/desc.svg" alt="desc" width={8} height={6} />
+                  )}
+                </span>
+              )}
+            </span>
           </TableHeader>
         )
       })}
