@@ -15,7 +15,7 @@ import {
 
 const DEFAULT_PAYMENTS_QUERY: Required<GetPaymentsRequestDto> = {
   pageNumber: 1,
-  pageSize: 12,
+  pageSize: 8,
   sortBy: PaymentsSortBy.END_DATE,
   sortDirection: PaymentsSortDirection.DESC,
 }

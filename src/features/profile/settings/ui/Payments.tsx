@@ -13,23 +13,29 @@ import {
   TableHead,
   TableRow,
   SortableHeaderCell,
+  TableHeaderCell,
 } from '@/shared/composites/Table'
 
 import { Typography } from '@/shared/ui'
+import { Loading } from '@/shared/composites'
 import { formatDate, formatPrice } from '@/shared/lib/formatters'
 
 const columns = [
-  { key: PaymentsSortBy.DATE_OF_PAYMENT, title: 'Date of payment', sortable: true },
-  { key: PaymentsSortBy.END_DATE, title: 'End date', sortable: true },
-  { key: PaymentsSortBy.PRICE, title: 'Price', sortable: true },
-  { key: PaymentsSortBy.CREATED_AT, title: 'Subscription Type', sortable: true },
-  { key: PaymentsSortBy.PAYMENT_TYPE, title: 'Payment Type', sortable: true },
+  { id: 'dateOfPayment', title: 'Date of payment', sortKey: PaymentsSortBy.DATE_OF_PAYMENT },
+  { id: 'endDate', title: 'End date', sortKey: PaymentsSortBy.END_DATE },
+  { id: 'price', title: 'Price', sortKey: PaymentsSortBy.PRICE },
+  { id: 'subscriptionType', title: 'Subscription Type' },
+  { id: 'paymentType', title: 'Payment Type', sortKey: PaymentsSortBy.PAYMENT_TYPE },
 ]
 
 export function Payments() {
   const { payments, sort, handleSort } = usePaymentsTable()
 
   const items = useMemo(() => payments.data?.items ?? [], [payments.data?.items, sort])
+
+  if (payments.isLoading) {
+    return <Loading />
+  }
 
   if (items.length === 0) {
     return <Typography variant={'h1'}>No payments yet</Typography>
@@ -39,17 +45,22 @@ export function Payments() {
     <Table>
       <TableHead>
         <TableRow>
-          {columns.map(column => (
-            <SortableHeaderCell
-              key={column.key}
-              columnKey={column.key}
-              title={column.title}
-              sortable={column.sortable}
-              activeKey={sort.key}
-              direction={sort.direction}
-              onSort={handleSort}
-            />
-          ))}
+          {columns.map(column =>
+            column.sortKey ? (
+              <SortableHeaderCell
+                key={column.id}
+                columnKey={column.sortKey}
+                title={column.title}
+                activeKey={sort.key ?? undefined}
+                direction={sort.direction}
+                onSort={handleSort}
+              />
+            ) : (
+              <TableHeaderCell key={column.id} scope="col">
+                {column.title}
+              </TableHeaderCell>
+            )
+          )}
         </TableRow>
       </TableHead>
 

@@ -3,12 +3,15 @@ import { useMemo, useState } from 'react'
 import { useGetPaymentsQuery } from '@/features/subscriptions/api'
 import { PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
 
-type SortState = { key: PaymentsSortBy; direction: PaymentsSortDirection | null }
+type SortState = {
+  key: PaymentsSortBy | null
+  direction: PaymentsSortDirection | null
+}
 
 export function usePaymentsTable() {
   const [sort, setSort] = useState<SortState>({
-    key: PaymentsSortBy.END_DATE,
-    direction: PaymentsSortDirection.DESC,
+    key: null,
+    direction: null,
   })
 
   const handleSort = (key: PaymentsSortBy) => {
@@ -22,11 +25,11 @@ export function usePaymentsTable() {
       return
     }
 
-    setSort({ key, direction: null })
+    setSort({ key: null, direction: null })
   }
 
   const query = useMemo(
-    () => (sort.direction ? { sortBy: sort.key, sortDirection: sort.direction } : {}),
+    () => (sort.key && sort.direction ? { sortBy: sort.key, sortDirection: sort.direction } : {}),
     [sort]
   )
 

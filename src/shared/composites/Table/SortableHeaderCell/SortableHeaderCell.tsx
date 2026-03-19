@@ -6,17 +6,15 @@ type SortDirection = 'asc' | 'desc' | null
 
 type Props<T extends string> = {
   title: React.ReactNode
-  sortable?: boolean
   columnKey: T
   activeKey?: T
   direction: SortDirection
-  onSort?: (key: T) => void
+  onSort: (key: T) => void
   className?: string
 }
 
 export function SortableHeaderCell<T extends string>({
   title,
-  sortable,
   columnKey,
   activeKey,
   direction,
@@ -25,14 +23,6 @@ export function SortableHeaderCell<T extends string>({
 }: Props<T>) {
   const isActive = activeKey === columnKey
   const iconDirection = isActive ? direction : null
-
-  if (!sortable || !onSort) {
-    return (
-      <TableHeaderCell className={className} scope="col">
-        {title}
-      </TableHeaderCell>
-    )
-  }
 
   return (
     <TableHeaderCell className={className} scope="col">
