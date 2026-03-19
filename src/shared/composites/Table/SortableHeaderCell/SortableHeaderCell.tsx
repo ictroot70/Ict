@@ -36,7 +36,7 @@ export function SortableHeaderCell<T extends string>({
 
 function SortIcon({ direction }: { direction: SortDirection }) {
   return (
-    <span>
+    <span className={s.icon}>
       {direction ? (
         <Image src={`/${direction}.svg`} alt={direction} width={8} height={6} />
       ) : (
