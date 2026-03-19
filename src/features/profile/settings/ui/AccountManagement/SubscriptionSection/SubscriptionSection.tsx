@@ -1,77 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CheckboxRadix, Typography } from '@/shared/ui';
-import styles from './SubscriptionSection.module.scss';
+import React, { useEffect, useState } from 'react'
+
 import {
   useCancelAutoRenewalMutation,
-  useRenewAutoRenewalMutation
-} from '@/features/subscriptions/api';
-import { Subscription } from '@/features/subscriptions/model/types';
+  useRenewAutoRenewalMutation,
+} from '@/features/subscriptions/api'
+import { Subscription } from '@/features/subscriptions/model/types'
+import { Card, CheckboxRadix, Typography } from '@/shared/ui'
+
+import styles from './SubscriptionSection.module.scss'
 
 interface Props {
-  subscription?: Subscription;
+  subscription?: Subscription
 }
 
 export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
-  const [cancelAutoRenewal] = useCancelAutoRenewalMutation();
-  const [renewAutoRenewal] = useRenewAutoRenewalMutation();
-  const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? true);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [cancelAutoRenewal] = useCancelAutoRenewalMutation()
+  const [renewAutoRenewal] = useRenewAutoRenewalMutation()
+  const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? true)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   if (!subscription) {
     return (
       <section className={styles.section}>
-        <Typography variant="h3" className={styles.section__title}>
+        <Typography variant={'h3'} className={styles.section__title}>
           Current Subscription:
         </Typography>
         <div className={styles.subscriptionsList}>
           <Card className={styles.subscriptionCard}>
-            <Typography variant="regular_14">No active subscription</Typography>
+            <Typography variant={'regular_14'}>No active subscription</Typography>
           </Card>
         </div>
       </section>
-    );
+    )
   }
 
   const handleAutoRenewalChange = async (checked: boolean) => {
-    if (isUpdating) return;
-    setIsUpdating(true);
+    if (isUpdating) {
+      return
+    }
+
+    setIsUpdating(true)
 
     try {
       if (checked) {
-        await renewAutoRenewal().unwrap();
+        await renewAutoRenewal().unwrap()
       } else {
-        await cancelAutoRenewal().unwrap();
+        await cancelAutoRenewal().unwrap()
       }
-      setAutoRenewal(checked);
+      setAutoRenewal(checked)
     } catch (error) {
-      console.error('Failed to update auto-renewal:', error);
+      console.error('Failed to update auto-renewal:', error)
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
 
   return (
     <section className={styles.section}>
-      <Typography variant="h3" className={styles.section__title}>
+      <Typography variant={'h3'} className={styles.section__title}>
         Current Subscription:
       </Typography>
 
       <div className={styles.subscriptionsList}>
-        <Card className={`${styles.subscriptionCard} ${!subscription.isActive ? styles.subscriptionCardInactive : ''}`}>
+        <Card
+          className={`${styles.subscriptionCard} ${!subscription.isActive ? styles.subscriptionCardInactive : ''}`}
+        >
           <div className={styles.subscriptionCard__fields}>
             <div className={styles.subscriptionField}>
-              <Typography variant="regular_14" className={styles.subscriptionField__label}>
+              <Typography variant={'regular_14'} className={styles.subscriptionField__label}>
                 Expire at:
               </Typography>
-              <Typography variant="bold_14" className={styles.subscriptionField__date}>
+              <Typography variant={'bold_14'} className={styles.subscriptionField__date}>
                 {subscription.expireDate}
               </Typography>
             </div>
             <div className={styles.subscriptionField}>
-              <Typography variant="regular_14" className={styles.subscriptionField__label}>
+              <Typography variant={'regular_14'} className={styles.subscriptionField__label}>
                 Next payment:
               </Typography>
-              <Typography variant="bold_14" className={styles.subscriptionField__date}>
+              <Typography variant={'bold_14'} className={styles.subscriptionField__date}>
                 {subscription.nextPaymentDate}
               </Typography>
             </div>
@@ -83,10 +90,10 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
         <CheckboxRadix
           checked={autoRenewal}
           onCheckedChange={handleAutoRenewalChange}
-          label="Auto-Renewal"
+          label={'Auto-Renewal'}
           disabled={isUpdating}
         />
       </div>
     </section>
-  );
-};
+  )
+}

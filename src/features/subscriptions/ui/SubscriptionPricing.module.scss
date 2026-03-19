@@ -132,6 +132,60 @@
   }
 }
 
+.paymentContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  box-sizing: border-box;
+}
+
+.paymentWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.paymentButton {
+  all: unset;
+  cursor: pointer;
+  width: 96px;
+  height: 64px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-light-100);
+    outline-offset: 2px;
+  }
+}
+
+.paymentIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.paymentOr {
+  color: var(--color-light-900);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
 .stateCard {
   display: grid;
   gap: 12px;

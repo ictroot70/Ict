@@ -1,6 +1,6 @@
-import { Subscription } from '@/features/profile/settings/model/types'
 import { useGetCurrentSubscriptionQuery } from '../../api'
 import { mapSubscriptionData } from '../adapters/subscriptionAdapter'
+import { Subscription } from '../types'
 
 interface UseCurrentSubscriptionReturn {
   subscriptions: Subscription[]

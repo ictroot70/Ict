@@ -1,22 +1,39 @@
 import { GetPricingResponseDto } from '@/shared/types'
+
 import { SubscriptionPlan } from '../types'
 
 export const mapPricingToPlans = (data: GetPricingResponseDto): SubscriptionPlan[] => {
-  return data.data.map(plan => ({
-    id: plan.typeDescription,
-    value:
-      plan.typeDescription === 'MONTHLY'
-        ? 'month'
-        : plan.typeDescription === 'DAY'
-          ? '1day'
-          : '7day',
-    label:
-      plan.typeDescription === 'MONTHLY'
-        ? `$${plan.amount} per month`
-        : plan.typeDescription === 'DAY'
-          ? `$${plan.amount} per 1 Day`
-          : `$${plan.amount} per 7 Day`,
-    price: plan.amount.toString(),
-    period: plan.typeDescription,
-  }))
+  return data.data.map(plan => {
+    const getValue = () => {
+      if (plan.typeDescription === 'MONTHLY') {
+        return 'month'
+      }
+
+      if (plan.typeDescription === 'DAY') {
+        return '1day'
+      }
+
+      return '7day'
+    }
+
+    const getLabel = () => {
+      if (plan.typeDescription === 'MONTHLY') {
+        return `$${plan.amount} per month`
+      }
+
+      if (plan.typeDescription === 'DAY') {
+        return `$${plan.amount} per 1 Day`
+      }
+
+      return `$${plan.amount} per 7 Day`
+    }
+
+    return {
+      id: plan.typeDescription,
+      value: getValue(),
+      label: getLabel(),
+      price: plan.amount.toString(),
+      period: plan.typeDescription,
+    }
+  })
 }

@@ -1,5 +1,5 @@
-import { mapPricingToPlans } from '../adapters/pricingAdapter'
 import { useGetPricingQuery } from '../../api'
+import { mapPricingToPlans } from '../adapters/pricingAdapter'
 import { SubscriptionPlan } from '../types'
 
 interface UsePricingReturn {

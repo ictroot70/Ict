@@ -1,28 +1,30 @@
-import React from 'react';
-import { Card, Typography } from '@/shared/ui';
-import { RadioGroupRadix } from '@ictroot/ui-kit';
-import styles from './AccountTypeSection.module.scss';
+import React from 'react'
+
+import { Card, Typography } from '@/shared/ui'
+import { RadioGroupRadix } from '@ictroot/ui-kit'
+
+import styles from './AccountTypeSection.module.scss'
 
 interface AccountTypeSectionProps {
-  accountTypes: Array<{ value: 'personal' | 'business'; label: string }>;
-  selectedType: 'personal' | 'business';
-  onTypeChange: (type: 'personal' | 'business') => void;
+  accountTypes: Array<{ value: 'personal' | 'business'; label: string }>
+  selectedType: 'personal' | 'business'
+  onTypeChange: (type: 'personal' | 'business') => void
 }
 
 export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
   accountTypes,
   selectedType,
-  onTypeChange
+  onTypeChange,
 }) => {
-  const radioOptions = accountTypes.map((type) => ({
+  const radioOptions = accountTypes.map(type => ({
     value: type.value,
     label: type.label,
-    id: `account-type-${type.value}`
-  }));
+    id: `account-type-${type.value}`,
+  }))
 
   return (
     <section className={styles.section}>
-      <Typography variant="h3" className={styles.section__title}>
+      <Typography variant={'h3'} className={styles.section__title}>
         Account type:
       </Typography>
 
@@ -30,15 +32,15 @@ export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
         <Card className={styles.accountTypeCard}>
           <div className={styles.accountTypeCard__content}>
             <RadioGroupRadix
-              label="Account type"
+              label={'Account type'}
               value={selectedType}
-              onValueChange={(value) => onTypeChange(value as 'personal' | 'business')}
+              onValueChange={value => onTypeChange(value as 'personal' | 'business')}
               options={radioOptions}
-              orientation="vertical"
+              orientation={'vertical'}
             />
           </div>
         </Card>
       </div>
     </section>
-  );
-};
+  )
+}
