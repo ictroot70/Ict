@@ -9,6 +9,9 @@ type SortState = {
 }
 
 export function usePaymentsTable() {
+  const [pageNumber, setPageNumber] = useState(1)
+  const [pageSize, setPageSize] = useState(8)
+
   const [sort, setSort] = useState<SortState>({
     key: null,
     direction: null,
@@ -28,12 +31,31 @@ export function usePaymentsTable() {
     setSort({ key: null, direction: null })
   }
 
+  const handlePageChange = (page: number) => setPageNumber(page)
+
+  const handleItemsPerPageChange = (size: number) => {
+    setPageSize(size)
+    setPageNumber(1)
+  }
+
   const query = useMemo(
-    () => (sort.key && sort.direction ? { sortBy: sort.key, sortDirection: sort.direction } : {}),
-    [sort]
+    () => ({
+      pageNumber,
+      pageSize,
+      ...(sort.key && sort.direction ? { sortBy: sort.key, sortDirection: sort.direction } : {}),
+    }),
+    [pageNumber, pageSize, sort]
   )
 
   const payments = useGetPaymentsQuery(query)
 
-  return { payments, sort, handleSort }
+  return {
+    payments,
+    sort,
+    handleSort,
+    handlePageChange,
+    handleItemsPerPageChange,
+    pageNumber,
+    pageSize,
+  }
 }
