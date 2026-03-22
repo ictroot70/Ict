@@ -1,18 +1,20 @@
 import { useMemo, useState } from 'react'
 
-import { useGetPaymentsQuery } from '@/features/subscriptions/api'
 import { PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
 
-type SortState = {
-  key: PaymentsSortBy | null
-  direction: PaymentsSortDirection | null
-}
+import { useGetPaymentsQuery } from '@/features/subscriptions/api'
+
+import {
+  PaymentsSortState,
+  DEFAULT_PAYMENTS_PAGE_SIZE,
+  DEFAULT_PAYMENTS_PAGE_NUMBER,
+} from '@/features/subscriptions/model'
 
 export function usePaymentsTable() {
-  const [pageNumber, setPageNumber] = useState(1)
-  const [pageSize, setPageSize] = useState(8)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAYMENTS_PAGE_SIZE)
+  const [pageNumber, setPageNumber] = useState(DEFAULT_PAYMENTS_PAGE_NUMBER)
 
-  const [sort, setSort] = useState<SortState>({
+  const [sort, setSort] = useState<PaymentsSortState>({
     key: null,
     direction: null,
   })
@@ -35,7 +37,7 @@ export function usePaymentsTable() {
 
   const handleItemsPerPageChange = (size: number) => {
     setPageSize(size)
-    setPageNumber(1)
+    setPageNumber(DEFAULT_PAYMENTS_PAGE_NUMBER)
   }
 
   const query = useMemo(
@@ -55,7 +57,5 @@ export function usePaymentsTable() {
     handleSort,
     handlePageChange,
     handleItemsPerPageChange,
-    pageNumber,
-    pageSize,
   }
 }

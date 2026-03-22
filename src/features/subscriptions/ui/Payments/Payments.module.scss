@@ -1,0 +1,10 @@
+.wrapper {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 1rem;
+  height: calc(100vh - 220px);
+  min-height: 100%;
+  padding: 1.5rem 0;
+  overflow: hidden;
+}

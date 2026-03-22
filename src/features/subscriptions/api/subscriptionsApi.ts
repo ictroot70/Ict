@@ -13,9 +13,11 @@ import {
   RenewAutoRenewalResponseDto,
 } from '@/shared/types'
 
+import { DEFAULT_PAYMENTS_PAGE_NUMBER, DEFAULT_PAYMENTS_PAGE_SIZE } from '../model'
+
 const DEFAULT_PAYMENTS_QUERY: Required<GetPaymentsRequestDto> = {
-  pageNumber: 1,
-  pageSize: 8,
+  pageNumber: DEFAULT_PAYMENTS_PAGE_NUMBER,
+  pageSize: DEFAULT_PAYMENTS_PAGE_SIZE,
   sortBy: PaymentsSortBy.END_DATE,
   sortDirection: PaymentsSortDirection.DESC,
 }
