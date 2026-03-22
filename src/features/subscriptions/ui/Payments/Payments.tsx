@@ -18,7 +18,11 @@ export function Payments() {
   }
 
   if (!payments.data?.items.length) {
-    return <Typography variant="h1">No payments yet</Typography>
+    return (
+      <Typography variant="h1" className={s.empty}>
+        No payments yet
+      </Typography>
+    )
   }
 
   const { items, page, totalCount, pageSize: resolvedPageSize } = payments.data

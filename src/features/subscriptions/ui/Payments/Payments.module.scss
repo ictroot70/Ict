@@ -8,3 +8,10 @@
   padding: 1.5rem 0;
   overflow: hidden;
 }
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+}
