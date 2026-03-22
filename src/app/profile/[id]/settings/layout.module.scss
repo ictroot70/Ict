@@ -1,0 +1,12 @@
+.settingsLayout {
+  --settings-sticky-top: 0px;
+  --settings-tabs-height: 48px;
+  --settings-table-head-top: calc(var(--settings-sticky-top) + var(--settings-tabs-height));
+
+  position: relative;
+  min-height: 100%;
+}
+
+.content {
+  position: relative;
+}

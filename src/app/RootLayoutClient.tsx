@@ -3,6 +3,7 @@
 import { lazy, ReactNode, Suspense, useEffect, useState } from 'react'
 
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
+import { ScrollAreaRadix } from '@/shared/ui'
 import { SidebarSkeleton } from '@/widgets/Sidebar/components/SidebarSkeleton'
 import { useSearchParams } from 'next/navigation'
 
@@ -49,23 +50,35 @@ export const RootLayoutClient = ({ children }: Props) => {
     showSidebar || showSidebarSkeleton || (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
   const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
 
+  useEffect(() => {
+    const root = document.documentElement
+
+    root.setAttribute('data-layout-sidebar', shouldReserveSidebarSpace ? '1' : '0')
+
+    return () => {
+      root.removeAttribute('data-layout-sidebar')
+    }
+  }, [shouldReserveSidebarSpace])
+
   const isCreatePostOpen = status === 'authenticated'
 
   return (
     <main className={s.main}>
-      <div className={s.wrapper}>
-        {showSidebar && (
-          <Suspense fallback={null}>
-            <Sidebar />
-          </Suspense>
-        )}
-        {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
-        <div
-          className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
-        >
-          {children}
+      <ScrollAreaRadix className={s.scrollArea} viewportClassName={s.scrollViewport}>
+        <div className={s.wrapper}>
+          {showSidebar && (
+            <Suspense fallback={null}>
+              <Sidebar />
+            </Suspense>
+          )}
+          {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
+          <div
+            className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
+          >
+            {children}
+          </div>
         </div>
-      </div>
+      </ScrollAreaRadix>
       {isCreatePostOpen && (
         <Suspense fallback={null}>
           <CreatePostWrapper />
