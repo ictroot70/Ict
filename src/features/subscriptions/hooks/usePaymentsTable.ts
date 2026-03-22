@@ -1,14 +1,12 @@
-import { useMemo, useState } from 'react'
-
-import { PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
+import { useState } from 'react'
 
 import { useGetPaymentsQuery } from '@/features/subscriptions/api'
-
 import {
-  PaymentsSortState,
-  DEFAULT_PAYMENTS_PAGE_SIZE,
   DEFAULT_PAYMENTS_PAGE_NUMBER,
+  DEFAULT_PAYMENTS_PAGE_SIZE,
+  PaymentsSortState,
 } from '@/features/subscriptions/model'
+import { GetPaymentsRequestDto, PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
 
 export function usePaymentsTable() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAYMENTS_PAGE_SIZE)
@@ -19,18 +17,35 @@ export function usePaymentsTable() {
     direction: null,
   })
 
+  const query: GetPaymentsRequestDto = {
+    pageNumber,
+    pageSize,
+  }
+
+  if (sort.key && sort.direction) {
+    query.sortBy = sort.key
+    query.sortDirection = sort.direction
+  }
+
+  const payments = useGetPaymentsQuery(query)
+
   const handleSort = (key: PaymentsSortBy) => {
     if (sort.key !== key) {
       setSort({ key, direction: PaymentsSortDirection.ASC })
+      setPageNumber(DEFAULT_PAYMENTS_PAGE_NUMBER)
+
       return
     }
 
     if (sort.direction === PaymentsSortDirection.ASC) {
       setSort({ key, direction: PaymentsSortDirection.DESC })
+      setPageNumber(DEFAULT_PAYMENTS_PAGE_NUMBER)
+
       return
     }
 
     setSort({ key: null, direction: null })
+    setPageNumber(DEFAULT_PAYMENTS_PAGE_NUMBER)
   }
 
   const handlePageChange = (page: number) => setPageNumber(page)
@@ -39,17 +54,6 @@ export function usePaymentsTable() {
     setPageSize(size)
     setPageNumber(DEFAULT_PAYMENTS_PAGE_NUMBER)
   }
-
-  const query = useMemo(
-    () => ({
-      pageNumber,
-      pageSize,
-      ...(sort.key && sort.direction ? { sortBy: sort.key, sortDirection: sort.direction } : {}),
-    }),
-    [pageNumber, pageSize, sort]
-  )
-
-  const payments = useGetPaymentsQuery(query)
 
   return {
     payments,

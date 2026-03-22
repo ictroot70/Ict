@@ -1,24 +1,29 @@
-import s from './PaymentsTable.module.scss'
-
-import {
-  Table,
-  TableRow,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  SortableHeaderCell,
-} from '@/shared/composites/Table'
-
-import { formatDate, formatPrice } from '@/shared/lib/formatters'
-import { PaymentsSortBy, PaymentsViewModel } from '@/shared/types'
 import {
   PaymentsSortState,
   mapPaymentTypeToLabel,
   mapSubscriptionTypeToLabel,
 } from '@/features/subscriptions/model'
+import {
+  SortableHeaderCell,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '@/shared/composites/Table'
+import { formatDate, formatPrice } from '@/shared/lib/formatters'
+import { PaymentsSortBy, PaymentsViewModel } from '@/shared/types'
 
-const columns = [
+import s from './PaymentsTable.module.scss'
+
+type Column = {
+  id: string
+  title: string
+  sortKey?: PaymentsSortBy
+}
+
+const columns: Column[] = [
   { id: 'dateOfPayment', title: 'Date of payment', sortKey: PaymentsSortBy.DATE_OF_PAYMENT },
   { id: 'endDate', title: 'End date', sortKey: PaymentsSortBy.END_DATE },
   { id: 'price', title: 'Price', sortKey: PaymentsSortBy.PRICE },
@@ -49,7 +54,7 @@ export function PaymentsTable({ items, sort, onSort }: Props) {
                   onSort={onSort}
                 />
               ) : (
-                <TableHeaderCell key={column.id} scope="col">
+                <TableHeaderCell key={column.id} scope={'col'}>
                   {column.title}
                 </TableHeaderCell>
               )

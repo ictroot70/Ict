@@ -1,13 +1,13 @@
 'use client'
 
-import s from './Payments.module.scss'
-
-import { Loading } from '@/shared/composites'
-import { PaymentsTable } from './PaymentsTable'
-import { Pagination, Typography } from '@/shared/ui'
-
 import { usePaymentsTable } from '@/features/subscriptions/hooks'
 import { PAYMENTS_PAGE_SIZE_OPTIONS } from '@/features/subscriptions/model'
+import { Loading } from '@/shared/composites'
+import { Pagination, Typography } from '@/shared/ui'
+
+import s from './Payments.module.scss'
+
+import { PaymentsTable } from './PaymentsTable'
 
 export function Payments() {
   const { payments, sort, handleSort, handlePageChange, handleItemsPerPageChange } =
@@ -17,15 +17,25 @@ export function Payments() {
     return <Loading />
   }
 
-  if (!payments.data?.items.length) {
+  if (payments.isError) {
     return (
-      <Typography variant="h1" className={s.empty}>
-        No payments yet
-      </Typography>
+      <div className={s.state}>
+        <Typography variant={'h1'}>{'Failed to load payments'}</Typography>
+      </div>
     )
   }
 
-  const { items, page, totalCount, pageSize: resolvedPageSize } = payments.data
+  const data = payments.data
+
+  if (!data || data.items.length === 0) {
+    return (
+      <div className={s.state}>
+        <Typography variant={'h1'}>{'No payments yet'}</Typography>
+      </div>
+    )
+  }
+
+  const { items, page, totalCount, pageSize } = data
 
   return (
     <div className={s.wrapper}>
@@ -33,7 +43,7 @@ export function Payments() {
       <Pagination
         currentPage={page}
         totalItems={totalCount}
-        itemsPerPage={resolvedPageSize}
+        itemsPerPage={pageSize}
         onPageChange={handlePageChange}
         onItemsPerPageChange={handleItemsPerPageChange}
         pageSizeOptions={PAYMENTS_PAGE_SIZE_OPTIONS}

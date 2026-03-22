@@ -9,9 +9,8 @@
   overflow: hidden;
 }
 
-.empty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100%;
+.state {
+  display: grid;
+  place-items: center;
+  min-height: 12rem;
 }
