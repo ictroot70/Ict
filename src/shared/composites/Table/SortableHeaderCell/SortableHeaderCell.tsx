@@ -1,14 +1,16 @@
+import type { AriaAttributes, ReactNode } from 'react'
+
 import Image from 'next/image'
-import { TableHeaderCell } from '../Table'
+
 import s from './SortableHeaderCell.module.scss'
 
-type SortDirection = 'asc' | 'desc' | null
+import { TableHeaderCell } from '../Table'
 
 type Props<T extends string> = {
-  title: React.ReactNode
+  title: ReactNode
   columnKey: T
   activeKey?: T
-  direction: SortDirection
+  direction: 'asc' | 'desc' | null
   onSort: (key: T) => void
   className?: string
 }
@@ -24,9 +26,19 @@ export function SortableHeaderCell<T extends string>({
   const isActive = activeKey === columnKey
   const iconDirection = isActive ? direction : null
 
+  let ariaSort: AriaAttributes['aria-sort'] = 'none'
+
+  if (isActive && direction === 'asc') {
+    ariaSort = 'ascending'
+  }
+
+  if (isActive && direction === 'desc') {
+    ariaSort = 'descending'
+  }
+
   return (
-    <TableHeaderCell className={className} scope="col">
-      <button type="button" onClick={() => onSort(columnKey)} className={s.button}>
+    <TableHeaderCell className={className} scope={'col'} aria-sort={ariaSort}>
+      <button type={'button'} onClick={() => onSort(columnKey)} className={s.button}>
         {title}
         <SortIcon direction={iconDirection} />
       </button>
@@ -34,13 +46,13 @@ export function SortableHeaderCell<T extends string>({
   )
 }
 
-function SortIcon({ direction }: { direction: SortDirection }) {
+function SortIcon({ direction }: { direction: 'asc' | 'desc' | null }) {
   return (
     <span className={s.icon}>
       {direction ? (
-        <Image src={`/${direction}.svg`} alt={direction} width={8} height={6} />
+        <Image src={`/${direction}.svg`} alt={''} aria-hidden width={8} height={6} />
       ) : (
-        <Image src="/unsorted.svg" alt="no filter" width={8} height={12} />
+        <Image src={'/unsorted.svg'} alt={''} aria-hidden width={8} height={12} />
       )}
     </span>
   )

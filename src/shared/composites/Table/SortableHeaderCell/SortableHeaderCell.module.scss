@@ -1,12 +1,13 @@
 .button {
+  cursor: pointer;
+  font: inherit;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  border: none;
   background: none;
   padding: 0;
   color: inherit;
-  font: inherit;
-  cursor: pointer;
 }
 
 .button:focus-visible {

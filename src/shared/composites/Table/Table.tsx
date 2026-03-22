@@ -1,8 +1,8 @@
+import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from 'react'
+
 import clsx from 'clsx'
 
 import s from './Table.module.scss'
-
-import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from 'react'
 
 export const Table = forwardRef<ComponentRef<'table'>, ComponentPropsWithoutRef<'table'>>(
   ({ className, ...rest }, ref) => {
@@ -44,5 +44,5 @@ Table.displayName = 'Table'
 TableHead.displayName = 'TableHead'
 TableBody.displayName = 'TableBody'
 TableRow.displayName = 'TableRow'
-TableHeaderCell.displayName = 'TableHeaderCell'
 TableCell.displayName = 'TableCell'
+TableHeaderCell.displayName = 'TableHeaderCell'

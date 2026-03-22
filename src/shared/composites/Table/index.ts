@@ -1,2 +1,2 @@
 export * from './Table'
-export * from './SortableHeaderCell/SortableHeaderCell'
+export * from './SortableHeaderCell'
