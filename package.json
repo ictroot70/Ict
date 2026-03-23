@@ -34,7 +34,8 @@
     "prepare": "node scripts/install-git-hooks.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm run test:contracts"
+    "test": "pnpm run test:contracts",
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3",
@@ -86,6 +87,7 @@
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "lighthouse": "^13.0.3",
+    "msw": "^2.12.11",
     "prettier": "3.5.3",
     "sass": "^1.87.0",
     "stylelint": "^17.0.0",

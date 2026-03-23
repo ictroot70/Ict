@@ -19,6 +19,14 @@ export const useAuthUiState = () => {
   })
 
   useEffect(() => {
+    // Auth hint now arrives from client storage after hydration, so we need to re-open the
+    // loading phase if it appears while the auth request is still pending.
+    if (resolvedOnce && shouldUseLoadingPhase && hasPendingAuthRequest && !isAuthenticated) {
+      setResolvedOnce(false)
+    }
+  }, [hasPendingAuthRequest, isAuthenticated, resolvedOnce, shouldUseLoadingPhase])
+
+  useEffect(() => {
     if (resolvedOnce) {
       return
     }
