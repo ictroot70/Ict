@@ -1,6 +1,5 @@
-import { describe, expect, it } from 'vitest'
-
 import { PaymentType } from '@/shared/types'
+import { describe, expect, it } from 'vitest'
 
 import { mapPaymentTypeToLabel } from './mapPaymentTypeToLabel'
 

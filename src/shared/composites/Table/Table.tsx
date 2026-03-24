@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from 'react'
 
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 
 import s from './Table.module.scss'
 
