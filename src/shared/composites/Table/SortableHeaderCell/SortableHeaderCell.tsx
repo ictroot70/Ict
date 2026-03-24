@@ -1,4 +1,4 @@
-import type { AriaAttributes, ReactNode } from 'react'
+import React, { type AriaAttributes, type ReactNode } from 'react'
 
 import Image from 'next/image'
 

@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { usePaymentsTable } from '@/features/subscriptions/hooks'
 import { PAYMENTS_PAGE_SIZE_OPTIONS } from '@/features/subscriptions/model'
 import { Loading } from '@/shared/composites'
