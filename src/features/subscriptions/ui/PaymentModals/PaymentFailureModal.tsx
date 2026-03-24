@@ -1,6 +1,7 @@
 'use client'
 
 import { Button, Modal, Typography } from '@/shared/ui'
+import { useTranslations } from 'next-intl'
 
 import s from './PaymentModals.module.scss'
 
@@ -11,13 +12,15 @@ interface Props {
 }
 
 export function PaymentFailureModal({ open, onClose, onBackToPayment }: Props) {
+  const t = useTranslations('subscriptions.account')
+
   return (
-    <Modal open={open} onClose={onClose} className={s.modal} modalTitle="Error">
+    <Modal open={open} onClose={onClose} className={s.modal} modalTitle={t('errorTitle')}>
       <div className={s.content}>
-        <Typography variant={'regular_16'}>Transaction failed, please try again</Typography>
+        <Typography variant={'regular_16'}>{t('errorText')}</Typography>
         <div className={s.actions}>
           <Button onClick={onBackToPayment} fullWidth>
-            Back to payment
+            {t('backToPayment')}
           </Button>
         </div>
       </div>

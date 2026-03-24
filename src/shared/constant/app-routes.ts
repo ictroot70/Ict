@@ -34,6 +34,7 @@ export const APP_ROUTES = {
       return `/profile/${id}?${params.toString()}`
     },
     EDIT: (id: number) => `/profile/${id}/settings/general`,
+    ACCOUNT: (id: number) => `/profile/${id}/settings/account`,
   },
 
   POSTS: {
