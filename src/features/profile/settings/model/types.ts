@@ -22,8 +22,8 @@ export interface UISubscription {
   expireDate: string
   nextPaymentDate: string
   isActive: boolean
+  autoRenewal?: boolean
 }
-
 export interface UISubscriptionPlan {
   value: SubscriptionPlanValue
   label: string
@@ -36,6 +36,7 @@ export const mapSubscriptionToUI = (sub: SubSubscription): UISubscription => ({
   expireDate: sub.expireDate,
   nextPaymentDate: sub.nextPaymentDate,
   isActive: sub.isActive,
+  autoRenewal: sub.autoRenewal,
 })
 
 export const mapPlanToUI = (plan: SubSubscriptionPlan): UISubscriptionPlan => ({

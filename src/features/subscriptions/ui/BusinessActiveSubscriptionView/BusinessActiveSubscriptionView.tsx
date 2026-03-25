@@ -1,24 +1,40 @@
-import { SubscriptionSection } from '@/features/profile/settings/ui/AccountManagement/SubscriptionSection/SubscriptionSection'
-import { SubscriptionType } from '@/shared/types'
 
 import styles from './BusinessActiveSubscriptionView.module.scss'
 
 import { Subscription, SubscriptionPlan } from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
-interface Props {
+
+interface BusinessActiveSubscriptionViewProps {
   subscription: Subscription
   plans: SubscriptionPlan[]
-  selectedPlan?: SubscriptionType
-  onPlanChange?: (plan: SubscriptionType) => void
+  selectedPlan?: SubscriptionPlanValue
+  onPlanChange?: (plan: SubscriptionPlanValue) => void
+  onPayPalClick?: () => void
   onStripeClick?: () => void
-  onPaypalClick?: () => void
   isPaymentLocked?: boolean
 }
 
-export const BusinessActiveSubscriptionView = ({ subscription, plans }: Props) => (
-  <div className={styles.container}>
-    <SubscriptionSection subscription={subscription} />
-    <SubscriptionPricing plans={plans} />
-  </div>
-)
+export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscriptionViewProps> = ({
+  subscription,
+  plans,
+  selectedPlan,
+  onPlanChange,
+  onPayPalClick,
+  onStripeClick,
+  isPaymentLocked = false
+}) => {
+  return (
+    <div className={styles.container}>
+      <SubscriptionPricing
+        plans={plans}
+        selectedPlan={selectedPlan}
+        onPlanChange={onPlanChange}
+        onPayPalClick={onPayPalClick}
+        onStripeClick={onStripeClick}
+        isPaymentLocked={isPaymentLocked}
+      />
+    </div>
+  )
+}

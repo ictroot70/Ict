@@ -24,7 +24,6 @@
     "test:run": "vitest run"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@eslint/eslintrc": "^3",
     "@fontsource-variable/inter": "^5.2.6",
     "@fontsource-variable/roboto": "^5.2.6",

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useCreateSubscriptionMutation } from '@/features/subscriptions/api'
 import { PaymentType } from '@/shared/types'
@@ -9,62 +9,58 @@ import { Card, Typography, Button } from '@/shared/ui'
 import styles from './SubscriptionPricing.module.scss'
 
 import { SubscriptionPlan } from '../model/types'
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
-interface Props {
+interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
+  selectedPlan?: SubscriptionPlanValue
+  onPlanChange?: (plan: SubscriptionPlanValue) => void
   onPayPalClick?: () => void
   onStripeClick?: () => void
+  isPaymentLocked?: boolean
 }
 
-export function SubscriptionPricing({ plans, onPayPalClick, onStripeClick }: Props) {
-  const [selectedPlan, setSelectedPlan] = useState<string>(plans[0]?.id || '')
-  const [createSubscription, { isLoading }] = useCreateSubscriptionMutation()
+export function SubscriptionPricing({
+  plans,
+  selectedPlan: externalSelectedPlan,
+  onPlanChange,
+  onPayPalClick,
+  onStripeClick,
+  isPaymentLocked = false
+}: SubscriptionPricingProps) {
+  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
+    externalSelectedPlan || plans[0]?.value || 'month'
+  )
 
-  const selectedPlanData = plans.find(p => p.id === selectedPlan)
-
-  const handlePayment = async (paymentType: PaymentType) => {
-    if (!selectedPlanData) {
-      return
+  // Синхронизируем внутреннее состояние с внешним, если оно изменилось
+  useEffect(() => {
+    if (externalSelectedPlan) {
+      setInternalSelectedPlanValue(externalSelectedPlan)
     }
+  }, [externalSelectedPlan])
 
-    try {
-      const response = await createSubscription({
-        typeSubscription: selectedPlanData.period,
-        paymentType: paymentType,
-        amount: Number(selectedPlanData.price),
-        baseUrl: window.location.origin,
-      }).unwrap()
+  const selectedPlanValue = externalSelectedPlan !== undefined
+    ? externalSelectedPlan
+    : internalSelectedPlanValue
 
-      if (response.url) {
-        window.location.href = response.url
-      }
-    } catch (error) {
-      console.error('Failed to create subscription:', error)
-    }
-  }
+  const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
 
-  const handlePayPalClick = async () => {
-    if (onPayPalClick) {
-      onPayPalClick()
+  const handlePlanChange = (planValue: SubscriptionPlanValue) => {
+    if (onPlanChange) {
+      onPlanChange(planValue)
     } else {
-      await handlePayment(PaymentType.PAYPAL)
+      setInternalSelectedPlanValue(planValue)
     }
   }
 
-  const handleStripeClick = async () => {
-    if (onStripeClick) {
-      onStripeClick()
-    } else {
-      await handlePayment(PaymentType.STRIPE)
-    }
-  }
+  const isDisabled = isPaymentLocked || !selectedPlanData
 
   if (!plans.length) {
     return (
       <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>No pricing plans</Typography>
+        <Typography variant={'h3'}>Нет доступных тарифов</Typography>
         <Typography className={styles.stateText} variant={'regular_16'}>
-          Pricing is currently unavailable.
+          Информация о тарифах временно недоступна.
         </Typography>
       </Card>
     )
@@ -73,7 +69,7 @@ export function SubscriptionPricing({ plans, onPayPalClick, onStripeClick }: Pro
   return (
     <section className={styles.section}>
       <Typography variant={'h3'} className={styles.section__title}>
-        Change your subscription:
+        Изменить подписку:
       </Typography>
 
       <div className={styles.pricingList}>
@@ -82,21 +78,21 @@ export function SubscriptionPricing({ plans, onPayPalClick, onStripeClick }: Pro
             {plans.map(plan => (
               <div
                 key={plan.id}
-                className={`${styles.planRow} ${selectedPlan === plan.id ? styles.planRowSelected : ''}`}
-                onClick={() => setSelectedPlan(plan.id)}
+                className={`${styles.planRow} ${selectedPlanValue === plan.value ? styles.planRowSelected : ''}`}
+                onClick={() => handlePlanChange(plan.value)}
                 role={'button'}
                 tabIndex={0}
                 onKeyDown={e => {
                   if (e.key === 'Enter' || e.key === ' ') {
-                    setSelectedPlan(plan.id)
+                    handlePlanChange(plan.value)
                   }
                 }}
               >
                 <div className={styles.planRadio}>
                   <div
-                    className={`${styles.planRadio__circle} ${selectedPlan === plan.id ? styles.planRadio__circleSelected : ''}`}
+                    className={`${styles.planRadio__circle} ${selectedPlanValue === plan.value ? styles.planRadio__circleSelected : ''}`}
                   >
-                    {selectedPlan === plan.id && <div className={styles.planRadio__dot} />}
+                    {selectedPlanValue === plan.value && <div className={styles.planRadio__dot} />}
                   </div>
                   <Typography variant={'regular_16'} className={styles.planRadio__label}>
                     {plan.label}
@@ -112,19 +108,19 @@ export function SubscriptionPricing({ plans, onPayPalClick, onStripeClick }: Pro
         <div className={styles.paymentWrapper}>
           <Button
             className={styles.paymentButton}
-            onClick={handlePayPalClick}
-            disabled={isLoading || !selectedPlanData}
+            onClick={onPayPalClick}
+            disabled={isDisabled}
             variant={'outlined'}
           >
             <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
           </Button>
 
-          <span className={styles.paymentOr}>Or</span>
+          <span className={styles.paymentOr}>Или</span>
 
           <Button
             className={styles.paymentButton}
-            onClick={handleStripeClick}
-            disabled={isLoading || !selectedPlanData}
+            onClick={onStripeClick}
+            disabled={isDisabled}
             variant={'outlined'}
           >
             <img src={'/stripe.svg'} alt={'Stripe'} className={styles.paymentIcon} />
