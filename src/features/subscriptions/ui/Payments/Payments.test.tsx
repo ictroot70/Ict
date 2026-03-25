@@ -1,12 +1,14 @@
 /* @vitest-environment jsdom */
 
+import type { PaymentsWithPaginationViewModel } from '@/shared/types'
+
 import React from 'react'
+
+import { usePaymentsTable } from '@/features/subscriptions/hooks'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Payments } from './Payments'
-import { usePaymentsTable } from '@/features/subscriptions/hooks'
-import type { PaymentsWithPaginationViewModel } from '@/shared/types'
 
 vi.mock('@/features/subscriptions/hooks', () => ({
   usePaymentsTable: vi.fn(),
@@ -14,11 +16,11 @@ vi.mock('@/features/subscriptions/hooks', () => ({
 
 vi.mock('@/shared/ui', () => ({
   Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  Pagination: () => <div data-testid="pagination" />,
+  Pagination: () => <div data-testid={'pagination'} />,
 }))
 
 vi.mock('./PaymentsTable', () => ({
-  PaymentsTable: () => <div data-testid="payments-table" />,
+  PaymentsTable: () => <div data-testid={'payments-table'} />,
 }))
 
 type UsePaymentsTableResult = ReturnType<typeof usePaymentsTable>
@@ -54,6 +56,7 @@ const createData = (itemsCount: number): PaymentsWithPaginationViewModel => ({
     paymentType: 'STRIPE',
   })) as PaymentsWithPaginationViewModel['items'],
 })
+
 describe('Payments', () => {
   it('renders loading state', () => {
     usePaymentsTableMock.mockReturnValue(
@@ -61,6 +64,7 @@ describe('Payments', () => {
     )
 
     const { container } = render(<Payments />)
+
     expect(container.querySelector('span')).not.toBeNull()
   })
 

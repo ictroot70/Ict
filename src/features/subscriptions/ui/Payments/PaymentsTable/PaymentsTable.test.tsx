@@ -1,11 +1,16 @@
 /* @vitest-environment jsdom */
 import React from 'react'
+
+import {
+  type PaymentsViewModel,
+  PaymentType,
+  PaymentsSortBy,
+  SubscriptionType,
+} from '@/shared/types'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { PaymentsTable } from './PaymentsTable'
-import { PaymentType, PaymentsSortBy, SubscriptionType } from '@/shared/types'
-import type { PaymentsViewModel } from '@/shared/types'
 
 vi.mock('next/image', () => ({
   default: (props: { alt?: string }) => <img {...props} />,

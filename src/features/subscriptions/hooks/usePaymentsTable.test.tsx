@@ -1,14 +1,14 @@
 /* @vitest-environment jsdom */
-import { act, renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
-import { usePaymentsTable } from './usePaymentsTable'
 import { useGetPaymentsQuery } from '@/features/subscriptions/api'
 import {
   DEFAULT_PAYMENTS_PAGE_NUMBER,
   DEFAULT_PAYMENTS_PAGE_SIZE,
 } from '@/features/subscriptions/model'
 import { PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
+import { act, renderHook } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { usePaymentsTable } from './usePaymentsTable'
 
 vi.mock('@/features/subscriptions/api', () => ({
   useGetPaymentsQuery: vi.fn(),
