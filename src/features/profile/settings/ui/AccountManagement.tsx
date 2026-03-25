@@ -5,13 +5,15 @@ import { useMemo, useState } from 'react'
 import { useCurrentSubscription } from '@/features/subscriptions/model/hooks/useCurrentSubscription'
 import { usePricing } from '@/features/subscriptions/model/hooks/usePricing'
 import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
-import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
-import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
 import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
 
 import styles from './AccountManagement.module.scss'
 
-import { AccountTypeValue, SubscriptionPlanValue, mapSubscriptionToUI } from '../model/types'
+// import { AccountTypeValue, SubscriptionPlanValue, mapSubscriptionToUI } from '../model/types'
+// import { AccountTypeSection } from './AccountManagement/AccountTypeSection/AccountTypeSection'
+// import { BusinessSubscriptionView } from '@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView'
+import { BusinessSubscriptionView } from '@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView'
+import { AccountTypeValue, mapSubscriptionToUI, SubscriptionPlanValue } from '../model/types'
 import { AccountTypeSection } from './AccountManagement/AccountTypeSection/AccountTypeSection'
 
 export const AccountManagement = () => {
@@ -68,7 +70,7 @@ export const AccountManagement = () => {
 
       case 'business-no-subscription':
         return (
-          <BusinessNoSubscriptionView
+          <BusinessSubscriptionView
             plans={plans}
             selectedPlan={selectedPlan}
             onPlanChange={handlePlanChange}
@@ -80,8 +82,8 @@ export const AccountManagement = () => {
 
       case 'business-active-subscription':
         return (
-          <BusinessActiveSubscriptionView
-            subscription={activeSubscription!}
+          <BusinessSubscriptionView
+            subscription={activeSubscription}
             plans={plans}
             selectedPlan={selectedPlan}
             onPlanChange={handlePlanChange}
