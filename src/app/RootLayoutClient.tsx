@@ -43,7 +43,7 @@ export const RootLayoutClient = ({ children }: Props) => {
   const isCreatePostOpen = status === 'authenticated'
 
   return (
-    <main className={s.main}>
+    <main>
       <div className={s.wrapper}>
         {showSidebar && <Sidebar />}
         {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
