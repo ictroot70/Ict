@@ -1,33 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import {
   useCancelAutoRenewalMutation,
   useRenewAutoRenewalMutation,
 } from '@/features/subscriptions/api'
-import { Subscription } from '@/features/subscriptions/model/types'
+
+import { UISubscription } from '@/features/profile/settings/model/types'
 import { Card, CheckboxRadix, Typography } from '@/shared/ui'
 
 import styles from './SubscriptionSection.module.scss'
 
 interface Props {
-  subscription?: Subscription
+  subscription?: UISubscription
 }
 
 export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
   const [cancelAutoRenewal] = useCancelAutoRenewalMutation()
   const [renewAutoRenewal] = useRenewAutoRenewalMutation()
-  const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? true)
+
+  const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? false)
   const [isUpdating, setIsUpdating] = useState(false)
 
   if (!subscription) {
     return (
       <section className={styles.section}>
         <Typography variant={'h3'} className={styles.section__title}>
-          Current Subscription:
+          {/* ✅ i18n */}
+          {t('subscription.current')}
         </Typography>
         <div className={styles.subscriptionsList}>
           <Card className={styles.subscriptionCard}>
-            <Typography variant={'regular_14'}>No active subscription</Typography>
+            <Typography variant={'regular_14'}>
+              {/* ✅ i18n */}
+              {t('subscription.no_active')}
+            </Typography>
           </Card>
         </div>
       </section>
@@ -49,7 +55,6 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
       }
       setAutoRenewal(checked)
     } catch (error) {
-      console.error('Failed to update auto-renewal:', error)
     } finally {
       setIsUpdating(false)
     }
@@ -58,7 +63,8 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
   return (
     <section className={styles.section}>
       <Typography variant={'h3'} className={styles.section__title}>
-        Current Subscription:
+
+        {t('subscription.current')}
       </Typography>
 
       <div className={styles.subscriptionsList}>
@@ -68,7 +74,8 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
           <div className={styles.subscriptionCard__fields}>
             <div className={styles.subscriptionField}>
               <Typography variant={'regular_14'} className={styles.subscriptionField__label}>
-                Expire at:
+
+                {t('subscription.expire_at')}
               </Typography>
               <Typography variant={'bold_14'} className={styles.subscriptionField__date}>
                 {subscription.expireDate}
@@ -76,7 +83,8 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
             </div>
             <div className={styles.subscriptionField}>
               <Typography variant={'regular_14'} className={styles.subscriptionField__label}>
-                Next payment:
+
+                {t('subscription.next_payment')}
               </Typography>
               <Typography variant={'bold_14'} className={styles.subscriptionField__date}>
                 {subscription.nextPaymentDate}
@@ -90,7 +98,7 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
         <CheckboxRadix
           checked={autoRenewal}
           onCheckedChange={handleAutoRenewalChange}
-          label={'Auto-Renewal'}
+          label={t('subscription.auto_renewal')}
           disabled={isUpdating}
         />
       </div>

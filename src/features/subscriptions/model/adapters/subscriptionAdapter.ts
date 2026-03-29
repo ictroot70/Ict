@@ -11,3 +11,14 @@ export const mapSubscriptionData = (data: GetCurrentSubscriptionResponseDto): Su
     autoRenewal: sub.autoRenewal,
   }))
 }
+
+
+
+const mapTypeDescriptionToValue = (type: string): SubscriptionPlanValue => {
+  switch (type) {
+    case 'DAILY': return '1day'
+    case 'WEEKLY': return '7day'
+    case 'MONTHLY': return 'month'
+    default: return 'month'
+  }
+}

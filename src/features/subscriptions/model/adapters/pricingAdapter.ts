@@ -1,4 +1,4 @@
-import { GetPricingResponseDto } from '@/shared/types'
+import { GetPricingResponseDto, SubscriptionType } from '@/shared/types'
 
 import { SubscriptionPlan } from '../types'
 
@@ -33,7 +33,16 @@ export const mapPricingToPlans = (data: GetPricingResponseDto): SubscriptionPlan
       value: getValue(),
       label: getLabel(),
       price: plan.amount.toString(),
-      period: plan.typeDescription,
+      period: getPeriodFromType(plan.typeDescription),
     }
   })
+}
+
+const getPeriodFromType = (type: string): string => {
+  switch (type) {
+    case 'DAY': return 'day'
+    case 'WEEKLY': return 'week'
+    case 'MONTHLY':
+    default: return 'month'
+  }
 }

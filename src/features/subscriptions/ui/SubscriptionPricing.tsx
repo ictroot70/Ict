@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-import { useCreateSubscriptionMutation } from '@/features/subscriptions/api'
-import { PaymentType } from '@/shared/types'
 import { Card, Typography, Button } from '@/shared/ui'
 
 import styles from './SubscriptionPricing.module.scss'
@@ -32,7 +30,6 @@ export function SubscriptionPricing({
     externalSelectedPlan || plans[0]?.value || 'month'
   )
 
-  // Синхронизируем внутреннее состояние с внешним, если оно изменилось
   useEffect(() => {
     if (externalSelectedPlan) {
       setInternalSelectedPlanValue(externalSelectedPlan)

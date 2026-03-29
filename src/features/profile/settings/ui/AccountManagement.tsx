@@ -9,17 +9,18 @@ import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalV
 
 import styles from './AccountManagement.module.scss'
 
-// import { AccountTypeValue, SubscriptionPlanValue, mapSubscriptionToUI } from '../model/types'
-// import { AccountTypeSection } from './AccountManagement/AccountTypeSection/AccountTypeSection'
-// import { BusinessSubscriptionView } from '@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView'
-import { BusinessSubscriptionView } from '@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView'
-import { AccountTypeValue, mapSubscriptionToUI, SubscriptionPlanValue } from '../model/types'
+import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
+import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+
+import { AccountTypeValue, mapSubscriptionToUI, SubscriptionPlanValue, UISubscription } from '../model/types'
 import { AccountTypeSection } from './AccountManagement/AccountTypeSection/AccountTypeSection'
 
 export const AccountManagement = () => {
-  const [selectedAccountType, setSelectedAccountType] = useState<AccountTypeValue>('personal')
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanValue>('month')
   const [isPaymentLocked, setIsPaymentLocked] = useState(false)
+
+  // ✅ 1. Добавляем state для выбранного типа аккаунта (реагирует на клики)
+  const [selectedAccountType, setSelectedAccountType] = useState<AccountTypeValue>('personal')
 
   const { subscriptions, isLoading: subLoading } = useCurrentSubscription()
   const { plans, isLoading: plansLoading } = usePricing()
@@ -32,27 +33,38 @@ export const AccountManagement = () => {
     []
   )
 
-  const activeSubscription = useMemo(() => subscriptions.find(s => s.isActive), [subscriptions])
+  const activeSubscription = useMemo(
+    () => subscriptions.find(s => s.isActive),
+    [subscriptions]
+  )
 
-  // Маппим в UI тип для PersonalView
-  const uiSubscription = useMemo(
+  // ✅ 2. accountType из API — для синхронизации с бэкендом
+  const apiAccountType: AccountTypeValue = activeSubscription ? 'business' : 'personal'
+
+  // ✅ 3. Синхронизируем selectedAccountType с API при загрузке
+  useMemo(() => {
+    setSelectedAccountType(apiAccountType)
+  }, [apiAccountType])
+
+  const uiSubscription: UISubscription | undefined = useMemo(
     () => activeSubscription ? mapSubscriptionToUI(activeSubscription) : undefined,
     [activeSubscription]
   )
 
+  // ✅ 4. Resolver использует selectedAccountType (реагирует на клики!)
   const view = resolveAccountManagementView({
-    accountType: selectedAccountType,
+    accountType: selectedAccountType,  // ← из state, не из API!
     hasActiveSubscription: !!activeSubscription,
   })
 
   const isLoading = subLoading || plansLoading
 
   const handlePayPalClick = () => {
-    console.log('PayPal clicked with plan:', selectedPlan)
+    // TODO: T2 - реализовать платежный флоу
   }
 
   const handleStripeClick = () => {
-    console.log('Stripe clicked with plan:', selectedPlan)
+    // TODO: T2 - реализовать платежный флоу
   }
 
   const handlePlanChange = (plan: SubscriptionPlanValue) => {
@@ -70,7 +82,7 @@ export const AccountManagement = () => {
 
       case 'business-no-subscription':
         return (
-          <BusinessSubscriptionView
+          <BusinessNoSubscriptionView
             plans={plans}
             selectedPlan={selectedPlan}
             onPlanChange={handlePlanChange}
@@ -82,14 +94,8 @@ export const AccountManagement = () => {
 
       case 'business-active-subscription':
         return (
-          <BusinessSubscriptionView
-            subscription={activeSubscription}
-            plans={plans}
-            selectedPlan={selectedPlan}
-            onPlanChange={handlePlanChange}
-            onPayPalClick={handlePayPalClick}
-            onStripeClick={handleStripeClick}
-            isPaymentLocked={isPaymentLocked}
+          <BusinessActiveSubscriptionView
+            subscription={uiSubscription}
           />
         )
 
@@ -100,10 +106,11 @@ export const AccountManagement = () => {
 
   return (
     <div className={styles.accountManagementPage}>
+      {/* ✅ 5. AccountTypeSection теперь реагирует на клики */}
       <AccountTypeSection
         accountTypes={accountTypes}
-        selectedType={selectedAccountType}
-        onTypeChange={setSelectedAccountType}
+        selectedType={selectedAccountType}  // ← из state
+        onTypeChange={setSelectedAccountType}  // ← обновляем state при клике!
       />
 
       {renderView()}
