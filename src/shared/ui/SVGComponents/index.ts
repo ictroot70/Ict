@@ -32,4 +32,4 @@ export {
   PersonAddOutline,
   CopyOutline,
   Pin,
-} from '@ictroot/ui-kit/icons'
+} from '@ictroot/ui-kit'
