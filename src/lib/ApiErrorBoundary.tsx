@@ -1,12 +1,22 @@
 import React, { ReactNode } from 'react'
 
-import Image from 'next/image'
+import {
+  StatusErrorPage,
+  StatusErrorPageActionLink,
+  getOfflineErrorPreset,
+  getStatusErrorPreset,
+} from '@/shared/composites/StatusErrorPage'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 
 import { ApiError } from './api'
 
 type ApiErrorBoundaryProps = {
-  error: ApiError | null | undefined
   children: ReactNode
+  error: ApiError | null | undefined
+}
+
+function renderPrimaryAction(href: string, label: string) {
+  return <StatusErrorPageActionLink href={href} label={label} />
 }
 
 export function ApiErrorBoundary({ error, children }: ApiErrorBoundaryProps) {
@@ -14,77 +24,62 @@ export function ApiErrorBoundary({ error, children }: ApiErrorBoundaryProps) {
     return <>{children}</>
   }
 
-  const Wrapper = ({ children }: { children: ReactNode }) => {
-    return (
-      <div
-        className={'error-page'}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-          flexWrap: 'wrap',
-          gap: '10px',
-          flexDirection: 'column',
-        }}
-      >
-        {children}
-      </div>
-    )
-  }
-
   switch (error.type) {
-    case 'FETCH_ERROR':
-      return (
-        <Wrapper>
-          <Image src={'/nointernet.png'} alt={'No Internet'} width={300} height={300} priority />
-
-          <h2>Server Unavailable</h2>
-
-          <span>Please check your internet connection or try again later.</span>
-        </Wrapper>
-      )
-
-    case 'HTTP_ERROR':
-      if (error.status === 401) {
-        return (
-          <Wrapper>
-            <h2>Authorization required</h2>
-            <p>Please log in to continue.</p>
-          </Wrapper>
-        )
-      }
-      if (error.status === 403) {
-        return (
-          <Wrapper>
-            <h2>Access denied</h2>
-            <p>You do not have rights to view this resource.</p>
-          </Wrapper>
-        )
-      }
+    case 'FETCH_ERROR': {
+      const preset = getOfflineErrorPreset()
 
       return (
-        <Wrapper>
-          <h2>Server error</h2>
-          <p>{error.message}</p>
-        </Wrapper>
+        <StatusErrorPage
+          statusCode={preset.statusCode}
+          title={preset.title}
+          description={preset.description}
+          variant={preset.variant}
+          actions={renderPrimaryAction(APP_ROUTES.ROOT, 'Go to home')}
+        />
       )
+    }
 
-    case 'PARSE_ERROR':
+    case 'HTTP_ERROR': {
+      const preset = getStatusErrorPreset(error.status)
+      const action =
+        error.status === 401
+          ? renderPrimaryAction(APP_ROUTES.AUTH.LOGIN, 'Sign in')
+          : renderPrimaryAction(APP_ROUTES.ROOT, 'Go to home')
+
       return (
-        <Wrapper>
-          <h2>Data processing error</h2>
-          <p>Unable to process data from the server correctly.</p>
-        </Wrapper>
+        <StatusErrorPage
+          statusCode={preset.statusCode}
+          title={preset.title}
+          description={preset.description}
+          variant={preset.variant}
+          actions={action}
+        />
       )
+    }
+
+    case 'PARSE_ERROR': {
+      const preset = getStatusErrorPreset(500)
+
+      return (
+        <StatusErrorPage
+          statusCode={preset.statusCode}
+          title={'Response Parsing Error'}
+          description={error.message}
+          variant={preset.variant}
+          actions={renderPrimaryAction(APP_ROUTES.ROOT, 'Go to home')}
+        />
+      )
+    }
 
     default:
       return (
-        <Wrapper>
-          <h2>Unknown Error</h2>
-          <p>Something went wrong.</p>
-        </Wrapper>
+        <StatusErrorPage
+          statusCode={500}
+          title={'Unknown Error'}
+          description={'Something went wrong.'}
+          variant={'neon'}
+          actions={renderPrimaryAction(APP_ROUTES.ROOT, 'Go to home')}
+        />
       )
   }
 }

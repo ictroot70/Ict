@@ -20,8 +20,6 @@ export const LogOutButton = () => {
 
   const { handleLogout, handleCancelLogout, user } = useLogoutHandler(handlerCloseModal)
 
-  const confirmLogout = () => handleCancelLogout()
-
   return (
     <>
       <Button
@@ -37,7 +35,7 @@ export const LogOutButton = () => {
       <LogoutModal
         open={showLogoutModal}
         onConfirm={handleLogout}
-        onClose={confirmLogout}
+        onClose={handleCancelLogout}
         userEmail={user?.email}
       />
     </>

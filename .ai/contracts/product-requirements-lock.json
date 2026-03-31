@@ -1,6 +1,6 @@
 {
   "contractVersion": "1.0.0",
-  "updatedAt": "2026-03-13",
+  "updatedAt": "2026-03-31",
   "purpose": "Lock implemented product requirements from technical specifications and prevent regressions during feature work/refactoring.",
   "statusLegend": {
     "locked": "Implemented and protected by automated checks",
@@ -15,52 +15,72 @@
       "items": [
         {
           "id": "AUTH-UC1-FORM-VALIDATION",
-          "title": "Registration validation and agreement gate",
+          "title": "Registration/new-password validation and agreement gate (special symbol required) + sign-up success close stays on registration",
           "status": "locked",
+          "note": "Specification decision: password special character is treated as REQUIRED according to Swagger contract. If narrative TZ text differs, Swagger contract is the source of truth for implementation.",
           "sourceFiles": [
             "src/features/auth/sign-up/model/validationSchemas.ts",
+            "src/features/auth/create-new-password/model/schemas/passwordSchema.ts",
+            "src/shared/constant/password.ts",
             "src/features/auth/sign-up/ui/SignUpForm.tsx"
           ],
           "contractTests": [
-            "tests/contracts/auth.contract.test.ts"
+            "tests/contracts/auth.contract.test.ts",
+            "tests/contracts/auth-signup-navigation.contract.test.ts"
           ]
         },
         {
           "id": "AUTH-UC2-LOGIN-FLOW",
-          "title": "Login form + route contract",
+          "title": "Login form + route contract + safe post-login redirect + refresh migration (/update primary, /update-tokens fallback)",
           "status": "locked",
           "sourceFiles": [
             "src/features/auth/sign-in/model/validation.ts",
+            "src/features/auth/sign-in/model/resolvePostLoginRedirect.ts",
             "src/features/auth/sign-in/ui/SignInForm.tsx",
-            "src/shared/constant/app-routes.ts"
+            "src/shared/constant/app-routes.ts",
+            "src/shared/api/api-routes.ts",
+            "src/shared/api/refresh-auth-tokens.ts",
+            "src/shared/api/base-query.api.ts",
+            "src/shared/lib/restoreAccessToken.ts"
           ],
           "contractTests": [
-            "tests/contracts/auth.contract.test.ts"
+            "tests/contracts/auth.contract.test.ts",
+            "tests/contracts/auth-refresh.contract.test.ts"
           ]
         },
         {
           "id": "AUTH-UC3-RECAPTCHA-FORGOT-PASSWORD",
-          "title": "Forgot password form has reCAPTCHA protection logic",
+          "title": "Forgot password/new-password flow has reCAPTCHA gate, recovery-code validation, and explicit email-expired mode",
           "status": "locked",
           "sourceFiles": [
             "src/features/auth/password-recovery/model/schemas/forgotPasswordSchema.ts",
             "src/features/auth/password-recovery/ui/PasswordRecoveryForm.tsx",
-            "src/features/auth/password-recovery/hooks/usePasswordRecovery.ts"
+            "src/features/auth/password-recovery/hooks/usePasswordRecovery.ts",
+            "src/features/auth/create-new-password/hooks/useCreateNewPassword.ts",
+            "src/features/auth/create-new-password/model/resolveNewPasswordError.ts",
+            "src/features/auth/email-expired/ui/EmailExpiredForm.tsx",
+            "src/features/auth/email-expired/hooks/usePasswordRecoveryResend.ts",
+            "src/features/auth/email-success/model/useRegistrationConfirm.ts",
+            "src/features/auth/api/auth.api.ts"
           ],
-          "contractTests": [
-            "tests/contracts/auth.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/auth.contract.test.ts"]
         },
         {
           "id": "AUTH-UC4-LOGOUT-CONFIRMATION",
-          "title": "Logout confirmation modal (Yes/No)",
+          "title": "Logout confirmation modal (Yes/No) with cancel-only close and resilient local fallback cleanup",
           "status": "locked",
           "sourceFiles": [
             "src/widgets/Sidebar/components/LogoutModal/index.tsx",
-            "src/widgets/Sidebar/components/LogoutButton/LogOutButton.tsx"
+            "src/widgets/Sidebar/components/LogoutButton/LogOutButton.tsx",
+            "src/widgets/Sidebar/model/useLogoutHandler.ts",
+            "src/features/auth/api/auth.api.ts",
+            "src/shared/lib/storage/auth-forced-logout.ts",
+            "src/shared/api/base-query.api.ts",
+            "src/shared/lib/restoreAccessToken.ts"
           ],
           "contractTests": [
-            "tests/contracts/auth.contract.test.ts"
+            "tests/contracts/auth.contract.test.ts",
+            "tests/contracts/auth-forced-logout.contract.test.ts"
           ]
         }
       ]
@@ -74,15 +94,13 @@
           "id": "AUTH-UC5-OAUTH",
           "title": "Google/GitHub registration/login",
           "status": "optional_or_blocked",
-          "note": "Optional for frontend and legally restricted for Russian digital resources in provided spec context.",
+          "note": "Optional for frontend and legally restricted for Russian digital resources in provided spec context. OAuth registration/login flow is not implemented in frontend scope for this project stage.",
           "sourceFiles": [
             "src/shared/composites/OAuthIcons/OAuthIcons.tsx",
             "src/shared/constant/app-routes.ts",
             "src/shared/api/api-routes.ts"
           ],
-          "contractTests": [
-            "tests/contracts/auth.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/auth.contract.test.ts"]
         }
       ]
     },
@@ -99,9 +117,7 @@
             "src/features/posts/hooks/useImageDropzone.ts",
             "src/features/posts/ui/steps/CropStep/CropStep.tsx"
           ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         },
         {
           "id": "POSTS-UC1-PUBLISH-DESCRIPTION-LIMIT",
@@ -111,9 +127,7 @@
             "src/features/posts/ui/steps/PublishStep.tsx",
             "src/entities/posts/ui/PostModal/EditMode/EditMode.tsx"
           ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         },
         {
           "id": "POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS",
@@ -124,9 +138,7 @@
             "src/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal.tsx",
             "src/entities/posts/ui/PostModal/EditMode/ExitConfirmationModal/ExitConfirmationModal.tsx"
           ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         }
       ]
     },
@@ -139,13 +151,8 @@
           "id": "MAIN-UC1-PUBLIC-FEED-FOUR-POSTS",
           "title": "Home page server payload starts with 4 public posts + client polling",
           "status": "locked",
-          "sourceFiles": [
-            "src/app/page.tsx",
-            "src/entities/users/ui/public/Public.tsx"
-          ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "sourceFiles": ["src/app/page.tsx", "src/entities/users/ui/public/Public.tsx"],
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         }
       ]
     },
@@ -162,21 +169,14 @@
             "src/app/profile/[id]/page.tsx",
             "src/entities/profile/hooks/useProfile.ts"
           ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         },
         {
           "id": "SSR-UC2-POST-MODAL-ENTRY",
           "title": "Profile page supports direct post opening via query params",
           "status": "locked",
-          "sourceFiles": [
-            "src/app/profile/[id]/page.tsx",
-            "src/shared/constant/app-routes.ts"
-          ],
-          "contractTests": [
-            "tests/contracts/posts-and-rendering.contract.test.ts"
-          ]
+          "sourceFiles": ["src/app/profile/[id]/page.tsx", "src/shared/constant/app-routes.ts"],
+          "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         }
       ]
     },
@@ -193,9 +193,7 @@
             "src/features/profile/edit-profile/lib/editProfileFormValues.ts",
             "src/features/legal/AgePolicyError.tsx"
           ],
-          "contractTests": [
-            "tests/contracts/profile-avatar.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/profile-avatar.contract.test.ts"]
         },
         {
           "id": "PROFILE-UC2-AVATAR-UPLOAD-CONSTRAINTS",
@@ -205,9 +203,7 @@
             "src/features/profile/avatar-upload/model/useAvatarUpload.ts",
             "src/features/profile/avatar-upload/ui/DeleteModal/DeleteAvatarModal.tsx"
           ],
-          "contractTests": [
-            "tests/contracts/profile-avatar.contract.test.ts"
-          ]
+          "contractTests": ["tests/contracts/profile-avatar.contract.test.ts"]
         }
       ]
     },

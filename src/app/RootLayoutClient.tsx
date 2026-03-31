@@ -26,6 +26,7 @@ const CreatePostWrapper = lazy(
 export const RootLayoutClient = ({ children }: Props) => {
   const { status } = useAuthUiState()
   const searchParams = useSearchParams()
+  const [isHydrated, setIsHydrated] = useState(false)
   const showSidebar = status === 'authenticated'
   const showSidebarSkeleton = status === 'loading'
   const postIdParam = searchParams.get('postId')
@@ -33,6 +34,13 @@ export const RootLayoutClient = ({ children }: Props) => {
   const isPostModalOpen = Number.isInteger(parsedPostId) && parsedPostId > 0
   const [shouldPreserveSidebarSpaceForModal, setShouldPreserveSidebarSpaceForModal] =
     useState(false)
+  const canRenderAuthSensitiveLayout = isHydrated
+  const visibleSidebar = canRenderAuthSensitiveLayout && showSidebar
+  const visibleSidebarSkeleton = canRenderAuthSensitiveLayout && showSidebarSkeleton
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   useEffect(() => {
     if (!isPostModalOpen) {
@@ -41,14 +49,16 @@ export const RootLayoutClient = ({ children }: Props) => {
       return
     }
 
-    if (showSidebar || showSidebarSkeleton) {
+    if (visibleSidebar || visibleSidebarSkeleton) {
       setShouldPreserveSidebarSpaceForModal(true)
     }
-  }, [isPostModalOpen, showSidebar, showSidebarSkeleton])
+  }, [isPostModalOpen, visibleSidebar, visibleSidebarSkeleton])
 
   const shouldReserveSidebarSpace =
-    showSidebar || showSidebarSkeleton || (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
-  const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
+    visibleSidebar ||
+    visibleSidebarSkeleton ||
+    (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
+  const shouldRenderSidebarSkeleton = visibleSidebarSkeleton && !isPostModalOpen
 
   useEffect(() => {
     const root = document.documentElement
@@ -60,13 +70,13 @@ export const RootLayoutClient = ({ children }: Props) => {
     }
   }, [shouldReserveSidebarSpace])
 
-  const isCreatePostOpen = status === 'authenticated'
+  const isCreatePostOpen = canRenderAuthSensitiveLayout && status === 'authenticated'
 
   return (
     <main className={s.main}>
       <ScrollAreaRadix className={s.scrollArea} viewportClassName={s.scrollViewport}>
         <div className={s.wrapper}>
-          {showSidebar && (
+          {visibleSidebar && (
             <Suspense fallback={null}>
               <Sidebar />
             </Suspense>

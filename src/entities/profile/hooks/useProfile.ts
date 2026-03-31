@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import { postApi, type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import {
   profileApi,
@@ -24,6 +26,7 @@ export const useProfile = (
   profileDataServer: PublicProfileData,
   postsDataServer: PaginatedPosts
 ) => {
+  const [isHydrated, setIsHydrated] = useState(false)
   const { id } = useParams<{ id: string }>()
   const userId = Number(id)
   const router = useRouter()
@@ -45,6 +48,10 @@ export const useProfile = (
     return queries.find(query => query.endpointName === 'me')
   })
   const { hasAuthHint, authUserIdHint } = useAuthSessionHintContext()
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   useInitializeProfile({
     userId,
@@ -110,12 +117,13 @@ export const useProfile = (
     typeof meQueryState.data.userId === 'number'
       ? meQueryState.data.userId
       : null
+  const isAuthenticatedUi = isHydrated && isAuthenticated
   const isAuthResolving =
     hasAuthHint &&
-    !isAuthenticated &&
+    !isAuthenticatedUi &&
     (!meQueryState || meQueryState.status === 'pending' || meQueryState.status === 'uninitialized')
-  const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
-  const isOwnProfile = isAuthenticated && profile.id === (meUserId ?? authUserIdHint)
+  const shouldShowAuthActionSkeleton = isHydrated && !isAuthenticatedUi && isAuthResolving
+  const isOwnProfile = isAuthenticatedUi && profile.id === (meUserId ?? authUserIdHint)
   const authActionSkeletonVariant: 'single' | 'double' =
     authUserIdHint === profile.id ? 'single' : 'double'
 
@@ -133,7 +141,7 @@ export const useProfile = (
     isLoading,
     hasNextPage,
     isOwnProfile,
-    isAuthenticated,
+    isAuthenticated: isAuthenticatedUi,
     shouldShowAuthActionSkeleton,
     authActionSkeletonVariant,
     profileInfoActions,
