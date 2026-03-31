@@ -1,6 +1,7 @@
 import { GetCurrentSubscriptionResponseDto } from '@/shared/types'
 
 import { Subscription } from '../types'
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
 export const mapSubscriptionData = (data: GetCurrentSubscriptionResponseDto): Subscription[] => {
   return data.data.map(sub => ({

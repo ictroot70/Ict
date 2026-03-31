@@ -80,9 +80,8 @@ export function SubscriptionPricing({
                 role={'button'}
                 tabIndex={0}
                 onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handlePlanChange(plan.value)
-                  }
+                  { selectedPlanValue === plan.value && <div /> }
+
                 }}
               >
                 <div className={styles.planRadio}>
