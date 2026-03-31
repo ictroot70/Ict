@@ -72,6 +72,13 @@ VERIFY_SMART_FORCE_FULL=1 pnpm run verify:smart
 VERIFY_AUTO_IGNORE_STAMP=1 pnpm run verify:auto
 ```
 
+### 6) Production релиз в `main`
+
+1. Базовый process команды: PR `develop -> main`.
+2. Для сложных релизов с большим смешанным diff рекомендуется вариант `release/<date-or-version>` от `main` + `cherry-pick` только продуктовых коммитов из `develop`.
+3. Независимо от source-ветки PR, дождаться зелёного `release-boundary` и остальных required checks.
+4. Только после зелёных checks запускать внешний production build trigger (comment command в PR).
+
 ## Что приложить в PR
 
 1. Секцию `Smart impact decision` (обязательно для PR/feature).

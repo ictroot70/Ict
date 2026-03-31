@@ -136,6 +136,12 @@ Full-check evidence:
 
 ## Release boundary (PR в `main`)
 
+Правило источника PR в `main`:
+
+- базовый процесс команды допускает PR `develop -> main` (как в текущем CI/CD flow);
+- для сложных релизов с большим смешанным diff рекомендуется вариант `release/*` от `main` + `cherry-pick` только продуктовых коммитов;
+- `release-boundary` применяется в любом случае, независимо от source-ветки PR.
+
 Блокирующий check `release-boundary` отклоняет PR в `main`, если diff содержит технические пути:
 
 - `.ai/**`
