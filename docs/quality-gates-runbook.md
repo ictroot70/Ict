@@ -35,6 +35,7 @@ pnpm run hooks:install
 - Для PR/feature-веток: `pnpm run verify:smart`
 - Для `develop` (merge/integration): `pnpm run verify:full`
 - Автоматический выбор команды: `pnpm run verify:auto`
+- Для PR в `main`: обязательный GitHub check `release-boundary` (workflow `.github/workflows/release-boundary.yml`)
 
 `verify:auto` сам выбирает, что запускать:
 
@@ -132,3 +133,19 @@ Full-check evidence:
 - e2e smoke (chromium/firefox/webkit): passed
 - perf budgets (`/` and `/profile/1`): passed
 ```
+
+## Release boundary (PR в `main`)
+
+Блокирующий check `release-boundary` отклоняет PR в `main`, если diff содержит технические пути:
+
+- `.ai/**`
+- `docs/**`
+- `tests/contracts/**`
+- `.githooks/**`
+- `scripts/check-*.mjs`
+- `scripts/verify-*.mjs`
+
+Допустимое исключение только через label `infra-exception`:
+
+- check проходит, но публикует явный warning со списком нарушенных путей;
+- label применяется только для осознанных infra/governance PR.
