@@ -55,7 +55,7 @@ const json = (route: Route, data: unknown, status = 200) =>
     body: JSON.stringify(data),
   })
 
-const apiPath = (path: string) => `**/api/proxy${path}`
+const apiPath = (path: string) => `**${path}`
 
 async function stubCountries(page: Page) {
   await page.route('**/countriesnow.space/api/v0.1/countries', route =>
@@ -63,7 +63,25 @@ async function stubCountries(page: Page) {
   )
 }
 
-async function stubAuthRestore(page: Page) {
+async function stubAuthRestore(
+  page: Page,
+  options: {
+    primaryRefreshStatus?: number
+  } = {}
+) {
+  const { primaryRefreshStatus = 200 } = options
+
+  await page.route(apiPath('/v1/auth/update'), route => {
+    if (primaryRefreshStatus === 200) {
+      return json(route, { accessToken: ACCESS_TOKEN })
+    }
+
+    return route.fulfill({
+      status: primaryRefreshStatus,
+      contentType: 'application/json',
+      body: '{}',
+    })
+  })
   await page.route(apiPath('/v1/auth/update-tokens'), route =>
     json(route, { accessToken: ACCESS_TOKEN })
   )
@@ -72,9 +90,7 @@ async function stubAuthRestore(page: Page) {
 }
 
 test.describe('Full check smoke @smoke', () => {
-  test('auth login redirects user to profile settings when profile is missing', async ({
-    page,
-  }) => {
+  test('auth login redirects user to profile when profile is missing', async ({ page }) => {
     let profileCallCount = 0
 
     await page.route(apiPath('/v1/auth/login'), route => json(route, { accessToken: ACCESS_TOKEN }))
@@ -92,10 +108,46 @@ test.describe('Full check smoke @smoke', () => {
 
     await page.goto('/auth/login')
     await page.getByLabel('Email').fill('qa@ictroot.uk')
+    await page.keyboard.press('Tab')
     await page.locator('input[name="password"]').fill('QaPassword123!')
-    await page.getByRole('button', { name: 'Sign In' }).click()
+    await page.keyboard.press('Tab')
 
-    await expect(page).toHaveURL(/\/profile\/1\/settings\/general/)
+    const signInButton = page.getByRole('button', { name: 'Sign In' })
+
+    await expect(signInButton).toBeEnabled()
+    await signInButton.click()
+
+    await expect(page).toHaveURL(/\/profile\/1(?:\?.*)?$/)
+  })
+
+  test('auth restore falls back to /update-tokens when /update is unavailable', async ({
+    page,
+  }) => {
+    let primaryRefreshCallCount = 0
+    let fallbackRefreshCallCount = 0
+
+    await page.route(apiPath('/v1/auth/update'), route => {
+      primaryRefreshCallCount += 1
+
+      return route.fulfill({
+        status: 404,
+        contentType: 'application/json',
+        body: '{}',
+      })
+    })
+    await page.route(apiPath('/v1/auth/update-tokens'), route => {
+      fallbackRefreshCallCount += 1
+
+      return json(route, { accessToken: ACCESS_TOKEN })
+    })
+    await page.route(apiPath('/v1/auth/me'), route => json(route, defaultMe))
+    await stubCountries(page)
+
+    await page.goto('/search')
+
+    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible()
+    expect(primaryRefreshCallCount).toBeGreaterThan(0)
+    expect(fallbackRefreshCallCount).toBeGreaterThan(0)
   })
 
   test('logout shows confirmation and redirects to login after Yes', async ({ page }) => {
