@@ -190,7 +190,7 @@
       "contractGroupIds": ["posts-crud"],
       "contractItemIds": ["POSTS-UC1-UPLOAD-CONSTRAINTS", "POSTS-UC1-PUBLISH-DESCRIPTION-LIMIT"],
       "evidenceTests": ["tests/contracts/posts-and-rendering.contract.test.ts"],
-      "notes": "Upload constraints, crop limits and publish description are locked and covered by contract tests."
+      "notes": "Upload constraints (JPEG/PNG, <=20MB, up to 10 files), crop limits, and optional publish description (max 500) are locked and covered by contract tests."
     },
     {
       "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",
@@ -209,7 +209,7 @@
       "contractGroupIds": ["posts-crud"],
       "contractItemIds": ["POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS"],
       "evidenceTests": ["tests/contracts/posts-and-rendering.contract.test.ts"],
-      "notes": "Delete post confirmation behavior is locked."
+      "notes": "Delete post confirmation behavior is locked, including post modal close on successful delete to avoid stale 404 modal state."
     },
     {
       "sourceId": "TZ-CRUD-POSTS-UPLOAD-PHOTO",

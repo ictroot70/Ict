@@ -109,6 +109,9 @@ export const ProfilePosts: React.FC<Props> = ({
     handleDeletePost,
   } = useDeletePostLogic(userId, {
     enabled: isOwnProfile,
+    onDeleted: () => {
+      handleClosePost()
+    },
   })
 
   const syncUrlWithoutNavigation = useCallback((url: string, mode: 'push' | 'replace') => {
@@ -205,7 +208,7 @@ export const ProfilePosts: React.FC<Props> = ({
         <>
           <PostModal
             key={currentPostIdNumber}
-            open={isPostModalOpen}
+            open={isPostModalOpen && !isDeleteModalOpen}
             onClose={handleClosePost}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
             onDeletePost={isOwnProfile ? handleDeletePost : undefined}

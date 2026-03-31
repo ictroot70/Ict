@@ -115,28 +115,32 @@
           "status": "locked",
           "sourceFiles": [
             "src/features/posts/hooks/useImageDropzone.ts",
+            "src/features/posts/hooks/useBackgroundUpload.ts",
             "src/features/posts/ui/steps/CropStep/CropStep.tsx"
           ],
           "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         },
         {
           "id": "POSTS-UC1-PUBLISH-DESCRIPTION-LIMIT",
-          "title": "Publish description max length 500",
+          "title": "Publish/edit description is optional with max length 500",
           "status": "locked",
           "sourceFiles": [
             "src/features/posts/ui/steps/PublishStep.tsx",
-            "src/entities/posts/ui/PostModal/EditMode/EditMode.tsx"
+            "src/entities/posts/ui/PostModal/EditMode/EditMode.tsx",
+            "src/entities/posts/ui/PostModal/PostModal.tsx"
           ],
           "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         },
         {
           "id": "POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS",
-          "title": "Edit/delete/close modals preserve expected prompts",
+          "title": "Edit/delete confirmations preserve expected prompts and close post modal after successful delete",
           "status": "locked",
           "sourceFiles": [
             "src/features/posts/ui/CreatePostForm.tsx",
             "src/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal.tsx",
-            "src/entities/posts/ui/PostModal/EditMode/ExitConfirmationModal/ExitConfirmationModal.tsx"
+            "src/entities/posts/ui/PostModal/EditMode/ExitConfirmationModal/ExitConfirmationModal.tsx",
+            "src/entities/posts/hooks/useDeletePostLogic.ts",
+            "src/entities/profile/ui/Profile/ProfilePosts/ProfilePosts.tsx"
           ],
           "contractTests": ["tests/contracts/posts-and-rendering.contract.test.ts"]
         }

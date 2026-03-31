@@ -115,14 +115,14 @@ export const toUploadUserMessage = (
   if (containsMessage(FILE_SIZE_TOO_LARGE_MESSAGE)) {
     return {
       action: 'back',
-      userMessage: 'Один из файлов превышает допустимый размер (10MB). Выберите другой файл.',
+      userMessage: 'Один из файлов превышает допустимый размер (20MB). Выберите другой файл.',
     }
   }
 
   if (containsMessage(FILE_FORMAT_INCORRECT_MESSAGE)) {
     return {
       action: 'back',
-      userMessage: 'Неподдерживаемый формат файла. Используйте JPG, PNG или WEBP.',
+      userMessage: 'Неподдерживаемый формат файла. Используйте JPG или PNG.',
     }
   }
 
