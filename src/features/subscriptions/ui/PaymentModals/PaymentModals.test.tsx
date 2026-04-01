@@ -37,7 +37,7 @@ vi.mock('@/shared/ui', () => ({
     disabled?: boolean
     onClick?: () => void
   }) => (
-    <button disabled={disabled} onClick={onClick}>
+    <button type={'button'} disabled={disabled} onClick={onClick}>
       {children}
     </button>
   ),
@@ -65,9 +65,11 @@ vi.mock('@/shared/ui', () => ({
 describe('PaymentModals (T6)', () => {
   it('Confirm modal: "I agree" toggles OK enabled/disabled', () => {
     const onConfirm = vi.fn()
+
     render(<AutoRenewModal open onClose={vi.fn()} onConfirm={onConfirm} isSubmitting={false} />)
 
     const okButton = screen.getByRole('button', { name: 'OK' }) as HTMLButtonElement
+
     expect(okButton.disabled).toBe(true)
 
     fireEvent.click(screen.getByLabelText('I agree'))
@@ -76,6 +78,7 @@ describe('PaymentModals (T6)', () => {
 
   it('Success modal: clicking OK closes the modal', () => {
     const onClose = vi.fn()
+
     render(<PaymentSuccessModal open onClose={onClose} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'OK' }))
@@ -84,6 +87,7 @@ describe('PaymentModals (T6)', () => {
 
   it('Error modal: "Back to payment" triggers callback', () => {
     const onBackToPayment = vi.fn()
+
     render(<PaymentFailureModal open onClose={vi.fn()} onBackToPayment={onBackToPayment} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to payment' }))

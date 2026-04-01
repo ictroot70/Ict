@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { usePaymentFlow } from '@/features/subscriptions/hooks'
+import { usePaymentFlow } from './usePaymentFlow'
 
 type AccountModal = null | 'auto' | 'success' | 'failure'
 
