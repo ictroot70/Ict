@@ -42,7 +42,7 @@ main {
   justify-content: center;
 
   max-width: 1220px;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 62px);
   margin: 60px auto 0;
   padding: 0 2rem;
 }
