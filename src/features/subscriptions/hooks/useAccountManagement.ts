@@ -2,54 +2,38 @@
 
 import { useEffect, useState } from 'react'
 
-import { useCreateSubscriptionMutation } from '@/features/subscriptions'
-import { APP_ROUTES } from '@/shared/constant'
-import { PaymentType, SubscriptionType } from '@/shared/types'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { usePaymentFlow } from '@/features/subscriptions/hooks'
+
+type AccountModal = null | 'auto' | 'success' | 'failure'
 
 export function useAccountManagement() {
-  const [modal, setModal] = useState<null | 'auto' | 'success' | 'failure'>(null)
-  const [createSubscription, { isLoading: isSubmitting }] = useCreateSubscriptionMutation()
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const params = useParams<{ id: string }>()
-  const accountPath = APP_ROUTES.PROFILE.ACCOUNT(Number(params.id))
+  const [modal, setModal] = useState<AccountModal>(null)
+  const { flowStatus, flowErrorCode, isStarting, startPayment, resetFlow } = usePaymentFlow()
 
   useEffect(() => {
-    const status = searchParams.get('success')
-
-    if (status === 'true') {
+    if (flowStatus === 'success') {
       setModal('success')
     }
-    if (status === 'false') {
+    if (flowStatus === 'failure') {
       setModal('failure')
     }
-  }, [searchParams])
+  }, [flowStatus])
 
   const confirmAutoRenew = async () => {
-    if (isSubmitting) {
-      return
-    }
-    try {
-      const result = await createSubscription({
-        typeSubscription: SubscriptionType.DAY,
-        paymentType: PaymentType.STRIPE,
-        amount: 10,
-        baseUrl: `${window.location.origin}${accountPath}`,
-      }).unwrap()
-
-      window.location.href = result.url
-    } catch {
-      setModal('failure')
-    }
+    await startPayment()
   }
 
   const closeModal = () => {
     setModal(null)
-    if (searchParams.get('success')) {
-      router.replace(accountPath)
-    }
+    resetFlow()
   }
 
-  return { modal, setModal, confirmAutoRenew, isSubmitting, closeModal }
+  return {
+    modal,
+    setModal,
+    confirmAutoRenew,
+    closeModal,
+    isSubmitting: isStarting,
+    flowErrorCode,
+  }
 }
