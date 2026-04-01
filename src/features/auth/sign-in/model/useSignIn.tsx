@@ -23,7 +23,7 @@ export const useSignIn = (
       email: '',
       password: '',
     },
-    mode: 'onTouched',
+    mode: 'onChange',
     reValidateMode: 'onChange',
     resolver: zodResolver(signInSchema),
   })

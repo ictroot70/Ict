@@ -52,11 +52,11 @@ export function Public({ postsData }: Props) {
 
   const dataForRender = data || publicPostsFromCache || postsData
 
-  if (isLoading) {
+  if (isLoading && !dataForRender) {
     return <Loading />
   }
 
-  if (isError) {
+  if (isError && !dataForRender) {
     return <div>Something went wrong</div>
   }
 

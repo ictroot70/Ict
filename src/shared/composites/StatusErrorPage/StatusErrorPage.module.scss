@@ -18,7 +18,13 @@
   border: 1px solid rgb(93 131 235 / 24%);
 
   background:
-    radial-gradient(circle at 50% 44%, rgb(110 177 255 / 42%) 0%, rgb(27 65 165 / 80%) 37%, #0f1b43 68%, #0a102a 100%),
+    radial-gradient(
+      circle at 50% 44%,
+      rgb(110 177 255 / 42%) 0%,
+      rgb(27 65 165 / 80%) 37%,
+      #0f1b43 68%,
+      #0a102a 100%
+    ),
     linear-gradient(145deg, #1a274f 0%, #101939 57%, #0a102a 100%);
 
   box-shadow:
@@ -50,8 +56,19 @@
   transform: translateX(-50%);
 
   background:
-    radial-gradient(circle at 50% 0%, rgb(131 207 255 / 96%) 0%, rgb(92 171 255 / 44%) 22%, rgb(42 122 255 / 18%) 52%, transparent 72%),
-    radial-gradient(ellipse at center, rgb(84 149 255 / 72%) 0%, rgb(20 66 179 / 16%) 64%, transparent 84%);
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(131 207 255 / 96%) 0%,
+      rgb(92 171 255 / 44%) 22%,
+      rgb(42 122 255 / 18%) 52%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse at center,
+      rgb(84 149 255 / 72%) 0%,
+      rgb(20 66 179 / 16%) 64%,
+      transparent 84%
+    );
   filter: blur(2px);
   z-index: -1;
 }

@@ -107,14 +107,12 @@ test.describe('Full check smoke @smoke', () => {
     await stubCountries(page)
 
     await page.goto('/auth/login')
-    await page.getByLabel('Email').fill('qa@ictroot.uk')
-    await page.keyboard.press('Tab')
-    await page.locator('input[name="password"]').fill('QaPassword123!')
-    await page.keyboard.press('Tab')
+    await page.locator('#email').fill('qa@ictroot.uk')
+    await page.locator('#password').fill('QaPassword123!')
 
     const signInButton = page.getByRole('button', { name: 'Sign In' })
 
-    await expect(signInButton).toBeEnabled()
+    await expect(signInButton).toBeEnabled({ timeout: 5000 })
     await signInButton.click()
 
     await expect(page).toHaveURL(/\/profile\/1(?:\?.*)?$/)

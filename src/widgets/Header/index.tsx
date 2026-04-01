@@ -1,17 +1,12 @@
 'use client'
-import { lazy, ReactElement, Suspense } from 'react'
+import { ReactElement } from 'react'
 
 import { APP_ROUTES } from '@/shared/constant'
 import { Header, Typography } from '@/shared/ui'
+import { HeaderControls } from '@/widgets/Header/components/HeaderControls/HeaderControls'
 import Link from 'next/link'
 
 import s from './AppHeader.module.scss'
-
-const HeaderControls = lazy(() =>
-  import('@/widgets/Header/components/HeaderControls/HeaderControls').then(module => ({
-    default: module.HeaderControls,
-  }))
-)
 
 export const AppHeader = (): ReactElement => {
   return (
@@ -21,9 +16,7 @@ export const AppHeader = (): ReactElement => {
           <Typography variant={'h1'}>ICTRoot</Typography>
         </Link>
         <div className={s.header__controls}>
-          <Suspense fallback={null}>
-            <HeaderControls />
-          </Suspense>
+          <HeaderControls />
         </div>
       </div>
     </Header>

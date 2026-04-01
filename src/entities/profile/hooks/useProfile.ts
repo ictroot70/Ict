@@ -26,7 +26,7 @@ export const useProfile = (
   profileDataServer: PublicProfileData,
   postsDataServer: PaginatedPosts
 ) => {
-  const [isHydrated, setIsHydrated] = useState(false)
+  // const [isHydrated, setIsHydrated] = useState(false)
   const { id } = useParams<{ id: string }>()
   const userId = Number(id)
   const router = useRouter()
@@ -49,9 +49,9 @@ export const useProfile = (
   })
   const { hasAuthHint, authUserIdHint } = useAuthSessionHintContext()
 
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
+  // useEffect(() => {
+  //   setIsHydrated(true)
+  // }, [])
 
   useInitializeProfile({
     userId,
@@ -117,12 +117,13 @@ export const useProfile = (
     typeof meQueryState.data.userId === 'number'
       ? meQueryState.data.userId
       : null
-  const isAuthenticatedUi = isHydrated && isAuthenticated
+
+  const isAuthenticatedUi = isAuthenticated
   const isAuthResolving =
     hasAuthHint &&
     !isAuthenticatedUi &&
     (!meQueryState || meQueryState.status === 'pending' || meQueryState.status === 'uninitialized')
-  const shouldShowAuthActionSkeleton = isHydrated && !isAuthenticatedUi && isAuthResolving
+  const shouldShowAuthActionSkeleton = !isAuthenticatedUi && isAuthResolving
   const isOwnProfile = isAuthenticatedUi && profile.id === (meUserId ?? authUserIdHint)
   const authActionSkeletonVariant: 'single' | 'double' =
     authUserIdHint === profile.id ? 'single' : 'double'

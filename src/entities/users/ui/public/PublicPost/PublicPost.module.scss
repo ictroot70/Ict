@@ -7,12 +7,9 @@
 
   &__media {
     position: relative;
-    flex-grow: 1;
+    flex-shrink: 0;
     width: 100%;
-    height: auto;
-    min-height: 120px;
-    max-height: 240px;
-    transition: max-height 0.3s ease;
+    height: 240px;
     overflow: hidden;
   }
 

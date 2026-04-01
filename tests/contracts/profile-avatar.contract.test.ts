@@ -42,6 +42,34 @@ describe('PROFILE-UC1-FORM-VALIDATION', () => {
     }
   })
 
+  it('rejects username with unsupported symbols', () => {
+    const result = editProfileSchema.safeParse({
+      userName: 'user!@#',
+      firstName: 'John',
+      lastName: 'Doe',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(findIssueMessage(result.error.issues, 'userName')).toBe(
+        'Username can contain only letters, numbers, _ and -'
+      )
+    }
+  })
+
+  it('rejects first name longer than 50 chars', () => {
+    const result = editProfileSchema.safeParse({
+      userName: 'valid_user',
+      firstName: 'a'.repeat(51),
+      lastName: 'Doe',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(findIssueMessage(result.error.issues, 'firstName')).toBe('Max length is 50 symbols')
+    }
+  })
+
   it('rejects about me longer than 200 characters', () => {
     const result = editProfileSchema.safeParse({
       userName: 'valid_user',
@@ -72,6 +100,41 @@ describe('PROFILE-UC1-FORM-VALIDATION', () => {
     if (!result.success) {
       expect(findIssueMessage(result.error.issues, 'date_of_birth')).toBe('too_young')
     }
+  })
+})
+
+describe('PROFILE-SWAGGER-API-CONTRACT', () => {
+  it('keeps profile endpoints map aligned with swagger', () => {
+    const source = readSource('src/shared/api/api-routes.ts')
+
+    expect(source).toContain("GET: '/v1/users/profile'")
+    expect(source).toContain("UPDATE: '/v1/users/profile'")
+    expect(source).toContain("DELETE: '/v1/users/profile'")
+    expect(source).toContain("UPLOAD_AVATAR: '/v1/users/profile/avatar'")
+    expect(source).toContain("DELETE_AVATAR: '/v1/users/profile/avatar'")
+    expect(source).toContain('DELETE_BY_ID: (id: number) => `/v1/users/profile/${id}`')
+  })
+
+  it('keeps profile API methods and avatar operations aligned with swagger', () => {
+    const source = readSource('src/entities/profile/api/profileApi.ts')
+
+    expect(source).toContain('url: API_ROUTES.PROFILE.GET')
+    expect(source).toContain("method: 'PUT'")
+    expect(source).toContain('url: API_ROUTES.PROFILE.UPDATE')
+    expect(source).toContain("method: 'DELETE'")
+    expect(source).toContain('url: API_ROUTES.PROFILE.DELETE')
+    expect(source).toContain("method: 'POST'")
+    expect(source).toContain('url: API_ROUTES.PROFILE.UPLOAD_AVATAR')
+    expect(source).toContain('url: API_ROUTES.PROFILE.DELETE_AVATAR')
+  })
+
+  it('keeps dateOfBirth mapping for update profile payload as ISO datetime or null', () => {
+    const source = readSource('src/features/profile/edit-profile/lib/formDataMappers.ts')
+
+    expect(source).toContain('dateOfBirth: string | null')
+    expect(source).toContain('data.date_of_birth instanceof Date')
+    expect(source).toContain('data.date_of_birth.toISOString()')
+    expect(source).toContain(': null')
   })
 })
 

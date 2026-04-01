@@ -89,6 +89,36 @@ describe('POSTS-UC2-UC3-EDIT-DELETE-CONFIRMATIONS', () => {
     expect(profilePostsSource).toContain('handleClosePost()')
     expect(profilePostsSource).toContain('open={isPostModalOpen && !isDeleteModalOpen}')
   })
+
+  it('keeps own-post actions menu with edit/delete entries', () => {
+    const actionsSource = readSource('src/entities/posts/ui/PostModal/PostActions/PostActions.tsx')
+
+    expect(actionsSource).toContain("label: 'Edit Post'")
+    expect(actionsSource).toContain("label: 'Delete Post'")
+    expect(actionsSource).toContain("variant === 'myPost'")
+  })
+
+  it('keeps delete confirmation modal title, text and Yes/No actions', () => {
+    const deleteModalSource = readSource(
+      'src/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal.tsx'
+    )
+
+    expect(deleteModalSource).toContain("modalTitle={'Delete Post'}")
+    expect(deleteModalSource).toContain('Are you sure you want to delete this post?')
+    expect(deleteModalSource).toContain("{isLoading ? 'Deleting...' : 'Yes'}")
+    expect(deleteModalSource).toContain('No')
+  })
+
+  it('keeps edit flow sending description update via postId mutation', () => {
+    const editLogicSource = readSource('src/entities/posts/hooks/useEditPostLogic.ts')
+    const postModalSource = readSource('src/entities/posts/ui/PostModal/PostModal.tsx')
+
+    expect(editLogicSource).toContain('await updatePost({')
+    expect(editLogicSource).toContain('postId: parseInt(postId)')
+    expect(editLogicSource).toContain('description: newDescription')
+    expect(postModalSource).toContain('const trimmed = newDescription.trim()')
+    expect(postModalSource).toContain('const updated = await onEditPost(postData.postId, trimmed)')
+  })
 })
 
 describe('MAIN-UC1-PUBLIC-FEED-FOUR-POSTS', () => {
@@ -131,5 +161,15 @@ describe('SSR-UC1/UC2 PROFILE', () => {
     expect(source).toContain('post.images.length > 1')
     expect(source).toContain('<Carousel slides={post.images} imageSizes={IMAGE_SIZES.POST_CARD} />')
     expect(source).toContain("if (target.closest('button'))")
+  })
+
+  it('keeps close-post routing behavior for home/profile/direct sources', () => {
+    const source = readSource('src/entities/profile/ui/Profile/ProfilePosts/ProfilePosts.tsx')
+
+    expect(source).toContain("if (modalSource === 'home')")
+    expect(source).toContain('router.replace(APP_ROUTES.ROOT, { scroll: false })')
+    expect(source).toContain("params.delete('postId')")
+    expect(source).toContain("params.delete('from')")
+    expect(source).toContain('const profileUrl = APP_ROUTES.PROFILE.ID(userId)')
   })
 })
