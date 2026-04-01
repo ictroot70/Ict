@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 import { Card, Typography, Button } from '@/shared/ui'
 
 import styles from './SubscriptionPricing.module.scss'
 
 import { SubscriptionPlan } from '../model/types'
-import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
 interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
@@ -24,7 +24,7 @@ export function SubscriptionPricing({
   onPlanChange,
   onPayPalClick,
   onStripeClick,
-  isPaymentLocked = false
+  isPaymentLocked = false,
 }: SubscriptionPricingProps) {
   const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
     externalSelectedPlan || plans[0]?.value || 'month'
@@ -36,9 +36,8 @@ export function SubscriptionPricing({
     }
   }, [externalSelectedPlan])
 
-  const selectedPlanValue = externalSelectedPlan !== undefined
-    ? externalSelectedPlan
-    : internalSelectedPlanValue
+  const selectedPlanValue =
+    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
 
   const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
 
@@ -80,8 +79,9 @@ export function SubscriptionPricing({
                 role={'button'}
                 tabIndex={0}
                 onKeyDown={e => {
-                  { selectedPlanValue === plan.value && <div /> }
-
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handlePlanChange(plan.value)
+                  }
                 }}
               >
                 <div className={styles.planRadio}>

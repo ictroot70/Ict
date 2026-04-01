@@ -40,9 +40,12 @@ export const mapPricingToPlans = (data: GetPricingResponseDto): SubscriptionPlan
 
 const getPeriodFromType = (type: string): string => {
   switch (type) {
-    case 'DAY': return 'day'
-    case 'WEEKLY': return 'week'
+    case 'DAY':
+      return 'day'
+    case 'WEEKLY':
+      return 'week'
     case 'MONTHLY':
-    default: return 'month'
+    default:
+      return 'month'
   }
 }

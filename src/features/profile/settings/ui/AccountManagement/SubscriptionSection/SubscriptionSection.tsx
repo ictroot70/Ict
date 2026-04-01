@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react'
 
+import { UISubscription } from '@/features/profile/settings/model/types'
 import {
   useCancelAutoRenewalMutation,
   useRenewAutoRenewalMutation,
 } from '@/features/subscriptions/api'
-
-import { UISubscription } from '@/features/profile/settings/model/types'
 import { Card, CheckboxRadix, Typography } from '@/shared/ui'
 
 import styles from './SubscriptionSection.module.scss'
 
-const MOCK_MODE = true  // ← Определите здесь!
-
+const MOCK_MODE = true
 
 interface Props {
   subscription?: UISubscription
@@ -24,19 +22,11 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
   const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? false)
   const [isUpdating, setIsUpdating] = useState(false)
 
-  // useEffect(() => {
-  //   if (subscription?.autoRenewal !== undefined) {
-  //     setAutoRenewal(subscription.autoRenewal)
-  //   }
-  // }, [subscription?.autoRenewal])
-
   useEffect(() => {
-    // ✅ Синхронизируем только для реальных данных (не для моков)
     if (!MOCK_MODE && subscription?.autoRenewal !== undefined) {
       setAutoRenewal(subscription.autoRenewal)
     }
-  }, [subscription?.autoRenewal, MOCK_MODE])  // ← Добавили MOCK_MODE в зависимости
-
+  }, [subscription?.autoRenewal, MOCK_MODE])
 
   if (!subscription) {
     return (
@@ -54,7 +44,9 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
   }
 
   const handleAutoRenewalChange = async (checked: boolean) => {
-    if (isUpdating) return
+    if (isUpdating) {
+      return
+    }
 
     setIsUpdating(true)
 

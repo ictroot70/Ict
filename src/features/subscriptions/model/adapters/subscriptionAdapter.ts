@@ -1,7 +1,7 @@
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 import { GetCurrentSubscriptionResponseDto } from '@/shared/types'
 
 import { Subscription } from '../types'
-import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
 export const mapSubscriptionData = (data: GetCurrentSubscriptionResponseDto): Subscription[] => {
   return data.data.map(sub => ({
@@ -13,13 +13,15 @@ export const mapSubscriptionData = (data: GetCurrentSubscriptionResponseDto): Su
   }))
 }
 
-
-
 const mapTypeDescriptionToValue = (type: string): SubscriptionPlanValue => {
   switch (type) {
-    case 'DAILY': return '1day'
-    case 'WEEKLY': return '7day'
-    case 'MONTHLY': return 'month'
-    default: return 'month'
+    case 'DAILY':
+      return '1day'
+    case 'WEEKLY':
+      return '7day'
+    case 'MONTHLY':
+      return 'month'
+    default:
+      return 'month'
   }
 }
