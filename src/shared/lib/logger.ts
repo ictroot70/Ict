@@ -1,3 +1,6 @@
+/* eslint-disable no-console */
+import { captureMonitoringError, captureMonitoringWarning } from './monitoring/sentryTransport'
+
 /**
  * Simple logger to control the output to the console
  *
@@ -24,10 +27,13 @@ export const logger = {
     if (isDev) {
       console.warn(...args)
     }
+
+    captureMonitoringWarning(args)
   },
 
   error: (...args: unknown[]) => {
     console.error(...args)
+    captureMonitoringError(args)
   },
 
   info: (...args: unknown[]) => {

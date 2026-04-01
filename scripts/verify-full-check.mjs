@@ -11,6 +11,16 @@ const SHOULD_SKIP_CI = process.env.VERIFY_FULL_SKIP_CI === '1'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+async function isServerReachable(url) {
+  try {
+    const response = await fetch(url)
+
+    return response.ok || response.status === 404
+  } catch {
+    return false
+  }
+}
+
 function runCommand(command, args, env = process.env) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -60,18 +70,18 @@ async function waitForServer(url, getServerState) {
     const serverState = getServerState?.()
 
     if (serverState?.exited) {
+      if (await isServerReachable(url)) {
+        return
+      }
+
       throw new Error(
         `Server process exited before readiness check completed (code: ${serverState.code ?? 'unknown'})`
       )
     }
 
-    try {
-      const response = await fetch(url)
-
-      if (response.ok || response.status === 404) {
-        return
-      }
-    } catch {}
+    if (await isServerReachable(url)) {
+      return
+    }
 
     await sleep(1000)
   }
@@ -98,18 +108,25 @@ async function run() {
     code: null,
   }
 
-  const server = spawn('pnpm', ['start', '--hostname', host, '--port', port], {
-    env: process.env,
-    stdio: 'inherit',
-  })
-
-  server.on('close', code => {
-    serverState.exited = true
-    serverState.code = code
-  })
+  let server = null
+  const hasReachableServer = await isServerReachable(APP_BASE_URL)
 
   try {
-    await waitForServer(APP_BASE_URL, () => serverState)
+    if (hasReachableServer) {
+      console.log(`[verify:full] Reusing existing server at ${APP_BASE_URL}`)
+    } else {
+      server = spawn('pnpm', ['start', '--hostname', host, '--port', port], {
+        env: process.env,
+        stdio: 'inherit',
+      })
+
+      server.on('close', code => {
+        serverState.exited = true
+        serverState.code = code
+      })
+
+      await waitForServer(APP_BASE_URL, () => serverState)
+    }
 
     await runCommand('pnpm', ['run', 'test:e2e:smoke'], {
       ...process.env,
@@ -141,7 +158,7 @@ async function run() {
       )
     }
   } finally {
-    if (!server.killed) {
+    if (server && !server.killed) {
       server.kill('SIGTERM')
       await sleep(1000)
 
