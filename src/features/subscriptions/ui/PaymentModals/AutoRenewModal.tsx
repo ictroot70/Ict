@@ -1,6 +1,5 @@
 'use client'
-
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button, CheckboxRadix, Modal, Typography } from '@/shared/ui'
 import { useTranslations } from 'next-intl'

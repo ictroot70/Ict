@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { Button, Modal, Typography } from '@/shared/ui'
 import { useTranslations } from 'next-intl'
 
