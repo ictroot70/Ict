@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 
-import { usePaymentFlow } from './usePaymentFlow'
+import { AccountModal } from '@/features/subscriptions/model'
 
-type AccountModal = null | 'auto' | 'success' | 'failure'
+import { usePaymentFlow } from './usePaymentFlow'
 
 export function useAccountManagement() {
   const [modal, setModal] = useState<AccountModal>(null)

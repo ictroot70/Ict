@@ -3,20 +3,12 @@
 import { useEffect, useState } from 'react'
 
 import { useCreateSubscriptionMutation } from '@/features/subscriptions'
+import { PaymentFlowState, PaymentFlowStatus } from '@/features/subscriptions/model'
 import { APP_ROUTES } from '@/shared/constant'
 import { PaymentType, SubscriptionType } from '@/shared/types'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
-export type PaymentFlowStatus = 'idle' | 'success' | 'failure'
-
-export interface UsePaymentFlowResult {
-  flowStatus: PaymentFlowStatus
-  flowErrorCode: null | string
-  isStarting: boolean
-  startPayment: () => Promise<void>
-  resetFlow: () => void
-}
-export function usePaymentFlow(): UsePaymentFlowResult {
+export function usePaymentFlow(): PaymentFlowState {
   const [flowStatus, setFlowStatus] = useState<PaymentFlowStatus>('idle')
   const [flowErrorCode, setFlowErrorCode] = useState<null | string>(null)
 
