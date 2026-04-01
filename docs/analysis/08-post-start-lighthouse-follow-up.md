@@ -8,19 +8,21 @@
 После запуска в production-режиме выполнены дополнительные ручные замеры для проверки «чистого» сигнала (без dev-bundle и hot-reload искажений).
 
 Проверенные URL:
+
 - `http://localhost:3000/`
 - `http://localhost:3000/profile/71?postId=1737&from=profile`
 - `http://localhost:3000/profile/71?action=create`
 
 ## 2) Результаты (сводно)
 
-| URL | Perf | A11y | BP | SEO | FCP | LCP | TBT | CLS |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `/` | 100 | 94 | 96 | 100 | 0.3s | 0.6s | 0ms | 0.002 |
-| `/profile/71?postId=1737&from=profile` | 97 | 90 | 96 | 100 | 0.4s | 1.1s | 0ms | 0.048 |
-| `/profile/71?action=create` | 96 | 90 | 96 | 100 | 0.3s | 0.9s | 0ms | 0.047 |
+| URL                                    | Perf | A11y |  BP | SEO |  FCP |  LCP | TBT |   CLS |
+| -------------------------------------- | ---: | ---: | --: | --: | ---: | ---: | --: | ----: |
+| `/`                                    |  100 |   94 |  96 | 100 | 0.3s | 0.6s | 0ms | 0.002 |
+| `/profile/71?postId=1737&from=profile` |   97 |   90 |  96 | 100 | 0.4s | 1.1s | 0ms | 0.048 |
+| `/profile/71?action=create`            |   96 |   90 |  96 | 100 | 0.3s | 0.9s | 0ms | 0.047 |
 
 Вывод:
+
 - perf-профиль после оптимизаций стабильно высокий (`96-100`), `TBT = 0ms` на всех трёх сценариях;
 - остаются локальные улучшения по `CLS` и `Accessibility`.
 
@@ -42,17 +44,17 @@
 ## 3.3 Accessibility: missing accessible names
 
 1. Header language select trigger (кнопка без имени)  
-Точка использования: [LanguageSelect.tsx](/Users/sem/inkubator/stz/instagramm/src/widgets/Header/components/LanguageSelect/LanguageSelect.tsx:29)
+   Точка использования: [LanguageSelect.tsx](/Users/sem/inkubator/stz/instagramm/src/widgets/Header/components/LanguageSelect/LanguageSelect.tsx:29)
 
 2. ViewMode action icon buttons без `aria-label`  
-Точка: [ViewModePostFooter.tsx](/Users/sem/inkubator/stz/instagramm/src/entities/posts/ui/PostModal/ViewMode/ViewModePostFooter/ViewModePostFooter.tsx:58)
+   Точка: [ViewModePostFooter.tsx](/Users/sem/inkubator/stz/instagramm/src/entities/posts/ui/PostModal/ViewMode/ViewModePostFooter/ViewModePostFooter.tsx:58)
 
 3. Outside close button в modal (`closeBtnOutside`)  
-Точка интеграции: [PostModal.tsx](/Users/sem/inkubator/stz/instagramm/src/entities/posts/ui/PostModal/PostModal.tsx:119)  
-Примечание: корневой control рендерится внутри `@ictroot/ui-kit`, вероятен package-level fix.
+   Точка интеграции: [PostModal.tsx](/Users/sem/inkubator/stz/instagramm/src/entities/posts/ui/PostModal/PostModal.tsx:119)  
+   Примечание: корневой control рендерится внутри `@ictroot/ui-kit`, вероятен package-level fix.
 
 4. Hidden file input без явной label association  
-Точка: [UploadArea.tsx](/Users/sem/inkubator/stz/instagramm/src/shared/composites/UploadArea/UploadArea.tsx:44)
+   Точка: [UploadArea.tsx](/Users/sem/inkubator/stz/instagramm/src/shared/composites/UploadArea/UploadArea.tsx:44)
 
 ## 3.4 Accessibility: low contrast в modal view/create сценариях
 

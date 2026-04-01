@@ -60,6 +60,7 @@ pnpm run hooks:install
 - Проверка консистентности трассировки: `pnpm run traceability:check`
 - `traceability:check` встроен в `verify:precommit` и `ci:check`.
 - Для каждого UC из TaskShifter должен быть:
+
 1. `mapping` на `locked` contract item(ы), или
 2. запись в `knownGaps` с явным описанием пробела.
 
