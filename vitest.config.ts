@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { defineConfig } from 'next/dist/experimental/testmode/playwright'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {

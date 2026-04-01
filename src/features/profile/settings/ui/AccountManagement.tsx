@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { PaymentType } from '@/shared/types/base/enums'
 import { CheckboxRadix } from '@/shared/ui'
 import Image from 'next/image'
-import { useSearchParams, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 import s from './AccountManagement.module.scss'
 
@@ -18,6 +18,7 @@ import {
   useRenewAutoRenewalMutation,
   useGetSubscriptionPricesQuery,
 } from '../api/subscriptionApi'
+import { usePaymentReturnFlow } from '../hooks/usePaymentReturnFlow'
 
 const SUBSCRIPTION_LABELS: Record<string, string> = {
   DAY: '1 Day',
@@ -30,10 +31,7 @@ function formatDate(iso: string) {
 }
 
 export function AccountManagement() {
-  const searchParams = useSearchParams()
   const pathname = usePathname()
-  const paymentSuccess = searchParams.get('payment') === 'success'
-
   const [selectedPlan, setSelectedPlan] = useState<PricingDetailsViewModel | null>(null)
 
   const [createSubscription, { isLoading: isCreating }] = useCreateSubscriptionMutation()
@@ -41,6 +39,16 @@ export function AccountManagement() {
   const [renewAutoRenewal, { isLoading: isRenewing }] = useRenewAutoRenewalMutation()
   const { data: subscription, refetch } = useGetCurrentSubscriptionQuery()
   const { data: prices } = useGetSubscriptionPricesQuery()
+
+  const { isPolling, flowStatus } = usePaymentReturnFlow({
+    fetchSubscriptions: async () => {
+      const result = await refetch()
+
+      return result.data?.data ?? []
+    },
+  })
+
+  const isPaymentLocked = isCreating || isPolling
 
   const serverAutoRenewal = subscription?.hasAutoRenewal ?? false
   const [autoRenewalChecked, setAutoRenewalChecked] = useState(serverAutoRenewal)
@@ -50,14 +58,6 @@ export function AccountManagement() {
   }, [serverAutoRenewal])
 
   useEffect(() => {
-    if (paymentSuccess) {
-      refetch()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // выбираем первый план по умолчанию когда данные загрузились
-  useEffect(() => {
     if (prices?.data?.length && !selectedPlan) {
       setSelectedPlan(prices.data[0])
     }
@@ -66,12 +66,9 @@ export function AccountManagement() {
   const current = subscription?.data?.[0]
 
   const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan) {
-      return
-    }
+    if (!selectedPlan || isPaymentLocked) return
     try {
-      const returnUrl = `${window.location.origin}${pathname}?payment=success`
-
+      const returnUrl = `${window.location.origin}${pathname}`
       const result = await createSubscription({
         typeSubscription: selectedPlan.typeDescription,
         paymentType,
@@ -94,7 +91,7 @@ export function AccountManagement() {
         await cancelAutoRenewal().unwrap()
       }
     } catch {
-      setAutoRenewalChecked(!checked) // rollback on error
+      setAutoRenewalChecked(!checked)
     }
   }
 
@@ -122,6 +119,9 @@ export function AccountManagement() {
         </div>
       )}
 
+      {flowStatus === 'polling' && <p>Processing payment...</p>}
+      {flowStatus === 'timeout' && <p>Payment confirmation timed out. Please refresh.</p>}
+
       <div className={s.section}>
         <span className={s.sectionTitle}>Change your subscription:</span>
         <div className={s.optionsBox}>
@@ -130,6 +130,7 @@ export function AccountManagement() {
               <input
                 checked={selectedPlan?.typeDescription === plan.typeDescription}
                 className={s.radioInput}
+                disabled={isPaymentLocked}
                 name={'plan'}
                 type={'radio'}
                 onChange={() => setSelectedPlan(plan)}
@@ -142,9 +143,9 @@ export function AccountManagement() {
 
       <div className={s.paymentButtons}>
         <button
-          type={'submit'}
           className={s.payBtn}
-          disabled={isCreating || !selectedPlan}
+          disabled={isPaymentLocked || !selectedPlan}
+          type={'button'}
           onClick={() => handlePay(PaymentType.STRIPE)}
         >
           <Image alt={'Stripe'} height={28} src={'/icons/svg/stripe.svg'} width={60} />
