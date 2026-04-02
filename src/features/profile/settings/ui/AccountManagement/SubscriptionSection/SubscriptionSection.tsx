@@ -1,12 +1,6 @@
-import React, { useState, useEffect } from 'react'
-
+import React, { useState } from 'react'
 import { UISubscription } from '@/features/profile/settings/model/types'
-import {
-  useCancelAutoRenewalMutation,
-  useRenewAutoRenewalMutation,
-} from '@/features/subscriptions/api'
 import { Card, CheckboxRadix, Typography } from '@/shared/ui'
-
 import styles from './SubscriptionSection.module.scss'
 
 interface Props {
@@ -14,17 +8,7 @@ interface Props {
 }
 
 export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
-  const [cancelAutoRenewal] = useCancelAutoRenewalMutation()
-  const [renewAutoRenewal] = useRenewAutoRenewalMutation()
-
   const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? false)
-  const [isUpdating, setIsUpdating] = useState(false)
-
-   useEffect(() => {
-    if (subscription?.autoRenewal !== undefined) {
-      setAutoRenewal(subscription.autoRenewal)
-    }
-  }, [subscription?.autoRenewal])
 
   if (!subscription) {
     return (
@@ -41,25 +25,8 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
     )
   }
 
-  const handleAutoRenewalChange = async (checked: boolean) => {
-    if (isUpdating) {
-      return
-    }
-
-    setIsUpdating(true)
-
-    try {
-      if (checked) {
-        await renewAutoRenewal().unwrap()
-      } else {
-        await cancelAutoRenewal().unwrap()
-      }
-      setAutoRenewal(checked)
-    } catch (error) {
-      setAutoRenewal(!checked)
-    } finally {
-      setIsUpdating(false)
-    }
+  const handleAutoRenewalChange = (checked: boolean) => {
+    setAutoRenewal(checked)
   }
 
   return (
@@ -98,7 +65,6 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
           checked={autoRenewal}
           onCheckedChange={handleAutoRenewalChange}
           label={'Auto-Renewal'}
-          disabled={isUpdating}
         />
       </div>
     </section>
