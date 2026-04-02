@@ -1,4 +1,4 @@
-import { PaymentsSortBy, PaymentsSortDirection } from '@/shared/types'
+import { PaymentsSortBy, PaymentsSortDirection, CreateSubscriptionInputDto } from '@/shared/types'
 
 export type PaymentsSortState = {
   key: PaymentsSortBy | null
@@ -11,7 +11,7 @@ export type PaymentFlowState = {
   flowStatus: PaymentFlowStatus
   flowErrorCode: null | string
   isStarting: boolean
-  startPayment: () => Promise<void>
+  startPayment: (input: CreateSubscriptionInputDto) => Promise<void>
   resetFlow: () => void
 }
 

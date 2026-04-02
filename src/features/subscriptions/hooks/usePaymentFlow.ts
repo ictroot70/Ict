@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useCreateSubscriptionMutation } from '@/features/subscriptions'
 import { PaymentFlowState, PaymentFlowStatus } from '@/features/subscriptions/model'
 import { APP_ROUTES } from '@/shared/constant'
-import { PaymentType, SubscriptionType } from '@/shared/types'
+import { CreateSubscriptionInputDto } from '@/shared/types'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
 export function usePaymentFlow(): PaymentFlowState {
@@ -32,21 +32,15 @@ export function usePaymentFlow(): PaymentFlowState {
     }
   }, [searchParams])
 
-  const startPayment = async () => {
+  const startPayment = async (input: CreateSubscriptionInputDto) => {
     if (isStarting) {
       return
     }
 
     try {
-      // TODO(T2 integration): заменить временный payload на данные из выбранного плана
-      const result = await createSubscription({
-        typeSubscription: SubscriptionType.DAY,
-        paymentType: PaymentType.STRIPE,
-        amount: 10,
-        baseUrl: `${window.location.origin}${accountPath}`,
-      }).unwrap()
+      const result = await createSubscription(input).unwrap()
 
-      window.location.href = result.url
+      window.location.assign(result.url)
     } catch {
       setFlowStatus('failure')
       setFlowErrorCode('SUBSCRIPTION_CREATE_FAILED')
