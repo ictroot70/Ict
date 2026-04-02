@@ -11,6 +11,8 @@ import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
 import Script from 'next/script'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
@@ -147,6 +149,7 @@ export default async function RootLayout({
     hasAuthHint,
     authUserIdHint,
   }
+  const messages = await getMessages()
 
   return (
     <html lang={'en'} suppressHydrationWarning>
@@ -158,12 +161,14 @@ export default async function RootLayout({
           {AUTH_HINT_BOOTSTRAP_SCRIPT}
         </Script>
         <MonitoringBootstrap />
-        <StoreProvider>
-          <AuthSessionHintProvider value={initialAuthHint}>
-            <AppHeader />
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </AuthSessionHintProvider>
-        </StoreProvider>
+        <NextIntlClientProvider messages={messages}>
+          <StoreProvider>
+            <AuthSessionHintProvider value={initialAuthHint}>
+              <AppHeader />
+              <RootLayoutClient>{children}</RootLayoutClient>
+            </AuthSessionHintProvider>
+          </StoreProvider>
+        </NextIntlClientProvider>
         <ToastWrapper />
       </body>
     </html>
