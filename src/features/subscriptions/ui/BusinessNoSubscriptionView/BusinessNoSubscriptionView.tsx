@@ -1,12 +1,12 @@
-import { FC } from 'react'
-
-import { SubscriptionPlanValue, UISubscriptionPlan } from '@/features/profile/settings/model/types'
-
-import styles from './BusinessNoSubscriptionView.module.scss'
-
+import React from 'react'
+import { AccountTypeValue, SubscriptionPlanValue, UISubscriptionPlan } from '@/features/profile/settings/model/types'
+import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
+ import styles from './BusinessNoSubscriptionView.module.scss'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
 interface BusinessNoSubscriptionViewProps {
+  accountType: AccountTypeValue
+  onAccountTypeChange: (type: AccountTypeValue) => void
   plans: UISubscriptionPlan[]
   selectedPlan?: SubscriptionPlanValue
   onPlanChange?: (plan: SubscriptionPlanValue) => void
@@ -15,7 +15,9 @@ interface BusinessNoSubscriptionViewProps {
   isPaymentLocked?: boolean
 }
 
-export const BusinessNoSubscriptionView: FC<BusinessNoSubscriptionViewProps> = ({
+export const BusinessNoSubscriptionView: React.FC<BusinessNoSubscriptionViewProps> = ({
+  accountType,
+  onAccountTypeChange,
   plans,
   selectedPlan,
   onPlanChange,
@@ -25,6 +27,15 @@ export const BusinessNoSubscriptionView: FC<BusinessNoSubscriptionViewProps> = (
 }) => {
   return (
     <div className={styles.container}>
+      <AccountTypeSection
+        accountTypes={[
+          { value: 'personal', label: 'Personal' },
+          { value: 'business', label: 'Business' },
+        ]}
+        selectedType={accountType}
+        onTypeChange={onAccountTypeChange}
+      />
+
       <SubscriptionPricing
         plans={plans}
         selectedPlan={selectedPlan}

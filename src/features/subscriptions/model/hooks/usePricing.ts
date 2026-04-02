@@ -11,8 +11,6 @@ interface UsePricingReturn {
 export const usePricing = (): UsePricingReturn => {
   const { data, isLoading, refetch } = useGetPricingQuery()
 
-  console.log(data)
-
   const plans = data ? mapPricingToPlans(data) : []
 
   return { plans, isLoading, refetch }

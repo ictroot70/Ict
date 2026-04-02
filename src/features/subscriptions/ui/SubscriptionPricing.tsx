@@ -1,13 +1,9 @@
 'use client'
-
 import { useEffect, useState } from 'react'
-
-import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 import { Card, Typography, Button } from '@/shared/ui'
-
 import styles from './SubscriptionPricing.module.scss'
-
 import { SubscriptionPlan } from '../model/types'
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
 interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
@@ -36,10 +32,12 @@ export function SubscriptionPricing({
     }
   }, [externalSelectedPlan])
 
-  const selectedPlanValue =
-    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
+  const selectedPlanValue = externalSelectedPlan !== undefined
+    ? externalSelectedPlan
+    : internalSelectedPlanValue
 
   const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
+  const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
 
   const handlePlanChange = (planValue: SubscriptionPlanValue) => {
     if (onPlanChange) {
@@ -48,8 +46,6 @@ export function SubscriptionPricing({
       setInternalSelectedPlanValue(planValue)
     }
   }
-
-  const isDisabled = isPaymentLocked || !selectedPlanData
 
   if (!plans.length) {
     return (
@@ -65,7 +61,7 @@ export function SubscriptionPricing({
   return (
     <section className={styles.section}>
       <Typography variant={'h3'} className={styles.section__title}>
-        Изменить подписку:
+        Change your subscription:
       </Typography>
 
       <div className={styles.pricingList}>
@@ -111,7 +107,7 @@ export function SubscriptionPricing({
             <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
           </Button>
 
-          <span className={styles.paymentOr}>Или</span>
+          <span className={styles.paymentOr}>Or</span>
 
           <Button
             className={styles.paymentButton}

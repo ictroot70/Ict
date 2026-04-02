@@ -1,3 +1,8 @@
+import type {
+  Subscription as SubSubscription,
+  SubscriptionPlan as SubSubscriptionPlan,
+} from '@/features/subscriptions/model/types'
+
 export type AccountTypeValue = 'personal' | 'business'
 export type SubscriptionPlanValue = '1day' | '7day' | 'month'
 
@@ -12,11 +17,6 @@ export interface AccountTypeSectionProps {
   onTypeChange: (type: AccountTypeValue) => void
 }
 
-import type {
-  Subscription as SubSubscription,
-  SubscriptionPlan as SubSubscriptionPlan,
-} from '@/features/subscriptions/model/types'
-
 export interface UISubscription {
   id: string
   expireDate: string
@@ -24,7 +24,9 @@ export interface UISubscription {
   isActive: boolean
   autoRenewal?: boolean
 }
+
 export interface UISubscriptionPlan {
+  id: string
   value: SubscriptionPlanValue
   label: string
   price: string
@@ -40,6 +42,7 @@ export const mapSubscriptionToUI = (sub: SubSubscription): UISubscription => ({
 })
 
 export const mapPlanToUI = (plan: SubSubscriptionPlan): UISubscriptionPlan => ({
+  id: plan.id,
   value: plan.value,
   label: plan.label,
   price: plan.price,

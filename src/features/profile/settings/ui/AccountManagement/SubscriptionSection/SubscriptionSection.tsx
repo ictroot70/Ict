@@ -9,8 +9,6 @@ import { Card, CheckboxRadix, Typography } from '@/shared/ui'
 
 import styles from './SubscriptionSection.module.scss'
 
-const MOCK_MODE = true
-
 interface Props {
   subscription?: UISubscription
 }
@@ -22,11 +20,11 @@ export const SubscriptionSection: React.FC<Props> = ({ subscription }) => {
   const [autoRenewal, setAutoRenewal] = useState(subscription?.autoRenewal ?? false)
   const [isUpdating, setIsUpdating] = useState(false)
 
-  useEffect(() => {
-    if (!MOCK_MODE && subscription?.autoRenewal !== undefined) {
+   useEffect(() => {
+    if (subscription?.autoRenewal !== undefined) {
       setAutoRenewal(subscription.autoRenewal)
     }
-  }, [subscription?.autoRenewal, MOCK_MODE])
+  }, [subscription?.autoRenewal])
 
   if (!subscription) {
     return (
