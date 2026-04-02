@@ -16,8 +16,8 @@ import {
   useGetCurrentSubscriptionQuery,
   useCancelAutoRenewalMutation,
   useRenewAutoRenewalMutation,
-  useGetSubscriptionPricesQuery,
-} from '../api/subscriptionApi'
+  useGetPricingQuery,
+} from '@/features/subscriptions/api'
 import { usePaymentReturnFlow } from '../hooks/usePaymentReturnFlow'
 
 const SUBSCRIPTION_LABELS: Record<string, string> = {
@@ -38,7 +38,7 @@ export function AccountManagement() {
   const [cancelAutoRenewal, { isLoading: isCancelling }] = useCancelAutoRenewalMutation()
   const [renewAutoRenewal, { isLoading: isRenewing }] = useRenewAutoRenewalMutation()
   const { data: subscription, refetch } = useGetCurrentSubscriptionQuery()
-  const { data: prices } = useGetSubscriptionPricesQuery()
+  const { data: prices } = useGetPricingQuery()
 
   const { isPolling, flowStatus } = usePaymentReturnFlow({
     fetchSubscriptions: async () => {
