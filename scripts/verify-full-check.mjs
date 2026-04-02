@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
+import { createServer } from 'node:net'
 import {
   getCurrentHeadSha,
   resolveRefSha,
@@ -6,10 +7,39 @@ import {
   writeVerificationStamp,
 } from './lib/verification-stamp.mjs'
 
-const APP_BASE_URL = process.env.APP_BASE_URL || 'http://127.0.0.1:3000'
+const APP_BASE_URL = process.env.APP_BASE_URL || null
 const SHOULD_SKIP_CI = process.env.VERIFY_FULL_SKIP_CI === '1'
+const SHOULD_REUSE_REACHABLE_SERVER = process.env.VERIFY_FULL_REUSE_SERVER === '1'
+const DEFAULT_SERVER_HOST = '127.0.0.1'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+function findFreePort(host) {
+  return new Promise((resolve, reject) => {
+    const server = createServer()
+
+    server.once('error', reject)
+    server.listen(0, host, () => {
+      const address = server.address()
+
+      if (!address || typeof address === 'string') {
+        server.close(() => reject(new Error('Failed to resolve free local port')))
+
+        return
+      }
+
+      const { port } = address
+
+      server.close(error => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(port)
+        }
+      })
+    })
+  })
+}
 
 async function isServerReachable(url) {
   try {
@@ -94,12 +124,19 @@ async function run() {
   const baseRef = process.env.VERIFY_SMART_BASE_REF || 'origin/develop'
   const baseRefSha = resolveRefSha(baseRef)
   const headSha = getCurrentHeadSha()
+  let appBaseUrl = APP_BASE_URL
 
   if (!SHOULD_SKIP_CI) {
     await runCommand('pnpm', ['run', 'ci:check'])
   }
 
-  const parsedBaseUrl = new URL(APP_BASE_URL)
+  if (!appBaseUrl) {
+    const freePort = await findFreePort(DEFAULT_SERVER_HOST)
+
+    appBaseUrl = `http://${DEFAULT_SERVER_HOST}:${freePort}`
+  }
+
+  const parsedBaseUrl = new URL(appBaseUrl)
   const host = parsedBaseUrl.hostname
   const port = parsedBaseUrl.port || (parsedBaseUrl.protocol === 'https:' ? '443' : '80')
 
@@ -109,11 +146,13 @@ async function run() {
   }
 
   let server = null
-  const hasReachableServer = await isServerReachable(APP_BASE_URL)
+  const hasReachableServer = SHOULD_REUSE_REACHABLE_SERVER
+    ? await isServerReachable(appBaseUrl)
+    : false
 
   try {
     if (hasReachableServer) {
-      console.log(`[verify:full] Reusing existing server at ${APP_BASE_URL}`)
+      console.log(`[verify:full] Reusing existing server at ${appBaseUrl}`)
     } else {
       server = spawn('pnpm', ['start', '--hostname', host, '--port', port], {
         env: process.env,
@@ -125,16 +164,17 @@ async function run() {
         serverState.code = code
       })
 
-      await waitForServer(APP_BASE_URL, () => serverState)
+      await waitForServer(appBaseUrl, () => serverState)
     }
 
     await runCommand('pnpm', ['run', 'test:e2e:smoke'], {
       ...process.env,
-      APP_BASE_URL,
+      APP_BASE_URL: appBaseUrl,
+      PLAYWRIGHT_SKIP_WEBSERVER: '1',
     })
     await runCommand('pnpm', ['run', 'perf:check'], {
       ...process.env,
-      APP_BASE_URL,
+      APP_BASE_URL: appBaseUrl,
     })
 
     const stamp = writeVerificationStamp({
@@ -149,7 +189,7 @@ async function run() {
       ciCheck: SHOULD_SKIP_CI ? 'skipped' : 'passed',
       fullCheck: 'executed',
       branch,
-      appBaseUrl: APP_BASE_URL,
+      appBaseUrl,
     })
 
     if (stamp) {
