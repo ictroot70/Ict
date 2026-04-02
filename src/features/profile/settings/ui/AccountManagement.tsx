@@ -19,6 +19,8 @@ import {
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
 import { usePaymentReturnFlow } from '../hooks/usePaymentReturnFlow'
+import { paymentPending } from '../lib/paymentPending'
+import { paymentBaseline } from '../lib/paymentBaseline'
 
 const SUBSCRIPTION_LABELS: Record<string, string> = {
   DAY: '1 Day',
@@ -69,6 +71,11 @@ export function AccountManagement() {
     if (!selectedPlan || isPaymentLocked) return
     try {
       const returnUrl = `${window.location.origin}${pathname}`
+
+      // сохраняем baseline перед редиректом
+      const fresh = await refetch()
+      paymentBaseline.set(fresh.data?.data ?? [])
+
       const result = await createSubscription({
         typeSubscription: selectedPlan.typeDescription,
         paymentType,
@@ -76,8 +83,10 @@ export function AccountManagement() {
         baseUrl: returnUrl,
       }).unwrap()
 
+      paymentPending.set()
       window.location.href = result.url
     } catch (err) {
+      paymentBaseline.clear()
       console.error('[AccountManagement] createSubscription failed:', err)
     }
   }
