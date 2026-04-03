@@ -1,30 +1,32 @@
 /* @vitest-environment jsdom */
 import React from 'react'
+
+import { AccountTypeValue } from '@/features/profile/settings/model/types'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
+
 import '@testing-library/jest-dom'
 
 import { PersonalView } from './PersonalView'
-import { AccountTypeValue } from '@/features/profile/settings/model/types'
-import userEvent from '@testing-library/user-event'
 
 // ─── Мок react-i18next ─────────────────────────────────────
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) =>
-    ({
-      'account.personal': 'Personal',
-      'account.business': 'Business',
-      'personal.title': 'Personal Account',
-      'personal.description': 'You are currently using a free Personal account',
-    }[key] ?? key),
+      ({
+        'account.personal': 'Personal',
+        'account.business': 'Business',
+        'personal.title': 'Personal Account',
+        'personal.description': 'You are currently using a free Personal account',
+      })[key] ?? key,
   }),
 }))
 
 // ─── Мок UI-компонентов ────────────────────────────────────
 vi.mock('@/shared/ui', () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={className} data-testid="card">
+    <div className={className} data-testid={'card'}>
       {children}
     </div>
   ),
@@ -34,34 +36,37 @@ vi.mock('@/shared/ui', () => ({
 }))
 
 // ─── Мок AccountTypeSection ────────────────────────────────
-vi.mock('@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection', () => ({
-  AccountTypeSection: ({
-    accountTypes,
-    selectedType,
-    onTypeChange,
-  }: {
-    accountTypes: { value: string; label: string }[]
-    selectedType: string
-    onTypeChange: (value: string) => void
-  }) => (
-    <div data-testid="account-type-section">
-      {accountTypes.map(type => (
-        <label key={type.value}>
-          <input
-            type="radio"
-            name="accountType"
-            value={type.value}
-            checked={selectedType === type.value}
-            onChange={() => onTypeChange(type.value)}
-            aria-label={type.label}
-            data-testid={`radio-${type.value}`}
-          />
-          <span>{type.label}</span>
-        </label>
-      ))}
-    </div>
-  ),
-}))
+vi.mock(
+  '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection',
+  () => ({
+    AccountTypeSection: ({
+      accountTypes,
+      selectedType,
+      onTypeChange,
+    }: {
+      accountTypes: { value: string; label: string }[]
+      selectedType: string
+      onTypeChange: (value: string) => void
+    }) => (
+      <div data-testid={'account-type-section'}>
+        {accountTypes.map(type => (
+          <label key={type.value}>
+            <input
+              type={'radio'}
+              name={'accountType'}
+              value={type.value}
+              checked={selectedType === type.value}
+              onChange={() => onTypeChange(type.value)}
+              aria-label={type.label}
+              data-testid={`radio-${type.value}`}
+            />
+            <span>{type.label}</span>
+          </label>
+        ))}
+      </div>
+    ),
+  })
+)
 
 // ─── Тесты ─────────────────────────────────────────────────
 describe('PersonalView', () => {
@@ -91,6 +96,7 @@ describe('PersonalView', () => {
 
   it('calls onAccountTypeChange when switching to business', async () => {
     const user = userEvent.setup()
+
     render(<PersonalView {...defaultProps} />)
 
     await user.click(screen.getByLabelText('Business'))
@@ -101,6 +107,7 @@ describe('PersonalView', () => {
     render(<PersonalView {...defaultProps} />)
 
     const personalRadio = screen.getByTestId('radio-personal') as HTMLInputElement
+
     expect(personalRadio.checked).toBe(true)
   })
 })

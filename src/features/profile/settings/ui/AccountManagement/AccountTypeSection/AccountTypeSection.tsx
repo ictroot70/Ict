@@ -1,6 +1,8 @@
 import React from 'react'
+
 import { Card, Typography } from '@/shared/ui'
 import { RadioGroupRadix } from '@ictroot/ui-kit'
+
 import styles from './AccountTypeSection.module.scss'
 
 interface AccountTypeSectionProps {

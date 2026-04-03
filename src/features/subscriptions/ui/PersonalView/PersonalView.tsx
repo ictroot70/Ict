@@ -1,7 +1,9 @@
 import React from 'react'
+
 import { AccountTypeValue } from '@/features/profile/settings/model/types'
 import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
 import { Card, Typography } from '@/shared/ui'
+
 import styles from './PersonalView.module.scss'
 
 interface PersonalViewProps {

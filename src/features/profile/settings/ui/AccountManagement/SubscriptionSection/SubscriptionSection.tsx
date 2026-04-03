@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+
 import { UISubscription } from '@/features/profile/settings/model/types'
 import { Card, CheckboxRadix, Typography } from '@/shared/ui'
+
 import styles from './SubscriptionSection.module.scss'
 
 interface Props {

@@ -1,13 +1,15 @@
 'use client'
 import { useMemo, useState } from 'react'
+
 import { useCurrentSubscription } from '@/features/subscriptions/model/hooks/useCurrentSubscription'
 import { usePricing } from '@/features/subscriptions/model/hooks/usePricing'
 import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
-import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
-import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
 import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
+import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
 
 import styles from './AccountManagement.module.scss'
+
 import {
   AccountTypeValue,
   mapSubscriptionToUI,
@@ -57,7 +59,9 @@ export const AccountManagement = () => {
   }
 
   const handleAccountTypeChange = (type: AccountTypeValue) => {
-    if (activeSubscription && type === 'personal') return
+    if (activeSubscription && type === 'personal') {
+      return
+    }
     setSelectedAccountType(type)
   }
 

@@ -1,12 +1,14 @@
 /* @vitest-environment jsdom */
 import React from 'react'
+
+import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
+
 import '@testing-library/jest-dom'
 
 import { SubscriptionPricing } from './SubscriptionPricing'
-import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 
 // ─── Типы для моков (чтобы избежать ошибок импорта реальных типов) ──────
 interface MockSubscriptionPlan {
@@ -20,7 +22,7 @@ interface MockSubscriptionPlan {
 // ─── Моки UI-компонентов ─────────────────────────────────────
 vi.mock('@/shared/ui', () => ({
   Card: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <div className={className} data-testid="card">
+    <div className={className} data-testid={'card'}>
       {children}
     </div>
   ),
@@ -92,20 +94,24 @@ describe('SubscriptionPricing', () => {
   // ─── Логика выбора тарифа (Controlled Mode) ────────────────
   it('выделяет выбранный тариф (controlled mode)', () => {
     // Тестируем выбор второго тарифа ('7day')
-    render(<SubscriptionPricing {...defaultProps} selectedPlan="7day" />)
+    render(<SubscriptionPricing {...defaultProps} selectedPlan={'7day'} />)
 
     const weeklyRow = screen.getByText('Weekly').closest('[role="button"]')
+
     expect(weeklyRow).toHaveClass(expect.stringContaining('planRowSelected'))
 
     const monthlyRow = screen.getByText('Monthly').closest('[role="button"]')
+
     expect(monthlyRow).not.toHaveClass(expect.stringContaining('planRowSelected'))
   })
 
   it('вызывает onPlanChange при клике на другой тариф', async () => {
     const user = userEvent.setup()
+
     render(<SubscriptionPricing {...defaultProps} />)
 
     const weeklyRow = screen.getByText('Weekly').closest('[role="button"]')
+
     if (weeklyRow) {
       await user.click(weeklyRow)
       expect(defaultProps.onPlanChange).toHaveBeenCalledWith('7day') // Было 'year' -> стало '7day'
@@ -114,12 +120,14 @@ describe('SubscriptionPricing', () => {
 
   it('поддерживает выбор тарифа с клавиатуры (Enter)', async () => {
     const user = userEvent.setup()
+
     render(<SubscriptionPricing {...defaultProps} />)
 
     const weeklyRow = screen.getByText('Weekly').closest('[role="button"]')
+
     if (weeklyRow) {
       // ИСПРАВЛЕНИЕ: Явное приведение к HTMLElement для метода focus()
-      (weeklyRow as HTMLElement).focus()
+      ; (weeklyRow as HTMLElement).focus()
       await user.keyboard('{Enter}')
       expect(defaultProps.onPlanChange).toHaveBeenCalledWith('7day')
     }
@@ -127,12 +135,14 @@ describe('SubscriptionPricing', () => {
 
   it('поддерживает выбор тарифа с клавиатуры (Space)', async () => {
     const user = userEvent.setup()
+
     render(<SubscriptionPricing {...defaultProps} />)
 
     const weeklyRow = screen.getByText('Weekly').closest('[role="button"]')
+
     if (weeklyRow) {
       // ИСПРАВЛЕНИЕ: Явное приведение к HTMLElement
-      (weeklyRow as HTMLElement).focus()
+      ; (weeklyRow as HTMLElement).focus()
       await user.keyboard(' ')
       expect(defaultProps.onPlanChange).toHaveBeenCalledWith('7day')
     }
@@ -157,6 +167,7 @@ describe('SubscriptionPricing', () => {
     )
 
     const weeklyRow = screen.getByText('Weekly').closest('[role="button"]')
+
     if (weeklyRow) {
       await user.click(weeklyRow)
 
@@ -171,16 +182,14 @@ describe('SubscriptionPricing', () => {
   })
 
   it('синхронизирует внутреннее состояние при изменении external selectedPlan', () => {
-    const { rerender } = render(
-      <SubscriptionPricing {...defaultProps} selectedPlan="month" />
-    )
+    const { rerender } = render(<SubscriptionPricing {...defaultProps} selectedPlan={'month'} />)
 
     expect(screen.getByText('Monthly').closest('[role="button"]')).toHaveClass(
       expect.stringContaining('planRowSelected')
     )
 
     // Меняем пропс извне на '7day'
-    rerender(<SubscriptionPricing {...defaultProps} selectedPlan="7day" />)
+    rerender(<SubscriptionPricing {...defaultProps} selectedPlan={'7day'} />)
 
     expect(screen.getByText('Weekly').closest('[role="button"]')).toHaveClass(
       expect.stringContaining('planRowSelected')
@@ -192,6 +201,7 @@ describe('SubscriptionPricing', () => {
     render(<SubscriptionPricing {...defaultProps} />)
 
     const buttons = screen.getAllByTestId('button-outlined')
+
     expect(buttons[0]).not.toBeDisabled()
     expect(buttons[1]).not.toBeDisabled()
   })
@@ -200,6 +210,7 @@ describe('SubscriptionPricing', () => {
     render(<SubscriptionPricing {...defaultProps} isPaymentLocked />)
 
     const buttons = screen.getAllByTestId('button-outlined')
+
     expect(buttons[0]).toBeDisabled()
     expect(buttons[1]).toBeDisabled()
   })
@@ -219,15 +230,18 @@ describe('SubscriptionPricing', () => {
     )
 
     const buttons = screen.getAllByTestId('button-outlined')
+
     expect(buttons[0]).toBeDisabled()
     expect(buttons[1]).toBeDisabled()
   })
 
   it('вызывает onPayPalClick при клике на PayPal', async () => {
     const user = userEvent.setup()
+
     render(<SubscriptionPricing {...defaultProps} />)
 
     const buttons = screen.getAllByTestId('button-outlined')
+
     await user.click(buttons[0])
 
     expect(defaultProps.onPayPalClick).toHaveBeenCalledTimes(1)
@@ -235,9 +249,11 @@ describe('SubscriptionPricing', () => {
 
   it('вызывает onStripeClick при клике на Stripe', async () => {
     const user = userEvent.setup()
+
     render(<SubscriptionPricing {...defaultProps} />)
 
     const buttons = screen.getAllByTestId('button-outlined')
+
     await user.click(buttons[1])
 
     expect(defaultProps.onStripeClick).toHaveBeenCalledTimes(1)
