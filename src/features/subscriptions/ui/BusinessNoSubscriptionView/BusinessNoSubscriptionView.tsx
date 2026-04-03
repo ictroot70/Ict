@@ -1,7 +1,11 @@
 import React from 'react'
-import { AccountTypeValue, SubscriptionPlanValue, UISubscriptionPlan } from '@/features/profile/settings/model/types'
+import {
+  AccountTypeValue,
+  SubscriptionPlanValue,
+  UISubscriptionPlan,
+} from '@/features/profile/settings/model/types'
 import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
- import styles from './BusinessNoSubscriptionView.module.scss'
+import styles from './BusinessNoSubscriptionView.module.scss'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
 interface BusinessNoSubscriptionViewProps {

@@ -9,10 +9,7 @@ interface PersonalViewProps {
   onAccountTypeChange: (type: AccountTypeValue) => void
 }
 
-export const PersonalView: React.FC<PersonalViewProps> = ({
-  accountType,
-  onAccountTypeChange,
-}) => {
+export const PersonalView: React.FC<PersonalViewProps> = ({ accountType, onAccountTypeChange }) => {
   return (
     <>
       <AccountTypeSection
@@ -30,8 +27,8 @@ export const PersonalView: React.FC<PersonalViewProps> = ({
             Personal Account
           </Typography>
           <Typography variant={'regular_16'} className={styles.description}>
-            You are currently using a free Personal account.
-            Upgrade to Business to unlock advanced features.
+            You are currently using a free Personal account. Upgrade to Business to unlock advanced
+            features.
           </Typography>
         </Card>
       </div>

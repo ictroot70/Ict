@@ -1,5 +1,10 @@
 import React from 'react'
-import { AccountTypeValue, SubscriptionPlanValue, UISubscription, UISubscriptionPlan } from '@/features/profile/settings/model/types'
+import {
+  AccountTypeValue,
+  SubscriptionPlanValue,
+  UISubscription,
+  UISubscriptionPlan,
+} from '@/features/profile/settings/model/types'
 import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
 import { SubscriptionSection } from '@/features/profile/settings/ui/AccountManagement/SubscriptionSection/SubscriptionSection'
 import { SubscriptionPricing } from '../SubscriptionPricing'

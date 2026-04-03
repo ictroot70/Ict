@@ -26,10 +26,7 @@ export const AccountManagement = () => {
   const subscriptions = apiSubscriptions || []
   const plans = apiPlans || []
 
-  const activeSubscription = useMemo(
-    () => subscriptions.find((s) => s.isActive),
-    [subscriptions]
-  )
+  const activeSubscription = useMemo(() => subscriptions.find(s => s.isActive), [subscriptions])
 
   const accountType: AccountTypeValue = activeSubscription?.isActive
     ? 'business'
@@ -49,7 +46,6 @@ export const AccountManagement = () => {
 
   const handlePayPalClick = () => {
     setIsPaymentLocked(true)
-
   }
 
   const handleStripeClick = () => {
@@ -73,10 +69,7 @@ export const AccountManagement = () => {
     case 'personal':
       return (
         <div className={styles.accountManagementPage}>
-          <PersonalView
-            accountType={accountType}
-            onAccountTypeChange={handleAccountTypeChange}
-          />
+          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
         </div>
       )
 

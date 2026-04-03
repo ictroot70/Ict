@@ -4,7 +4,6 @@ import { Card, Typography, Button } from '@/shared/ui'
 import styles from './SubscriptionPricing.module.scss'
 import { SubscriptionPlan } from '../model/types'
 import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
-import { be } from 'zod/v4/locales'
 
 interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
@@ -33,9 +32,8 @@ export function SubscriptionPricing({
     }
   }, [externalSelectedPlan])
 
-  const selectedPlanValue = externalSelectedPlan !== undefined
-    ? externalSelectedPlan
-    : internalSelectedPlanValue
+  const selectedPlanValue =
+    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
 
   const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
   const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
@@ -123,7 +121,3 @@ export function SubscriptionPricing({
     </section>
   )
 }
-
-
-
-
