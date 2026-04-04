@@ -4,13 +4,6 @@ import type { PricingDetailsViewModel } from '@/shared/types/payments/models'
 
 import { useEffect, useState } from 'react'
 
-import { PaymentType } from '@/shared/types/base/enums'
-import { CheckboxRadix } from '@/shared/ui'
-import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-
-import s from './AccountManagement.module.scss'
-
 import {
   useCreateSubscriptionMutation,
   useGetCurrentSubscriptionQuery,
@@ -18,19 +11,16 @@ import {
   useRenewAutoRenewalMutation,
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
-
-import { paymentPending, paymentBaseline } from '@/features/subscriptions/lib'
 import { usePaymentReturnFlow } from '@/features/subscriptions/hooks'
+import { paymentPending, paymentBaseline } from '@/features/subscriptions/lib'
+import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
+import { formatDate } from '@/shared/lib/formatters'
+import { PaymentType } from '@/shared/types'
+import { CheckboxRadix } from '@/shared/ui'
+import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
-const SUBSCRIPTION_LABELS: Record<string, string> = {
-  DAY: '1 Day',
-  WEEKLY: '7 Days',
-  MONTHLY: '1 Month',
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-GB').replace(/\//g, '.')
-}
+import s from './AccountManagement.module.scss'
 
 export function AccountManagement() {
   const pathname = usePathname()
@@ -68,12 +58,15 @@ export function AccountManagement() {
   const current = subscription?.data?.[0]
 
   const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan || isPaymentLocked) return
+    if (!selectedPlan || isPaymentLocked) {
+      return
+    }
     try {
       const returnUrl = `${window.location.origin}${pathname}`
 
       // сохраняем baseline перед редиректом
       const fresh = await refetch()
+
       paymentBaseline.set(fresh.data?.data ?? [])
 
       const result = await createSubscription({
@@ -144,7 +137,7 @@ export function AccountManagement() {
                 type={'radio'}
                 onChange={() => setSelectedPlan(plan)}
               />
-              ${plan.amount} per {SUBSCRIPTION_LABELS[plan.typeDescription] ?? plan.typeDescription}
+              ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
             </label>
           ))}
         </div>
