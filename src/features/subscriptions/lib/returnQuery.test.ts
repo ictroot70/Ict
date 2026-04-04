@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parsePaymentReturn } from '../returnQuery'
+import { parsePaymentReturn } from './returnQuery'
 
 describe('parsePaymentReturn', () => {
   it('returns "success" when success=true', () => {

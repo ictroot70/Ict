@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { parsePaymentReturn } from '../lib/returnQuery'
+import { parsePaymentReturn, paymentPending, paymentBaseline } from '../lib'
 import { pollUntilSubscriptionUpdated, type PollOutcome } from '../lib/paymentPolling'
-import { paymentPending } from '../lib/paymentPending'
-import { paymentBaseline } from '../lib/paymentBaseline'
+
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'

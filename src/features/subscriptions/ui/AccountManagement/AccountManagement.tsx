@@ -18,9 +18,9 @@ import {
   useRenewAutoRenewalMutation,
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
-import { usePaymentReturnFlow } from '../hooks/usePaymentReturnFlow'
-import { paymentPending } from '../lib/paymentPending'
-import { paymentBaseline } from '../lib/paymentBaseline'
+
+import { paymentPending, paymentBaseline } from '@/features/subscriptions/lib'
+import { usePaymentReturnFlow } from '@/features/subscriptions/hooks'
 
 const SUBSCRIPTION_LABELS: Record<string, string> = {
   DAY: '1 Day',

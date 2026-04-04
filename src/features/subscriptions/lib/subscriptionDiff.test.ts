@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { hasNewSubscription } from '../subscriptionDiff'
+import { hasNewSubscription } from './subscriptionDiff'
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 const make = (id: string): ActiveSubscriptionViewModel => ({
