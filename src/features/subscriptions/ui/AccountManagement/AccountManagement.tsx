@@ -12,7 +12,13 @@ import {
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
 import { usePaymentReturnFlow } from '@/features/subscriptions/hooks'
-import { paymentPending, paymentBaseline } from '@/features/subscriptions/lib'
+import {
+  paymentPending,
+  paymentBaseline,
+  getErrorStatus,
+  mapStatusToErrorCode,
+  type PaymentErrorCode,
+} from '@/features/subscriptions/lib'
 import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
 import { formatDate } from '@/shared/lib/formatters'
 import { PaymentType } from '@/shared/types'
@@ -25,6 +31,7 @@ import s from './AccountManagement.module.scss'
 export function AccountManagement() {
   const pathname = usePathname()
   const [selectedPlan, setSelectedPlan] = useState<PricingDetailsViewModel | null>(null)
+  const [paymentErrorCode, setPaymentErrorCode] = useState<PaymentErrorCode | null>(null)
 
   const [createSubscription, { isLoading: isCreating }] = useCreateSubscriptionMutation()
   const [cancelAutoRenewal, { isLoading: isCancelling }] = useCancelAutoRenewalMutation()
@@ -32,7 +39,7 @@ export function AccountManagement() {
   const { data: subscription, refetch } = useGetCurrentSubscriptionQuery()
   const { data: prices } = useGetPricingQuery()
 
-  const { isPolling, flowStatus } = usePaymentReturnFlow({
+  const { isPolling, flowStatus, flowErrorCode } = usePaymentReturnFlow({
     fetchSubscriptions: async () => {
       const result = await refetch()
 
@@ -61,10 +68,11 @@ export function AccountManagement() {
     if (!selectedPlan || isPaymentLocked) {
       return
     }
+
+    setPaymentErrorCode(null)
+
     try {
       const returnUrl = `${window.location.origin}${pathname}`
-
-      // сохраняем baseline перед редиректом
       const fresh = await refetch()
 
       paymentBaseline.set(fresh.data?.data ?? [])
@@ -79,13 +87,16 @@ export function AccountManagement() {
       paymentPending.set()
       window.location.href = result.url
     } catch (err) {
+      paymentPending.clear()
       paymentBaseline.clear()
+      setPaymentErrorCode(mapStatusToErrorCode(getErrorStatus(err)))
       console.error('[AccountManagement] createSubscription failed:', err)
     }
   }
 
   const handleAutoRenewalChange = async (checked: boolean) => {
     setAutoRenewalChecked(checked)
+
     try {
       if (checked) {
         await renewAutoRenewal().unwrap()
@@ -123,6 +134,14 @@ export function AccountManagement() {
 
       {flowStatus === 'polling' && <p>Processing payment...</p>}
       {flowStatus === 'timeout' && <p>Payment confirmation timed out. Please refresh.</p>}
+
+      {flowErrorCode === 'unknown' && <p>Payment confirmation failed. Please try again.</p>}
+
+      {paymentErrorCode === 'unauthorized' && <p>Session expired. Please sign in again.</p>}
+      {paymentErrorCode === 'bad_request' && <p>Invalid payment request. Please try again.</p>}
+      {paymentErrorCode === 'not_found' && <p>Selected subscription plan was not found.</p>}
+      {paymentErrorCode === 'conflict' && <p>This subscription is already active.</p>}
+      {paymentErrorCode === 'unknown' && <p>Transaction failed, please try again.</p>}
 
       <div className={s.section}>
         <span className={s.sectionTitle}>Change your subscription:</span>

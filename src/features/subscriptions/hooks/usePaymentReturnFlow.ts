@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { parsePaymentReturn, paymentPending, paymentBaseline } from '../lib'
+import { parsePaymentReturn, paymentPending, paymentBaseline, type PaymentErrorCode } from '../lib'
 import { pollUntilSubscriptionUpdated, type PollOutcome } from '../lib/paymentPolling'
 
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
@@ -14,6 +14,7 @@ interface UsePaymentReturnFlowOptions {
 
 interface UsePaymentReturnFlowResult {
   flowStatus: FlowStatus
+  flowErrorCode: PaymentErrorCode | null
   isPolling: boolean
   resetFlow: () => void
 }
@@ -24,7 +25,9 @@ export function usePaymentReturnFlow({
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
+
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
+  const [flowErrorCode, setFlowErrorCode] = useState<PaymentErrorCode | null>(null)
   const handledRef = useRef(false)
 
   useEffect(() => {
@@ -34,33 +37,42 @@ export function usePaymentReturnFlow({
     const returnStatus = parsePaymentReturn(searchParams)
     const isPending = paymentPending.get()
 
-    // success=false → failed, без polling
     if (returnStatus === 'failed') {
       router.replace(pathname)
       paymentPending.clear()
       paymentBaseline.clear()
+      setFlowErrorCode('unknown')
       setFlowStatus('failed')
 
       return
     }
 
-    // success отсутствует + pending=false → обычный вход, ничего не делаем
     if (returnStatus === null && !isPending) {
       return
     }
 
-    // success=true ИЛИ (success отсутствует + pending=true) → polling
     router.replace(pathname)
     paymentPending.clear()
 
     const baseline = paymentBaseline.get()
 
+    setFlowErrorCode(null)
     setFlowStatus('polling')
+
     pollUntilSubscriptionUpdated(fetchSubscriptions, baseline)
       .then((outcome: PollOutcome) => {
-        setFlowStatus(outcome === 'success' ? 'success' : 'timeout')
+        if (outcome === 'success') {
+          setFlowErrorCode(null)
+          setFlowStatus('success')
+
+          return
+        }
+
+        setFlowErrorCode(null)
+        setFlowStatus('timeout')
       })
       .catch(() => {
+        setFlowErrorCode('unknown')
         setFlowStatus('failed')
       })
       .finally(() => {
@@ -72,11 +84,13 @@ export function usePaymentReturnFlow({
 
   const resetFlow = () => {
     handledRef.current = false
+    setFlowErrorCode(null)
     setFlowStatus('idle')
   }
 
   return {
     flowStatus,
+    flowErrorCode,
     isPolling: flowStatus === 'polling',
     resetFlow,
   }
