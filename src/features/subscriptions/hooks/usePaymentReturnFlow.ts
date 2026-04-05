@@ -1,10 +1,11 @@
+import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
+
 import { useEffect, useRef, useState } from 'react'
+
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { parsePaymentReturn, paymentPending, paymentBaseline, type PaymentErrorCode } from '../lib'
 import { pollUntilSubscriptionUpdated, type PollOutcome } from '../lib/paymentPolling'
-
-import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
 
@@ -31,7 +32,9 @@ export function usePaymentReturnFlow({
   const handledRef = useRef(false)
 
   useEffect(() => {
-    if (handledRef.current) return
+    if (handledRef.current) {
+      return
+    }
     handledRef.current = true
 
     const returnStatus = parsePaymentReturn(searchParams)

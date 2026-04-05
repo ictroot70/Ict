@@ -8,7 +8,9 @@ export function hasNewSubscription(
   prev: ActiveSubscriptionViewModel[],
   next: ActiveSubscriptionViewModel[]
 ): boolean {
-  if (next.length > prev.length) return true
+  if (next.length > prev.length) {
+    return true
+  }
 
   const prevIds = new Set(prev.map(s => s.subscriptionId))
 

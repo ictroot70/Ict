@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
-import { pollUntilSubscriptionUpdated } from './paymentPolling'
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
+
+import { describe, expect, it, vi } from 'vitest'
+
+import { pollUntilSubscriptionUpdated } from './paymentPolling'
 
 vi.useFakeTimers()
 

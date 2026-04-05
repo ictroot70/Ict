@@ -1,4 +1,5 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
+
 import { hasNewSubscription } from './subscriptionDiff'
 
 const POLL_INTERVAL_MS = 3_000
