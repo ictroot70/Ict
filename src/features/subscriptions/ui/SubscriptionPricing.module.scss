@@ -4,18 +4,142 @@
   width: 100%;
 }
 
-.noticeCard {
+.currentSubscriptionSection {
+  display: grid;
+  gap: 16px;
+  margin-top: 30px;
+  margin-bottom: 1px;
+}
+
+.currentSubscriptionCard {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 24px ;
+}
+
+.currentSubscriptionTable {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.currentSubscriptionHeader {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.currentSubscriptionBody {
   display: grid;
   gap: 6px;
-  padding: 16px;
+  width: 100%;
 }
 
-.noticeTitle {
-  color: var(--color-light-100);
+.currentSubscriptionRow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 2px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.noticeText {
+.currentSubscriptionRowActive {
+  padding-bottom: 2px;
+}
+
+.currentSubscriptionRowAutoRenew {
+  background-color: rgba(57, 108, 240, 0.12);
+}
+
+.currentSubscriptionRowPending {
+  opacity: 0.72;
+}
+
+.metricCell {
+  display: grid;
+  gap: 2px;
+}
+
+.autoRenewBadge {
+  color: var(--color-primary-500);
+}
+
+.nextGroupDivider {
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-dark-100);
+}
+
+.nextGroupLabel {
   color: var(--color-light-900);
+}
+
+.showMoreButton {
+  width: fit-content;
+  padding: 0;
+}
+
+.metricLabel {
+  color: var(--color-light-900);
+}
+
+.autoRenewalControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-light-100);
+
+  // ui-kit bug: CheckboxRadix always marks label as required.
+  :global(label[aria-label='Checkbox'] > p > span) {
+    display: none;
+  }
+}
+
+.autoRenewalCheckbox {
+  width: 16px;
+  height: 16px;
+}
+
+.autoRenewalStatus {
+  color: var(--color-light-900);
+}
+
+.accountTypeSection {
+  display: grid;
+  gap: 16px;
+}
+
+.integrationSlot {
+  width: 100%;
+}
+
+.accountTypeSectionTopOffset {
+  margin-top: 30px;
+}
+
+.accountTypeCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.accountTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.accountTypeOption:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.accountTypeOptionDisabled {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .pricingCard {
@@ -37,6 +161,28 @@
 
 .planRow:first-child {
   border-top: 0;
+}
+
+.paymentProviders {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.paymentProviderButton {
+  min-width: 76px;
+  height: 56px;
+  padding: 10px 14px;
+}
+
+.orLabel {
+  color: var(--color-light-100);
+}
+
+.businessPricingSection {
+  display: grid;
+  gap: 16px;
 }
 
 .pseudoRadio,
@@ -63,6 +209,10 @@
   background-color: var(--color-light-100);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+}
+
+.warningText {
+  color: var(--color-danger-500);
 }
 
 .stateCard {
