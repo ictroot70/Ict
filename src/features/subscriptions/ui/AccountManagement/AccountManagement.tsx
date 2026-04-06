@@ -2,7 +2,7 @@
 
 import type { PricingDetailsViewModel } from '@/shared/types/payments/models'
 
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import {
   useCreateSubscriptionMutation,
