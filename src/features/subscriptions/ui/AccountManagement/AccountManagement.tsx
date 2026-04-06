@@ -13,14 +13,16 @@ import {
 } from '@/features/subscriptions/api'
 import { usePaymentReturnFlow } from '@/features/subscriptions/hooks'
 import {
-  paymentPending,
-  paymentBaseline,
   getErrorStatus,
   mapStatusToErrorCode,
   getPaymentErrorMessage,
   type PaymentErrorCode,
 } from '@/features/subscriptions/lib'
-import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
+import {
+  mapSubscriptionTypeToLabel,
+  paymentBaseline,
+  paymentPending,
+} from '@/features/subscriptions/model'
 import { formatDate, showToastAlert } from '@/shared/lib'
 import { PaymentType } from '@/shared/types'
 import { CheckboxRadix } from '@/shared/ui'
