@@ -2,7 +2,7 @@
 
 import type { PricingDetailsViewModel } from '@/shared/types/payments/models'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import {
   useCreateSubscriptionMutation,
@@ -43,12 +43,14 @@ export function AccountManagement() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const { isPolling, flowStatus, flowErrorCode } = usePaymentReturnFlow({
-    fetchSubscriptions: async () => {
-      const result = await refetch()
+  const fetchSubscriptions = useCallback(async () => {
+    const result = await refetch()
 
-      return result.data?.data ?? []
-    },
+    return result.data?.data ?? []
+  }, [refetch])
+
+  const { isPolling, flowStatus, flowErrorCode } = usePaymentReturnFlow({
+    fetchSubscriptions,
   })
 
   const isPaymentLocked = isCreating || isPolling
@@ -66,6 +68,13 @@ export function AccountManagement() {
       showToastAlert({
         message: 'Payment confirmation timed out. Please refresh.',
         type: 'error',
+      })
+    }
+
+    if (flowStatus === 'success') {
+      showToastAlert({
+        message: 'Payment was successful!',
+        type: 'success',
       })
     }
 
@@ -125,7 +134,6 @@ export function AccountManagement() {
       paymentPending.clear()
       paymentBaseline.clear()
       setPaymentErrorCode(mapStatusToErrorCode(getErrorStatus(err)))
-      console.error('[AccountManagement] createSubscription failed:', err)
     }
   }
 

@@ -82,8 +82,7 @@ export function usePaymentReturnFlow({
         paymentPending.clear()
         paymentBaseline.clear()
       })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [fetchSubscriptions, pathname, router, searchParams])
 
   const resetFlow = () => {
     handledRef.current = false
