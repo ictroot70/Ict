@@ -1,6 +1,6 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
-import { hasNewSubscription } from './subscriptionDiff'
+import { hasNewSubscription } from '../lib/subscriptionDiff'
 
 const POLL_INTERVAL_MS = 3_000
 const POLL_TIMEOUT_MS = 90_000

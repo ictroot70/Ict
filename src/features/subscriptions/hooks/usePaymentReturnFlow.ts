@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { parsePaymentReturn, paymentPending, paymentBaseline, type PaymentErrorCode } from '../lib'
-import { pollUntilSubscriptionUpdated, type PollOutcome } from '../lib/paymentPolling'
+import { pollUntilSubscriptionUpdated, type PollOutcome } from '../model/paymentPolling'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
 
