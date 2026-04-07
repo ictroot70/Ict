@@ -22,18 +22,6 @@ export const PersonalView: React.FC<PersonalViewProps> = ({ accountType, onAccou
         selectedType={accountType}
         onTypeChange={onAccountTypeChange}
       />
-
-      <div className={styles.personalView}>
-        <Card className={styles.infoCard}>
-          <Typography variant={'h3'} className={styles.title}>
-            Personal Account
-          </Typography>
-          <Typography variant={'regular_16'} className={styles.description}>
-            You are currently using a free Personal account. Upgrade to Business to unlock advanced
-            features.
-          </Typography>
-        </Card>
-      </div>
     </>
   )
 }
