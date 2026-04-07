@@ -1,71 +1,28 @@
 'use client'
 
-import type { PricingDetailsViewModel } from '@/shared/types/payments/models'
-
-import React, { useCallback, useEffect, useState } from 'react'
-
-import {
-  useCreateSubscriptionMutation,
-  useGetCurrentSubscriptionQuery,
-  useCancelAutoRenewalMutation,
-  useRenewAutoRenewalMutation,
-  useGetPricingQuery,
-} from '@/features/subscriptions/api'
-import { usePaymentReturnFlow } from '@/features/subscriptions/hooks'
-import {
-  getErrorStatus,
-  mapStatusToErrorCode,
-  getPaymentErrorMessage,
-  type PaymentErrorCode,
-} from '@/features/subscriptions/lib'
-import {
-  mapSubscriptionTypeToLabel,
-  paymentBaseline,
-  paymentPending,
-} from '@/features/subscriptions/model'
-import { formatDate, showToastAlert } from '@/shared/lib'
+import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
+import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
+import { formatDate } from '@/shared/lib'
 import { PaymentType } from '@/shared/types'
-import { CheckboxRadix } from '@/shared/ui'
-import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { Button, CheckboxRadix } from '@/shared/ui'
 
 import s from './AccountManagement.module.scss'
 
 export function AccountManagement() {
-  const { data: pricingPlans } = useGetPricingQuery()
-  const { data: subscription, refetch } = useGetCurrentSubscriptionQuery()
+  const {
+    flowStatus,
+    selectedPlan,
+    pricingPlans,
+    isPaymentLocked,
+    isAutoRenewEnabled,
+    currentSubscriptions,
+    handlePay,
+    handlePlanChange,
+  } = useAccountManagement()
 
-  const [createSubscription, { isLoading: isCreating }] = useCreateSubscriptionMutation()
-  const [cancelAutoRenewal, { isLoading: isCancelling }] = useCancelAutoRenewalMutation()
-  const [renewAutoRenewal, { isLoading: isRenewing }] = useRenewAutoRenewalMutation()
+  const { handleSwitchAutoRenewal, isAutoRenewalChanging } = useAutoRenewalActions()
 
-  const [selectedPlan, setSelectedPlan] = useState<PricingDetailsViewModel | null>(null)
-  const [paymentErrorCode, setPaymentErrorCode] = useState<PaymentErrorCode | null>(null)
-
-  const pathname = usePathname()
-  const router = useRouter()
-
-  const fetchSubscriptions = useCallback(async () => {
-    const result = await refetch()
-
-    return result.data?.data ?? []
-  }, [refetch])
-
-  const { isPolling, flowStatus, flowErrorCode } = usePaymentReturnFlow({
-    fetchSubscriptions,
-  })
-
-  const isPaymentLocked = isCreating || isPolling
-  const serverAutoRenewal = subscription?.hasAutoRenewal ?? false
-  const current = subscription?.data?.[0]
-
-  useEffect(() => {
-    if (pricingPlans?.data?.length && !selectedPlan) {
-      setSelectedPlan(pricingPlans.data[0])
-    }
-  }, [pricingPlans, selectedPlan])
-
-  useEffect(() => {
+  /*   useEffect(() => {
     if (flowStatus === 'timeout') {
       showToastAlert({
         message: 'Payment confirmation timed out. Please refresh.',
@@ -86,20 +43,10 @@ export function AccountManagement() {
         type: 'error',
       })
     }
-  }, [flowStatus, flowErrorCode])
+  }, [flowStatus, flowErrorCode]) */
 
-  useEffect(() => {
+  /*   useEffect(() => {
     if (!paymentErrorCode) {
-      return
-    }
-
-    if (paymentErrorCode === 'unauthorized') {
-      showToastAlert({
-        message: getPaymentErrorMessage(paymentErrorCode),
-        type: 'error',
-      })
-      setPaymentErrorCode(null)
-
       return
     }
 
@@ -108,9 +55,9 @@ export function AccountManagement() {
       type: 'error',
     })
     setPaymentErrorCode(null)
-  }, [paymentErrorCode, router])
+  }, [paymentErrorCode]) */
 
-  const handlePay = async (paymentType: PaymentType) => {
+  /*   const handlePay = async (paymentType: PaymentType) => {
     if (!selectedPlan || isPaymentLocked) {
       return
     }
@@ -137,43 +84,30 @@ export function AccountManagement() {
       paymentBaseline.clear()
       setPaymentErrorCode(mapStatusToErrorCode(getErrorStatus(err)))
     }
-  }
-
-  const handleAutoRenewalChange = async (checked: boolean) => {
-    try {
-      if (checked) {
-        await renewAutoRenewal().unwrap()
-      } else {
-        await cancelAutoRenewal().unwrap()
-      }
-    } catch {
-      showToastAlert({
-        message: 'Auto-renewal update failed',
-        type: 'error',
-      })
-    }
-  }
+  } */
 
   return (
     <div className={s.root}>
-      {current && (
+      {currentSubscriptions && (
         <div className={s.section}>
           <span className={s.sectionTitle}>Current Subscription:</span>
           <div className={s.infoBox}>
             <div className={s.infoField}>
               Expire at
-              <span>{formatDate(current.endDateOfSubscription)}</span>
+              <span>{formatDate(currentSubscriptions.endDateOfSubscription)}</span>
             </div>
             <div className={s.infoField}>
               Next payment
-              <span>{formatDate(current.endDateOfSubscription)}</span>
+              {/* TODO: + 1 Day ?*/}
+              <span>{formatDate(currentSubscriptions.endDateOfSubscription)}</span>
             </div>
           </div>
+
           <CheckboxRadix
-            checked={serverAutoRenewal}
-            disabled={isCancelling || isRenewing}
             label={'Auto-Renewal'}
-            onCheckedChange={handleAutoRenewalChange}
+            checked={isAutoRenewEnabled}
+            disabled={isAutoRenewalChanging}
+            onCheckedChange={handleSwitchAutoRenewal}
           />
         </div>
       )}
@@ -191,7 +125,7 @@ export function AccountManagement() {
                 disabled={isPaymentLocked}
                 name={'plan'}
                 type={'radio'}
-                onChange={() => setSelectedPlan(plan)}
+                onChange={() => handlePlanChange(plan)}
               />
               ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
             </label>
@@ -199,16 +133,13 @@ export function AccountManagement() {
         </div>
       </div>
 
-      <div className={s.paymentButtons}>
-        <button
-          className={s.payBtn}
-          disabled={isPaymentLocked || !selectedPlan}
-          type={'button'}
-          onClick={() => handlePay(PaymentType.STRIPE)}
-        >
-          <Image alt={'Stripe'} height={28} src={'/icons/svg/stripe.svg'} width={60} />
-        </button>
-      </div>
+      <Button
+        variant="outlined"
+        disabled={isPaymentLocked || !selectedPlan}
+        onClick={() => handlePay(PaymentType.STRIPE)}
+      >
+        STRIPE
+      </Button>
     </div>
   )
 }

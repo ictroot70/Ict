@@ -1,4 +1,4 @@
-export type PaymentErrorCode = 'bad_request' | 'unauthorized' | 'not_found' | 'conflict' | 'unknown'
+export type PaymentErrorCode = 'bad_request' | 'not_found' | 'conflict' | 'unknown'
 
 type ErrorWithStatus = {
   status?: number | string
@@ -6,7 +6,6 @@ type ErrorWithStatus = {
 
 const paymentErrorMessages: Record<PaymentErrorCode, string> = {
   bad_request: 'Invalid payment request. Please try again.',
-  unauthorized: 'Session expired. Please sign in again.',
   not_found: 'Selected subscription plan was not found.',
   conflict: 'This subscription is already active.',
   unknown: 'Transaction failed, please try again.',
@@ -29,9 +28,6 @@ export function getErrorStatus(error: unknown): number | null {
 export function mapStatusToErrorCode(status: number | null): PaymentErrorCode {
   if (status === 400) {
     return 'bad_request'
-  }
-  if (status === 401) {
-    return 'unauthorized'
   }
   if (status === 404) {
     return 'not_found'
