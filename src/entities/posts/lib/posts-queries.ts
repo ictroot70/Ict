@@ -4,15 +4,26 @@ import { buildApiUrl } from '@/shared/api/get-api-base-url'
 import { PaginatedPosts, PostViewModel } from '../api'
 
 async function fetchUserPosts(userId: number, pageSize: number): Promise<PaginatedPosts> {
-  const response = await fetch(
+  const privateResponse = await fetch(
     `${buildApiUrl(API_ROUTES.POSTS.USER_POSTS(userId, 0))}?pageSize=${pageSize}`
   )
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch user posts')
+  if (privateResponse.ok) {
+    return privateResponse.json()
   }
 
-  return response.json()
+  // SSR can be executed without auth context; fallback to public posts endpoint.
+  if (privateResponse.status === 401 || privateResponse.status === 403) {
+    const publicResponse = await fetch(
+      `${buildApiUrl(API_ROUTES.PUBLIC_POSTS.USER(userId, 0))}?pageSize=${pageSize}`
+    )
+
+    if (publicResponse.ok) {
+      return publicResponse.json()
+    }
+  }
+
+  throw new Error('Failed to fetch user posts')
 }
 
 const fetchPostByRoute = async (
@@ -40,7 +51,7 @@ async function fetchPostByIdForSSR(postId: number): Promise<PostViewModel | null
     return privatePostResult.post
   }
 
-  if (privatePostResult.status === 401) {
+  if (privatePostResult.status === 401 || privatePostResult.status === 403) {
     const publicPostResult = await fetchPostByRoute(API_ROUTES.PUBLIC_POSTS.BY_ID(postId))
 
     return publicPostResult.post
