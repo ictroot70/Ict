@@ -1,12 +1,32 @@
-const DEFAULT_DEV_API_BASE = '/api/proxy'
+const DEFAULT_DEV_API_BASE = 'https://ictroot.uk/api'
+const DEFAULT_DEV_PROXY_BASE = '/api/proxy'
+const DEFAULT_API_PROXY_TARGET = 'https://ictroot.uk/api'
 const DEFAULT_INTERNAL_ORIGIN = 'http://localhost:3000'
+const isProduction = process.env.NODE_ENV === 'production'
+const isProxyEnabled = process.env.USE_API_PROXY === 'true'
 
 const isAbsoluteUrl = (value: string) => /^https?:\/\//.test(value)
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
 const ensureLeadingSlash = (value: string) => (value.startsWith('/') ? value : `/${value}`)
 
+const getProductionApiBase = () => {
+  const configuredBase = trimTrailingSlash(process.env.NEXT_PUBLIC_API_URL?.trim() || '')
+
+  if (configuredBase && isAbsoluteUrl(configuredBase)) {
+    return configuredBase
+  }
+
+  return trimTrailingSlash(process.env.API_PROXY_TARGET?.trim() || DEFAULT_API_PROXY_TARGET)
+}
+
 export const getApiBaseUrl = () => {
-  const configuredBase = process.env.NEXT_PUBLIC_API_URL || DEFAULT_DEV_API_BASE
+  if (isProduction) {
+    return getProductionApiBase()
+  }
+
+  const configuredBase =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (isProxyEnabled ? DEFAULT_DEV_PROXY_BASE : DEFAULT_DEV_API_BASE)
   const normalizedBase = trimTrailingSlash(configuredBase)
 
   if (isAbsoluteUrl(normalizedBase)) {
@@ -18,7 +38,9 @@ export const getApiBaseUrl = () => {
   }
 
   if (normalizedBase.startsWith('/')) {
-    const apiProxyTarget = trimTrailingSlash(process.env.API_PROXY_TARGET || '')
+    const apiProxyTarget = trimTrailingSlash(
+      process.env.API_PROXY_TARGET || (isProxyEnabled ? DEFAULT_API_PROXY_TARGET : '')
+    )
 
     if (apiProxyTarget) {
       return apiProxyTarget
