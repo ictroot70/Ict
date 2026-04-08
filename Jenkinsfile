@@ -10,6 +10,7 @@ pipeline {
         REGISTRY = "registry.hub.docker.com"
         PROJECT = "ictroot"
         DEPLOYMENT_NAME = "ictroot-deployment"
+        NEXT_PUBLIC_API_URL = "https://ictroot.uk/api"
         IMAGE_NAME = "${env.BUILD_ID}_${env.ENV_TYPE}_${env.GIT_COMMIT}"
         DOCKER_BUILD_NAME = "${env.REGISTRY_HOSTNAME}/${env.PROJECT}:${env.IMAGE_NAME}"
     }
@@ -38,7 +39,10 @@ pipeline {
             steps {
                 echo "Build image started..."
                     script {
-                        app = docker.build("${env.DOCKER_BUILD_NAME}")
+                        app = docker.build(
+                            "${env.DOCKER_BUILD_NAME}",
+                            "--build-arg NEXT_PUBLIC_API_URL=${env.NEXT_PUBLIC_API_URL} ."
+                        )
                     }
                 echo "Build image finished..."
             }
