@@ -14,7 +14,7 @@ describe('paymentError', () => {
 
   it('extracts numeric status from error-like objects', () => {
     expect(getErrorStatus({ status: 400 })).toBe(400)
-    expect(getErrorStatus({ status: '400' })).toBeNull()
+    expect(getErrorStatus({ status: '400' })).toBe(400)
     expect(getErrorStatus({})).toBeNull()
     expect(getErrorStatus(null)).toBeNull()
   })

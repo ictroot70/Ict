@@ -1,10 +1,5 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
-/**
- * Detects if subscription state changed after payment.
- * Success = list size changed, a new subscriptionId appeared,
- * or an existing subscription record was updated in place.
- */
 export function hasNewSubscription(
   prev: ActiveSubscriptionViewModel[],
   next: ActiveSubscriptionViewModel[]
@@ -15,6 +10,8 @@ export function hasNewSubscription(
 
   const prevById = new Map(prev.map(subscription => [subscription.subscriptionId, subscription]))
 
+  const fieldsToCompare = ['dateOfPayment', 'endDateOfSubscription', 'autoRenewal'] as const
+
   return next.some(subscription => {
     const previous = prevById.get(subscription.subscriptionId)
 
@@ -22,10 +19,6 @@ export function hasNewSubscription(
       return true
     }
 
-    return (
-      previous.dateOfPayment !== subscription.dateOfPayment ||
-      previous.endDateOfSubscription !== subscription.endDateOfSubscription ||
-      previous.autoRenewal !== subscription.autoRenewal
-    )
+    return fieldsToCompare.some(field => previous[field] !== subscription[field])
   })
 }

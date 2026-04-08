@@ -9,13 +9,20 @@ export function useAutoRenewalActions() {
   const isAutoRenewalChanging = isCancelling || isRenewing
 
   const handleSwitchAutoRenewal = async (checked: boolean) => {
+    if (isAutoRenewalChanging) {
+      return
+    }
+
     try {
-      checked ? await renewAutoRenewal().unwrap() : await cancelAutoRenewal().unwrap()
-    } catch {
+      const action = checked ? renewAutoRenewal : cancelAutoRenewal
+
+      await action().unwrap()
+    } catch (error) {
       showToastAlert({
         message: 'Auto-renewal update failed',
         type: 'error',
       })
+      console.error('Failed to update auto-renewal:', error)
     }
   }
 

@@ -9,7 +9,7 @@ import { showToastAlert } from '@/shared/lib'
 import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { usePathname } from 'next/navigation'
 
-import { getErrorStatus, getPaymentErrorMessage, mapStatusToErrorCode } from '../lib'
+import { getPaymentErrorMessage } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 
@@ -72,11 +72,8 @@ export function useAccountManagement() {
       paymentPending.clear()
       paymentBaseline.clear()
 
-      const errorStatus = getErrorStatus(error)
-      const code = mapStatusToErrorCode(errorStatus)
-
       showToastAlert({
-        message: getPaymentErrorMessage(code),
+        message: getPaymentErrorMessage(error),
         type: 'error',
       })
     }
