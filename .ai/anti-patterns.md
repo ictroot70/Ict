@@ -9,3 +9,4 @@
 - Hardcoded user-facing строки в обход i18n.
 - Double source of truth для readiness/validation.
 - Silent deviation from policy: нарушение policy без TODO/issue и без фиксации в PR.
+- Для SSR/ISR (`revalidate`) возвращать error UI из server fetch-path при transient ошибках (`FETCH_ERROR`, `5xx`, timeout). Это приводит к "запеканию" ошибки в HTML/cache.

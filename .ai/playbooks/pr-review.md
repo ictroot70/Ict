@@ -13,6 +13,7 @@
 - Нет бизнес-логики в UI.
 - Нет нарушений dependency direction.
 - Нет новых запрещённых паттернов.
+- Для SSR/ISR (`revalidate`) проверено, что transient fetch-ошибки не "запекают" error UI в SSR output/cache.
 - Приложены результаты проверок.
 
 ## PR evidence

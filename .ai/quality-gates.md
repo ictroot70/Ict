@@ -27,6 +27,7 @@
 - post upload/publish,
 - edit profile,
 - i18n language switch.
+- Для SSR/ISR-страниц (`revalidate`) подтверждено, что transient fetch-ошибки не рендерят и не кэшируют error UI как успешный SSR-результат.
 
 ## Infrastructure constraints (educational project)
 
