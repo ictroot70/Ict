@@ -1,5 +1,4 @@
 const DEFAULT_DEV_API_BASE = '/api/proxy'
-const DEFAULT_API_TARGET = 'https://ictroot.uk/api'
 const DEFAULT_INTERNAL_ORIGIN = 'http://localhost:3000'
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -7,12 +6,27 @@ const isAbsoluteUrl = (value: string) => /^https?:\/\//.test(value)
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
 const ensureLeadingSlash = (value: string) => (value.startsWith('/') ? value : `/${value}`)
 
+const getRequiredProductionApiBase = () => {
+  const configuredBase = trimTrailingSlash(process.env.NEXT_PUBLIC_API_URL?.trim() || '')
+
+  if (!configuredBase) {
+    throw new Error('NEXT_PUBLIC_API_URL must be defined in production')
+  }
+
+  if (!isAbsoluteUrl(configuredBase)) {
+    throw new Error('NEXT_PUBLIC_API_URL must be an absolute URL in production')
+  }
+
+  return configuredBase
+}
+
 export const getApiBaseUrl = () => {
-  const configuredBase =
-    process.env.NEXT_PUBLIC_API_URL || (isProduction ? DEFAULT_API_TARGET : DEFAULT_DEV_API_BASE)
-  const normalizedBase = trimTrailingSlash(configuredBase)
-  const effectiveBase =
-    isProduction && normalizedBase.startsWith('/') ? DEFAULT_API_TARGET : normalizedBase
+  if (isProduction) {
+    return getRequiredProductionApiBase()
+  }
+
+  const configuredBase = process.env.NEXT_PUBLIC_API_URL?.trim() || DEFAULT_DEV_API_BASE
+  const effectiveBase = trimTrailingSlash(configuredBase)
 
   if (isAbsoluteUrl(effectiveBase)) {
     return effectiveBase
@@ -23,7 +37,7 @@ export const getApiBaseUrl = () => {
   }
 
   if (effectiveBase.startsWith('/')) {
-    const apiProxyTarget = trimTrailingSlash(process.env.API_PROXY_TARGET || DEFAULT_API_TARGET)
+    const apiProxyTarget = trimTrailingSlash(process.env.API_PROXY_TARGET?.trim() || '')
 
     if (apiProxyTarget) {
       return apiProxyTarget
