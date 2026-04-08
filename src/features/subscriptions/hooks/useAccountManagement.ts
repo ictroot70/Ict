@@ -1,4 +1,3 @@
-import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { useCallback, useEffect, useState } from 'react'
 
 import {
@@ -6,8 +5,11 @@ import {
   useGetCurrentSubscriptionQuery,
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
-
+import { showToastAlert } from '@/shared/lib'
+import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { usePathname } from 'next/navigation'
+
+import { getErrorStatus, getPaymentErrorMessage, mapStatusToErrorCode } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 
@@ -44,7 +46,9 @@ export function useAccountManagement() {
   const currentSubscriptions = subscription?.data[0]
 
   const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan) return
+    if (!selectedPlan) {
+      return
+    }
     try {
       const returnUrl = `${window.location.origin}${pathname}`
 
@@ -66,6 +70,14 @@ export function useAccountManagement() {
     } catch (error) {
       paymentPending.clear()
       paymentBaseline.clear()
+
+      const status = getErrorStatus(error)
+      const code = mapStatusToErrorCode(status)
+
+      showToastAlert({
+        message: getPaymentErrorMessage(code),
+        type: 'error',
+      })
     }
   }
 

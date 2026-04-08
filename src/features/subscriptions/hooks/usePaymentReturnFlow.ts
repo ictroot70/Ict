@@ -2,34 +2,25 @@ import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models
 
 import { useEffect, useRef, useState } from 'react'
 
+import { showToastAlert } from '@/shared/lib'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-import { parsePaymentReturn, type PaymentErrorCode } from '../lib'
+import { parsePaymentReturn } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { pollUntilSubscriptionUpdated, type PollOutcome } from '../model/paymentPolling'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
 
-interface UsePaymentReturnFlowOptions {
+type Props = {
   fetchSubscriptions: () => Promise<ActiveSubscriptionViewModel[]>
 }
 
-interface UsePaymentReturnFlowResult {
-  flowStatus: FlowStatus
-  flowErrorCode: PaymentErrorCode | null
-  isPolling: boolean
-  resetFlow: () => void
-}
-
-export function usePaymentReturnFlow({
-  fetchSubscriptions,
-}: UsePaymentReturnFlowOptions): UsePaymentReturnFlowResult {
+export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
 
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
-  const [flowErrorCode, setFlowErrorCode] = useState<PaymentErrorCode | null>(null)
   const handledRef = useRef(false)
 
   useEffect(() => {
@@ -45,7 +36,6 @@ export function usePaymentReturnFlow({
       router.replace(pathname)
       paymentPending.clear()
       paymentBaseline.clear()
-      setFlowErrorCode('unknown')
       setFlowStatus('failed')
 
       return
@@ -60,23 +50,19 @@ export function usePaymentReturnFlow({
 
     const baseline = paymentBaseline.get()
 
-    setFlowErrorCode(null)
     setFlowStatus('polling')
 
     pollUntilSubscriptionUpdated(fetchSubscriptions, baseline)
       .then((outcome: PollOutcome) => {
         if (outcome === 'success') {
-          setFlowErrorCode(null)
           setFlowStatus('success')
 
           return
         }
 
-        setFlowErrorCode(null)
         setFlowStatus('timeout')
       })
       .catch(() => {
-        setFlowErrorCode('unknown')
         setFlowStatus('failed')
       })
       .finally(() => {
@@ -85,16 +71,38 @@ export function usePaymentReturnFlow({
       })
   }, [fetchSubscriptions, pathname, router, searchParams])
 
+  useEffect(() => {
+    if (flowStatus === 'timeout') {
+      showToastAlert({
+        message: 'Payment confirmation timed out. Please refresh.',
+        type: 'error',
+      })
+    }
+
+    if (flowStatus === 'success') {
+      showToastAlert({
+        message: 'Payment was successful!',
+        type: 'success',
+      })
+    }
+
+    if (flowStatus === 'failed') {
+      showToastAlert({
+        message: 'Payment failed. Please try again.',
+        type: 'error',
+      })
+    }
+  }, [flowStatus])
+
   const resetFlow = () => {
     handledRef.current = false
-    setFlowErrorCode(null)
+
     setFlowStatus('idle')
   }
 
   return {
-    flowStatus,
-    flowErrorCode,
-    isPolling: flowStatus === 'polling',
     resetFlow,
+    flowStatus,
+    isPolling: flowStatus === 'polling',
   }
 }

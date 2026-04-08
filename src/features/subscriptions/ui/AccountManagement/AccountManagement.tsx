@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
 import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
 import { formatDate } from '@/shared/lib'
@@ -22,69 +24,9 @@ export function AccountManagement() {
 
   const { handleSwitchAutoRenewal, isAutoRenewalChanging } = useAutoRenewalActions()
 
-  /*   useEffect(() => {
-    if (flowStatus === 'timeout') {
-      showToastAlert({
-        message: 'Payment confirmation timed out. Please refresh.',
-        type: 'error',
-      })
-    }
-
-    if (flowStatus === 'success') {
-      showToastAlert({
-        message: 'Payment was successful!',
-        type: 'success',
-      })
-    }
-
-    if (flowErrorCode === 'unknown') {
-      showToastAlert({
-        message: 'Payment confirmation failed. Please try again.',
-        type: 'error',
-      })
-    }
-  }, [flowStatus, flowErrorCode]) */
-
-  /*   useEffect(() => {
-    if (!paymentErrorCode) {
-      return
-    }
-
-    showToastAlert({
-      message: getPaymentErrorMessage(paymentErrorCode),
-      type: 'error',
-    })
-    setPaymentErrorCode(null)
-  }, [paymentErrorCode]) */
-
-  /*   const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan || isPaymentLocked) {
-      return
-    }
-
-    setPaymentErrorCode(null)
-
-    try {
-      const returnUrl = `${window.location.origin}${pathname}`
-      const fresh = await refetch()
-
-      paymentBaseline.set(fresh.data?.data ?? [])
-
-      const result = await createSubscription({
-        typeSubscription: selectedPlan.typeDescription,
-        paymentType,
-        amount: selectedPlan.amount,
-        baseUrl: returnUrl,
-      }).unwrap()
-
-      paymentPending.set()
-      window.location.href = result.url
-    } catch (err) {
-      paymentPending.clear()
-      paymentBaseline.clear()
-      setPaymentErrorCode(mapStatusToErrorCode(getErrorStatus(err)))
-    }
-  } */
+  if (flowStatus === 'polling') {
+    return <p>Processing payment...</p>
+  }
 
   return (
     <div className={s.root}>
@@ -112,8 +54,6 @@ export function AccountManagement() {
         </div>
       )}
 
-      {flowStatus === 'polling' && <p>Processing payment...</p>}
-
       <div className={s.section}>
         <span className={s.sectionTitle}>Change your subscription:</span>
         <div className={s.optionsBox}>
@@ -134,7 +74,7 @@ export function AccountManagement() {
       </div>
 
       <Button
-        variant="outlined"
+        variant={'outlined'}
         disabled={isPaymentLocked || !selectedPlan}
         onClick={() => handlePay(PaymentType.STRIPE)}
       >
