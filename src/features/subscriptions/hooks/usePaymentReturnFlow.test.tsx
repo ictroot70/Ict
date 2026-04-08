@@ -42,6 +42,7 @@ describe('usePaymentReturnFlow idempotency', () => {
     mocks.searchParamsMock.mockReturnValue(new URLSearchParams('success=true'))
   })
   it('does not start polling twice on rerender', async () => {
+    sessionStorage.setItem('payment_pending', '1')
     mocks.pollMock.mockResolvedValue('success')
 
     const fetchSubscriptions = vi.fn().mockResolvedValue([])
@@ -51,17 +52,17 @@ describe('usePaymentReturnFlow idempotency', () => {
     rerender()
     expect(mocks.pollMock).toHaveBeenCalledTimes(1)
   })
-  it('starts polling when pending flag exists without query param', async () => {
+  it('fails without polling when pending flag exists without query param', async () => {
     sessionStorage.setItem('payment_pending', '1')
-    mocks.pollMock.mockResolvedValue('timeout')
-
-    const fetchSubscriptions = vi.fn().mockResolvedValue([])
 
     mocks.searchParamsMock.mockReturnValue(new URLSearchParams(''))
 
-    renderHook(() => usePaymentReturnFlow({ fetchSubscriptions }))
+    const { result } = renderHook(() => usePaymentReturnFlow({ fetchSubscriptions: vi.fn() }))
 
-    await waitFor(() => expect(mocks.pollMock).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(result.current.flowStatus).toBe('failed'))
+    expect(sessionStorage.getItem('payment_pending')).toBeNull()
+    expect(sessionStorage.getItem('payment_baseline')).toBeNull()
+    expect(mocks.pollMock).not.toHaveBeenCalled()
   })
   it('clears state and skips polling on success=false', async () => {
     sessionStorage.setItem('payment_pending', '1')
@@ -74,6 +75,15 @@ describe('usePaymentReturnFlow idempotency', () => {
     await waitFor(() => expect(mocks.replace).toHaveBeenCalled())
     expect(sessionStorage.getItem('payment_pending')).toBeNull()
     expect(sessionStorage.getItem('payment_baseline')).toBeNull()
+    expect(mocks.pollMock).not.toHaveBeenCalled()
+  })
+  it('fails without polling on success=true without pending state', async () => {
+    mocks.searchParamsMock.mockReturnValue(new URLSearchParams('success=true'))
+
+    const { result } = renderHook(() => usePaymentReturnFlow({ fetchSubscriptions: vi.fn() }))
+
+    await waitFor(() => expect(mocks.replace).toHaveBeenCalled())
+    expect(result.current.flowStatus).toBe('failed')
     expect(mocks.pollMock).not.toHaveBeenCalled()
   })
 })

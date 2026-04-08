@@ -19,7 +19,6 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
-
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
   const handledRef = useRef(false)
 
@@ -32,7 +31,11 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     const returnStatus = parsePaymentReturn(searchParams)
     const isPending = paymentPending.get()
 
-    if (returnStatus === 'failed') {
+    if (returnStatus === null) {
+      if (!isPending) {
+        return
+      }
+
       router.replace(pathname)
       paymentPending.clear()
       paymentBaseline.clear()
@@ -41,11 +44,16 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
       return
     }
 
-    if (returnStatus === null && !isPending) {
+    router.replace(pathname)
+
+    if (returnStatus === 'failed' || !isPending) {
+      paymentPending.clear()
+      paymentBaseline.clear()
+      setFlowStatus('failed')
+
       return
     }
 
-    router.replace(pathname)
     paymentPending.clear()
 
     const baseline = paymentBaseline.get()
@@ -54,13 +62,7 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
 
     pollUntilSubscriptionUpdated(fetchSubscriptions, baseline)
       .then((outcome: PollOutcome) => {
-        if (outcome === 'success') {
-          setFlowStatus('success')
-
-          return
-        }
-
-        setFlowStatus('timeout')
+        setFlowStatus(outcome === 'success' ? 'success' : 'timeout')
       })
       .catch(() => {
         setFlowStatus('failed')
@@ -94,14 +96,7 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     }
   }, [flowStatus])
 
-  const resetFlow = () => {
-    handledRef.current = false
-
-    setFlowStatus('idle')
-  }
-
   return {
-    resetFlow,
     flowStatus,
     isPolling: flowStatus === 'polling',
   }

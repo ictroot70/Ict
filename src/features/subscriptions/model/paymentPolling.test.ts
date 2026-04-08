@@ -1,40 +1,84 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { pollUntilSubscriptionUpdated } from './paymentPolling'
 
-vi.useFakeTimers()
-
-const make = (id: string): ActiveSubscriptionViewModel => ({
+const make = (
+  id: string,
+  overrides: Partial<ActiveSubscriptionViewModel> = {}
+): ActiveSubscriptionViewModel => ({
   userId: 1,
   subscriptionId: id,
   dateOfPayment: '2024-01-01',
   endDateOfSubscription: '2024-02-01',
   autoRenewal: false,
+  ...overrides,
 })
 
 describe('pollUntilSubscriptionUpdated', () => {
-  it('returns "success" when new subscription appears on first poll', async () => {
-    const fetch = vi.fn().mockResolvedValue([make('new-id')])
-    const promise = pollUntilSubscriptionUpdated(fetch, [])
-
-    await vi.runAllTimersAsync()
-    expect(await promise).toBe('success')
+  beforeEach(() => {
+    vi.useFakeTimers()
   })
 
-  it('returns "timeout" when subscription never changes within timeout', async () => {
-    const fetch = vi.fn().mockResolvedValue([make('same-id')])
-    const promise = pollUntilSubscriptionUpdated(fetch, [make('same-id')])
-
-    await vi.runAllTimersAsync()
-    expect(await promise).toBe('timeout')
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
-  it('does not auto-trigger createSubscription', () => {
-    const createSubscription = vi.fn()
+  it('returns success when subscription list grows on next poll', async () => {
+    const fetchFn = vi
+      .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
+      .mockResolvedValueOnce([make('a'), make('b')])
 
-    // polling util has no reference to createSubscription — verify it's never called
-    expect(createSubscription).not.toHaveBeenCalled()
+    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+
+    await vi.advanceTimersByTimeAsync(3000)
+
+    await expect(promise).resolves.toBe('success')
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns success when existing subscription is updated in place', async () => {
+    const fetchFn = vi.fn<() => Promise<ActiveSubscriptionViewModel[]>>().mockResolvedValueOnce([
+      make('a', {
+        endDateOfSubscription: '2024-03-01',
+      }),
+    ])
+
+    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+
+    await vi.advanceTimersByTimeAsync(3000)
+
+    await expect(promise).resolves.toBe('success')
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+  })
+  it('keeps polling until timeout when subscription data does not change', async () => {
+    const fetchFn = vi
+      .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
+      .mockResolvedValue([make('a')])
+
+    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+
+    await vi.advanceTimersByTimeAsync(90000)
+
+    await expect(promise).resolves.toBe('timeout')
+    expect(fetchFn).toHaveBeenCalledTimes(30)
+  })
+  it('waits for a later poll before returning success', async () => {
+    const fetchFn = vi
+      .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
+      .mockResolvedValueOnce([make('a')])
+      .mockResolvedValueOnce([make('a'), make('b')])
+
+    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(3000)
+
+    await expect(promise).resolves.toBe('success')
+    expect(fetchFn).toHaveBeenCalledTimes(2)
   })
 })

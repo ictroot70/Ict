@@ -25,6 +25,12 @@ describe('hasNewSubscription', () => {
     expect(hasNewSubscription([make('a')], [make('a')])).toBe(false)
   })
 
+  it('returns true when existing subscription was updated in place', () => {
+    expect(
+      hasNewSubscription([make('a')], [{ ...make('a'), endDateOfSubscription: '2024-03-01' }])
+    ).toBe(true)
+  })
+
   it('returns false when list is empty on both sides', () => {
     expect(hasNewSubscription([], [])).toBe(false)
   })

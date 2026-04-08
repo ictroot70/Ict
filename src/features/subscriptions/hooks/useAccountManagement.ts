@@ -66,13 +66,14 @@ export function useAccountManagement() {
       }).unwrap()
 
       paymentPending.set()
+
       window.location.href = result.url
     } catch (error) {
       paymentPending.clear()
       paymentBaseline.clear()
 
-      const status = getErrorStatus(error)
-      const code = mapStatusToErrorCode(status)
+      const errorStatus = getErrorStatus(error)
+      const code = mapStatusToErrorCode(errorStatus)
 
       showToastAlert({
         message: getPaymentErrorMessage(code),
