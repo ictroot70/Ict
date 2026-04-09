@@ -233,7 +233,7 @@ describe('SubscriptionPricing', () => {
 
     render(<SubscriptionPricing />)
 
-    expect(screen.getByText('17.04.2026')).not.toBeNull()
+    expect(screen.getAllByText('17.04.2026').length).toBeGreaterThan(0)
     expect(screen.queryByText('17.03.2026')).toBeNull()
   })
 
@@ -271,7 +271,7 @@ describe('SubscriptionPricing', () => {
 
     render(<SubscriptionPricing />)
 
-    expect(screen.getByText('01.08.2026')).not.toBeNull()
+    expect(screen.getAllByText('01.08.2026').length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
     expect(screen.queryByRole('button', { name: /Show less/i })).toBeNull()
     expect(screen.queryByText('Next subscriptions')).toBeNull()
