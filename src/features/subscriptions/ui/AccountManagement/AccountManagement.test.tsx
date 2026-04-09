@@ -15,7 +15,9 @@ type AccountState = {
   pricingPlans: { data: Plan[] }
   isPaymentLocked: boolean
   isAutoRenewEnabled: boolean
-  currentSubscriptions: null
+  currentSubscription: {
+    endDateOfSubscription: string
+  } | null
   handlePay: ReturnType<typeof vi.fn>
   handlePlanChange: ReturnType<typeof vi.fn>
 }
@@ -30,7 +32,7 @@ const mocks = vi.hoisted(() => ({
     pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
     isPaymentLocked: false,
     isAutoRenewEnabled: false,
-    currentSubscriptions: null,
+    currentSubscription: null,
     handlePay: vi.fn(),
     handlePlanChange: vi.fn(),
   } as AccountState,
@@ -61,7 +63,7 @@ describe('AccountManagement', () => {
       pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
       isPaymentLocked: false,
       isAutoRenewEnabled: false,
-      currentSubscriptions: null,
+      currentSubscription: null,
       handlePay: mocks.handlePay,
       handlePlanChange: mocks.handlePlanChange,
     }
@@ -112,5 +114,17 @@ describe('AccountManagement', () => {
     const btn = screen.getByRole('button', { name: 'STRIPE' })
 
     expect((btn as HTMLButtonElement).disabled).toBe(true)
+  })
+  it('renders current subscription block when subscription exists', () => {
+    mocks.accountState.currentSubscription = {
+      endDateOfSubscription: '2026-05-01',
+    }
+
+    render(<AccountManagement />)
+
+    expect(screen.getByText('Current Subscription:')).not.toBeNull()
+    expect(screen.getByText('Expire at')).not.toBeNull()
+    expect(screen.getAllByText('2026-05-01')).toHaveLength(2)
+    expect(screen.getByText('Auto-Renewal')).not.toBeNull()
   })
 })

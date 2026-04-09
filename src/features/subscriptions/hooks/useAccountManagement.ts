@@ -29,29 +29,29 @@ export function useAccountManagement() {
     return result.data?.data ?? []
   }, [refetch])
 
-  const { isPolling, flowStatus } = usePaymentReturnFlow({
+  const { isPolling, flowStatus, clearPaymentState } = usePaymentReturnFlow({
     fetchSubscriptions,
   })
 
   const isPaymentLocked = isSubscribing || isPolling
 
   useEffect(() => {
-    if (pricingPlans?.data?.length && !selectedPlan) {
-      setSelectedPlan(pricingPlans.data[0])
+    if (pricingPlans?.data?.length) {
+      setSelectedPlan(prev => prev ?? pricingPlans.data[0])
     }
-  }, [pricingPlans, selectedPlan])
+  }, [pricingPlans])
 
   const isAutoRenewEnabled = subscription?.hasAutoRenewal ?? false
 
-  const currentSubscriptions = subscription?.data[0]
+  const currentSubscription = subscription?.data?.[0] ?? null
 
   const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan) {
+    if (!selectedPlan || isPaymentLocked) {
       return
     }
+
     try {
       const returnUrl = `${window.location.origin}${pathname}`
-
       const { typeDescription, amount } = selectedPlan
 
       const fresh = await refetch()
@@ -69,8 +69,7 @@ export function useAccountManagement() {
 
       window.location.href = result.url
     } catch (error) {
-      paymentPending.clear()
-      paymentBaseline.clear()
+      clearPaymentState()
 
       showToastAlert({
         message: getPaymentErrorMessage(error),
@@ -87,7 +86,7 @@ export function useAccountManagement() {
     selectedPlan,
     isPaymentLocked,
     isAutoRenewEnabled,
-    currentSubscriptions,
+    currentSubscription,
     handlePay,
     handlePlanChange,
   }

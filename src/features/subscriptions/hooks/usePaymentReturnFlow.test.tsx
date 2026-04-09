@@ -26,7 +26,7 @@ vi.mock('next/navigation', () => ({
 }))
 
 vi.mock('../model/paymentPolling', () => ({
-  pollUntilSubscriptionUpdated: mocks.pollMock,
+  waitForSubscriptionUpdate: mocks.pollMock,
 }))
 
 vi.mock('@/shared/lib', async importOriginal => {

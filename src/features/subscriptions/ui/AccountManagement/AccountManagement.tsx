@@ -17,7 +17,7 @@ export function AccountManagement() {
     pricingPlans,
     isPaymentLocked,
     isAutoRenewEnabled,
-    currentSubscriptions,
+    currentSubscription,
     handlePay,
     handlePlanChange,
   } = useAccountManagement()
@@ -30,18 +30,18 @@ export function AccountManagement() {
 
   return (
     <div className={s.root}>
-      {currentSubscriptions && (
+      {currentSubscription && (
         <div className={s.section}>
           <span className={s.sectionTitle}>Current Subscription:</span>
           <div className={s.infoBox}>
             <div className={s.infoField}>
               Expire at
-              <span>{formatDate(currentSubscriptions.endDateOfSubscription)}</span>
+              <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
             </div>
             <div className={s.infoField}>
               Next payment
               {/* TODO: + 1 Day ?*/}
-              <span>{formatDate(currentSubscriptions.endDateOfSubscription)}</span>
+              <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
             </div>
           </div>
 

@@ -81,5 +81,6 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   return {
     flowStatus,
     isPolling: flowStatus === 'polling',
+    clearPaymentState,
   }
 }

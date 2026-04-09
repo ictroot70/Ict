@@ -2,7 +2,7 @@ import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { pollUntilSubscriptionUpdated } from './paymentPolling'
+import { waitForSubscriptionUpdate } from './paymentPolling'
 
 const make = (
   id: string,
@@ -16,7 +16,7 @@ const make = (
   ...overrides,
 })
 
-describe('pollUntilSubscriptionUpdated', () => {
+describe('waitForSubscriptionUpdate ', () => {
   beforeEach(() => {
     vi.useFakeTimers()
   })
@@ -31,7 +31,7 @@ describe('pollUntilSubscriptionUpdated', () => {
       .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
       .mockResolvedValueOnce([make('a'), make('b')])
 
-    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+    const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
     await vi.advanceTimersByTimeAsync(3000)
 
@@ -46,7 +46,7 @@ describe('pollUntilSubscriptionUpdated', () => {
       }),
     ])
 
-    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+    const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
     await vi.advanceTimersByTimeAsync(3000)
 
@@ -58,7 +58,7 @@ describe('pollUntilSubscriptionUpdated', () => {
       .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
       .mockResolvedValue([make('a')])
 
-    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+    const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
     await vi.advanceTimersByTimeAsync(90000)
 
@@ -71,7 +71,7 @@ describe('pollUntilSubscriptionUpdated', () => {
       .mockResolvedValueOnce([make('a')])
       .mockResolvedValueOnce([make('a'), make('b')])
 
-    const promise = pollUntilSubscriptionUpdated(fetchFn, [make('a')])
+    const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
     await vi.advanceTimersByTimeAsync(3000)
     expect(fetchFn).toHaveBeenCalledTimes(1)

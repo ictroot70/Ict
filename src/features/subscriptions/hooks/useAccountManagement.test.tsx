@@ -9,6 +9,10 @@ const mocks = vi.hoisted(() => ({
   showToastAlert: vi.fn(),
   refetch: vi.fn().mockResolvedValue({ data: { data: [] } }),
   createSubscription: vi.fn(),
+  clearPaymentState: vi.fn(() => {
+    sessionStorage.removeItem('payment_pending')
+    sessionStorage.removeItem('payment_baseline')
+  }),
 }))
 
 vi.mock('@/shared/lib', async importOriginal => {
@@ -25,6 +29,7 @@ vi.mock('./usePaymentReturnFlow', () => ({
   usePaymentReturnFlow: () => ({
     isPolling: false,
     flowStatus: 'idle',
+    clearPaymentState: mocks.clearPaymentState,
   }),
 }))
 
