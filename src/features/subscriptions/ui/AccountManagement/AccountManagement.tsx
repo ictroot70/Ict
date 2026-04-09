@@ -39,8 +39,7 @@ export function AccountManagement() {
               <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
             </div>
             <div className={s.infoField}>
-              Next payment
-              {/* TODO: + 1 Day ?*/}
+              {currentSubscription.autoRenewal ? 'Next payment' : 'Subscription ends'}
               <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
             </div>
           </div>
