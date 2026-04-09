@@ -11,8 +11,6 @@ import { clsx } from 'clsx'
 import styles from './SubscriptionPricing.module.scss'
 
 type SubscriptionPricingProps = {
-  // Integration contract for Sprint 6 composition (T3/T4/T0):
-  // parent container can inject final blocks here without touching T4 logic.
   accountTypeSlot?: ReactNode
   changeSubscriptionSlot?: ReactNode
 }
