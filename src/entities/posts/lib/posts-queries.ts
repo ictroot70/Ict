@@ -3,6 +3,8 @@ import { buildApiUrl } from '@/shared/api/get-api-base-url'
 
 import { PaginatedPosts, PostViewModel } from '../api'
 
+const REQUEST_OPTIONS = { cache: 'no-store' as const }
+
 const buildRouteUrl = (route: string, query?: Record<string, number | string>) => {
   const searchParams = new URLSearchParams()
 
@@ -52,7 +54,7 @@ const fetchPaginatedPostsByRoute = async ({
   query?: Record<string, number | string>
 }): Promise<{ data: null | PaginatedPosts; status: null | number }> => {
   try {
-    const response = await fetch(buildRouteUrl(route, query))
+    const response = await fetch(buildRouteUrl(route, query), REQUEST_OPTIONS)
 
     if (!response.ok) {
       return { data: null, status: response.status }
@@ -77,7 +79,8 @@ const fetchPostByParamRoute = async (postId: number): Promise<null | PostViewMod
         pageNumber: 1,
         pageSize: 1,
         sortDirection: 'desc',
-      })
+      }),
+      REQUEST_OPTIONS
     )
 
     if (!response.ok) {
@@ -146,7 +149,7 @@ const fetchPostByRoute = async (
   route: string
 ): Promise<{ post: PostViewModel | null; status: null | number }> => {
   try {
-    const response = await fetch(buildApiUrl(route))
+    const response = await fetch(buildApiUrl(route), REQUEST_OPTIONS)
 
     if (!response.ok) {
       return { post: null, status: response.status }
