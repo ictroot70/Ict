@@ -111,6 +111,18 @@ async function fetchUserPosts(
     return privateResult.data
   }
 
+  if (profileUserName) {
+    const byUsernameResult = await fetchPaginatedPostsByRoute({
+      route: API_ROUTES.POSTS.PARAM(encodeURIComponent(profileUserName)),
+      pageSize,
+      query: { pageNumber: 1, pageSize, sortDirection: 'desc' },
+    })
+
+    if (byUsernameResult.data) {
+      return byUsernameResult.data
+    }
+  }
+
   if (
     privateResult.status === 401 ||
     privateResult.status === 403 ||
@@ -124,18 +136,6 @@ async function fetchUserPosts(
 
     if (legacyPublicResult.data) {
       return legacyPublicResult.data
-    }
-  }
-
-  if (profileUserName) {
-    const byUsernameResult = await fetchPaginatedPostsByRoute({
-      route: API_ROUTES.POSTS.PARAM(encodeURIComponent(profileUserName)),
-      pageSize,
-      query: { pageNumber: 1, pageSize, sortDirection: 'desc' },
-    })
-
-    if (byUsernameResult.data) {
-      return byUsernameResult.data
     }
   }
 
@@ -165,6 +165,12 @@ async function fetchPostByIdForSSR(postId: number): Promise<PostViewModel | null
     return privatePostResult.post
   }
 
+  const fallbackPostByParam = await fetchPostByParamRoute(postId)
+
+  if (fallbackPostByParam) {
+    return fallbackPostByParam
+  }
+
   if (
     privatePostResult.status === 401 ||
     privatePostResult.status === 403 ||
@@ -177,7 +183,7 @@ async function fetchPostByIdForSSR(postId: number): Promise<PostViewModel | null
     }
   }
 
-  return fetchPostByParamRoute(postId)
+  return null
 }
 
 export { fetchUserPosts, fetchPostByIdForSSR }
