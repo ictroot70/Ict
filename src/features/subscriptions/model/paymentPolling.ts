@@ -7,7 +7,7 @@ const POLL_TIMEOUT_MS = 90_000
 
 export type PollOutcome = 'success' | 'timeout'
 
-export async function pollUntilSubscriptionUpdated(
+export async function waitForSubscriptionUpdate(
   fetchFn: () => Promise<ActiveSubscriptionViewModel[]>,
   baseline: ActiveSubscriptionViewModel[]
 ): Promise<PollOutcome> {

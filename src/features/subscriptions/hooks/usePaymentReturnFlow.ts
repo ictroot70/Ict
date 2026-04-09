@@ -2,12 +2,12 @@ import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models
 
 import { useEffect, useRef, useState } from 'react'
 
-import { showToastAlert } from '@/shared/lib'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import { parsePaymentReturn } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
-import { pollUntilSubscriptionUpdated, type PollOutcome } from '../model/paymentPolling'
+import { waitForSubscriptionUpdate } from '../model/paymentPolling'
+import { usePaymentNotifications } from './usePaymentNotifications'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
 
@@ -22,10 +22,16 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
   const handledRef = useRef(false)
 
+  const clearPaymentState = () => {
+    paymentPending.clear()
+    paymentBaseline.clear()
+  }
+
   useEffect(() => {
     if (handledRef.current) {
       return
     }
+
     handledRef.current = true
 
     const returnStatus = parsePaymentReturn(searchParams)
@@ -37,8 +43,7 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
       }
 
       router.replace(pathname)
-      paymentPending.clear()
-      paymentBaseline.clear()
+      clearPaymentState()
       setFlowStatus('failed')
 
       return
@@ -47,8 +52,7 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     router.replace(pathname)
 
     if (returnStatus === 'failed' || !isPending) {
-      paymentPending.clear()
-      paymentBaseline.clear()
+      clearPaymentState()
       setFlowStatus('failed')
 
       return
@@ -60,41 +64,19 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
 
     setFlowStatus('polling')
 
-    pollUntilSubscriptionUpdated(fetchSubscriptions, baseline)
-      .then((outcome: PollOutcome) => {
+    waitForSubscriptionUpdate(fetchSubscriptions, baseline)
+      .then(outcome => {
         setFlowStatus(outcome === 'success' ? 'success' : 'timeout')
       })
       .catch(() => {
         setFlowStatus('failed')
       })
       .finally(() => {
-        paymentPending.clear()
-        paymentBaseline.clear()
+        clearPaymentState()
       })
   }, [fetchSubscriptions, pathname, router, searchParams])
 
-  useEffect(() => {
-    if (flowStatus === 'timeout') {
-      showToastAlert({
-        message: 'Payment confirmation timed out. Please refresh.',
-        type: 'error',
-      })
-    }
-
-    if (flowStatus === 'success') {
-      showToastAlert({
-        message: 'Payment was successful!',
-        type: 'success',
-      })
-    }
-
-    if (flowStatus === 'failed') {
-      showToastAlert({
-        message: 'Payment failed. Please try again.',
-        type: 'error',
-      })
-    }
-  }, [flowStatus])
+  usePaymentNotifications(flowStatus)
 
   return {
     flowStatus,
