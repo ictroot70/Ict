@@ -1,8 +1,9 @@
-const DEFAULT_DEV_API_BASE = '/api/proxy'
+const DEFAULT_DEV_API_BASE = 'https://ictroot.uk/api'
+const DEFAULT_DEV_PROXY_BASE = '/api/proxy'
+const DEFAULT_API_PROXY_TARGET = 'https://ictroot.uk/api'
 const DEFAULT_INTERNAL_ORIGIN = 'http://localhost:3000'
 const isProduction = process.env.NODE_ENV === 'production'
 const isProxyMode = !isProduction && process.env.USE_API_PROXY === 'true'
-
 
 const isAbsoluteUrl = (value: string) => /^https?:\/\//.test(value)
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
