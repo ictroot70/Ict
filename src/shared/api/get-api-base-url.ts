@@ -48,6 +48,7 @@ export const getApiBaseUrl = () => {
       process.env.API_PROXY_TARGET || (isProxyMode ? DEFAULT_API_PROXY_TARGET : '')
     )
 
+
     if (apiProxyTarget) {
       return apiProxyTarget
     }
