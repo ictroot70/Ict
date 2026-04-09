@@ -43,11 +43,15 @@ export function useAccountManagement() {
 
   const isAutoRenewEnabled = subscription?.hasAutoRenewal ?? false
 
-  const currentSubscription = subscription?.data.reduce((latest, sub) => {
-    return new Date(sub.endDateOfSubscription) > new Date(latest.endDateOfSubscription)
-      ? sub
-      : latest
-  })
+  const subscriptionItems = subscription?.data ?? []
+
+  const currentSubscription = subscriptionItems.length
+    ? subscriptionItems.reduce((latest, item) => {
+        return new Date(item.endDateOfSubscription) > new Date(latest.endDateOfSubscription)
+          ? item
+          : latest
+      })
+    : null
 
   const handlePay = async (paymentType: PaymentType) => {
     if (!selectedPlan || isPaymentLocked) {
