@@ -4,7 +4,6 @@ import type { PostOpenSource } from '@/shared/constant'
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
 import { Profile } from '@/entities/profile/ui'
-import { ProfileClientRecovery } from '@/entities/profile/ui/Profile/ProfileClientRecovery'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -81,7 +80,10 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     }
 
     return (
-      <ProfileClientRecovery userId={userId} initialPostId={postId} initialPostSource={source} />
+      <div>
+        <h1>Server unavailable</h1>
+        <p>Please try again later.</p>
+      </div>
     )
   }
 
