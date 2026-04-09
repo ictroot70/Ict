@@ -1,7 +1,6 @@
 import { GetPublicPostsResponse } from '@/entities/users/api/api.types'
 import { Public } from '@/entities/users/ui'
-import { ApiErrorBoundary } from '@/lib/ApiErrorBoundary'
-import { apiFetch, ApiError } from '@/lib/api'
+import { apiFetch } from '@/lib/api'
 import { API_ROUTES } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
 
@@ -22,12 +21,7 @@ const fetchPublicPostsForSSR = async () => {
 }
 
 export default async function HomePage() {
-  const { data, error } = await fetchPublicPostsForSSR()
-  const apiError: ApiError | null = error || null
+  const { data } = await fetchPublicPostsForSSR()
 
-  return (
-    <ApiErrorBoundary error={apiError}>
-      {data ? <Public postsData={data} /> : <div>Данные отсутствуют</div>}
-    </ApiErrorBoundary>
-  )
+  return <Public postsData={data || null} />
 }
