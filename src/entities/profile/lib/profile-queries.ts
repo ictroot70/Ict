@@ -17,11 +17,13 @@ const createHttpStatusError = (message: string, status?: number): HttpStatusErro
   return error
 }
 
+const REQUEST_OPTIONS = { cache: 'no-store' as const }
+
 async function fetchProfileData(userId: number): Promise<PublicProfileData> {
   let response: Response
 
   try {
-    response = await fetch(buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId)))
+    response = await fetch(buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId)), REQUEST_OPTIONS)
   } catch {
     throw createHttpStatusError('Failed to fetch profile data')
   }

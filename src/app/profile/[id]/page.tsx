@@ -4,6 +4,7 @@ import type { PostOpenSource } from '@/shared/constant'
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
 import { Profile } from '@/entities/profile/ui'
+import { ProfileClientRecovery } from '@/entities/profile/ui/Profile/ProfileClientRecovery'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -40,6 +41,8 @@ const getEmptyPosts = (pageSize: number): PaginatedPosts => ({
   totalCount: 0,
   pageSize,
 })
+
+export const dynamic = 'force-dynamic'
 
 export default async function ProfilePage({ params, searchParams }: Props) {
   const { id } = await params
@@ -78,10 +81,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     }
 
     return (
-      <div>
-        <h1>Server unavailable</h1>
-        <p>Please try again later.</p>
-      </div>
+      <ProfileClientRecovery userId={userId} initialPostId={postId} initialPostSource={source} />
     )
   }
 
