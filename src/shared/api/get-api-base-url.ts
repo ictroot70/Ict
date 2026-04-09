@@ -47,8 +47,6 @@ export const getApiBaseUrl = () => {
     const apiProxyTarget = trimTrailingSlash(
       process.env.API_PROXY_TARGET || (isProxyMode ? DEFAULT_API_PROXY_TARGET : '')
     )
-
-
     if (apiProxyTarget) {
       return apiProxyTarget
     }
