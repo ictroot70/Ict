@@ -19,27 +19,36 @@
 }
 
 .currentSubscriptionTable {
+  --current-subscription-column-width: 120px;
+  --current-subscription-table-height: 180px;
+
   display: grid;
-  gap: 10px;
+  grid-template-rows: auto minmax(0, 1fr);
+  row-gap: 10px;
   width: 100%;
+  height: var(--current-subscription-table-height);
 }
 
 .currentSubscriptionHeader {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, var(--current-subscription-column-width));
+  column-gap: 45px;
 }
 
 .currentSubscriptionBody {
   display: grid;
   gap: 6px;
   width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-content: start;
+  padding-right: 4px;
 }
 
 .currentSubscriptionRow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(2, var(--current-subscription-column-width));
+  column-gap: 45px;
   padding-top: 2px;
   transition:
     background-color 0.2s ease,
@@ -67,21 +76,6 @@
   color: var(--color-primary-500);
 }
 
-.nextGroupDivider {
-  width: 100%;
-  padding-top: 10px;
-  border-top: 1px solid var(--color-dark-100);
-}
-
-.nextGroupLabel {
-  color: var(--color-light-900);
-}
-
-.showMoreButton {
-  width: fit-content;
-  padding: 0;
-}
-
 .metricLabel {
   color: var(--color-light-900);
 }
@@ -105,6 +99,15 @@
 
 .autoRenewalStatus {
   color: var(--color-light-900);
+}
+
+.autoRenewalSpinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(57, 125, 246, 0.2);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  animation: autoRenewalSpinnerRotation 0.7s linear infinite;
 }
 
 .accountTypeSection {
@@ -229,4 +232,10 @@
 
 .retryButton {
   width: fit-content;
+}
+
+@keyframes autoRenewalSpinnerRotation {
+  to {
+    transform: rotate(360deg);
+  }
 }

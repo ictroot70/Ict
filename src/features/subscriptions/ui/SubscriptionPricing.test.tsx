@@ -194,7 +194,7 @@ describe('SubscriptionPricing', () => {
     expect(screen.queryByLabelText('Auto-Renewal')).toBeNull()
   })
 
-  it('renders current and next subscriptions in API response order', () => {
+  it('renders current and next subscriptions with normalized next payment dates', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(createCurrentSubscriptionChainResult())
 
     render(<SubscriptionPricing />)
@@ -203,9 +203,38 @@ describe('SubscriptionPricing', () => {
     expect(screen.getByText('Next payment')).not.toBeNull()
     expect(screen.getAllByText('01.04.2026').length).toBe(2)
     expect(screen.getAllByText('01.05.2026').length).toBe(2)
-    expect(screen.getByText('01.06.2026')).not.toBeNull()
-    expect(screen.getByText('—')).not.toBeNull()
-    expect(screen.getByText('Next subscriptions')).not.toBeNull()
+    expect(screen.getAllByText('01.06.2026').length).toBe(2)
+    expect(screen.queryByText('—')).toBeNull()
+    expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
+  })
+
+  it('keeps next payment at or after current expiration for prepaid queue item', () => {
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        subscriptions: [
+          {
+            userId: 1,
+            subscriptionId: 'sub-current',
+            dateOfPayment: '2026-03-17T00:00:00.000Z',
+            endDateOfSubscription: '2026-04-17T00:00:00.000Z',
+            autoRenewal: false,
+          },
+          {
+            userId: 1,
+            subscriptionId: 'sub-next',
+            dateOfPayment: '2026-03-17T00:00:00.000Z',
+            endDateOfSubscription: '2026-05-17T00:00:00.000Z',
+            autoRenewal: false,
+          },
+        ],
+        hasAutoRenewal: false,
+      })
+    )
+
+    render(<SubscriptionPricing />)
+
+    expect(screen.getByText('17.04.2026')).not.toBeNull()
+    expect(screen.queryByText('17.03.2026')).toBeNull()
   })
 
   it('calls toggle action from Auto-Renewal checkbox', () => {
@@ -217,15 +246,23 @@ describe('SubscriptionPricing', () => {
         toggleAutoRenewal,
       })
     )
-
     render(<SubscriptionPricing />)
-
     fireEvent.click(screen.getByLabelText('Auto-Renewal'))
-
     expect(toggleAutoRenewal).toHaveBeenCalledTimes(1)
   })
 
-  it('shows and expands future subscriptions via Show more', () => {
+  it('shows spinner while auto-renewal toggle mutation is in progress', () => {
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        isToggleLoading: true,
+        isToggleDisabled: true,
+      })
+    )
+    render(<SubscriptionPricing />)
+    expect(screen.getByLabelText('Updating auto-renewal')).not.toBeNull()
+  })
+
+  it('shows full queue in a single list without Show more toggle', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
         subscriptions: createLongQueueSubscriptions(),
@@ -234,13 +271,10 @@ describe('SubscriptionPricing', () => {
 
     render(<SubscriptionPricing />)
 
-    expect(screen.getByRole('button', { name: 'Show more (2)' })).not.toBeNull()
-    expect(screen.queryByText('01.08.2026')).toBeNull()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Show more (2)' }))
-
-    expect(screen.getByRole('button', { name: 'Show less' })).not.toBeNull()
     expect(screen.getByText('01.08.2026')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /Show less/i })).toBeNull()
+    expect(screen.queryByText('Next subscriptions')).toBeNull()
   })
 
   it('disables toggle and shows queue invariant warning for invalid chain', () => {

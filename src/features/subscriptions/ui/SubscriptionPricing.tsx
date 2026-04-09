@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
@@ -9,8 +9,6 @@ import { Button, Card, CheckboxRadix, Typography } from '@/shared/ui'
 import { clsx } from 'clsx'
 
 import styles from './SubscriptionPricing.module.scss'
-
-const INITIAL_VISIBLE_FUTURE_SUBSCRIPTIONS = 2
 
 type SubscriptionPricingProps = {
   // Integration contract for Sprint 6 composition (T3/T4/T0):
@@ -39,16 +37,29 @@ export function SubscriptionPricing({
   const shouldShowCurrentSubscription = hasActiveSubscriptions
   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
 
-  const [isFutureExpanded, setIsFutureExpanded] = useState(false)
-  const currentSubscription = subscriptions[0]
-  const futureSubscriptions = subscriptions.slice(1)
-  const visibleFutureSubscriptions = isFutureExpanded
-    ? futureSubscriptions
-    : futureSubscriptions.slice(0, INITIAL_VISIBLE_FUTURE_SUBSCRIPTIONS)
-  const hiddenFutureCount = futureSubscriptions.length - visibleFutureSubscriptions.length
-  const visibleSubscriptions = currentSubscription
-    ? [currentSubscription, ...visibleFutureSubscriptions]
-    : []
+  const visibleSubscriptions = subscriptions
+
+  const resolveNextPaymentDate = (subscriptionIndex: number) => {
+    const current = subscriptions[subscriptionIndex]
+    const next = subscriptions[subscriptionIndex + 1]
+
+    if (next) {
+      // "Next payment" should never be earlier than current period expiration.
+      // If the next subscription was paid in advance, we show the next charge moment
+      // at the current period boundary instead of a past payment date.
+      const currentEndTime = new Date(current.endDateOfSubscription).getTime()
+      const nextPaymentTime = new Date(next.dateOfPayment).getTime()
+      const normalizedTime = Math.max(currentEndTime, nextPaymentTime)
+
+      return formatDate(new Date(normalizedTime).toISOString())
+    }
+
+    if (hasAutoRenewal) {
+      return formatDate(current.endDateOfSubscription)
+    }
+
+    return '—'
+  }
 
   if (isInitialLoading) {
     return <Loading />
@@ -96,44 +107,25 @@ export function SubscriptionPricing({
               </div>
               <div className={styles.currentSubscriptionBody}>
                 {visibleSubscriptions.map((subscription, index) => (
-                  <Fragment key={subscription.subscriptionId}>
-                    {index === 1 && (
-                      <div className={styles.nextGroupDivider}>
-                        <Typography className={styles.nextGroupLabel} variant={'regular_14'}>
-                          Next subscriptions
-                        </Typography>
-                      </div>
+                  <div
+                    key={subscription.subscriptionId}
+                    className={clsx(
+                      styles.currentSubscriptionRow,
+                      index === 0 && styles.currentSubscriptionRowActive,
+                      subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
                     )}
-                    <div
-                      className={clsx(
-                        styles.currentSubscriptionRow,
-                        index === 0 && styles.currentSubscriptionRowActive,
-                        isToggleLoading && styles.currentSubscriptionRowPending
-                      )}
-                    >
+                  >
+                    <Typography variant={'semibold_small_text'}>
+                      {formatDate(subscription.endDateOfSubscription)}
+                    </Typography>
+                    <div className={styles.metricCell}>
                       <Typography variant={'semibold_small_text'}>
-                        {formatDate(subscription.endDateOfSubscription)}
+                        {resolveNextPaymentDate(index)}
                       </Typography>
-                      <div className={styles.metricCell}>
-                        <Typography variant={'semibold_small_text'}>
-                          {subscriptions[index + 1]
-                            ? formatDate(subscriptions[index + 1].dateOfPayment)
-                            : '—'}
-                        </Typography>
-                      </div>
                     </div>
-                  </Fragment>
+                  </div>
                 ))}
               </div>
-              {futureSubscriptions.length > INITIAL_VISIBLE_FUTURE_SUBSCRIPTIONS && (
-                <Button
-                  className={styles.showMoreButton}
-                  variant={'text'}
-                  onClick={() => setIsFutureExpanded(prev => !prev)}
-                >
-                  {hiddenFutureCount > 0 ? `Show more (${hiddenFutureCount})` : 'Show less'}
-                </Button>
-              )}
             </div>
           </Card>
 
@@ -145,6 +137,13 @@ export function SubscriptionPricing({
               disabled={isToggleDisabled}
               onCheckedChange={() => void toggleAutoRenewal()}
             />
+            {isToggleLoading && (
+              <span
+                className={styles.autoRenewalSpinner}
+                aria-label={'Updating auto-renewal'}
+                role={'status'}
+              />
+            )}
           </div>
         </section>
       )}
