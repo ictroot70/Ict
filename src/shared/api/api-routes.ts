@@ -10,6 +10,8 @@ export const API_ROUTES = {
     REGISTRATION: '/v1/auth/registration',
     REGISTRATION_CONFIRMATION: '/v1/auth/registration-confirmation',
     REGISTRATION_EMAIL_RESENDING: '/v1/auth/registration-email-resending',
+    UPDATE: '/v1/auth/update',
+    // Deprecated endpoint kept for backward compatibility fallback.
     UPDATE_TOKENS: '/v1/auth/update-tokens',
     GITHUB_LOGIN: '/v1/auth/github/login',
     GOOGLE_LOGIN: '/v1/auth/google/login',
