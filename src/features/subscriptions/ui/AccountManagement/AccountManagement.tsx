@@ -4,18 +4,17 @@ import { useMemo, useState } from 'react'
 import { useCurrentSubscription } from '@/features/subscriptions/model/hooks/useCurrentSubscription'
 import { usePricing } from '@/features/subscriptions/model/hooks/usePricing'
 import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
-import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
-import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
-import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
-
-import styles from './AccountManagement.module.scss'
-
 import {
   AccountTypeValue,
   mapSubscriptionToUI,
   SubscriptionPlanValue,
   UISubscription,
-} from '../model/types'
+} from '@/features/subscriptions/model/types'
+import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
+import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
+
+import styles from './AccountManagement.module.scss'
 
 export const AccountManagement = () => {
   const [selectedAccountType, setSelectedAccountType] = useState<AccountTypeValue>('personal')

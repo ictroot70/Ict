@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { UISubscription } from '@/features/profile/settings/model/types'
+import { UISubscription } from '@/features/subscriptions/model/types'
 import { Card, CheckboxRadix, Typography } from '@/shared/ui'
 
 import styles from './SubscriptionSection.module.scss'

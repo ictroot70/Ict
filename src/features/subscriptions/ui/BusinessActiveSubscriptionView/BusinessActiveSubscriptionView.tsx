@@ -1,14 +1,14 @@
 import React from 'react'
 
+import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
+import { SubscriptionSection } from '@/features/profile/settings/ui/AccountManagement/SubscriptionSection/SubscriptionSection'
+
 import {
   AccountTypeValue,
   SubscriptionPlanValue,
   UISubscription,
   UISubscriptionPlan,
-} from '@/features/profile/settings/model/types'
-import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
-import { SubscriptionSection } from '@/features/profile/settings/ui/AccountManagement/SubscriptionSection/SubscriptionSection'
-
+} from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
 interface BusinessActiveSubscriptionViewProps {

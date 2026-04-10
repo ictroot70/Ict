@@ -1,12 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-import { SubscriptionPlanValue } from '@/features/profile/settings/model/types'
 import { Card, Typography, Button } from '@/shared/ui'
 
 import styles from './SubscriptionPricing.module.scss'
 
-import { SubscriptionPlan } from '../model/types'
+import { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
 
 interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
