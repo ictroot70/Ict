@@ -20,13 +20,12 @@
 
 .currentSubscriptionTable {
   --current-subscription-column-width: 120px;
-  --current-subscription-table-height: 180px;
+  --current-subscription-body-max-height: 150px;
 
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
   row-gap: 10px;
   width: 100%;
-  height: var(--current-subscription-table-height);
 }
 
 .currentSubscriptionHeader {
@@ -39,6 +38,7 @@
   display: grid;
   gap: 6px;
   width: 100%;
+  max-height: var(--current-subscription-body-max-height);
   overflow-y: auto;
   overflow-x: hidden;
   align-content: start;

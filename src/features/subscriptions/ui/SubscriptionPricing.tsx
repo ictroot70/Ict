@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
@@ -34,8 +34,53 @@ export function SubscriptionPricing({
   const hasActiveSubscriptions = subscriptions.length > 0
   const shouldShowCurrentSubscription = hasActiveSubscriptions
   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
+  const currentSubscriptionBodyRef = useRef<HTMLDivElement | null>(null)
+  const subscriptionRowRefs = useRef<Array<HTMLDivElement | null>>([])
+  const prevHasAutoRenewalRef = useRef(hasAutoRenewal)
 
   const visibleSubscriptions = subscriptions
+
+  useEffect(() => {
+    const wasAutoRenewalEnabled = prevHasAutoRenewalRef.current
+
+    prevHasAutoRenewalRef.current = hasAutoRenewal
+
+    if (wasAutoRenewalEnabled || !hasAutoRenewal) {
+      return
+    }
+
+    const bodyNode = currentSubscriptionBodyRef.current
+
+    if (!bodyNode) {
+      return
+    }
+
+    const autoRenewalIndex = visibleSubscriptions.findIndex(
+      subscription => subscription.autoRenewal
+    )
+
+    if (autoRenewalIndex < 0) {
+      return
+    }
+
+    const targetRow = subscriptionRowRefs.current[autoRenewalIndex]
+
+    if (!targetRow) {
+      return
+    }
+
+    const currentScrollTop = bodyNode.scrollTop
+    const currentScrollBottom = currentScrollTop + bodyNode.clientHeight
+    const rowTop = targetRow.offsetTop
+    const rowBottom = rowTop + targetRow.offsetHeight
+    const isRowFullyVisible = rowTop >= currentScrollTop && rowBottom <= currentScrollBottom
+
+    if (isRowFullyVisible) {
+      return
+    }
+
+    targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [hasAutoRenewal, visibleSubscriptions])
 
   const resolveNextPaymentDate = (subscriptionIndex: number) => {
     const current = subscriptions[subscriptionIndex]
@@ -103,10 +148,18 @@ export function SubscriptionPricing({
                   Next payment
                 </Typography>
               </div>
-              <div className={styles.currentSubscriptionBody}>
+              <div
+                ref={currentSubscriptionBodyRef}
+                className={styles.currentSubscriptionBody}
+                data-testid={'current-subscription-body'}
+              >
                 {visibleSubscriptions.map((subscription, index) => (
                   <div
                     key={subscription.subscriptionId}
+                    ref={node => {
+                      subscriptionRowRefs.current[index] = node
+                    }}
+                    data-subscription-id={subscription.subscriptionId}
                     className={clsx(
                       styles.currentSubscriptionRow,
                       index === 0 && styles.currentSubscriptionRowActive,
