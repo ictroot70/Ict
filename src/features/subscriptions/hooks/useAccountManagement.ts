@@ -5,13 +5,14 @@ import {
   useGetCurrentSubscriptionQuery,
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
-import { showToastAlert } from '@/shared/lib'
+
 import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { usePathname } from 'next/navigation'
 
-import { getPaymentErrorMessage } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
+
+type PaymentResultStatus = 'idle' | 'success' | 'failure'
 
 export function useAccountManagement() {
   const pathname = usePathname()
@@ -29,7 +30,7 @@ export function useAccountManagement() {
     return result.data?.data ?? []
   }, [refetch])
 
-  const { isPolling, flowStatus, clearPaymentState } = usePaymentReturnFlow({
+  const { isPolling, flowStatus, clearPaymentState, resetFlowStatus } = usePaymentReturnFlow({
     fetchSubscriptions,
   })
 
@@ -42,7 +43,6 @@ export function useAccountManagement() {
   }, [pricingPlans])
 
   const isAutoRenewEnabled = subscription?.hasAutoRenewal ?? false
-
   const subscriptionItems = subscription?.data ?? []
 
   const currentSubscription = subscriptionItems.length
@@ -53,40 +53,44 @@ export function useAccountManagement() {
       })
     : null
 
-  const handlePay = async (paymentType: PaymentType) => {
-    if (!selectedPlan || isPaymentLocked) {
-      return
-    }
+  const paymentResultStatus: PaymentResultStatus =
+    flowStatus === 'success'
+      ? 'success'
+      : flowStatus === 'failed' || flowStatus === 'timeout'
+        ? 'failure'
+        : 'idle'
 
-    try {
-      const returnUrl = `${window.location.origin}${pathname}`
-      const { typeDescription, amount } = selectedPlan
+  const handlePay = useCallback(
+    async (paymentType: PaymentType) => {
+      if (!selectedPlan || isPaymentLocked) {
+        return
+      }
 
-      const fresh = await refetch()
+      try {
+        const returnUrl = `${window.location.origin}${pathname}`
+        const { typeDescription, amount } = selectedPlan
 
-      paymentBaseline.set(fresh.data?.data ?? [])
+        const fresh = await refetch()
+        paymentBaseline.set(fresh.data?.data ?? [])
 
-      const result = await createSubscription({
-        amount,
-        paymentType,
-        baseUrl: returnUrl,
-        typeSubscription: typeDescription,
-      }).unwrap()
+        const result = await createSubscription({
+          amount,
+          paymentType,
+          baseUrl: returnUrl,
+          typeSubscription: typeDescription,
+        }).unwrap()
+        paymentPending.set()
+        window.location.href = result.url
+      } catch (error) {
+        clearPaymentState()
+      }
+    },
+    [clearPaymentState, createSubscription, isPaymentLocked, pathname, refetch, selectedPlan]
+  )
 
-      paymentPending.set()
-
-      window.location.href = result.url
-    } catch (error) {
-      clearPaymentState()
-
-      showToastAlert({
-        message: getPaymentErrorMessage(error),
-        type: 'error',
-      })
-    }
-  }
-
-  const handlePlanChange = (plan: PricingDetailsViewModel) => setSelectedPlan(plan)
+  const handlePlanChange = useCallback((plan: PricingDetailsViewModel) => {
+    setSelectedPlan(plan)
+  }, [])
 
   return {
     flowStatus,
@@ -95,7 +99,9 @@ export function useAccountManagement() {
     isPaymentLocked,
     isAutoRenewEnabled,
     currentSubscription,
+    paymentResultStatus,
     handlePay,
     handlePlanChange,
+    resetPaymentResult: resetFlowStatus,
   }
 }

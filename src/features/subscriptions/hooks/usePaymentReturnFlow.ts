@@ -22,6 +22,10 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
   const handledRef = useRef(false)
 
+  const resetFlowStatus = () => {
+    setFlowStatus('idle')
+  }
+
   const clearPaymentState = () => {
     paymentPending.clear()
     paymentBaseline.clear()
@@ -66,7 +70,12 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
 
     waitForSubscriptionUpdate(fetchSubscriptions, baseline)
       .then(outcome => {
-        setFlowStatus(outcome === 'success' ? 'success' : 'timeout')
+        if (outcome === 'success') {
+          setFlowStatus('success')
+          return
+        }
+
+        setFlowStatus('timeout')
       })
       .catch(() => {
         setFlowStatus('failed')
@@ -82,5 +91,6 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     flowStatus,
     isPolling: flowStatus === 'polling',
     clearPaymentState,
+    resetFlowStatus,
   }
 }

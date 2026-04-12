@@ -1,3 +1,4 @@
-export * from './Payments'
-export * from './AccountManagement'
 export * from './SubscriptionPricing'
+export * from './Payments'
+export * from './PaymentModals'
+export * from './AccountManagement'
