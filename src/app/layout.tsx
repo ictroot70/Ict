@@ -17,8 +17,10 @@ import { getMessages } from 'next-intl/server'
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
 
+const DEFAULT_PAGE_TITLE = 'Ictroot — Modern Social Platform'
+
 export const metadata: Metadata = {
-  title: 'Ictroot — Modern Social Platform',
+  title: DEFAULT_PAGE_TITLE,
   description:
     'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
   keywords: [
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Ictroot Team', url: 'https://ictroot.uk' }],
   openGraph: {
-    title: 'Ictroot — Modern Social Platform',
+    title: DEFAULT_PAGE_TITLE,
     description:
       'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
     url: 'https://ictroot.uk',
@@ -154,6 +156,7 @@ export default async function RootLayout({
   return (
     <html lang={'en'} suppressHydrationWarning>
       <head>
+        <title>{DEFAULT_PAGE_TITLE}</title>
         <style id={'critical-base-style'}>{CRITICAL_BASE_STYLE}</style>
       </head>
       <body className={inter.variable} suppressHydrationWarning>
