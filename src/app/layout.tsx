@@ -109,7 +109,7 @@ html, body {
 }
 body {
   overflow: hidden;
-  background: #171717;
+  background: var(--background, var(--color-dark-700, #0d0d0d));
 }
 header[data-is-authorized] {
   position: fixed;
