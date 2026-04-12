@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-import { ReactNode } from 'react'
+import { ReactNode, Suspense } from 'react'
 
 import { RootLayoutClient } from '@/app/RootLayoutClient'
 import { MonitoringBootstrap } from '@/app/providers/MonitoringBootstrap/MonitoringBootstrap'
@@ -16,6 +16,8 @@ import { getMessages } from 'next-intl/server'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
+
+import layoutShellStyles from './RootLayoutClient.module.scss'
 
 const DEFAULT_PAGE_TITLE = 'Ictroot — Modern Social Platform'
 
@@ -102,6 +104,20 @@ const AUTH_HINT_BOOTSTRAP_SCRIPT = `
 })()
 `
 
+function RootLayoutFallback({ children }: { children: ReactNode }) {
+  return (
+    <main>
+      <div className={layoutShellStyles.wrapper}>
+        <div
+          className={`${layoutShellStyles.content} ${layoutShellStyles['content--withoutSidebar']}`}
+        >
+          {children}
+        </div>
+      </div>
+    </main>
+  )
+}
+
 const CRITICAL_BASE_STYLE = `
 html, body {
   width: 100%;
@@ -168,7 +184,9 @@ export default async function RootLayout({
           <StoreProvider>
             <AuthSessionHintProvider value={initialAuthHint}>
               <AppHeader />
-              <RootLayoutClient>{children}</RootLayoutClient>
+              <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
+                <RootLayoutClient>{children}</RootLayoutClient>
+              </Suspense>
             </AuthSessionHintProvider>
           </StoreProvider>
         </NextIntlClientProvider>
