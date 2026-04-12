@@ -1,20 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useTranslations } from 'next-intl'
-
-import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
 import {
   PaymentConfirmationModal,
   PaymentFailureModal,
   PaymentSuccessModal,
 } from '@/features/subscriptions'
-import { AccountModal, mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
+import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
+import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
 import { formatDate } from '@/shared/lib'
 import { PaymentType } from '@/shared/types'
 import { Button, CheckboxRadix } from '@/shared/ui'
+import { useTranslations } from 'next-intl'
 
 import s from './AccountManagement.module.scss'
+
+import { usePaymentModalState } from '../../hooks/usePaymentModalState'
 export function AccountManagement() {
   const {
     flowStatus,
@@ -29,59 +29,27 @@ export function AccountManagement() {
     resetPaymentResult,
   } = useAccountManagement()
 
-  const [modal, setModal] = useState<AccountModal>(null)
-  const [handledPaymentResult, setHandledPaymentResult] = useState(false)
-
   const t = useTranslations('subscriptions.account')
   const { handleSwitchAutoRenewal, isAutoRenewalChanging } = useAutoRenewalActions()
 
-  useEffect(() => {
-    if (handledPaymentResult) {
-      return
-    }
+  const isPaymentDisabled = !selectedPlan || isPaymentLocked
 
-    if (paymentResultStatus === 'success') {
-      setModal('success')
-    }
-
-    if (paymentResultStatus === 'failure') {
-      setModal('failure')
-    }
-  }, [handledPaymentResult, paymentResultStatus])
-
-  const openPaymentModal = () => {
-    if (!selectedPlan || isPaymentLocked) {
-      return
-    }
-
-    setModal('confirm')
-  }
-
-  const closePaymentResultModal = () => {
-    setModal(null)
-    setHandledPaymentResult(true)
-  }
-
-  const closeAutoModal = () => {
-    setModal(current => (current === 'confirm' ? null : current))
-  }
+  const {
+    modal,
+    backToPayment,
+    openConfirmModal,
+    closeConfirmModal,
+    clearPaymentModalState,
+    closePaymentResultModal,
+  } = usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
 
   const confirmPayment = async () => {
-    setModal(null)
-    setHandledPaymentResult(false)
+    clearPaymentModalState()
     resetPaymentResult()
 
     await handlePay(PaymentType.STRIPE)
   }
 
-  const backToPayment = () => {
-    if (isPaymentLocked || !selectedPlan) {
-      return
-    }
-
-    setHandledPaymentResult(true)
-    setModal('confirm')
-  }
   return (
     <>
       <div className={s.root}>
@@ -131,7 +99,7 @@ export function AccountManagement() {
         <Button
           variant={'outlined'}
           disabled={isPaymentLocked || !selectedPlan}
-          onClick={openPaymentModal}
+          onClick={openConfirmModal}
         >
           {t('stripe')}
         </Button>
@@ -139,7 +107,7 @@ export function AccountManagement() {
 
       <PaymentConfirmationModal
         open={modal === 'confirm'}
-        onClose={closeAutoModal}
+        onClose={closeConfirmModal}
         onConfirm={confirmPayment}
         isSubmitting={isPaymentLocked}
       />

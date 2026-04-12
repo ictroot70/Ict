@@ -5,14 +5,15 @@ import {
   useGetCurrentSubscriptionQuery,
   useGetPricingQuery,
 } from '@/features/subscriptions/api'
-
+import { showToastAlert } from '@/shared/lib'
 import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { usePathname } from 'next/navigation'
 
+import { getPaymentErrorMessage } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 
-type PaymentResultStatus = 'idle' | 'success' | 'failure'
+export type PaymentResultStatus = 'idle' | 'success' | 'failure'
 
 export function useAccountManagement() {
   const pathname = usePathname()
@@ -53,12 +54,13 @@ export function useAccountManagement() {
       })
     : null
 
-  const paymentResultStatus: PaymentResultStatus =
-    flowStatus === 'success'
-      ? 'success'
-      : flowStatus === 'failed' || flowStatus === 'timeout'
-        ? 'failure'
-        : 'idle'
+  let paymentResultStatus: PaymentResultStatus = 'idle'
+
+  if (flowStatus === 'success') {
+    paymentResultStatus = 'success'
+  } else if (flowStatus === 'failed' || flowStatus === 'timeout') {
+    paymentResultStatus = 'failure'
+  }
 
   const handlePay = useCallback(
     async (paymentType: PaymentType) => {
@@ -71,6 +73,7 @@ export function useAccountManagement() {
         const { typeDescription, amount } = selectedPlan
 
         const fresh = await refetch()
+
         paymentBaseline.set(fresh.data?.data ?? [])
 
         const result = await createSubscription({
@@ -79,9 +82,14 @@ export function useAccountManagement() {
           baseUrl: returnUrl,
           typeSubscription: typeDescription,
         }).unwrap()
+
         paymentPending.set()
         window.location.href = result.url
       } catch (error) {
+        showToastAlert({
+          message: getPaymentErrorMessage(error),
+          type: 'error',
+        })
         clearPaymentState()
       }
     },

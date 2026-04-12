@@ -7,7 +7,6 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { parsePaymentReturn } from '../lib'
 import { paymentBaseline, paymentPending } from '../model'
 import { waitForSubscriptionUpdate } from '../model/paymentPolling'
-import { usePaymentNotifications } from './usePaymentNotifications'
 
 export type FlowStatus = 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
 
@@ -42,13 +41,9 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     const isPending = paymentPending.get()
 
     if (returnStatus === null) {
-      if (!isPending) {
-        return
+      if (isPending) {
+        clearPaymentState()
       }
-
-      router.replace(pathname)
-      clearPaymentState()
-      setFlowStatus('failed')
 
       return
     }
@@ -69,13 +64,8 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     setFlowStatus('polling')
 
     waitForSubscriptionUpdate(fetchSubscriptions, baseline)
-      .then(outcome => {
-        if (outcome === 'success') {
-          setFlowStatus('success')
-          return
-        }
-
-        setFlowStatus('timeout')
+      .then(status => {
+        setFlowStatus(status)
       })
       .catch(() => {
         setFlowStatus('failed')
@@ -84,8 +74,6 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
         clearPaymentState()
       })
   }, [fetchSubscriptions, pathname, router, searchParams])
-
-  usePaymentNotifications(flowStatus)
 
   return {
     flowStatus,

@@ -5,12 +5,12 @@ import { hasNewSubscription } from '../lib'
 const POLL_INTERVAL_MS = 3_000
 const POLL_TIMEOUT_MS = 90_000
 
-export type PollOutcome = 'success' | 'timeout'
+export type PollStatus = 'success' | 'timeout'
 
 export async function waitForSubscriptionUpdate(
   fetchFn: () => Promise<ActiveSubscriptionViewModel[]>,
   baseline: ActiveSubscriptionViewModel[]
-): Promise<PollOutcome> {
+): Promise<PollStatus> {
   const deadline = Date.now() + POLL_TIMEOUT_MS
 
   while (Date.now() < deadline) {
