@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 
 import { Card, Typography, Button } from '@/shared/ui'
+import { RadioGroupRadix } from '@ictroot/ui-kit'
 
 import styles from './SubscriptionPricing.module.scss'
 
@@ -40,7 +41,15 @@ export function SubscriptionPricing({
   const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
   const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
 
-  const handlePlanChange = (planValue: SubscriptionPlanValue) => {
+  const radioOptions = plans.map(plan => ({
+    value: plan.value,
+    label: plan.label,
+    id: `plan-${plan.id}`,
+  }))
+
+  const handleValueChange = (value: string) => {
+    const planValue = value as SubscriptionPlanValue
+
     if (onPlanChange) {
       onPlanChange(planValue)
     } else {
@@ -67,33 +76,14 @@ export function SubscriptionPricing({
 
       <div className={styles.pricingList}>
         <Card className={styles.pricingCard}>
-          <div className={styles.pricingCard__content}>
-            {plans.map(plan => (
-              <div
-                key={plan.id}
-                className={`${styles.planRow} ${selectedPlanValue === plan.value ? styles.planRowSelected : ''}`}
-                onClick={() => handlePlanChange(plan.value)}
-                role={'button'}
-                tabIndex={0}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    handlePlanChange(plan.value)
-                  }
-                }}
-              >
-                <div className={styles.planRadio}>
-                  <div
-                    className={`${styles.planRadio__circle} ${selectedPlanValue === plan.value ? styles.planRadio__circleSelected : ''}`}
-                  >
-                    {selectedPlanValue === plan.value && <div className={styles.planRadio__dot} />}
-                  </div>
-                  <Typography variant={'regular_16'} className={styles.planRadio__label}>
-                    {plan.label}
-                  </Typography>
-                </div>
-              </div>
-            ))}
-          </div>
+          <RadioGroupRadix
+            label={'Select subscription plan'}
+            options={radioOptions}
+            value={selectedPlanValue}
+            onValueChange={handleValueChange}
+            orientation={'vertical'}
+            disabled={isPaymentLocked}
+          />
         </Card>
       </div>
 

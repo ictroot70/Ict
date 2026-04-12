@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { AccountTypeSection } from '@/features/profile/settings/ui/AccountManagement/AccountTypeSection/AccountTypeSection'
+import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
 
 import { AccountTypeValue } from '../../model/types'
 
