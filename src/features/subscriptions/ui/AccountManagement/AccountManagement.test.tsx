@@ -2,7 +2,8 @@
 import React from 'react'
 
 import { PaymentType } from '@/shared/types'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { NextIntlClientProvider } from 'next-intl'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AccountManagement } from './AccountManagement'
@@ -11,23 +12,28 @@ type Plan = { amount: number; typeDescription: string }
 
 type AccountState = {
   flowStatus: 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
+  paymentResultStatus: 'idle' | 'success' | 'failure'
   selectedPlan: Plan | null
   pricingPlans: { data: Plan[] }
   isPaymentLocked: boolean
   isAutoRenewEnabled: boolean
   currentSubscription: {
     endDateOfSubscription: string
+    autoRenewal?: boolean
   } | null
   handlePay: ReturnType<typeof vi.fn>
   handlePlanChange: ReturnType<typeof vi.fn>
+  resetPaymentResult: ReturnType<typeof vi.fn>
 }
 
 const mocks = vi.hoisted(() => ({
   handlePay: vi.fn(),
   handlePlanChange: vi.fn(),
   handleSwitchAutoRenewal: vi.fn(),
+  resetPaymentResult: vi.fn(),
   accountState: {
     flowStatus: 'idle',
+    paymentResultStatus: 'idle',
     selectedPlan: { amount: 10, typeDescription: 'DAY' },
     pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
     isPaymentLocked: false,
@@ -35,6 +41,7 @@ const mocks = vi.hoisted(() => ({
     currentSubscription: null,
     handlePay: vi.fn(),
     handlePlanChange: vi.fn(),
+    resetPaymentResult: vi.fn(),
   } as AccountState,
   autoRenewState: {
     handleSwitchAutoRenewal: vi.fn(),
@@ -53,12 +60,49 @@ vi.mock('@/features/subscriptions/hooks', () => ({
   useAutoRenewalActions: () => mocks.autoRenewState,
 }))
 
+vi.mock('@/features/subscriptions', () => ({
+  PaymentConfirmationModal: ({ open, onConfirm }: any) =>
+    open ? (
+      <button type={'button'} onClick={onConfirm}>
+        {'confirm payment'}
+      </button>
+    ) : null,
+  PaymentFailureModal: () => null,
+  PaymentSuccessModal: () => null,
+}))
+
+const messages = {
+  subscriptions: {
+    account: {
+      stripe: 'STRIPE',
+      autoRenewTitle: 'Auto-Renewal',
+      autoRenewText: 'Auto renewal text',
+      agree: 'I agree',
+      sending: 'Sending...',
+      ok: 'OK',
+      errorTitle: 'Error',
+      errorText: 'Payment failed',
+      backToPayment: 'Back to payment',
+      successTitle: 'Success',
+      successText: 'Payment success',
+    },
+  },
+}
+
+const renderAccountManagement = () =>
+  render(
+    <NextIntlClientProvider locale={'en'} messages={messages}>
+      <AccountManagement />
+    </NextIntlClientProvider>
+  )
+
 describe('AccountManagement', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
     mocks.accountState = {
       flowStatus: 'idle',
+      paymentResultStatus: 'idle',
       selectedPlan: { amount: 10, typeDescription: 'DAY' },
       pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
       isPaymentLocked: false,
@@ -66,6 +110,7 @@ describe('AccountManagement', () => {
       currentSubscription: null,
       handlePay: mocks.handlePay,
       handlePlanChange: mocks.handlePlanChange,
+      resetPaymentResult: mocks.resetPaymentResult,
     }
 
     mocks.autoRenewState = {
@@ -75,14 +120,14 @@ describe('AccountManagement', () => {
   })
   it('shows polling state', () => {
     mocks.accountState.flowStatus = 'polling'
-    render(<AccountManagement />)
+    renderAccountManagement()
 
     expect(screen.getByText('Processing payment...')).not.toBeNull()
-    expect(screen.queryByRole('button', { name: 'STRIPE' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'STRIPE' })).not.toBeNull()
   })
 
   it('renders plans and STRIPE button', () => {
-    render(<AccountManagement />)
+    renderAccountManagement()
 
     expect(screen.getByText('Change your subscription:')).not.toBeNull()
     expect(screen.getByRole('button', { name: 'STRIPE' })).not.toBeNull()
@@ -90,7 +135,7 @@ describe('AccountManagement', () => {
 
   it('calls handlePlanChange on radio select', () => {
     mocks.accountState.selectedPlan = null
-    render(<AccountManagement />)
+    renderAccountManagement()
 
     const radio = screen.getByRole('radio')
 
@@ -101,15 +146,21 @@ describe('AccountManagement', () => {
     )
   })
 
-  it('calls handlePay with STRIPE on click', () => {
-    render(<AccountManagement />)
+  it('calls handlePay with STRIPE after confirmation', async () => {
+    renderAccountManagement()
 
     fireEvent.click(screen.getByRole('button', { name: 'STRIPE' }))
-    expect(mocks.handlePay).toHaveBeenCalledWith(PaymentType.STRIPE)
+    fireEvent.click(screen.getByRole('button', { name: 'confirm payment' }))
+
+    await waitFor(() => {
+      expect(mocks.resetPaymentResult).toHaveBeenCalled()
+      expect(mocks.handlePay).toHaveBeenCalledWith(PaymentType.STRIPE)
+    })
   })
+
   it('disables pay button when payment is locked', () => {
     mocks.accountState.isPaymentLocked = true
-    render(<AccountManagement />)
+    renderAccountManagement()
 
     const btn = screen.getByRole('button', { name: 'STRIPE' })
 
@@ -120,7 +171,7 @@ describe('AccountManagement', () => {
       endDateOfSubscription: '2026-05-01',
     }
 
-    render(<AccountManagement />)
+    renderAccountManagement()
 
     expect(screen.getByText('Current Subscription:')).not.toBeNull()
     expect(screen.getByText('Expire at')).not.toBeNull()

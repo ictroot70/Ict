@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 import {
   PaymentConfirmationModal,
   PaymentFailureModal,
@@ -54,7 +56,6 @@ export function AccountManagement() {
     <>
       <div className={s.root}>
         {flowStatus === 'polling' && <p>Processing payment...</p>}
-
         {currentSubscription && (
           <div className={s.section}>
             <span className={s.sectionTitle}>Current Subscription:</span>

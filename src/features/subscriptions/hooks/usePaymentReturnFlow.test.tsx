@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { PollOutcome } from '../model/paymentPolling'
+import type { PollStatus } from '../model/paymentPolling'
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 import { renderHook, waitFor } from '@testing-library/react'
@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => ({
       (
         fetchFn: () => Promise<ActiveSubscriptionViewModel[]>,
         baseline: ActiveSubscriptionViewModel[]
-      ) => Promise<PollOutcome>
+      ) => Promise<PollStatus>
     >(),
   searchParamsMock: vi.fn<() => URLSearchParams>(() => new URLSearchParams('success=true')),
 }))
@@ -52,14 +52,13 @@ describe('usePaymentReturnFlow idempotency', () => {
     rerender()
     expect(mocks.pollMock).toHaveBeenCalledTimes(1)
   })
-  it('fails without polling when pending flag exists without query param', async () => {
+  it('clears stale pending state without polling when query param is missing', async () => {
     sessionStorage.setItem('payment_pending', '1')
-
     mocks.searchParamsMock.mockReturnValue(new URLSearchParams(''))
 
     const { result } = renderHook(() => usePaymentReturnFlow({ fetchSubscriptions: vi.fn() }))
 
-    await waitFor(() => expect(result.current.flowStatus).toBe('failed'))
+    await waitFor(() => expect(result.current.flowStatus).toBe('idle'))
     expect(sessionStorage.getItem('payment_pending')).toBeNull()
     expect(sessionStorage.getItem('payment_baseline')).toBeNull()
     expect(mocks.pollMock).not.toHaveBeenCalled()

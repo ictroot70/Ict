@@ -4,7 +4,7 @@ import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { AutoRenewModal, PaymentFailureModal, PaymentSuccessModal } from './index'
+import { PaymentConfirmationModal, PaymentFailureModal, PaymentSuccessModal } from './index'
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) =>
@@ -66,7 +66,9 @@ describe('PaymentModals (T6)', () => {
   it('Confirm modal: "I agree" toggles OK enabled/disabled', () => {
     const onConfirm = vi.fn()
 
-    render(<AutoRenewModal open onClose={vi.fn()} onConfirm={onConfirm} isSubmitting={false} />)
+    render(
+      <PaymentConfirmationModal open onClose={vi.fn()} onConfirm={onConfirm} isSubmitting={false} />
+    )
 
     const okButton = screen.getByRole('button', { name: 'OK' }) as HTMLButtonElement
 
