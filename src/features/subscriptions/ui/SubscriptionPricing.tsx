@@ -1,96 +1,224 @@
 'use client'
 
-import { useMemo } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 
-import { useGetPricingQuery } from '@/features/subscriptions/api'
-import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
-import { SubscriptionType } from '@/shared/types'
-import { Button, Card, Typography } from '@/shared/ui'
+import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
+import { Loading } from '@/shared/composites'
+import { formatDate } from '@/shared/lib/formatters'
+import { Button, Card, CheckboxRadix, Typography } from '@/shared/ui'
+import { clsx } from 'clsx'
 
 import styles from './SubscriptionPricing.module.scss'
 
-const SUBSCRIPTION_ORDER: Record<SubscriptionType, number> = {
-  [SubscriptionType.DAY]: 0,
-  [SubscriptionType.WEEKLY]: 1,
-  [SubscriptionType.MONTHLY]: 2,
+type SubscriptionPricingProps = {
+  accountTypeSlot?: ReactNode
+  changeSubscriptionSlot?: ReactNode
 }
 
-export function SubscriptionPricing() {
-  const { data, isError, refetch } = useGetPricingQuery()
+export function SubscriptionPricing({
+  accountTypeSlot,
+  changeSubscriptionSlot,
+}: SubscriptionPricingProps = {}) {
+  const {
+    subscriptions,
+    hasAutoRenewal,
+    isLoading: isSubscriptionsLoading,
+    isError: isSubscriptionsError,
+    refetchCurrentSubscription,
+    toggleAutoRenewal,
+    isToggleLoading,
+    isToggleDisabled,
+    hasQueueInvariantViolation,
+  } = useCurrentSubscriptionChain()
 
-  const pricingPlans = useMemo(() => {
-    if (!data) {
-      return []
+  const hasActiveSubscriptions = subscriptions.length > 0
+  const shouldShowCurrentSubscription = hasActiveSubscriptions
+  const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
+  const currentSubscriptionBodyRef = useRef<HTMLDivElement | null>(null)
+  const subscriptionRowRefs = useRef<Array<HTMLDivElement | null>>([])
+  const prevHasAutoRenewalRef = useRef(hasAutoRenewal)
+
+  const visibleSubscriptions = subscriptions
+
+  useEffect(() => {
+    const wasAutoRenewalEnabled = prevHasAutoRenewalRef.current
+
+    prevHasAutoRenewalRef.current = hasAutoRenewal
+
+    if (wasAutoRenewalEnabled || !hasAutoRenewal) {
+      return
     }
 
-    return [...data.data].sort(
-      (left, right) =>
-        SUBSCRIPTION_ORDER[left.typeDescription] - SUBSCRIPTION_ORDER[right.typeDescription]
-    )
-  }, [data])
+    const bodyNode = currentSubscriptionBodyRef.current
 
-  if (isError) {
+    if (!bodyNode) {
+      return
+    }
+
+    const autoRenewalIndex = visibleSubscriptions.findIndex(
+      subscription => subscription.autoRenewal
+    )
+
+    if (autoRenewalIndex < 0) {
+      return
+    }
+
+    const targetRow = subscriptionRowRefs.current[autoRenewalIndex]
+
+    if (!targetRow) {
+      return
+    }
+
+    const currentScrollTop = bodyNode.scrollTop
+    const currentScrollBottom = currentScrollTop + bodyNode.clientHeight
+    const rowTop = targetRow.offsetTop
+    const rowBottom = rowTop + targetRow.offsetHeight
+    const isRowFullyVisible = rowTop >= currentScrollTop && rowBottom <= currentScrollBottom
+
+    if (isRowFullyVisible) {
+      return
+    }
+
+    targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [hasAutoRenewal, visibleSubscriptions])
+
+  const resolveNextPaymentDate = (subscriptionIndex: number) => {
+    const current = subscriptions[subscriptionIndex]
+    const next = subscriptions[subscriptionIndex + 1]
+
+    if (next) {
+      // "Next payment" should never be earlier than current period expiration.
+      // If the next subscription was paid in advance, we show the next charge moment
+      // at the current period boundary instead of a past payment date.
+      const currentEndTime = new Date(current.endDateOfSubscription).getTime()
+      const nextPaymentTime = new Date(next.dateOfPayment).getTime()
+      const normalizedTime = Math.max(currentEndTime, nextPaymentTime)
+
+      return formatDate(new Date(normalizedTime).toISOString())
+    }
+
+    if (hasAutoRenewal) {
+      return formatDate(current.endDateOfSubscription)
+    }
+
+    return '—'
+  }
+
+  if (isInitialLoading) {
+    return <Loading />
+  }
+
+  if (isSubscriptionsError) {
     return (
       <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>Could not load pricing</Typography>
+        <Typography variant={'h3'}>Could not load subscriptions data</Typography>
         <Typography className={styles.stateText} variant={'regular_16'}>
           Please try again.
         </Typography>
-        <Button className={styles.retryButton} variant={'outlined'} onClick={() => refetch()}>
+        <Button
+          className={styles.retryButton}
+          variant={'outlined'}
+          onClick={() => void refetchCurrentSubscription()}
+        >
           Retry
         </Button>
       </Card>
     )
   }
 
-  if (!data) {
-    // Global settings-tabs loading already covers this state, so no local pricing loader here.
-    return null
-  }
-
-  if (!pricingPlans.length) {
-    return (
-      <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>No pricing plans</Typography>
-        <Typography className={styles.stateText} variant={'regular_16'}>
-          Pricing is currently unavailable.
-        </Typography>
-      </Card>
-    )
-  }
+  const resolvedAccountTypeSlot = accountTypeSlot ?? (
+    <div className={styles.integrationSlot} data-slot={'account-type'} />
+  )
+  const resolvedChangeSubscriptionSlot = changeSubscriptionSlot ?? (
+    <div className={styles.integrationSlot} data-slot={'change-subscription'} />
+  )
 
   return (
     <div className={styles.root}>
-      {/* TODO(SCRUM-199, T2/T3/T4): replace preview with final Account Management composition
-          and bind selected plan to payment flow (createSubscription + return/polling). */}
-      <Typography variant={'h3'}>Change your subscription:</Typography>
-      <Card className={styles.noticeCard}>
-        <Typography className={styles.noticeTitle} variant={'regular_16'}>
-          Temporary pricing preview
-        </Typography>
-        <Typography className={styles.noticeText} variant={'small_text'}>
-          Plans below are rendered from `useGetPricingQuery`.
-        </Typography>
-        <Typography className={styles.noticeText} variant={'small_text'}>
-          Next step for Account Management flow (T2+): connect selected plan with
-          `createSubscription` and subscription state from `getCurrentSubscription`.
-        </Typography>
-      </Card>
-      <Card className={styles.pricingCard}>
-        <div className={styles.pricingList}>
-          {pricingPlans.map((plan, index) => (
-            <div key={plan.typeDescription} className={styles.planRow}>
-              <span
-                aria-hidden
-                className={index === 0 ? styles.pseudoRadioSelected : styles.pseudoRadio}
-              />
-              <Typography variant={'regular_16'}>
-                ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
-              </Typography>
+      {shouldShowCurrentSubscription && (
+        <section className={styles.currentSubscriptionSection}>
+          <Typography variant={'h3'}>Current Subscription:</Typography>
+          <Card className={styles.currentSubscriptionCard}>
+            <div className={styles.currentSubscriptionTable}>
+              <div className={styles.currentSubscriptionHeader}>
+                <Typography className={styles.metricLabel} variant={'regular_14'}>
+                  Expire at
+                </Typography>
+                <Typography className={styles.metricLabel} variant={'regular_14'}>
+                  Next payment
+                </Typography>
+              </div>
+              <div
+                ref={currentSubscriptionBodyRef}
+                className={styles.currentSubscriptionBody}
+                data-testid={'current-subscription-body'}
+              >
+                {visibleSubscriptions.map((subscription, index) => (
+                  <div
+                    key={subscription.subscriptionId}
+                    ref={node => {
+                      subscriptionRowRefs.current[index] = node
+                    }}
+                    data-subscription-id={subscription.subscriptionId}
+                    className={clsx(
+                      styles.currentSubscriptionRow,
+                      index === 0 && styles.currentSubscriptionRowActive,
+                      subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
+                    )}
+                  >
+                    <Typography variant={'semibold_small_text'}>
+                      {formatDate(subscription.endDateOfSubscription)}
+                    </Typography>
+                    <div className={styles.metricCell}>
+                      <Typography variant={'semibold_small_text'}>
+                        {resolveNextPaymentDate(index)}
+                      </Typography>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </Card>
+          </Card>
+
+          <div className={styles.autoRenewalControl}>
+            <CheckboxRadix
+              required={false}
+              label={'Auto-Renewal'}
+              checked={hasAutoRenewal}
+              disabled={isToggleDisabled}
+              onCheckedChange={() => void toggleAutoRenewal()}
+            />
+            {isToggleLoading && (
+              <span
+                className={styles.autoRenewalSpinner}
+                aria-label={'Updating auto-renewal'}
+                role={'status'}
+              />
+            )}
+          </div>
+        </section>
+      )}
+
+      <section
+        className={clsx(
+          styles.accountTypeSection,
+          !shouldShowCurrentSubscription && styles.accountTypeSectionTopOffset
+        )}
+      >
+        <Typography variant={'h3'}>Account type:</Typography>
+        {resolvedAccountTypeSlot}
+      </section>
+
+      <section className={styles.businessPricingSection}>
+        <Typography variant={'h3'}>Change your subscription:</Typography>
+        {resolvedChangeSubscriptionSlot}
+      </section>
+
+      {shouldShowCurrentSubscription && hasQueueInvariantViolation && (
+        <Typography className={styles.warningText} variant={'small_text'}>
+          Queue invariant violated: auto-renew must be enabled only on the last subscription.
+        </Typography>
+      )}
     </div>
   )
 }
