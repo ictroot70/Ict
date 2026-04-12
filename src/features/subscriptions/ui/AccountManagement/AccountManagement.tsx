@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 
 import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
-import { AutoRenewModal, PaymentFailureModal, PaymentSuccessModal } from '@/features/subscriptions'
+import {
+  PaymentConfirmationModal,
+  PaymentFailureModal,
+  PaymentSuccessModal,
+} from '@/features/subscriptions'
 import { AccountModal, mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
 import { formatDate } from '@/shared/lib'
 import { PaymentType } from '@/shared/types'
@@ -50,7 +54,7 @@ export function AccountManagement() {
       return
     }
 
-    setModal('auto')
+    setModal('confirm')
   }
 
   const closePaymentResultModal = () => {
@@ -59,7 +63,7 @@ export function AccountManagement() {
   }
 
   const closeAutoModal = () => {
-    setModal(current => (current === 'auto' ? null : current))
+    setModal(current => (current === 'confirm' ? null : current))
   }
 
   const confirmPayment = async () => {
@@ -76,7 +80,7 @@ export function AccountManagement() {
     }
 
     setHandledPaymentResult(true)
-    setModal('auto')
+    setModal('confirm')
   }
   return (
     <>
@@ -133,8 +137,8 @@ export function AccountManagement() {
         </Button>
       </div>
 
-      <AutoRenewModal
-        open={modal === 'auto'}
+      <PaymentConfirmationModal
+        open={modal === 'confirm'}
         onClose={closeAutoModal}
         onConfirm={confirmPayment}
         isSubmitting={isPaymentLocked}

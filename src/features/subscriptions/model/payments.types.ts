@@ -15,4 +15,4 @@ export type PaymentFlowState = {
   resetFlow: () => void
 }
 
-export type AccountModal = null | 'auto' | 'success' | 'failure'
+export type AccountModal = null | 'confirm' | 'success' | 'failure'
