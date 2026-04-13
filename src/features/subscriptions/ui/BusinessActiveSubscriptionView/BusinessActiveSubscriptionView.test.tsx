@@ -22,12 +22,6 @@ vi.mock('../SubscriptionPricing', () => ({
   ),
 }))
 
-vi.mock('../SubscriptionSection/SubscriptionSection', () => ({
-  SubscriptionSection: ({ subscription }: { subscription?: { isActive: boolean } }) => (
-    <div data-testid={'subscription-section'} data-active={String(subscription?.isActive)} />
-  ),
-}))
-
 const mockProps = {
   accountType: 'business' as const,
   onAccountTypeChange: vi.fn(),

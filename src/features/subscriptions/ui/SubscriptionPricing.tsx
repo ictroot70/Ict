@@ -89,7 +89,7 @@ export function SubscriptionPricing({
 
       <div className={styles.paymentContainer}>
         <div className={styles.paymentWrapper}>
-          <Button
+          {/* <Button
             className={styles.paymentButton}
             onClick={onPayPalClick}
             disabled={isDisabled}
@@ -98,7 +98,7 @@ export function SubscriptionPricing({
             <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
           </Button>
 
-          <span className={styles.paymentOr}>Or</span>
+          <span className={styles.paymentOr}>Or</span> */}
 
           <Button
             className={styles.paymentButton}

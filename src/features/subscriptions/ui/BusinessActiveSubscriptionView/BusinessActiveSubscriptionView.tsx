@@ -9,7 +9,6 @@ import {
   UISubscriptionPlan,
 } from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
-import { SubscriptionSection } from '../SubscriptionSection/SubscriptionSection'
 
 interface BusinessActiveSubscriptionViewProps {
   subscription?: UISubscription
@@ -36,8 +35,6 @@ export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscription
 }) => {
   return (
     <div>
-      {subscription && <SubscriptionSection subscription={subscription} />}
-
       <AccountTypeSection
         accountTypes={[
           { value: 'personal', label: 'Personal' },
