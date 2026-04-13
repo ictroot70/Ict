@@ -46,13 +46,10 @@ export function useAccountManagement() {
   const isAutoRenewEnabled = subscription?.hasAutoRenewal ?? false
   const subscriptionItems = subscription?.data ?? []
 
-  const currentSubscription = subscriptionItems.length
-    ? subscriptionItems.reduce((latest, item) => {
-        return new Date(item.endDateOfSubscription) > new Date(latest.endDateOfSubscription)
-          ? item
-          : latest
-      })
-    : null
+  const subscriptionQueue = [...subscriptionItems].sort(
+    (a, b) =>
+      new Date(a.endDateOfSubscription).getTime() - new Date(b.endDateOfSubscription).getTime()
+  )
 
   let paymentResultStatus: PaymentResultStatus = 'idle'
 
@@ -106,7 +103,7 @@ export function useAccountManagement() {
     selectedPlan,
     isPaymentLocked,
     isAutoRenewEnabled,
-    currentSubscription,
+    subscriptionQueue,
     paymentResultStatus,
     handlePay,
     handlePlanChange,

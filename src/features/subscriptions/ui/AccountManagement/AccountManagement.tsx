@@ -25,7 +25,7 @@ export function AccountManagement() {
     pricingPlans,
     isPaymentLocked,
     isAutoRenewEnabled,
-    currentSubscription,
+    subscriptionQueue,
     handlePay,
     handlePlanChange,
     resetPaymentResult,
@@ -56,20 +56,27 @@ export function AccountManagement() {
     <>
       <div className={s.root}>
         {flowStatus === 'polling' && <p>Processing payment...</p>}
-        {currentSubscription && (
-          <div className={s.section}>
-            <span className={s.sectionTitle}>Current Subscription:</span>
-            <div className={s.infoBox}>
-              <div className={s.infoField}>
-                Expire at
-                <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
-              </div>
-              <div className={s.infoField}>
-                {currentSubscription.autoRenewal ? 'Next payment' : 'Subscription ends'}
-                <span>{formatDate(currentSubscription.endDateOfSubscription)}</span>
+        {subscriptionQueue.length && (
+          <div>
+            <div className={s.section}>
+              <span className={s.sectionTitle}>Current Subscription:</span>
+              <div className={s.list}>
+                {subscriptionQueue.map(subscription => {
+                  return (
+                    <div className={s.infoBox} key={subscription.subscriptionId}>
+                      <div className={s.infoField}>
+                        Expire at
+                        <span>{formatDate(subscription.endDateOfSubscription)}</span>
+                      </div>
+                      <div className={s.infoField}>
+                        {subscription.autoRenewal ? 'Next payment' : 'Subscription ends'}
+                        <span>{formatDate(subscription.endDateOfSubscription)}</span>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
-
             <CheckboxRadix
               label={'Auto-Renewal'}
               checked={isAutoRenewEnabled}
