@@ -3,7 +3,7 @@ import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models
 import { hasNewSubscription } from '../lib'
 
 const POLL_INTERVAL_MS = 3_000
-const POLL_TIMEOUT_MS = 90_000
+const POLL_TIMEOUT_MS = 15_000
 
 export type PollStatus = 'success' | 'timeout'
 

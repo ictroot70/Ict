@@ -18,6 +18,7 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
+
   const [flowStatus, setFlowStatus] = useState<FlowStatus>('idle')
   const handledRef = useRef(false)
 
@@ -30,49 +31,45 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     paymentBaseline.clear()
   }
 
-  useEffect(() => {
-    if (handledRef.current) {
-      return
-    }
-
-    handledRef.current = true
-
-    const returnStatus = parsePaymentReturn(searchParams)
-    const isPending = paymentPending.get()
-
-    if (returnStatus === null) {
-      if (isPending) {
-        clearPaymentState()
-      }
-
-      return
-    }
-
-    router.replace(pathname)
-
-    if (returnStatus === 'failed' || !isPending) {
-      clearPaymentState()
-      setFlowStatus('failed')
-
-      return
-    }
-
-    paymentPending.clear()
-
+  const startPolling = () => {
     const baseline = paymentBaseline.get()
 
     setFlowStatus('polling')
 
     waitForSubscriptionUpdate(fetchSubscriptions, baseline)
-      .then(status => {
-        setFlowStatus(status)
-      })
-      .catch(() => {
-        setFlowStatus('failed')
-      })
-      .finally(() => {
-        clearPaymentState()
-      })
+      .then(setFlowStatus)
+      .catch(() => setFlowStatus('failed'))
+      .finally(clearPaymentState)
+  }
+
+  useEffect(() => {
+    if (handledRef.current) return
+    handledRef.current = true
+
+    const returnStatus = parsePaymentReturn(searchParams)
+    const isPending = paymentPending.get()
+
+    if (returnStatus !== null) {
+      router.replace(pathname)
+    }
+
+    if (returnStatus === null && !isPending) {
+      return
+    }
+
+    if (returnStatus === null && isPending) {
+      startPolling()
+      return
+    }
+
+    if (returnStatus === 'failed' || !isPending) {
+      clearPaymentState()
+      setFlowStatus('failed')
+      return
+    }
+
+    paymentPending.clear()
+    startPolling()
   }, [fetchSubscriptions, pathname, router, searchParams])
 
   return {
