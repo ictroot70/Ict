@@ -21,6 +21,8 @@
 .currentSubscriptionTable {
   --current-subscription-column-width: 120px;
   --current-subscription-body-max-height: 150px;
+  --current-subscription-scrollbar-edge-gap: 5px;
+  --current-subscription-scrollbar-shift: 19px;
 
   display: grid;
   grid-template-rows: auto auto;
@@ -38,11 +40,22 @@
   display: grid;
   gap: 6px;
   width: 100%;
-  max-height: var(--current-subscription-body-max-height);
-  overflow-y: auto;
-  overflow-x: hidden;
   align-content: start;
-  padding-right: 4px;
+}
+
+.currentSubscriptionScrollAreaHost {
+  width: 100%;
+}
+
+.currentSubscriptionScrollArea {
+  width: calc(100% + var(--current-subscription-scrollbar-shift));
+  max-height: var(--current-subscription-body-max-height);
+  margin-right: calc(var(--current-subscription-scrollbar-shift) * -1);
+}
+
+.currentSubscriptionViewport {
+  max-height: var(--current-subscription-body-max-height);
+  padding-right: var(--current-subscription-scrollbar-edge-gap);
 }
 
 .currentSubscriptionRow {
@@ -216,14 +229,13 @@
   transform: translate(-50%, -50%);
 }
 
-.warningText {
-  color: var(--color-danger-500);
-}
-
 .stateCard {
   display: grid;
   gap: 12px;
-  padding: 16px;
+  width: 100%;
+  justify-items: start;
+  align-content: start;
+  padding: 12px 24px;
 }
 
 .stateText {
