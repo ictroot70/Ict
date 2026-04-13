@@ -1,39 +1,130 @@
 'use client'
+import { useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 
+import { usePricing } from '@/features/subscriptions/model/hooks/usePricing'
+import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
 import {
-  AutoRenewModal,
-  PaymentFailureModal,
-  PaymentSuccessModal,
-  SubscriptionPricing,
-} from '@/features/subscriptions'
-import { useAccountManagement } from '@/features/subscriptions/hooks/useAccountManagement'
-import { Button } from '@/shared/ui'
-import { useTranslations } from 'next-intl'
+  AccountTypeValue,
+  mapSubscriptionToUI,
+  SubscriptionPlanValue,
+  UISubscription,
+} from '@/features/subscriptions/model/types'
+import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
+import { showToastAlert } from '@/shared/lib/toast/showToastAlert'
 
-export function AccountManagement() {
-  const t = useTranslations('subscriptions.account')
-  const { modal, setModal, confirmAutoRenew, closeModal, isSubmitting } = useAccountManagement()
+import styles from './AccountManagement.module.scss'
 
-  return (
-    <>
-      <SubscriptionPricing />
+import { useCurrentSubscription } from '../../model/hooks/useCurrentSubscription'
+import { BusinessNoSubscriptionView } from '../BusinessNoSubscriptionView/BusinessNoSubscriptionView'
 
-      <Button onClick={() => setModal('auto')}>{t('stripe')}</Button>
+export const AccountManagement = () => {
+  const [selectedAccountType, setSelectedAccountType] = useState<AccountTypeValue>('personal')
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanValue>('month')
+  const [isPaymentLocked, setIsPaymentLocked] = useState(false)
 
-      <AutoRenewModal
-        open={modal === 'auto'}
-        onClose={closeModal}
-        onConfirm={confirmAutoRenew}
-        isSubmitting={isSubmitting}
-      />
+  const { subscriptions: apiSubscriptions, isLoading: subLoading } = useCurrentSubscription()
+  const { plans: apiPlans, isLoading: plansLoading } = usePricing()
 
-      <PaymentSuccessModal open={modal === 'success'} onClose={closeModal} />
+  const subscriptions = apiSubscriptions || []
+  const plans = apiPlans || []
 
-      <PaymentFailureModal
-        open={modal === 'failure'}
-        onClose={closeModal}
-        onBackToPayment={() => setModal('auto')}
-      />
-    </>
+  const activeSubscription = useMemo(() => subscriptions.find(s => s.isActive), [subscriptions])
+
+  const accountType: AccountTypeValue = activeSubscription?.isActive
+    ? 'business'
+    : selectedAccountType
+
+  const uiSubscription: UISubscription | undefined = useMemo(
+    () => (activeSubscription ? mapSubscriptionToUI(activeSubscription) : undefined),
+    [activeSubscription]
   )
+
+  const view = resolveAccountManagementView({
+    accountType,
+    hasActiveSubscription: !!activeSubscription,
+  })
+
+  const isLoading = subLoading || plansLoading
+
+  const handlePayPalClick = () => {
+    showToastAlert({
+      message: 'Оплата через PayPal временно недоступна. Это демо-режим.',
+      type: 'info',
+      duration: 3000,
+      closeable: true,
+      progressBar: true,
+    })
+  }
+
+  const handleStripeClick = () => {
+    showToastAlert({
+      message: 'Оплата через Stripe временно недоступна. Это демо-режим.',
+      type: 'info',
+      duration: 3000,
+      closeable: true,
+      progressBar: true,
+    })
+  }
+
+  const handlePlanChange = (plan: SubscriptionPlanValue) => {
+    setSelectedPlan(plan)
+  }
+
+  const handleAccountTypeChange = (type: AccountTypeValue) => {
+    if (activeSubscription && type === 'personal') {
+      return
+    }
+    setSelectedAccountType(type)
+  }
+
+  if (isLoading) {
+    return <div className={styles.loading}>Загрузка...</div>
+  }
+
+  switch (view) {
+    case 'personal':
+      return (
+        <div className={styles.accountManagementPage}>
+          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
+        </div>
+      )
+
+    case 'business-no-subscription':
+      return (
+        <div className={styles.accountManagementPage}>
+          <BusinessNoSubscriptionView
+            accountType={accountType}
+            onAccountTypeChange={handleAccountTypeChange}
+            plans={plans}
+            selectedPlan={selectedPlan}
+            onPlanChange={handlePlanChange}
+            onPayPalClick={handlePayPalClick}
+            onStripeClick={handleStripeClick}
+            isPaymentLocked={isPaymentLocked}
+          />
+        </div>
+      )
+
+    case 'business-active-subscription':
+      return (
+        <div className={styles.accountManagementPage}>
+          <BusinessActiveSubscriptionView
+            subscription={uiSubscription}
+            accountType={accountType}
+            onAccountTypeChange={handleAccountTypeChange}
+            plans={plans}
+            selectedPlan={selectedPlan}
+            onPlanChange={handlePlanChange}
+            onPayPalClick={handlePayPalClick}
+            onStripeClick={handleStripeClick}
+            isPaymentLocked={isPaymentLocked}
+          />
+        </div>
+      )
+
+    default:
+      return null
+  }
 }
