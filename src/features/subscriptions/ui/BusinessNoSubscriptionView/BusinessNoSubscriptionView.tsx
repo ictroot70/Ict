@@ -2,8 +2,6 @@ import React from 'react'
 
 import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
 
-import styles from './BusinessNoSubscriptionView.module.scss'
-
 import { AccountTypeValue, SubscriptionPlanValue, UISubscriptionPlan } from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
@@ -29,7 +27,7 @@ export const BusinessNoSubscriptionView: React.FC<BusinessNoSubscriptionViewProp
   isPaymentLocked = false,
 }) => {
   return (
-    <div className={styles.container}>
+    <div>
       <AccountTypeSection
         accountTypes={[
           { value: 'personal', label: 'Personal' },

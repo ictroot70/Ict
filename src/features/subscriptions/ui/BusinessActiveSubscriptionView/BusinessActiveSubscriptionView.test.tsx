@@ -1,24 +1,30 @@
-/* @vitest-environment jsdom */
+/**
+ * @vitest-environment jsdom
+ */
 import React from 'react'
+
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+
+import '@testing-library/jest-dom'
+
 import { BusinessActiveSubscriptionView } from './BusinessActiveSubscriptionView'
 
 vi.mock('@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection', () => ({
-  AccountTypeSection: ({ selectedType }: any) => (
-    <div data-testid="account-type" data-value={selectedType} />
+  AccountTypeSection: ({ selectedType }: { selectedType: string }) => (
+    <div data-testid={'account-type'} data-value={selectedType} />
   ),
 }))
 
 vi.mock('../SubscriptionPricing', () => ({
-  SubscriptionPricing: ({ isPaymentLocked }: any) => (
-    <div data-testid="pricing" data-locked={isPaymentLocked} />
+  SubscriptionPricing: ({ isPaymentLocked }: { isPaymentLocked: boolean }) => (
+    <div data-testid={'pricing'} data-locked={String(isPaymentLocked)} />
   ),
 }))
 
 vi.mock('../SubscriptionSection/SubscriptionSection', () => ({
-  SubscriptionSection: ({ subscription }: any) => (
-    <div data-testid="subscription-section" data-active={subscription?.isActive} />
+  SubscriptionSection: ({ subscription }: { subscription?: { isActive: boolean } }) => (
+    <div data-testid={'subscription-section'} data-active={String(subscription?.isActive)} />
   ),
 }))
 
@@ -43,17 +49,17 @@ const mockSubscription = {
 describe('BusinessActiveSubscriptionView', () => {
   it('renders SubscriptionSection when subscription is provided', () => {
     render(<BusinessActiveSubscriptionView {...mockProps} subscription={mockSubscription} />)
-    expect(screen.getByTestId('subscription-section')).not.toBeNull()
+    expect(screen.getByTestId('subscription-section')).toBeInTheDocument()
     expect(screen.getByTestId('subscription-section')).toHaveAttribute('data-active', 'true')
   })
 
   it('does not render SubscriptionSection when subscription is undefined', () => {
     render(<BusinessActiveSubscriptionView {...mockProps} subscription={undefined} />)
-    expect(screen.queryByTestId('subscription-section')).toBeNull()
+    expect(screen.queryByTestId('subscription-section')).not.toBeInTheDocument()
   })
 
   it('passes isPaymentLocked to SubscriptionPricing', () => {
-    render(<BusinessActiveSubscriptionView {...mockProps} isPaymentLocked={true} />)
+    render(<BusinessActiveSubscriptionView {...mockProps} isPaymentLocked />)
     expect(screen.getByTestId('pricing')).toHaveAttribute('data-locked', 'true')
   })
 })
