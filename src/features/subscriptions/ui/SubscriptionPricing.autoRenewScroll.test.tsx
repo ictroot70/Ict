@@ -43,6 +43,13 @@ vi.mock('@/shared/ui', () => ({
       {label}
     </label>
   ),
+  ScrollAreaRadix: ({
+    children,
+    viewportClassName,
+  }: {
+    children: React.ReactNode
+    viewportClassName?: string
+  }) => <div className={viewportClassName}>{children}</div>,
   Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 

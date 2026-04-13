@@ -5,7 +5,7 @@ import React, { ReactNode, useEffect, useRef } from 'react'
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
 import { formatDate } from '@/shared/lib/formatters'
-import { Button, Card, CheckboxRadix, Typography } from '@/shared/ui'
+import { Button, Card, CheckboxRadix, ScrollAreaRadix, Typography } from '@/shared/ui'
 import { clsx } from 'clsx'
 
 import styles from './SubscriptionPricing.module.scss'
@@ -23,20 +23,21 @@ export function SubscriptionPricing({
     subscriptions,
     hasAutoRenewal,
     isLoading: isSubscriptionsLoading,
+    isFetching: isSubscriptionsFetching,
     isError: isSubscriptionsError,
     refetchCurrentSubscription,
     toggleAutoRenewal,
     isToggleLoading,
     isToggleDisabled,
-    hasQueueInvariantViolation,
   } = useCurrentSubscriptionChain()
 
   const hasActiveSubscriptions = subscriptions.length > 0
-  const shouldShowCurrentSubscription = hasActiveSubscriptions
   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
+  const currentSubscriptionScrollAreaHostRef = useRef<HTMLDivElement | null>(null)
   const currentSubscriptionBodyRef = useRef<HTMLDivElement | null>(null)
   const subscriptionRowRefs = useRef<Array<HTMLDivElement | null>>([])
   const prevHasAutoRenewalRef = useRef(hasAutoRenewal)
+  const hadSubscriptionErrorRef = useRef(isSubscriptionsError)
 
   const visibleSubscriptions = subscriptions
 
@@ -49,9 +50,12 @@ export function SubscriptionPricing({
       return
     }
 
-    const bodyNode = currentSubscriptionBodyRef.current
+    const viewportNode =
+      currentSubscriptionScrollAreaHostRef.current?.querySelector<HTMLDivElement>(
+        `.${styles.currentSubscriptionViewport}`
+      ) ?? currentSubscriptionBodyRef.current
 
-    if (!bodyNode) {
+    if (!viewportNode) {
       return
     }
 
@@ -69,8 +73,8 @@ export function SubscriptionPricing({
       return
     }
 
-    const currentScrollTop = bodyNode.scrollTop
-    const currentScrollBottom = currentScrollTop + bodyNode.clientHeight
+    const currentScrollTop = viewportNode.scrollTop
+    const currentScrollBottom = currentScrollTop + viewportNode.clientHeight
     const rowTop = targetRow.offsetTop
     const rowBottom = rowTop + targetRow.offsetHeight
     const isRowFullyVisible = rowTop >= currentScrollTop && rowBottom <= currentScrollBottom
@@ -81,6 +85,18 @@ export function SubscriptionPricing({
 
     targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [hasAutoRenewal, visibleSubscriptions])
+
+  useEffect(() => {
+    if (isSubscriptionsError) {
+      hadSubscriptionErrorRef.current = true
+
+      return
+    }
+
+    if (!isSubscriptionsFetching) {
+      hadSubscriptionErrorRef.current = false
+    }
+  }, [isSubscriptionsError, isSubscriptionsFetching])
 
   const resolveNextPaymentDate = (subscriptionIndex: number) => {
     const current = subscriptions[subscriptionIndex]
@@ -104,88 +120,98 @@ export function SubscriptionPricing({
     return '—'
   }
 
+  const shouldKeepFallbackDuringRetry = isSubscriptionsFetching && hadSubscriptionErrorRef.current
+  const shouldShowCurrentSubscriptionFallback =
+    isSubscriptionsError || shouldKeepFallbackDuringRetry
+  const shouldShowCurrentSubscriptionSection =
+    hasActiveSubscriptions || shouldShowCurrentSubscriptionFallback
+  const hasAccountTypeSlot = accountTypeSlot != null
+  const hasChangeSubscriptionSlot = changeSubscriptionSlot != null
+
   if (isInitialLoading) {
     return <Loading />
   }
 
-  if (isSubscriptionsError) {
-    return (
-      <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>Could not load subscriptions data</Typography>
-        <Typography className={styles.stateText} variant={'regular_16'}>
-          Please try again.
-        </Typography>
-        <Button
-          className={styles.retryButton}
-          variant={'outlined'}
-          onClick={() => void refetchCurrentSubscription()}
-        >
-          Retry
-        </Button>
-      </Card>
-    )
-  }
-
-  const resolvedAccountTypeSlot = accountTypeSlot ?? (
-    <div className={styles.integrationSlot} data-slot={'account-type'} />
-  )
-  const resolvedChangeSubscriptionSlot = changeSubscriptionSlot ?? (
-    <div className={styles.integrationSlot} data-slot={'change-subscription'} />
-  )
-
   return (
     <div className={styles.root}>
-      {shouldShowCurrentSubscription && (
+      {shouldShowCurrentSubscriptionSection && (
         <section className={styles.currentSubscriptionSection}>
           <Typography variant={'h3'}>Current Subscription:</Typography>
-          <Card className={styles.currentSubscriptionCard}>
-            <div className={styles.currentSubscriptionTable}>
-              <div className={styles.currentSubscriptionHeader}>
-                <Typography className={styles.metricLabel} variant={'regular_14'}>
-                  Expire at
-                </Typography>
-                <Typography className={styles.metricLabel} variant={'regular_14'}>
-                  Next payment
-                </Typography>
-              </div>
-              <div
-                ref={currentSubscriptionBodyRef}
-                className={styles.currentSubscriptionBody}
-                data-testid={'current-subscription-body'}
+          {shouldShowCurrentSubscriptionFallback ? (
+            <Card className={styles.stateCard}>
+              <Typography variant={'h3'}>Could not load subscriptions data</Typography>
+              <Typography className={styles.stateText} variant={'regular_16'}>
+                Please try again.
+              </Typography>
+              <Button
+                className={styles.retryButton}
+                variant={'outlined'}
+                disabled={isSubscriptionsFetching}
+                onClick={() => void refetchCurrentSubscription()}
               >
-                {visibleSubscriptions.map((subscription, index) => (
-                  <div
-                    key={subscription.subscriptionId}
-                    ref={node => {
-                      subscriptionRowRefs.current[index] = node
-                    }}
-                    data-subscription-id={subscription.subscriptionId}
-                    className={clsx(
-                      styles.currentSubscriptionRow,
-                      index === 0 && styles.currentSubscriptionRowActive,
-                      subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
-                    )}
+                Retry
+              </Button>
+            </Card>
+          ) : (
+            <Card className={styles.currentSubscriptionCard}>
+              <div className={styles.currentSubscriptionTable}>
+                <div className={styles.currentSubscriptionHeader}>
+                  <Typography className={styles.metricLabel} variant={'regular_14'}>
+                    Expire at
+                  </Typography>
+                  <Typography className={styles.metricLabel} variant={'regular_14'}>
+                    Next payment
+                  </Typography>
+                </div>
+                <div
+                  ref={currentSubscriptionScrollAreaHostRef}
+                  className={styles.currentSubscriptionScrollAreaHost}
+                >
+                  <ScrollAreaRadix
+                    className={styles.currentSubscriptionScrollArea}
+                    viewportClassName={styles.currentSubscriptionViewport}
                   >
-                    <Typography variant={'semibold_small_text'}>
-                      {formatDate(subscription.endDateOfSubscription)}
-                    </Typography>
-                    <div className={styles.metricCell}>
-                      <Typography variant={'semibold_small_text'}>
-                        {resolveNextPaymentDate(index)}
-                      </Typography>
+                    <div
+                      ref={currentSubscriptionBodyRef}
+                      className={styles.currentSubscriptionBody}
+                      data-testid={'current-subscription-body'}
+                    >
+                      {visibleSubscriptions.map((subscription, index) => (
+                        <div
+                          key={subscription.subscriptionId}
+                          ref={node => {
+                            subscriptionRowRefs.current[index] = node
+                          }}
+                          data-subscription-id={subscription.subscriptionId}
+                          className={clsx(
+                            styles.currentSubscriptionRow,
+                            index === 0 && styles.currentSubscriptionRowActive,
+                            subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
+                          )}
+                        >
+                          <Typography variant={'semibold_small_text'}>
+                            {formatDate(subscription.endDateOfSubscription)}
+                          </Typography>
+                          <div className={styles.metricCell}>
+                            <Typography variant={'semibold_small_text'}>
+                              {resolveNextPaymentDate(index)}
+                            </Typography>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
+                  </ScrollAreaRadix>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
 
           <div className={styles.autoRenewalControl}>
             <CheckboxRadix
               required={false}
               label={'Auto-Renewal'}
               checked={hasAutoRenewal}
-              disabled={isToggleDisabled}
+              disabled={isToggleDisabled || shouldShowCurrentSubscriptionFallback}
               onCheckedChange={() => void toggleAutoRenewal()}
             />
             {isToggleLoading && (
@@ -199,25 +225,23 @@ export function SubscriptionPricing({
         </section>
       )}
 
-      <section
-        className={clsx(
-          styles.accountTypeSection,
-          !shouldShowCurrentSubscription && styles.accountTypeSectionTopOffset
-        )}
-      >
-        <Typography variant={'h3'}>Account type:</Typography>
-        {resolvedAccountTypeSlot}
-      </section>
+      {hasAccountTypeSlot && (
+        <section
+          className={clsx(
+            styles.accountTypeSection,
+            !shouldShowCurrentSubscriptionSection && styles.accountTypeSectionTopOffset
+          )}
+        >
+          <Typography variant={'h3'}>Account type:</Typography>
+          {accountTypeSlot}
+        </section>
+      )}
 
-      <section className={styles.businessPricingSection}>
-        <Typography variant={'h3'}>Change your subscription:</Typography>
-        {resolvedChangeSubscriptionSlot}
-      </section>
-
-      {shouldShowCurrentSubscription && hasQueueInvariantViolation && (
-        <Typography className={styles.warningText} variant={'small_text'}>
-          Queue invariant violated: auto-renew must be enabled only on the last subscription.
-        </Typography>
+      {hasChangeSubscriptionSlot && (
+        <section className={styles.businessPricingSection}>
+          <Typography variant={'h3'}>Change your subscription:</Typography>
+          {changeSubscriptionSlot}
+        </section>
       )}
     </div>
   )

@@ -53,6 +53,7 @@ vi.mock('@/shared/ui', () => ({
       {label}
     </label>
   ),
+  ScrollAreaRadix: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
@@ -142,7 +143,7 @@ const createLongQueueSubscriptions = () =>
   ] as ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
 
 describe('SubscriptionPricing', () => {
-  it('renders empty integration slots by default', () => {
+  it('hides account and change subscription sections by default when slots are not provided', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
         subscriptions: [],
@@ -153,10 +154,10 @@ describe('SubscriptionPricing', () => {
 
     const { container } = render(<SubscriptionPricing />)
 
-    expect(screen.getByText('Account type:')).not.toBeNull()
-    expect(screen.getByText('Change your subscription:')).not.toBeNull()
-    expect(container.querySelector('[data-slot="account-type"]')).not.toBeNull()
-    expect(container.querySelector('[data-slot="change-subscription"]')).not.toBeNull()
+    expect(screen.queryByText('Account type:')).toBeNull()
+    expect(screen.queryByText('Change your subscription:')).toBeNull()
+    expect(container.querySelector('[data-slot="account-type"]')).toBeNull()
+    expect(container.querySelector('[data-slot="change-subscription"]')).toBeNull()
   })
 
   it('renders custom integration slots from props', () => {
@@ -277,7 +278,7 @@ describe('SubscriptionPricing', () => {
     expect(screen.queryByText('Next subscriptions')).toBeNull()
   })
 
-  it('disables toggle and shows queue invariant warning for invalid chain', () => {
+  it('disables toggle for invalid chain without exposing technical warning text', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
         hasQueueInvariantViolation: true,
@@ -288,10 +289,10 @@ describe('SubscriptionPricing', () => {
     render(<SubscriptionPricing />)
 
     expect(
-      screen.getByText(
+      screen.queryByText(
         'Queue invariant violated: auto-renew must be enabled only on the last subscription.'
       )
-    ).not.toBeNull()
+    ).toBeNull()
     const autoRenewalCheckbox = screen.getByLabelText('Auto-Renewal')
 
     expect((autoRenewalCheckbox as HTMLInputElement).disabled).toBe(true)
