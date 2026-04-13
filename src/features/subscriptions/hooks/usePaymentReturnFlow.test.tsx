@@ -52,17 +52,21 @@ describe('usePaymentReturnFlow idempotency', () => {
     rerender()
     expect(mocks.pollMock).toHaveBeenCalledTimes(1)
   })
-  it('clears stale pending state without polling when query param is missing', async () => {
+  it('starts polling when pending exists and query param is missing', async () => {
     sessionStorage.setItem('payment_pending', '1')
+    sessionStorage.setItem('payment_baseline', '[{"subscriptionId":"x"}]')
     mocks.searchParamsMock.mockReturnValue(new URLSearchParams(''))
+    mocks.pollMock.mockResolvedValue('success')
 
     const { result } = renderHook(() => usePaymentReturnFlow({ fetchSubscriptions: vi.fn() }))
 
-    await waitFor(() => expect(result.current.flowStatus).toBe('idle'))
-    expect(sessionStorage.getItem('payment_pending')).toBeNull()
-    expect(sessionStorage.getItem('payment_baseline')).toBeNull()
-    expect(mocks.pollMock).not.toHaveBeenCalled()
+    await waitFor(() => expect(mocks.pollMock).toHaveBeenCalledTimes(1))
+
+    await waitFor(() => {
+      expect(result.current.flowStatus).toBe('success')
+    })
   })
+
   it('clears state and skips polling on success=false', async () => {
     sessionStorage.setItem('payment_pending', '1')
     sessionStorage.setItem('payment_baseline', '[{"subscriptionId":"x"}]')

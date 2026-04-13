@@ -1,6 +1,6 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -26,12 +26,12 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
     setFlowStatus('idle')
   }
 
-  const clearPaymentState = () => {
+  const clearPaymentState = useCallback(() => {
     paymentPending.clear()
     paymentBaseline.clear()
-  }
+  }, [])
 
-  const startPolling = () => {
+  const startPolling = useCallback(() => {
     const baseline = paymentBaseline.get()
 
     setFlowStatus('polling')
@@ -40,10 +40,12 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
       .then(setFlowStatus)
       .catch(() => setFlowStatus('failed'))
       .finally(clearPaymentState)
-  }
+  }, [fetchSubscriptions, clearPaymentState])
 
   useEffect(() => {
-    if (handledRef.current) return
+    if (handledRef.current) {
+      return
+    }
     handledRef.current = true
 
     const returnStatus = parsePaymentReturn(searchParams)
@@ -59,18 +61,20 @@ export function usePaymentReturnFlow({ fetchSubscriptions }: Props) {
 
     if (returnStatus === null && isPending) {
       startPolling()
+
       return
     }
 
     if (returnStatus === 'failed' || !isPending) {
       clearPaymentState()
       setFlowStatus('failed')
+
       return
     }
 
     paymentPending.clear()
     startPolling()
-  }, [fetchSubscriptions, pathname, router, searchParams])
+  }, [fetchSubscriptions, startPolling, clearPaymentState, pathname, router, searchParams])
 
   return {
     flowStatus,

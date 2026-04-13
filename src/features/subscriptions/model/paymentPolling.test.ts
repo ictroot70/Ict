@@ -60,10 +60,10 @@ describe('waitForSubscriptionUpdate ', () => {
 
     const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
-    await vi.advanceTimersByTimeAsync(90000)
+    await vi.advanceTimersByTimeAsync(15000)
 
     await expect(promise).resolves.toBe('timeout')
-    expect(fetchFn).toHaveBeenCalledTimes(30)
+    expect(fetchFn).toHaveBeenCalledTimes(5)
   })
   it('waits for a later poll before returning success', async () => {
     const fetchFn = vi

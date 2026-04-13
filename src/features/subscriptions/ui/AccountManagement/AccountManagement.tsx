@@ -56,7 +56,7 @@ export function AccountManagement() {
     <>
       <div className={s.root}>
         {flowStatus === 'polling' && <p>Processing payment...</p>}
-        {subscriptionQueue.length && (
+        {subscriptionQueue.length > 0 && (
           <div>
             <div className={s.section}>
               <span className={s.sectionTitle}>Current Subscription:</span>

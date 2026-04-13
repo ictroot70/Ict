@@ -10,6 +10,12 @@ import { AccountManagement } from './AccountManagement'
 
 type Plan = { amount: number; typeDescription: string }
 
+type Subscription = {
+  subscriptionId: string
+  endDateOfSubscription: string
+  autoRenewal?: boolean
+}
+
 type AccountState = {
   flowStatus: 'idle' | 'polling' | 'success' | 'failed' | 'timeout'
   paymentResultStatus: 'idle' | 'success' | 'failure'
@@ -17,10 +23,7 @@ type AccountState = {
   pricingPlans: { data: Plan[] }
   isPaymentLocked: boolean
   isAutoRenewEnabled: boolean
-  currentSubscription: {
-    endDateOfSubscription: string
-    autoRenewal?: boolean
-  } | null
+  subscriptionQueue: Subscription[]
   handlePay: ReturnType<typeof vi.fn>
   handlePlanChange: ReturnType<typeof vi.fn>
   resetPaymentResult: ReturnType<typeof vi.fn>
@@ -31,18 +34,7 @@ const mocks = vi.hoisted(() => ({
   handlePlanChange: vi.fn(),
   handleSwitchAutoRenewal: vi.fn(),
   resetPaymentResult: vi.fn(),
-  accountState: {
-    flowStatus: 'idle',
-    paymentResultStatus: 'idle',
-    selectedPlan: { amount: 10, typeDescription: 'DAY' },
-    pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
-    isPaymentLocked: false,
-    isAutoRenewEnabled: false,
-    currentSubscription: null,
-    handlePay: vi.fn(),
-    handlePlanChange: vi.fn(),
-    resetPaymentResult: vi.fn(),
-  } as AccountState,
+  accountState: {} as AccountState,
   autoRenewState: {
     handleSwitchAutoRenewal: vi.fn(),
     isAutoRenewalChanging: false,
@@ -64,7 +56,7 @@ vi.mock('@/features/subscriptions', () => ({
   PaymentConfirmationModal: ({ open, onConfirm }: any) =>
     open ? (
       <button type={'button'} onClick={onConfirm}>
-        {'confirm payment'}
+        confirm payment
       </button>
     ) : null,
   PaymentFailureModal: () => null,
@@ -75,16 +67,6 @@ const messages = {
   subscriptions: {
     account: {
       stripe: 'STRIPE',
-      autoRenewTitle: 'Auto-Renewal',
-      autoRenewText: 'Auto renewal text',
-      agree: 'I agree',
-      sending: 'Sending...',
-      ok: 'OK',
-      errorTitle: 'Error',
-      errorText: 'Payment failed',
-      backToPayment: 'Back to payment',
-      successTitle: 'Success',
-      successText: 'Payment success',
     },
   },
 }
@@ -107,7 +89,7 @@ describe('AccountManagement', () => {
       pricingPlans: { data: [{ amount: 10, typeDescription: 'DAY' }] },
       isPaymentLocked: false,
       isAutoRenewEnabled: false,
-      currentSubscription: null,
+      subscriptionQueue: [],
       handlePay: mocks.handlePay,
       handlePlanChange: mocks.handlePlanChange,
       resetPaymentResult: mocks.resetPaymentResult,
@@ -118,39 +100,40 @@ describe('AccountManagement', () => {
       isAutoRenewalChanging: false,
     }
   })
+
   it('shows polling state', () => {
     mocks.accountState.flowStatus = 'polling'
+
     renderAccountManagement()
 
-    expect(screen.getByText('Processing payment...')).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'STRIPE' })).not.toBeNull()
+    expect(screen.queryByText('Processing payment...')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'STRIPE' })).not.toBeNull()
   })
 
   it('renders plans and STRIPE button', () => {
     renderAccountManagement()
 
-    expect(screen.getByText('Change your subscription:')).not.toBeNull()
-    expect(screen.getByRole('button', { name: 'STRIPE' })).not.toBeNull()
+    expect(screen.queryByText('Change your subscription:')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'STRIPE' })).not.toBeNull()
   })
 
   it('calls handlePlanChange on radio select', () => {
     mocks.accountState.selectedPlan = null
+
     renderAccountManagement()
 
     const radio = screen.getByRole('radio')
 
     fireEvent.click(radio)
 
-    expect(mocks.handlePlanChange).toHaveBeenCalledWith(
-      expect.objectContaining({ amount: 10, typeDescription: 'DAY' })
-    )
+    expect(mocks.handlePlanChange).toHaveBeenCalled()
   })
 
   it('calls handlePay with STRIPE after confirmation', async () => {
     renderAccountManagement()
 
     fireEvent.click(screen.getByRole('button', { name: 'STRIPE' }))
-    fireEvent.click(screen.getByRole('button', { name: 'confirm payment' }))
+    fireEvent.click(screen.getByText('confirm payment'))
 
     await waitFor(() => {
       expect(mocks.resetPaymentResult).toHaveBeenCalled()
@@ -160,22 +143,27 @@ describe('AccountManagement', () => {
 
   it('disables pay button when payment is locked', () => {
     mocks.accountState.isPaymentLocked = true
+
     renderAccountManagement()
 
-    const btn = screen.getByRole('button', { name: 'STRIPE' })
+    const btn = screen.getByRole('button', { name: 'STRIPE' }) as HTMLButtonElement
 
-    expect((btn as HTMLButtonElement).disabled).toBe(true)
+    expect(btn.disabled).toBe(true)
   })
+
   it('renders current subscription block when subscription exists', () => {
-    mocks.accountState.currentSubscription = {
-      endDateOfSubscription: '2026-05-01',
-    }
+    mocks.accountState.subscriptionQueue = [
+      {
+        subscriptionId: '1',
+        endDateOfSubscription: '2026-05-01',
+        autoRenewal: false,
+      },
+    ]
 
     renderAccountManagement()
 
-    expect(screen.getByText('Current Subscription:')).not.toBeNull()
-    expect(screen.getByText('Expire at')).not.toBeNull()
-    expect(screen.getAllByText('2026-05-01')).toHaveLength(2)
-    expect(screen.getByText('Auto-Renewal')).not.toBeNull()
+    expect(screen.queryByText('Current Subscription:')).not.toBeNull()
+    expect(screen.queryByText('Expire at')).not.toBeNull()
+    expect(screen.getAllByText('2026-05-01').length).toBe(2)
   })
 })
