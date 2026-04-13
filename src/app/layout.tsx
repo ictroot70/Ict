@@ -9,6 +9,8 @@ import { AuthSessionHintProvider } from '@/shared/auth'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
@@ -112,25 +114,30 @@ function RootLayoutFallback({ children }: { children: ReactNode }) {
   )
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode
 }>) {
+  const messages = await getMessages()
+
   return (
     <html lang={'en'} suppressHydrationWarning>
       <body className={inter.variable} suppressHydrationWarning>
         <Script id={'auth-hint-bootstrap'} strategy={'beforeInteractive'}>
           {AUTH_HINT_BOOTSTRAP_SCRIPT}
         </Script>
-        <StoreProvider>
-          <AuthSessionHintProvider>
-            <AppHeader />
-            <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
-              <RootLayoutClient>{children}</RootLayoutClient>
-            </Suspense>
-          </AuthSessionHintProvider>
-        </StoreProvider>
+        <NextIntlClientProvider messages={messages}>
+          <StoreProvider>
+            <AuthSessionHintProvider>
+              <AppHeader />
+              <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
+                <RootLayoutClient>{children}</RootLayoutClient>
+              </Suspense>
+            </AuthSessionHintProvider>
+          </StoreProvider>
+        </NextIntlClientProvider>
+
         <ToastWrapper />
       </body>
     </html>

@@ -1,0 +1,31 @@
+.modal {
+  width: 378px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 114px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  label {
+    margin-bottom: 0;
+  }
+}
+
+.checkbox {
+  div {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  p > span {
+    display: none;
+  }
+}

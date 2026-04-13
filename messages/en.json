@@ -1,0 +1,17 @@
+{
+  "subscriptions": {
+    "account": {
+      "stripe": "Stripe",
+      "autoRenewTitle": "Create payment",
+      "autoRenewText": "Auto-renewal will be enabled with this payment. You can disable it anytime in your profile settings",
+      "agree": "I agree",
+      "sending": "Sending...",
+      "ok": "OK",
+      "successTitle": "Success",
+      "successText": "Payment was successful!",
+      "errorTitle": "Error",
+      "errorText": "Transaction failed, please try again",
+      "backToPayment": "Back to payment"
+    }
+  }
+}
