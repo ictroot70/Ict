@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { AccountModal } from '../model'
-import { PaymentResultStatus } from './useAccountManagement'
+import { AccountModal, PaymentFlowStatus } from '../model'
 
 type Props = {
-  paymentResultStatus: PaymentResultStatus
+  paymentResultStatus: PaymentFlowStatus
   isPaymentDisabled: boolean
 }
 

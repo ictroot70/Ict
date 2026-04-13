@@ -1,11 +1,10 @@
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 import { hasNewSubscription } from '../lib'
+import { PollStatus } from './payments.types'
 
 const POLL_INTERVAL_MS = 3_000
 const POLL_TIMEOUT_MS = 15_000
-
-export type PollStatus = 'success' | 'timeout'
 
 export async function waitForSubscriptionUpdate(
   fetchFn: () => Promise<ActiveSubscriptionViewModel[]>,

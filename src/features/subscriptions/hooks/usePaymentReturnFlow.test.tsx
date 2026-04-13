@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
-import type { PollStatus } from '../model/paymentPolling'
 import type { ActiveSubscriptionViewModel } from '@/shared/types/payments/models'
 
 import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+import { PollStatus } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 
 const mocks = vi.hoisted(() => ({

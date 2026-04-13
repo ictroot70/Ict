@@ -10,10 +10,8 @@ import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
 import { usePathname } from 'next/navigation'
 
 import { getPaymentErrorMessage } from '../lib'
-import { paymentBaseline, paymentPending } from '../model'
+import { paymentBaseline, PaymentFlowStatus, paymentPending } from '../model'
 import { usePaymentReturnFlow } from './usePaymentReturnFlow'
-
-export type PaymentResultStatus = 'idle' | 'success' | 'failure'
 
 export function useAccountManagement() {
   const pathname = usePathname()
@@ -51,7 +49,7 @@ export function useAccountManagement() {
       new Date(a.endDateOfSubscription).getTime() - new Date(b.endDateOfSubscription).getTime()
   )
 
-  let paymentResultStatus: PaymentResultStatus = 'idle'
+  let paymentResultStatus: PaymentFlowStatus = 'idle'
 
   if (flowStatus === 'success') {
     paymentResultStatus = 'success'
