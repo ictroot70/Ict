@@ -167,11 +167,7 @@ describe('SubscriptionPricing', () => {
       })
     )
 
-    render(
-      <SubscriptionPricing
-        accountTypeSlot={<div data-testid={'custom-account-slot'} />}
-      />
-    )
+    render(<SubscriptionPricing accountTypeSlot={<div data-testid={'custom-account-slot'} />} />)
 
     expect(screen.getByTestId('custom-account-slot')).not.toBeNull()
   })

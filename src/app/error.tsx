@@ -31,8 +31,8 @@ export default function AppError({ error, reset }: AppErrorProps) {
           <Button variant={'primary'} onClick={reset}>
             Try again
           </Button>
-          <Button as={Link} href={secondaryHref} variant={'outlined'}>
-            {secondaryLabel}
+          <Button asChild variant={'outlined'}>
+            <Link href={secondaryHref}>{secondaryLabel}</Link>
           </Button>
         </>
       }
