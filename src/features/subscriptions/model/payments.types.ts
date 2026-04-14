@@ -5,8 +5,6 @@ export type PaymentsSortState = {
   direction: PaymentsSortDirection | null
 }
 
-export type PaymentFlowStatus = 'idle' | 'success' | 'failure'
-
 export type PaymentFlowState = {
   flowStatus: PaymentFlowStatus
   flowErrorCode: null | string
@@ -15,4 +13,8 @@ export type PaymentFlowState = {
   resetFlow: () => void
 }
 
-export type AccountModal = null | 'auto' | 'success' | 'failure'
+export type PollStatus = 'success' | 'timeout'
+
+export type PaymentFlowStatus = 'idle' | 'success' | 'failure'
+
+export type AccountModal = null | 'confirm' | 'success' | 'failure'

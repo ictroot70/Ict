@@ -1,12 +1,10 @@
 import { PaymentType } from '@/shared/types'
 
-export type PaymentTypeLabel = 'Stripe' | 'PayPal' | 'Credit card'
-
 const assertNever = (value: never): never => {
   throw new Error(`Unsupported payment type: ${String(value)}`)
 }
 
-export const mapPaymentTypeToLabel = (type: PaymentType): PaymentTypeLabel => {
+export const mapPaymentTypeToLabel = (type: PaymentType) => {
   switch (type) {
     case PaymentType.STRIPE:
       return 'Stripe'

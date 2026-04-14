@@ -13,7 +13,7 @@ interface Props {
   isSubmitting?: boolean
 }
 
-export function AutoRenewModal({ open, onClose, onConfirm, isSubmitting }: Props) {
+export function PaymentConfirmationModal({ open, onClose, onConfirm, isSubmitting }: Props) {
   const t = useTranslations('subscriptions.account')
   const [isAgreed, setIsAgreed] = useState(false)
 
