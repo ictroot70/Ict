@@ -143,7 +143,7 @@ const createLongQueueSubscriptions = () =>
   ] as ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
 
 describe('SubscriptionPricing', () => {
-  it('hides account and change subscription sections by default when slots are not provided', () => {
+  it('hides account slot section by default when slot is not provided', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
         subscriptions: [],
@@ -155,12 +155,10 @@ describe('SubscriptionPricing', () => {
     const { container } = render(<SubscriptionPricing />)
 
     expect(screen.queryByText('Account type:')).toBeNull()
-    expect(screen.queryByText('Change your subscription:')).toBeNull()
     expect(container.querySelector('[data-slot="account-type"]')).toBeNull()
-    expect(container.querySelector('[data-slot="change-subscription"]')).toBeNull()
   })
 
-  it('renders custom integration slots from props', () => {
+  it('renders custom account slot from props', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
         subscriptions: [],
@@ -172,12 +170,10 @@ describe('SubscriptionPricing', () => {
     render(
       <SubscriptionPricing
         accountTypeSlot={<div data-testid={'custom-account-slot'} />}
-        changeSubscriptionSlot={<div data-testid={'custom-change-slot'} />}
       />
     )
 
     expect(screen.getByTestId('custom-account-slot')).not.toBeNull()
-    expect(screen.getByTestId('custom-change-slot')).not.toBeNull()
   })
 
   it('hides current subscription block for user without active subscriptions', () => {

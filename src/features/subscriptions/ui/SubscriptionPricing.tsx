@@ -1,24 +1,44 @@
+/* eslint-disable max-lines */
 'use client'
+import type { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
 
-import React, { ReactNode, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
 import { formatDate } from '@/shared/lib/formatters'
-import { Button, Card, CheckboxRadix, ScrollAreaRadix, Typography } from '@/shared/ui'
+import {
+  Button,
+  Card,
+  CheckboxRadix,
+  ScrollAreaRadix,
+  Typography,
+  RadioGroupRadix,
+} from '@/shared/ui'
 import { clsx } from 'clsx'
 
 import styles from './SubscriptionPricing.module.scss'
 
-type SubscriptionPricingProps = {
+interface SubscriptionPricingProps {
+  plans?: SubscriptionPlan[]
+  selectedPlan?: SubscriptionPlanValue
+  onPlanChange?: (plan: SubscriptionPlanValue) => void
+  onPayPalClick?: () => void
+  onStripeClick?: () => void
+  isPaymentLocked?: boolean
   accountTypeSlot?: ReactNode
-  changeSubscriptionSlot?: ReactNode
+  // changeSubscriptionSlot?: ReactNode // legacy (pre-T3)
 }
 
 export function SubscriptionPricing({
+  plans = [],
+  selectedPlan: externalSelectedPlan,
+  onPlanChange,
+  onPayPalClick,
+  onStripeClick,
+  isPaymentLocked = false,
   accountTypeSlot,
-  changeSubscriptionSlot,
-}: SubscriptionPricingProps = {}) {
+}: SubscriptionPricingProps) {
   const {
     subscriptions,
     hasAutoRenewal,
@@ -30,6 +50,10 @@ export function SubscriptionPricing({
     isToggleLoading,
     isToggleDisabled,
   } = useCurrentSubscriptionChain()
+
+  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
+    externalSelectedPlan || plans[0]?.value || 'month'
+  )
 
   const hasActiveSubscriptions = subscriptions.length > 0
   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
@@ -87,6 +111,12 @@ export function SubscriptionPricing({
   }, [hasAutoRenewal, visibleSubscriptions])
 
   useEffect(() => {
+    if (externalSelectedPlan) {
+      setInternalSelectedPlanValue(externalSelectedPlan)
+    }
+  }, [externalSelectedPlan])
+
+  useEffect(() => {
     if (isSubscriptionsError) {
       hadSubscriptionErrorRef.current = true
 
@@ -125,8 +155,30 @@ export function SubscriptionPricing({
     isSubscriptionsError || shouldKeepFallbackDuringRetry
   const shouldShowCurrentSubscriptionSection =
     hasActiveSubscriptions || shouldShowCurrentSubscriptionFallback
-  const hasAccountTypeSlot = accountTypeSlot != null
-  const hasChangeSubscriptionSlot = changeSubscriptionSlot != null
+  // const hasAccountTypeSlot = accountTypeSlot != null // legacy (pre-T3)
+  // const hasChangeSubscriptionSlot = changeSubscriptionSlot != null // legacy (pre-T3)
+
+  const selectedPlanValue =
+    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
+
+  const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
+  const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
+
+  const radioOptions = plans.map(plan => ({
+    value: plan.value,
+    label: plan.label,
+    id: `plan-${plan.id}`,
+  }))
+
+  const handleValueChange = (value: string) => {
+    const planValue = value as SubscriptionPlanValue
+
+    if (onPlanChange) {
+      onPlanChange(planValue)
+    } else {
+      setInternalSelectedPlanValue(planValue)
+    }
+  }
 
   if (isInitialLoading) {
     return <Loading />
@@ -225,24 +277,70 @@ export function SubscriptionPricing({
         </section>
       )}
 
-      {hasAccountTypeSlot && (
-        <section
-          className={clsx(
-            styles.accountTypeSection,
-            !shouldShowCurrentSubscriptionSection && styles.accountTypeSectionTopOffset
-          )}
-        >
-          <Typography variant={'h3'}>Account type:</Typography>
-          {accountTypeSlot}
-        </section>
-      )}
+      {accountTypeSlot}
 
+      <section className={styles.section}>
+        <Typography variant={'h3'} className={styles.section__title}>
+          Change your subscription:
+        </Typography>
+
+        {!plans.length ? (
+          <Card className={styles.stateCard}>
+            <Typography variant={'h3'}>Нет доступных тарифов</Typography>
+            <Typography className={styles.stateText} variant={'regular_16'}>
+              Информация о тарифах временно недоступна.
+            </Typography>
+          </Card>
+        ) : (
+          <>
+            <div className={styles.pricingList}>
+              <Card className={styles.pricingCard}>
+                <RadioGroupRadix
+                  label={'Select subscription plan'}
+                  options={radioOptions}
+                  value={selectedPlanValue}
+                  onValueChange={handleValueChange}
+                  orientation={'vertical'}
+                  disabled={isPaymentLocked}
+                />
+              </Card>
+            </div>
+
+            <div className={styles.paymentContainer}>
+              <div className={styles.paymentWrapper}>
+                <Button
+                  className={styles.paymentButton}
+                  onClick={onPayPalClick}
+                  disabled={isDisabled}
+                  variant={'outlined'}
+                >
+                  <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
+                </Button>
+
+                <span className={styles.paymentOr}>Or</span>
+
+                <Button
+                  className={styles.paymentButton}
+                  onClick={onStripeClick}
+                  disabled={isDisabled}
+                  variant={'outlined'}
+                >
+                  <img src={'/stripe.svg'} alt={'Stripe'} className={styles.paymentIcon} />
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* legacy (pre-T3): slot-based composition, intentionally disabled
       {hasChangeSubscriptionSlot && (
         <section className={styles.businessPricingSection}>
           <Typography variant={'h3'}>Change your subscription:</Typography>
           {changeSubscriptionSlot}
         </section>
       )}
+      */}
     </div>
   )
 }
