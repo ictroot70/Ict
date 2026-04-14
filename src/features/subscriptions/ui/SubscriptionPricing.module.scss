@@ -1,80 +1,228 @@
-.root {
-  display: grid;
-  gap: 16px;
+.section {
   width: 100%;
-}
 
-.noticeCard {
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-}
-
-.noticeTitle {
-  color: var(--color-light-100);
-}
-
-.noticeText {
-  color: var(--color-light-900);
-}
-
-.pricingCard {
-  padding: 0;
+  &__title {
+    margin-bottom: 18px;
+    font-family: Inter;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-light-100);
+  }
 }
 
 .pricingList {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 24px;
+}
+
+.pricingCard {
+  width: 100%;
+  min-height: auto;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
+  border-radius: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-dark-100);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
 }
 
 .planRow {
+  width: 100%;
+  min-height: 60px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 6px 24px;
+  box-sizing: border-box;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  @media (max-width: 768px) {
+    padding: 6px 16px;
+  }
+
+  &Selected {
+    background-color: var(--color-dark-400);
+
+    .planRadio__circle {
+      border-color: var(--color-light-100);
+    }
+  }
+
+  &Clickable {
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+.planRadio {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 56px;
-  padding: 14px 16px;
-  border-top: 1px solid var(--color-dark-100);
+  width: 100%;
+  cursor: pointer;
+
+  &__circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-dark-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background-color: transparent;
+
+    &Selected {
+      border-color: var(--color-light-100);
+    }
+  }
+
+  &__dot {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-light-100);
+    border-radius: 50%;
+    display: block;
+  }
+
+  &__label {
+    flex: 1;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--color-light-100);
+    letter-spacing: 0%;
+    vertical-align: middle;
+  }
 }
 
-.planRow:first-child {
-  border-top: 0;
+.paymentContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  box-sizing: border-box;
 }
 
-.pseudoRadio,
-.pseudoRadioSelected {
-  flex-shrink: 0;
-  display: block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--color-light-100);
-  border-radius: 50%;
+.paymentWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-.pseudoRadioSelected {
-  position: relative;
+.paymentButton {
+  all: unset;
+  cursor: pointer;
+  width: 96px;
+  height: 64px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-light-100);
+    outline-offset: 2px;
+  }
 }
 
-.pseudoRadioSelected::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-light-100);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+.paymentIcon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.paymentOr {
+  color: var(--color-light-900);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 .stateCard {
   display: grid;
   gap: 12px;
   padding: 16px;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
+  border-radius: 8px;
 }
 
 .stateText {
   color: var(--color-light-900);
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
 }
 
 .retryButton {
   width: fit-content;
+  background-color: transparent;
+  border: 2px solid var(--color-dark-300);
+  color: var(--color-light-100);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: Inter;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+
+  &:hover {
+    border-color: var(--color-dark-100);
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 }
