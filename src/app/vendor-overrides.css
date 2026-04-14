@@ -10,8 +10,6 @@ html:has(body[data-scroll-locked]) {
   overflow: hidden;
 }
 
-
-
 /* Temporary ui-kit hashed class overrides (remove after ui-kit update) */
 ._overlay_1p3pc_119 {
   z-index: 1000;
