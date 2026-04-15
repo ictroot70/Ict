@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAccountManagement, usePaymentModalState } from '@/features/subscriptions/hooks'
 import { mapPricingToPlans } from '@/features/subscriptions/model/adapters/pricingAdapter'

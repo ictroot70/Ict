@@ -1,6 +1,6 @@
 'use client'
 
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
