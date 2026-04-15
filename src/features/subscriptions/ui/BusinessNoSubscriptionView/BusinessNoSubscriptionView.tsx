@@ -28,15 +28,6 @@ export const BusinessNoSubscriptionView: React.FC<BusinessNoSubscriptionViewProp
 }) => {
   return (
     <div>
-      <AccountTypeSection
-        accountTypes={[
-          { value: 'personal', label: 'Personal' },
-          { value: 'business', label: 'Business' },
-        ]}
-        selectedType={accountType}
-        onTypeChange={onAccountTypeChange}
-      />
-
       <SubscriptionPricing
         plans={plans}
         selectedPlan={selectedPlan}
@@ -44,6 +35,16 @@ export const BusinessNoSubscriptionView: React.FC<BusinessNoSubscriptionViewProp
         onPayPalClick={onPayPalClick}
         onStripeClick={onStripeClick}
         isPaymentLocked={isPaymentLocked}
+        accountTypeSlot={
+          <AccountTypeSection
+            accountTypes={[
+              { value: 'personal', label: 'Personal' },
+              { value: 'business', label: 'Business' },
+            ]}
+            selectedType={accountType}
+            onTypeChange={onAccountTypeChange}
+          />
+        }
       />
     </div>
   )

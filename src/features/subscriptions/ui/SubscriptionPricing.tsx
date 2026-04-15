@@ -1,44 +1,40 @@
-/* eslint-disable max-lines */
 'use client'
-import type { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
 import { Loading } from '@/shared/composites'
 import { formatDate } from '@/shared/lib/formatters'
-import {
-  Button,
-  Card,
-  CheckboxRadix,
-  ScrollAreaRadix,
-  Typography,
-  RadioGroupRadix,
-} from '@/shared/ui'
-import { clsx } from 'clsx'
+import { Button, Card, Typography } from '@/shared/ui'
+import { RadioGroupRadix } from '@ictroot/ui-kit'
 
 import styles from './SubscriptionPricing.module.scss'
 
+import { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
+import { SubscriptionCurrentSection } from './SubscriptionCurrentSection'
+
 interface SubscriptionPricingProps {
-  plans?: SubscriptionPlan[]
+  plans: SubscriptionPlan[]
   selectedPlan?: SubscriptionPlanValue
   onPlanChange?: (plan: SubscriptionPlanValue) => void
   onPayPalClick?: () => void
   onStripeClick?: () => void
   isPaymentLocked?: boolean
   accountTypeSlot?: ReactNode
-  // changeSubscriptionSlot?: ReactNode // legacy (pre-T3)
 }
 
 export function SubscriptionPricing({
-  plans = [],
+  plans,
   selectedPlan: externalSelectedPlan,
   onPlanChange,
-  onPayPalClick,
   onStripeClick,
   isPaymentLocked = false,
   accountTypeSlot,
 }: SubscriptionPricingProps) {
+  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
+    externalSelectedPlan || plans[0]?.value || 'month'
+  )
+
   const {
     subscriptions,
     hasAutoRenewal,
@@ -50,10 +46,6 @@ export function SubscriptionPricing({
     isToggleLoading,
     isToggleDisabled,
   } = useCurrentSubscriptionChain()
-
-  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
-    externalSelectedPlan || plans[0]?.value || 'month'
-  )
 
   const hasActiveSubscriptions = subscriptions.length > 0
   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
@@ -111,12 +103,6 @@ export function SubscriptionPricing({
   }, [hasAutoRenewal, visibleSubscriptions])
 
   useEffect(() => {
-    if (externalSelectedPlan) {
-      setInternalSelectedPlanValue(externalSelectedPlan)
-    }
-  }, [externalSelectedPlan])
-
-  useEffect(() => {
     if (isSubscriptionsError) {
       hadSubscriptionErrorRef.current = true
 
@@ -128,14 +114,18 @@ export function SubscriptionPricing({
     }
   }, [isSubscriptionsError, isSubscriptionsFetching])
 
+  useEffect(() => {
+    if (externalSelectedPlan) {
+      setInternalSelectedPlanValue(externalSelectedPlan)
+    }
+  }, [externalSelectedPlan])
+
   const resolveNextPaymentDate = (subscriptionIndex: number) => {
     const current = subscriptions[subscriptionIndex]
     const next = subscriptions[subscriptionIndex + 1]
 
     if (next) {
-      // "Next payment" should never be earlier than current period expiration.
-      // If the next subscription was paid in advance, we show the next charge moment
-      // at the current period boundary instead of a past payment date.
+      // Next payment should not be earlier than current period expiration.
       const currentEndTime = new Date(current.endDateOfSubscription).getTime()
       const nextPaymentTime = new Date(next.dateOfPayment).getTime()
       const normalizedTime = Math.max(currentEndTime, nextPaymentTime)
@@ -155,13 +145,11 @@ export function SubscriptionPricing({
     isSubscriptionsError || shouldKeepFallbackDuringRetry
   const shouldShowCurrentSubscriptionSection =
     hasActiveSubscriptions || shouldShowCurrentSubscriptionFallback
-  // const hasAccountTypeSlot = accountTypeSlot != null // legacy (pre-T3)
-  // const hasChangeSubscriptionSlot = changeSubscriptionSlot != null // legacy (pre-T3)
 
   const selectedPlanValue =
     externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
 
-  const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
+  const selectedPlanData = plans.find(plan => plan.value === selectedPlanValue)
   const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
 
   const radioOptions = plans.map(plan => ({
@@ -175,9 +163,11 @@ export function SubscriptionPricing({
 
     if (onPlanChange) {
       onPlanChange(planValue)
-    } else {
-      setInternalSelectedPlanValue(planValue)
+
+      return
     }
+
+    setInternalSelectedPlanValue(planValue)
   }
 
   if (isInitialLoading) {
@@ -186,96 +176,21 @@ export function SubscriptionPricing({
 
   return (
     <div className={styles.root}>
-      {shouldShowCurrentSubscriptionSection && (
-        <section className={styles.currentSubscriptionSection}>
-          <Typography variant={'h3'}>Current Subscription:</Typography>
-          {shouldShowCurrentSubscriptionFallback ? (
-            <Card className={styles.stateCard}>
-              <Typography variant={'h3'}>Could not load subscriptions data</Typography>
-              <Typography className={styles.stateText} variant={'regular_16'}>
-                Please try again.
-              </Typography>
-              <Button
-                className={styles.retryButton}
-                variant={'outlined'}
-                disabled={isSubscriptionsFetching}
-                onClick={() => void refetchCurrentSubscription()}
-              >
-                Retry
-              </Button>
-            </Card>
-          ) : (
-            <Card className={styles.currentSubscriptionCard}>
-              <div className={styles.currentSubscriptionTable}>
-                <div className={styles.currentSubscriptionHeader}>
-                  <Typography className={styles.metricLabel} variant={'regular_14'}>
-                    Expire at
-                  </Typography>
-                  <Typography className={styles.metricLabel} variant={'regular_14'}>
-                    Next payment
-                  </Typography>
-                </div>
-                <div
-                  ref={currentSubscriptionScrollAreaHostRef}
-                  className={styles.currentSubscriptionScrollAreaHost}
-                >
-                  <ScrollAreaRadix
-                    className={styles.currentSubscriptionScrollArea}
-                    viewportClassName={styles.currentSubscriptionViewport}
-                  >
-                    <div
-                      ref={currentSubscriptionBodyRef}
-                      className={styles.currentSubscriptionBody}
-                      data-testid={'current-subscription-body'}
-                    >
-                      {visibleSubscriptions.map((subscription, index) => (
-                        <div
-                          key={subscription.subscriptionId}
-                          ref={node => {
-                            subscriptionRowRefs.current[index] = node
-                          }}
-                          data-subscription-id={subscription.subscriptionId}
-                          className={clsx(
-                            styles.currentSubscriptionRow,
-                            index === 0 && styles.currentSubscriptionRowActive,
-                            subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
-                          )}
-                        >
-                          <Typography variant={'semibold_small_text'}>
-                            {formatDate(subscription.endDateOfSubscription)}
-                          </Typography>
-                          <div className={styles.metricCell}>
-                            <Typography variant={'semibold_small_text'}>
-                              {resolveNextPaymentDate(index)}
-                            </Typography>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollAreaRadix>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          <div className={styles.autoRenewalControl}>
-            <CheckboxRadix
-              required={false}
-              label={'Auto-Renewal'}
-              checked={hasAutoRenewal}
-              disabled={isToggleDisabled || shouldShowCurrentSubscriptionFallback}
-              onCheckedChange={() => void toggleAutoRenewal()}
-            />
-            {isToggleLoading && (
-              <span
-                className={styles.autoRenewalSpinner}
-                aria-label={'Updating auto-renewal'}
-                role={'status'}
-              />
-            )}
-          </div>
-        </section>
-      )}
+      <SubscriptionCurrentSection
+        shouldShowCurrentSubscriptionSection={shouldShowCurrentSubscriptionSection}
+        shouldShowCurrentSubscriptionFallback={shouldShowCurrentSubscriptionFallback}
+        isSubscriptionsFetching={isSubscriptionsFetching}
+        refetchCurrentSubscription={refetchCurrentSubscription}
+        currentSubscriptionScrollAreaHostRef={currentSubscriptionScrollAreaHostRef}
+        currentSubscriptionBodyRef={currentSubscriptionBodyRef}
+        subscriptionRowRefs={subscriptionRowRefs}
+        visibleSubscriptions={visibleSubscriptions}
+        resolveNextPaymentDate={resolveNextPaymentDate}
+        hasAutoRenewal={hasAutoRenewal}
+        isToggleDisabled={isToggleDisabled}
+        toggleAutoRenewal={toggleAutoRenewal}
+        isToggleLoading={isToggleLoading}
+      />
 
       {accountTypeSlot}
 
@@ -286,9 +201,9 @@ export function SubscriptionPricing({
 
         {!plans.length ? (
           <Card className={styles.stateCard}>
-            <Typography variant={'h3'}>Нет доступных тарифов</Typography>
+            <Typography variant={'h3'}>No plans available</Typography>
             <Typography className={styles.stateText} variant={'regular_16'}>
-              Информация о тарифах временно недоступна.
+              Pricing data is temporarily unavailable.
             </Typography>
           </Card>
         ) : (
@@ -310,17 +225,6 @@ export function SubscriptionPricing({
               <div className={styles.paymentWrapper}>
                 <Button
                   className={styles.paymentButton}
-                  onClick={onPayPalClick}
-                  disabled={isDisabled}
-                  variant={'outlined'}
-                >
-                  <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
-                </Button>
-
-                <span className={styles.paymentOr}>Or</span>
-
-                <Button
-                  className={styles.paymentButton}
                   onClick={onStripeClick}
                   disabled={isDisabled}
                   variant={'outlined'}
@@ -332,15 +236,6 @@ export function SubscriptionPricing({
           </>
         )}
       </section>
-
-      {/* legacy (pre-T3): slot-based composition, intentionally disabled
-      {hasChangeSubscriptionSlot && (
-        <section className={styles.businessPricingSection}>
-          <Typography variant={'h3'}>Change your subscription:</Typography>
-          {changeSubscriptionSlot}
-        </section>
-      )}
-      */}
     </div>
   )
 }

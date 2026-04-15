@@ -2,16 +2,10 @@ import React from 'react'
 
 import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
 
-import {
-  AccountTypeValue,
-  SubscriptionPlanValue,
-  UISubscription,
-  UISubscriptionPlan,
-} from '../../model/types'
+import { AccountTypeValue, SubscriptionPlanValue, UISubscriptionPlan } from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
 interface BusinessActiveSubscriptionViewProps {
-  subscription?: UISubscription
   accountType: AccountTypeValue
   onAccountTypeChange: (type: AccountTypeValue) => void
   plans: UISubscriptionPlan[]
@@ -23,7 +17,6 @@ interface BusinessActiveSubscriptionViewProps {
 }
 
 export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscriptionViewProps> = ({
-  subscription,
   accountType,
   onAccountTypeChange,
   plans,

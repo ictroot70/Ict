@@ -1,50 +1,115 @@
-'use client'
+import { useCallback, useEffect, useState } from 'react'
 
-import { useEffect, useState } from 'react'
+import {
+  useCreateSubscriptionMutation,
+  useGetCurrentSubscriptionQuery,
+  useGetPricingQuery,
+} from '@/features/subscriptions/api'
+import { showToastAlert } from '@/shared/lib'
+import { PaymentType, PricingDetailsViewModel } from '@/shared/types'
+import { usePathname } from 'next/navigation'
 
-import { AccountModal } from '@/features/subscriptions/model'
-import { APP_ROUTES } from '@/shared/constant'
-import { PaymentType, SubscriptionType } from '@/shared/types'
-import { useParams } from 'next/navigation'
-
-import { usePaymentFlow } from './usePaymentFlow'
+import { getPaymentErrorMessage } from '../lib'
+import { paymentBaseline, PaymentFlowStatus, paymentPending } from '../model'
+import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 
 export function useAccountManagement() {
-  const [modal, setModal] = useState<AccountModal>(null)
-  const { flowStatus, flowErrorCode, isStarting, startPayment, resetFlow } = usePaymentFlow()
+  const pathname = usePathname()
 
-  const params = useParams<{ id: string }>()
-  const accountPath = APP_ROUTES.PROFILE.ACCOUNT(Number(params.id))
+  const {
+    data: subscription,
+    refetch,
+    isLoading: isSubscriptionLoading = false,
+  } = useGetCurrentSubscriptionQuery()
+  const { data: pricingPlans, isLoading: isPricingLoading = false } = useGetPricingQuery()
+
+  const [createSubscription, { isLoading: isSubscribing }] = useCreateSubscriptionMutation()
+
+  const [selectedPlan, setSelectedPlan] = useState<PricingDetailsViewModel | null>(null)
+
+  const fetchSubscriptions = useCallback(async () => {
+    const result = await refetch()
+
+    return result.data?.data ?? []
+  }, [refetch])
+
+  const { isPolling, flowStatus, clearPaymentState, resetFlowStatus } = usePaymentReturnFlow({
+    fetchSubscriptions,
+  })
+
+  const isPaymentLocked = isSubscribing || isPolling
 
   useEffect(() => {
-    if (flowStatus === 'success') {
-      setModal('success')
+    if (pricingPlans?.data?.length) {
+      setSelectedPlan(prev => prev ?? pricingPlans.data[0])
     }
-    if (flowStatus === 'failure') {
-      setModal('failure')
-    }
-  }, [flowStatus])
+  }, [pricingPlans])
 
-  const confirmAutoRenew = async () => {
-    await startPayment({
-      amount: 10, // TODO(T2): selectedPlan.amount
-      paymentType: PaymentType.STRIPE, // TODO(T2): selected payment method
-      typeSubscription: SubscriptionType.DAY, // TODO(T2): selected plan type
-      baseUrl: `${window.location.origin}${accountPath}`,
-    })
+  const isAutoRenewEnabled = subscription?.hasAutoRenewal ?? false
+  const subscriptionItems = subscription?.data ?? []
+
+  const subscriptionQueue = [...subscriptionItems].sort(
+    (a, b) =>
+      new Date(a.endDateOfSubscription).getTime() - new Date(b.endDateOfSubscription).getTime()
+  )
+
+  let paymentResultStatus: PaymentFlowStatus = 'idle'
+
+  if (flowStatus === 'success') {
+    paymentResultStatus = 'success'
+  } else if (flowStatus === 'failed' || flowStatus === 'timeout') {
+    paymentResultStatus = 'failure'
   }
 
-  const closeModal = () => {
-    setModal(null)
-    resetFlow()
-  }
+  const handlePay = useCallback(
+    async (paymentType: PaymentType) => {
+      if (!selectedPlan || isPaymentLocked) {
+        return
+      }
+
+      try {
+        const returnUrl = `${window.location.origin}${pathname}`
+        const { typeDescription, amount } = selectedPlan
+
+        const fresh = await refetch()
+
+        paymentBaseline.set(fresh.data?.data ?? [])
+
+        const result = await createSubscription({
+          amount,
+          paymentType,
+          baseUrl: returnUrl,
+          typeSubscription: typeDescription,
+        }).unwrap()
+
+        paymentPending.set()
+        window.location.href = result.url
+      } catch (error) {
+        showToastAlert({
+          message: getPaymentErrorMessage(error),
+          type: 'error',
+        })
+        clearPaymentState()
+      }
+    },
+    [clearPaymentState, createSubscription, isPaymentLocked, pathname, refetch, selectedPlan]
+  )
+
+  const handlePlanChange = useCallback((plan: PricingDetailsViewModel) => {
+    setSelectedPlan(plan)
+  }, [])
 
   return {
-    modal,
-    setModal,
-    confirmAutoRenew,
-    closeModal,
-    isSubmitting: isStarting,
-    flowErrorCode,
+    flowStatus,
+    pricingPlans,
+    selectedPlan,
+    isLoading: isSubscriptionLoading || isPricingLoading,
+    isPaymentLocked,
+    isAutoRenewEnabled,
+    subscriptionQueue,
+    paymentResultStatus,
+    handlePay,
+    handlePlanChange,
+    resetPaymentResult: resetFlowStatus,
   }
 }

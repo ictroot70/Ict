@@ -16,6 +16,10 @@ vi.mock('@/shared/composites', () => ({
   Loading: () => <div data-testid={'loading'} />,
 }))
 
+vi.mock('@ictroot/ui-kit', () => ({
+  RadioGroupRadix: () => <div role={'radiogroup'} />,
+}))
+
 vi.mock('@/shared/ui', () => ({
   Button: ({ children }: { children: React.ReactNode }) => (
     <button type={'button'}>{children}</button>
@@ -54,6 +58,10 @@ vi.mock('@/shared/ui', () => ({
 }))
 
 const useCurrentSubscriptionChainMock = vi.mocked(useCurrentSubscriptionChain)
+
+const plans = [
+  { id: 'DAY', value: '1day' as const, label: '$10 per 1 Day', price: '10', period: 'day' },
+]
 
 const createSubscriptions = (tailHasAutoRenewal: boolean) =>
   [
@@ -127,7 +135,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
         })
       )
 
-    const { rerender } = render(<SubscriptionPricing />)
+    const { rerender } = render(<SubscriptionPricing plans={plans} />)
     const body = screen.getByTestId('current-subscription-body')
     const tailRow = body.querySelector('[data-subscription-id="sub-next-4"]')
 
@@ -141,7 +149,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
     Object.defineProperty(tailRow as HTMLElement, 'offsetHeight', { configurable: true, value: 24 })
     ;(tailRow as HTMLElement).scrollIntoView = scrollIntoView
 
-    rerender(<SubscriptionPricing />)
+    rerender(<SubscriptionPricing plans={plans} />)
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1)
   })
@@ -161,7 +169,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
         })
       )
 
-    const { rerender } = render(<SubscriptionPricing />)
+    const { rerender } = render(<SubscriptionPricing plans={plans} />)
     const body = screen.getByTestId('current-subscription-body')
     const tailRow = body.querySelector('[data-subscription-id="sub-next-4"]')
 
@@ -171,7 +179,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
 
     ;(tailRow as HTMLElement).scrollIntoView = scrollIntoView
 
-    rerender(<SubscriptionPricing />)
+    rerender(<SubscriptionPricing plans={plans} />)
 
     expect(scrollIntoView).not.toHaveBeenCalled()
   })

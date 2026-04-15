@@ -1,7 +1,7 @@
 .root {
-  display: grid;
-  gap: 16px;
   width: 100%;
+  display: grid;
+  gap: 24px;
 }
 
 .section {
@@ -28,6 +28,8 @@
   display: grid;
   gap: 8px;
   width: 100%;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
   padding: 12px 24px;
 }
 
@@ -148,13 +150,6 @@
   @media (max-width: 768px) {
     padding: 0;
   }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-  }
 }
 
 .paymentContainer {
@@ -204,23 +199,13 @@
   object-fit: contain;
 }
 
-.paymentOr {
-  color: var(--color-light-900);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
 .stateCard {
   display: grid;
   gap: 12px;
   width: 100%;
   justify-items: start;
   align-content: start;
-  padding: 16px;
-  background-color: var(--color-dark-500);
-  border: 1px solid var(--color-dark-300);
-  border-radius: 8px;
+  padding: 12px 24px;
 }
 
 .stateText {
@@ -254,113 +239,6 @@
     transform: scale(0.98);
   }
 }
-
-/* legacy (pre-T3/T4 split): currently not used by JSX
-.currentSubscriptionRowPending {
-  opacity: 0.72;
-}
-
-.autoRenewBadge {
-  color: var(--color-primary-500);
-}
-
-.autoRenewalCheckbox {
-  width: 16px;
-  height: 16px;
-}
-
-.autoRenewalStatus {
-  color: var(--color-light-900);
-}
-
-.accountTypeSection {
-  display: grid;
-  gap: 16px;
-}
-
-.integrationSlot {
-  width: 100%;
-}
-
-.accountTypeSectionTopOffset {
-  margin-top: 30px;
-}
-
-.accountTypeCard {
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
-}
-
-.accountTypeOption {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-
-.accountTypeOption:focus-visible {
-  outline: 2px solid var(--color-primary-500);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-.accountTypeOptionDisabled {
-  cursor: not-allowed;
-  opacity: 0.72;
-}
-
-.planRow {
-  width: 100%;
-  min-height: 60px;
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  transition: all 0.3s ease;
-  padding: 6px 24px;
-  box-sizing: border-box;
-}
-
-.planRadio {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.paymentProviders {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.paymentProviderButton {
-  min-width: 76px;
-  height: 56px;
-  padding: 10px 14px;
-}
-
-.orLabel {
-  color: var(--color-light-100);
-}
-
-.businessPricingSection {
-  display: grid;
-  gap: 16px;
-}
-
-.pseudoRadio,
-.pseudoRadioSelected {
-  flex-shrink: 0;
-  display: block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--color-light-100);
-  border-radius: 50%;
-}
-*/
 
 @keyframes autoRenewalSpinnerRotation {
   to {
