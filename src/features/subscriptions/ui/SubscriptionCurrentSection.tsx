@@ -1,6 +1,6 @@
 'use client'
 
-import { type MutableRefObject, type RefObject } from 'react'
+import React, { type RefObject } from 'react'
 
 import { formatDate } from '@/shared/lib/formatters'
 import { Button, Card, CheckboxRadix, ScrollAreaRadix, Typography } from '@/shared/ui'
@@ -22,7 +22,7 @@ type Props = {
   refetchCurrentSubscription: () => Promise<unknown>
   currentSubscriptionScrollAreaHostRef: RefObject<HTMLDivElement | null>
   currentSubscriptionBodyRef: RefObject<HTMLDivElement | null>
-  subscriptionRowRefs: MutableRefObject<Array<HTMLDivElement | null>>
+  subscriptionRowRefs: RefObject<Array<HTMLDivElement | null>>
   visibleSubscriptions: SubscriptionItem[]
   resolveNextPaymentDate: (subscriptionIndex: number) => string
   hasAutoRenewal: boolean

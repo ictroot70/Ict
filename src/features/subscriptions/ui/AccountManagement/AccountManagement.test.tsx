@@ -3,7 +3,7 @@
 import React from 'react'
 
 import { PaymentType } from '@/shared/types'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AccountManagement } from './AccountManagement'
@@ -179,7 +179,9 @@ describe('AccountManagement', () => {
 
     expect(screen.queryByTestId('payment-processing-modal')).toBeNull()
 
-    await vi.advanceTimersByTimeAsync(250)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250)
+    })
 
     expect(screen.getByTestId('payment-processing-modal')).not.toBeNull()
   })
@@ -190,12 +192,16 @@ describe('AccountManagement', () => {
 
     const { rerender } = render(<AccountManagement />)
 
-    await vi.advanceTimersByTimeAsync(200)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(200)
+    })
 
     mocks.accountState.flowStatus = 'success'
     rerender(<AccountManagement />)
 
-    await vi.advanceTimersByTimeAsync(100)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100)
+    })
 
     expect(screen.queryByTestId('payment-processing-modal')).toBeNull()
   })
@@ -206,17 +212,23 @@ describe('AccountManagement', () => {
 
     const { rerender } = render(<AccountManagement />)
 
-    await vi.advanceTimersByTimeAsync(250)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(250)
+    })
 
     expect(screen.getByTestId('payment-processing-modal')).not.toBeNull()
 
     mocks.accountState.flowStatus = 'success'
     rerender(<AccountManagement />)
 
-    await vi.advanceTimersByTimeAsync(300)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300)
+    })
     expect(screen.getByTestId('payment-processing-modal')).not.toBeNull()
 
-    await vi.advanceTimersByTimeAsync(300)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(300)
+    })
     expect(screen.queryByTestId('payment-processing-modal')).toBeNull()
   })
 
