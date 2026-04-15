@@ -17,6 +17,23 @@
   transition: background-color 0.2s ease;
 }
 
+.unreadBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  background-color: #e53e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 9px;
+  pointer-events: none;
+}
+
 .menuHeader {
   padding: 12px 16px;
 }
@@ -72,6 +89,25 @@
   }
 }
 
+.unread {
+  background-color: var(--color-dark-400, rgba(255, 255, 255, 0.04));
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  background-color: var(--color-primary-500, #e44d6b);
+  border-radius: 50%;
+  align-self: center;
+  margin-left: 8px;
+}
+
+.titleText {
+  font-weight: 500;
+  color: var(--color-light-100);
+}
+
 .notificationContent {
   flex: 1;
   min-width: 0;
@@ -91,7 +127,7 @@
   font-style: normal;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   color: var(--color-primary-500);
   border-radius: 4px;
 }
@@ -114,6 +150,21 @@
 .emptyText {
   margin: 0;
   color: var(--color-light-900);
+}
+
+.loadingMore {
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.loadingText {
+  margin: 0;
+  color: var(--color-light-900);
+}
+
+.scrollSentinel {
+  height: 1px;
+  width: 100%;
 }
 
 .notificationMenu {

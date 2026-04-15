@@ -59,6 +59,7 @@
     "react-image-filters": "^0.5.1",
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.3",
     "uuid": "^13.0.0",
     "zod": "^3.25.67"
   },

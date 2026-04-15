@@ -1,6 +1,6 @@
 'use client'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { AuthBtn, LanguageSelect, NotificationButton } from '@/widgets/Header/components'
+import { AuthBtn, LanguageSelect, NotificationCenter } from '@/widgets/Header/components'
 
 import { HeaderSkeleton } from './HeaderSkeleton'
 
@@ -11,7 +11,7 @@ export const HeaderControls = () => {
   if (status === 'loading') {
     leadingControl = <HeaderSkeleton />
   } else if (status === 'authenticated') {
-    leadingControl = <NotificationButton />
+    leadingControl = <NotificationCenter />
   }
 
   return (
