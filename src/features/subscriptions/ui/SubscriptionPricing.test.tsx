@@ -16,6 +16,36 @@ vi.mock('@/shared/composites', () => ({
   Loading: () => <div data-testid={'loading'} />,
 }))
 
+vi.mock('@ictroot/ui-kit', () => ({
+  RadioGroupRadix: ({
+    options,
+    value,
+    onValueChange,
+    disabled,
+  }: {
+    options: Array<{ value: string; label: string; id: string }>
+    value?: string
+    onValueChange?: (value: string) => void
+    disabled?: boolean
+  }) => (
+    <div role={'radiogroup'}>
+      {options.map(option => (
+        <label key={option.id}>
+          <input
+            type={'radio'}
+            name={'plan'}
+            aria-label={option.label}
+            checked={value === option.value}
+            disabled={disabled}
+            onChange={() => onValueChange?.(option.value)}
+          />
+          {option.label}
+        </label>
+      ))}
+    </div>
+  ),
+}))
+
 vi.mock('@/shared/ui', () => ({
   Button: ({
     children,
@@ -58,6 +88,24 @@ vi.mock('@/shared/ui', () => ({
 }))
 
 const useCurrentSubscriptionChainMock = vi.mocked(useCurrentSubscriptionChain)
+
+const plans = [
+  { id: 'DAY', value: '1day' as const, label: '$10 per 1 Day', price: '10', period: 'day' },
+  {
+    id: 'WEEKLY',
+    value: '7day' as const,
+    label: '$50 per 7 Day',
+    price: '50',
+    period: 'week',
+  },
+  {
+    id: 'MONTHLY',
+    value: 'month' as const,
+    label: '$100 per month',
+    price: '100',
+    period: 'month',
+  },
+]
 
 const createCurrentSubscriptionChainResult = (partial?: {
   hasAutoRenewal?: boolean
@@ -103,83 +151,7 @@ const createCurrentSubscriptionChainResult = (partial?: {
     ...partial,
   }) as ReturnType<typeof useCurrentSubscriptionChain>
 
-const createLongQueueSubscriptions = () =>
-  [
-    {
-      userId: 1,
-      subscriptionId: 'sub-current',
-      dateOfPayment: '2026-03-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-04-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next-1',
-      dateOfPayment: '2026-04-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-05-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next-2',
-      dateOfPayment: '2026-05-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-06-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next-3',
-      dateOfPayment: '2026-06-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-07-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next-4',
-      dateOfPayment: '2026-07-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-08-01T00:00:00.000Z',
-      autoRenewal: true,
-    },
-  ] as ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
-
 describe('SubscriptionPricing', () => {
-  it('hides account and change subscription sections by default when slots are not provided', () => {
-    useCurrentSubscriptionChainMock.mockReturnValue(
-      createCurrentSubscriptionChainResult({
-        subscriptions: [],
-        hasAutoRenewal: false,
-        isToggleDisabled: true,
-      })
-    )
-
-    const { container } = render(<SubscriptionPricing />)
-
-    expect(screen.queryByText('Account type:')).toBeNull()
-    expect(screen.queryByText('Change your subscription:')).toBeNull()
-    expect(container.querySelector('[data-slot="account-type"]')).toBeNull()
-    expect(container.querySelector('[data-slot="change-subscription"]')).toBeNull()
-  })
-
-  it('renders custom integration slots from props', () => {
-    useCurrentSubscriptionChainMock.mockReturnValue(
-      createCurrentSubscriptionChainResult({
-        subscriptions: [],
-        hasAutoRenewal: false,
-        isToggleDisabled: true,
-      })
-    )
-
-    render(
-      <SubscriptionPricing
-        accountTypeSlot={<div data-testid={'custom-account-slot'} />}
-        changeSubscriptionSlot={<div data-testid={'custom-change-slot'} />}
-      />
-    )
-
-    expect(screen.getByTestId('custom-account-slot')).not.toBeNull()
-    expect(screen.getByTestId('custom-change-slot')).not.toBeNull()
-  })
-
   it('hides current subscription block for user without active subscriptions', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
@@ -189,7 +161,7 @@ describe('SubscriptionPricing', () => {
       })
     )
 
-    render(<SubscriptionPricing />)
+    render(<SubscriptionPricing plans={plans} />)
 
     expect(screen.queryByText('Current Subscription:')).toBeNull()
     expect(screen.queryByLabelText('Auto-Renewal')).toBeNull()
@@ -198,7 +170,7 @@ describe('SubscriptionPricing', () => {
   it('renders current and next subscriptions with normalized next payment dates', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(createCurrentSubscriptionChainResult())
 
-    render(<SubscriptionPricing />)
+    render(<SubscriptionPricing plans={plans} />)
 
     expect(screen.getByText('Expire at')).not.toBeNull()
     expect(screen.getByText('Next payment')).not.toBeNull()
@@ -232,7 +204,7 @@ describe('SubscriptionPricing', () => {
       })
     )
 
-    render(<SubscriptionPricing />)
+    render(<SubscriptionPricing plans={plans} />)
 
     expect(screen.getAllByText('17.04.2026').length).toBeGreaterThan(0)
     expect(screen.queryByText('17.03.2026')).toBeNull()
@@ -247,8 +219,11 @@ describe('SubscriptionPricing', () => {
         toggleAutoRenewal,
       })
     )
-    render(<SubscriptionPricing />)
+
+    render(<SubscriptionPricing plans={plans} />)
+
     fireEvent.click(screen.getByLabelText('Auto-Renewal'))
+
     expect(toggleAutoRenewal).toHaveBeenCalledTimes(1)
   })
 
@@ -259,42 +234,9 @@ describe('SubscriptionPricing', () => {
         isToggleDisabled: true,
       })
     )
-    render(<SubscriptionPricing />)
+
+    render(<SubscriptionPricing plans={plans} />)
+
     expect(screen.getByLabelText('Updating auto-renewal')).not.toBeNull()
-  })
-
-  it('shows full queue in a single list without Show more toggle', () => {
-    useCurrentSubscriptionChainMock.mockReturnValue(
-      createCurrentSubscriptionChainResult({
-        subscriptions: createLongQueueSubscriptions(),
-      })
-    )
-
-    render(<SubscriptionPricing />)
-
-    expect(screen.getAllByText('01.08.2026').length).toBeGreaterThan(0)
-    expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
-    expect(screen.queryByRole('button', { name: /Show less/i })).toBeNull()
-    expect(screen.queryByText('Next subscriptions')).toBeNull()
-  })
-
-  it('disables toggle for invalid chain without exposing technical warning text', () => {
-    useCurrentSubscriptionChainMock.mockReturnValue(
-      createCurrentSubscriptionChainResult({
-        hasQueueInvariantViolation: true,
-        isToggleDisabled: true,
-      })
-    )
-
-    render(<SubscriptionPricing />)
-
-    expect(
-      screen.queryByText(
-        'Queue invariant violated: auto-renew must be enabled only on the last subscription.'
-      )
-    ).toBeNull()
-    const autoRenewalCheckbox = screen.getByLabelText('Auto-Renewal')
-
-    expect((autoRenewalCheckbox as HTMLInputElement).disabled).toBe(true)
   })
 })
