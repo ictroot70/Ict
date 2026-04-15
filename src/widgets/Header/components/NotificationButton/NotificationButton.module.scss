@@ -24,7 +24,7 @@
   min-width: 18px;
   height: 18px;
   padding: 0 4px;
-  background-color: #e53e3e;
+  background-color: var(--color--danger--500);
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -97,7 +97,7 @@
   width: 8px;
   height: 8px;
   min-width: 8px;
-  background-color: var(--color-primary-500, #e44d6b);
+  background-color: var(--color-primary-500);
   border-radius: 50%;
   align-self: center;
   margin-left: 8px;
