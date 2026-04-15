@@ -1,260 +1,230 @@
 'use client'
-import { useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
 
-// <<<<<<< SCRUM-207-T2-Return-flow-polling-idempotency
-// import React from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-// import {
-//   PaymentConfirmationModal,
-//   PaymentFailureModal,
-//   PaymentSuccessModal,
-// } from '@/features/subscriptions'
-// import { useAccountManagement, useAutoRenewalActions } from '@/features/subscriptions/hooks'
-// import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
-// import { formatDate } from '@/shared/lib'
-// import { PaymentType } from '@/shared/types'
-// import { Button, CheckboxRadix } from '@/shared/ui'
-// import { useTranslations } from 'next-intl'
-
-// import s from './AccountManagement.module.scss'
-
-// import { usePaymentModalState } from '../../hooks/usePaymentModalState'
-// export function AccountManagement() {
-//   const {
-//     flowStatus,
-//     paymentResultStatus,
-//     selectedPlan,
-//     pricingPlans,
-//     isPaymentLocked,
-//     isAutoRenewEnabled,
-//     subscriptionQueue,
-//     handlePay,
-//     handlePlanChange,
-//     resetPaymentResult,
-//   } = useAccountManagement()
-
-//   const t = useTranslations('subscriptions.account')
-//   const { handleSwitchAutoRenewal, isAutoRenewalChanging } = useAutoRenewalActions()
-
-//   const isPaymentDisabled = !selectedPlan || isPaymentLocked
-
-//   const {
-//     modal,
-//     backToPayment,
-//     openConfirmModal,
-//     closeConfirmModal,
-//     clearPaymentModalState,
-//     closePaymentResultModal,
-//   } = usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
-
-//   const confirmPayment = async () => {
-//     clearPaymentModalState()
-//     resetPaymentResult()
-
-//     await handlePay(PaymentType.STRIPE)
-//   }
-
-//   return (
-//     <>
-//       <div className={s.root}>
-//         {flowStatus === 'polling' && <p>Processing payment...</p>}
-//         {subscriptionQueue.length > 0 && (
-//           <div>
-//             <div className={s.section}>
-//               <span className={s.sectionTitle}>Current Subscription:</span>
-//               <div className={s.list}>
-//                 {subscriptionQueue.map(subscription => {
-//                   return (
-//                     <div className={s.infoBox} key={subscription.subscriptionId}>
-//                       <div className={s.infoField}>
-//                         Expire at
-//                         <span>{formatDate(subscription.endDateOfSubscription)}</span>
-//                       </div>
-//                       <div className={s.infoField}>
-//                         {subscription.autoRenewal ? 'Next payment' : 'Subscription ends'}
-//                         <span>{formatDate(subscription.endDateOfSubscription)}</span>
-//                       </div>
-//                     </div>
-//                   )
-//                 })}
-//               </div>
-//             </div>
-//             <CheckboxRadix
-//               label={'Auto-Renewal'}
-//               checked={isAutoRenewEnabled}
-//               disabled={isAutoRenewalChanging}
-//               onCheckedChange={handleSwitchAutoRenewal}
-//             />
-//           </div>
-//         )}
-//         <div className={s.section}>
-//           <span className={s.sectionTitle}>Change your subscription:</span>
-//           <div className={s.optionsBox}>
-//             {pricingPlans?.data?.map(plan => (
-//               <label key={plan.typeDescription} className={s.radioRow}>
-//                 <input
-//                   checked={selectedPlan?.typeDescription === plan.typeDescription}
-//                   className={s.radioInput}
-//                   disabled={isPaymentLocked}
-//                   name={'plan'}
-//                   type={'radio'}
-//                   onChange={() => handlePlanChange(plan)}
-//                 />
-//                 ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
-//               </label>
-//             ))}
-//           </div>
-//         </div>
-
-//         <Button
-//           variant={'outlined'}
-//           disabled={isPaymentLocked || !selectedPlan}
-//           onClick={openConfirmModal}
-//         >
-//           {t('stripe')}
-//         </Button>
-//       </div>
-
-//       <PaymentConfirmationModal
-//         open={modal === 'confirm'}
-//         onClose={closeConfirmModal}
-//         onConfirm={confirmPayment}
-//         isSubmitting={isPaymentLocked}
-//       />
-//       <PaymentSuccessModal open={modal === 'success'} onClose={closePaymentResultModal} />
-
-//       <PaymentFailureModal
-//         open={modal === 'failure'}
-//         onClose={closePaymentResultModal}
-//         onBackToPayment={backToPayment}
-//       />
-//     </>
-// =======
-import { usePricing } from '@/features/subscriptions/model/hooks/usePricing'
+import { useAccountManagement, usePaymentModalState } from '@/features/subscriptions/hooks'
+import { mapPricingToPlans } from '@/features/subscriptions/model/adapters/pricingAdapter'
 import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
 import {
   AccountTypeValue,
-  mapSubscriptionToUI,
   SubscriptionPlanValue,
-  UISubscription,
+  UISubscriptionPlan,
 } from '@/features/subscriptions/model/types'
 import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
 import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
-import { showToastAlert } from '@/shared/lib/toast/showToastAlert'
+import { Loading } from '@/shared/composites'
+import { PaymentType } from '@/shared/types'
 
 import styles from './AccountManagement.module.scss'
 
-import { useCurrentSubscription } from '../../model/hooks/useCurrentSubscription'
-import { BusinessNoSubscriptionView } from '../BusinessNoSubscriptionView/BusinessNoSubscriptionView'
+import {
+  PaymentConfirmationModal,
+  PaymentFailureModal,
+  PaymentProcessingModal,
+  PaymentSuccessModal,
+} from '../PaymentModals'
+
+const PROCESSING_MODAL_SHOW_DELAY_MS = 250
+const PROCESSING_MODAL_MIN_VISIBLE_MS = 600
 
 export const AccountManagement = () => {
+  const {
+    flowStatus,
+    paymentResultStatus,
+    selectedPlan,
+    pricingPlans,
+    isLoading,
+    isPaymentLocked,
+    subscriptionQueue,
+    handlePay,
+    handlePlanChange,
+    resetPaymentResult,
+  } = useAccountManagement()
+
   const [selectedAccountType, setSelectedAccountType] = useState<AccountTypeValue>('personal')
-  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanValue>('month')
-  const [isPaymentLocked, setIsPaymentLocked] = useState(false)
+  const [isProcessingModalVisible, setIsProcessingModalVisible] = useState(false)
+  const [processingShownAt, setProcessingShownAt] = useState<number | null>(null)
+  const showProcessingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hideProcessingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { subscriptions: apiSubscriptions, isLoading: subLoading } = useCurrentSubscription()
-  const { plans: apiPlans, isLoading: plansLoading } = usePricing()
+  const plans = useMemo<UISubscriptionPlan[]>(() => {
+    if (!pricingPlans) {
+      return []
+    }
 
-  const subscriptions = apiSubscriptions || []
-  const plans = apiPlans || []
+    return mapPricingToPlans(pricingPlans)
+  }, [pricingPlans])
 
-  const activeSubscription = useMemo(() => subscriptions.find(s => s.isActive), [subscriptions])
+  const selectedPlanValue = useMemo<SubscriptionPlanValue | undefined>(() => {
+    if (!selectedPlan) {
+      return undefined
+    }
 
-  const accountType: AccountTypeValue = activeSubscription?.isActive
-    ? 'business'
-    : selectedAccountType
+    const uiPlan = plans.find(plan => plan.id === selectedPlan.typeDescription)
 
-  const uiSubscription: UISubscription | undefined = useMemo(
-    () => (activeSubscription ? mapSubscriptionToUI(activeSubscription) : undefined),
-    [activeSubscription]
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-  )
+    return uiPlan?.value
+  }, [plans, selectedPlan])
 
-  const view = resolveAccountManagementView({
-    accountType,
-    hasActiveSubscription: !!activeSubscription,
-  })
+  const isPaymentDisabled = !selectedPlan || isPaymentLocked
 
-  const isLoading = subLoading || plansLoading
+  const {
+    modal,
+    backToPayment,
+    openConfirmModal,
+    closeConfirmModal,
+    clearPaymentModalState,
+    closePaymentResultModal,
+  } = usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
 
-  const handlePayPalClick = () => {
-    showToastAlert({
-      message: 'Оплата через PayPal временно недоступна. Это демо-режим.',
-      type: 'info',
-      duration: 3000,
-      closeable: true,
-      progressBar: true,
-    })
+  const confirmPayment = async () => {
+    clearPaymentModalState()
+    resetPaymentResult()
+
+    await handlePay(PaymentType.STRIPE)
   }
 
-  const handleStripeClick = () => {
-    showToastAlert({
-      message: 'Оплата через Stripe временно недоступна. Это демо-режим.',
-      type: 'info',
-      duration: 3000,
-      closeable: true,
-      progressBar: true,
-    })
-  }
-
-  const handlePlanChange = (plan: SubscriptionPlanValue) => {
-    setSelectedPlan(plan)
-  }
+  const hasActiveSubscription = subscriptionQueue.length > 0
+  const accountType: AccountTypeValue = hasActiveSubscription ? 'business' : selectedAccountType
 
   const handleAccountTypeChange = (type: AccountTypeValue) => {
-    if (activeSubscription && type === 'personal') {
+    if (hasActiveSubscription && type === 'personal') {
       return
     }
+
     setSelectedAccountType(type)
   }
 
-  if (isLoading) {
-    return <div className={styles.loading}>Загрузка...</div>
+  const handlePlanValueChange = (planValue: SubscriptionPlanValue) => {
+    if (!pricingPlans?.data?.length) {
+      return
+    }
+
+    const selectedUiPlan = plans.find(plan => plan.value === planValue)
+
+    if (!selectedUiPlan) {
+      return
+    }
+
+    const selectedPricingPlan = pricingPlans.data.find(
+      plan => plan.typeDescription === selectedUiPlan.id
+    )
+
+    if (!selectedPricingPlan) {
+      return
+    }
+
+    handlePlanChange(selectedPricingPlan)
   }
 
-  switch (view) {
-    case 'personal':
-      return (
-        <div className={styles.accountManagementPage}>
-          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
-        </div>
-      )
+  const view = resolveAccountManagementView({
+    accountType,
+    hasActiveSubscription,
+  })
 
-    case 'business-no-subscription':
-      return (
-        <div className={styles.accountManagementPage}>
+  useEffect(() => {
+    if (flowStatus === 'polling') {
+      if (hideProcessingTimerRef.current) {
+        clearTimeout(hideProcessingTimerRef.current)
+        hideProcessingTimerRef.current = null
+      }
+
+      if (isProcessingModalVisible || showProcessingTimerRef.current) {
+        return
+      }
+
+      showProcessingTimerRef.current = setTimeout(() => {
+        showProcessingTimerRef.current = null
+        setIsProcessingModalVisible(true)
+        setProcessingShownAt(Date.now())
+      }, PROCESSING_MODAL_SHOW_DELAY_MS)
+
+      return
+    }
+
+    if (showProcessingTimerRef.current) {
+      clearTimeout(showProcessingTimerRef.current)
+      showProcessingTimerRef.current = null
+    }
+
+    if (!isProcessingModalVisible) {
+      return
+    }
+
+    const elapsed = processingShownAt ? Date.now() - processingShownAt : 0
+    const remainingVisibleTime = Math.max(PROCESSING_MODAL_MIN_VISIBLE_MS - elapsed, 0)
+
+    hideProcessingTimerRef.current = setTimeout(() => {
+      hideProcessingTimerRef.current = null
+      setIsProcessingModalVisible(false)
+      setProcessingShownAt(null)
+    }, remainingVisibleTime)
+  }, [flowStatus, isProcessingModalVisible, processingShownAt])
+
+  useEffect(() => {
+    return () => {
+      if (showProcessingTimerRef.current) {
+        clearTimeout(showProcessingTimerRef.current)
+      }
+
+      if (hideProcessingTimerRef.current) {
+        clearTimeout(hideProcessingTimerRef.current)
+      }
+    }
+  }, [])
+
+  if (isLoading && flowStatus !== 'polling') {
+    return <Loading />
+  }
+
+  return (
+    <>
+      <div className={styles.accountManagementPage}>
+        {view === 'personal' && (
+          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
+        )}
+
+        {view === 'business-no-subscription' && (
           <BusinessNoSubscriptionView
             accountType={accountType}
             onAccountTypeChange={handleAccountTypeChange}
             plans={plans}
-            selectedPlan={selectedPlan}
-            onPlanChange={handlePlanChange}
-            onPayPalClick={handlePayPalClick}
-            onStripeClick={handleStripeClick}
+            selectedPlan={selectedPlanValue}
+            onPlanChange={handlePlanValueChange}
+            onStripeClick={openConfirmModal}
             isPaymentLocked={isPaymentLocked}
           />
-        </div>
-      )
+        )}
 
-    case 'business-active-subscription':
-      return (
-        <div className={styles.accountManagementPage}>
+        {view === 'business-active-subscription' && (
           <BusinessActiveSubscriptionView
-            subscription={uiSubscription}
             accountType={accountType}
             onAccountTypeChange={handleAccountTypeChange}
             plans={plans}
-            selectedPlan={selectedPlan}
-            onPlanChange={handlePlanChange}
-            onPayPalClick={handlePayPalClick}
-            onStripeClick={handleStripeClick}
+            selectedPlan={selectedPlanValue}
+            onPlanChange={handlePlanValueChange}
+            onStripeClick={openConfirmModal}
             isPaymentLocked={isPaymentLocked}
           />
-        </div>
-      )
+        )}
+      </div>
 
-    default:
-      return null
-  }
+      <PaymentConfirmationModal
+        open={modal === 'confirm'}
+        onClose={closeConfirmModal}
+        onConfirm={() => void confirmPayment()}
+        isSubmitting={isPaymentLocked}
+      />
+
+      <PaymentProcessingModal open={isProcessingModalVisible} />
+
+      <PaymentSuccessModal open={modal === 'success'} onClose={closePaymentResultModal} />
+
+      <PaymentFailureModal
+        open={modal === 'failure'}
+        onClose={closePaymentResultModal}
+        onBackToPayment={backToPayment}
+      />
+    </>
+  )
 }

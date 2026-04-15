@@ -1,363 +1,241 @@
-// 'use client'
-// import { useEffect, useState } from 'react'
+'use client'
 
-// <<<<<<< SCRUM-209-T4-Current-subscription-auto-renew-UC-3-queue-logic
-// import React, { ReactNode, useEffect, useRef } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState } from 'react'
 
-// import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
-// import { Loading } from '@/shared/composites'
-// import { formatDate } from '@/shared/lib/formatters'
-// import { Button, Card, CheckboxRadix, ScrollAreaRadix, Typography } from '@/shared/ui'
-// import { clsx } from 'clsx'
+import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
+import { Loading } from '@/shared/composites'
+import { formatDate } from '@/shared/lib/formatters'
+import { Button, Card, Typography } from '@/shared/ui'
+import { RadioGroupRadix } from '@ictroot/ui-kit'
 
-// import styles from './SubscriptionPricing.module.scss'
+import styles from './SubscriptionPricing.module.scss'
 
-// type SubscriptionPricingProps = {
-//   accountTypeSlot?: ReactNode
-//   changeSubscriptionSlot?: ReactNode
-// }
+import { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
+import { SubscriptionCurrentSection } from './SubscriptionCurrentSection'
 
-// export function SubscriptionPricing({
-//   accountTypeSlot,
-//   changeSubscriptionSlot,
-// }: SubscriptionPricingProps = {}) {
-//   const {
-//     subscriptions,
-//     hasAutoRenewal,
-//     isLoading: isSubscriptionsLoading,
-//     isFetching: isSubscriptionsFetching,
-//     isError: isSubscriptionsError,
-//     refetchCurrentSubscription,
-//     toggleAutoRenewal,
-//     isToggleLoading,
-//     isToggleDisabled,
-//   } = useCurrentSubscriptionChain()
+interface SubscriptionPricingProps {
+  plans: SubscriptionPlan[]
+  selectedPlan?: SubscriptionPlanValue
+  onPlanChange?: (plan: SubscriptionPlanValue) => void
+  onPayPalClick?: () => void
+  onStripeClick?: () => void
+  isPaymentLocked?: boolean
+  accountTypeSlot?: ReactNode
+}
 
-//   const hasActiveSubscriptions = subscriptions.length > 0
-//   const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
-//   const currentSubscriptionScrollAreaHostRef = useRef<HTMLDivElement | null>(null)
-//   const currentSubscriptionBodyRef = useRef<HTMLDivElement | null>(null)
-//   const subscriptionRowRefs = useRef<Array<HTMLDivElement | null>>([])
-//   const prevHasAutoRenewalRef = useRef(hasAutoRenewal)
-//   const hadSubscriptionErrorRef = useRef(isSubscriptionsError)
+export function SubscriptionPricing({
+  plans,
+  selectedPlan: externalSelectedPlan,
+  onPlanChange,
+  onStripeClick,
+  isPaymentLocked = false,
+  accountTypeSlot,
+}: SubscriptionPricingProps) {
+  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
+    externalSelectedPlan || plans[0]?.value || 'month'
+  )
 
-//   const visibleSubscriptions = subscriptions
+  const {
+    subscriptions,
+    hasAutoRenewal,
+    isLoading: isSubscriptionsLoading,
+    isFetching: isSubscriptionsFetching,
+    isError: isSubscriptionsError,
+    refetchCurrentSubscription,
+    toggleAutoRenewal,
+    isToggleLoading,
+    isToggleDisabled,
+  } = useCurrentSubscriptionChain()
 
-//   useEffect(() => {
-//     const wasAutoRenewalEnabled = prevHasAutoRenewalRef.current
+  const hasActiveSubscriptions = subscriptions.length > 0
+  const isInitialLoading = isSubscriptionsLoading && !subscriptions.length
+  const currentSubscriptionScrollAreaHostRef = useRef<HTMLDivElement | null>(null)
+  const currentSubscriptionBodyRef = useRef<HTMLDivElement | null>(null)
+  const subscriptionRowRefs = useRef<Array<HTMLDivElement | null>>([])
+  const prevHasAutoRenewalRef = useRef(hasAutoRenewal)
+  const hadSubscriptionErrorRef = useRef(isSubscriptionsError)
 
-//     prevHasAutoRenewalRef.current = hasAutoRenewal
+  const visibleSubscriptions = subscriptions
 
-//     if (wasAutoRenewalEnabled || !hasAutoRenewal) {
-//       return
-// =======
-// import { Card, Typography, Button } from '@/shared/ui'
-// import { RadioGroupRadix } from '@ictroot/ui-kit'
+  useEffect(() => {
+    const wasAutoRenewalEnabled = prevHasAutoRenewalRef.current
 
-// import styles from './SubscriptionPricing.module.scss'
+    prevHasAutoRenewalRef.current = hasAutoRenewal
 
-// import { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
+    if (wasAutoRenewalEnabled || !hasAutoRenewal) {
+      return
+    }
 
-// interface SubscriptionPricingProps {
-//   plans: SubscriptionPlan[]
-//   selectedPlan?: SubscriptionPlanValue
-//   onPlanChange?: (plan: SubscriptionPlanValue) => void
-//   onPayPalClick?: () => void
-//   onStripeClick?: () => void
-//   isPaymentLocked?: boolean
-// }
+    const viewportNode =
+      currentSubscriptionScrollAreaHostRef.current?.querySelector<HTMLDivElement>(
+        `.${styles.currentSubscriptionViewport}`
+      ) ?? currentSubscriptionBodyRef.current
 
-// export function SubscriptionPricing({
-//   plans,
-//   selectedPlan: externalSelectedPlan,
-//   onPlanChange,
-//   onPayPalClick,
-//   onStripeClick,
-//   isPaymentLocked = false,
-// }: SubscriptionPricingProps) {
-//   const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
-//     externalSelectedPlan || plans[0]?.value || 'month'
-//   )
+    if (!viewportNode) {
+      return
+    }
 
-//   useEffect(() => {
-//     if (externalSelectedPlan) {
-//       setInternalSelectedPlanValue(externalSelectedPlan)
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-//     }
-//   }, [externalSelectedPlan])
+    const autoRenewalIndex = visibleSubscriptions.findIndex(
+      subscription => subscription.autoRenewal
+    )
 
-// <<<<<<< SCRUM-209-T4-Current-subscription-auto-renew-UC-3-queue-logic
-//     const viewportNode =
-//       currentSubscriptionScrollAreaHostRef.current?.querySelector<HTMLDivElement>(
-//         `.${styles.currentSubscriptionViewport}`
-//       ) ?? currentSubscriptionBodyRef.current
+    if (autoRenewalIndex < 0) {
+      return
+    }
 
-//     if (!viewportNode) {
-//       return
-//     }
+    const targetRow = subscriptionRowRefs.current[autoRenewalIndex]
 
-//     const autoRenewalIndex = visibleSubscriptions.findIndex(
-//       subscription => subscription.autoRenewal
-//     )
+    if (!targetRow) {
+      return
+    }
 
-//     if (autoRenewalIndex < 0) {
-//       return
-//     }
+    const currentScrollTop = viewportNode.scrollTop
+    const currentScrollBottom = currentScrollTop + viewportNode.clientHeight
+    const rowTop = targetRow.offsetTop
+    const rowBottom = rowTop + targetRow.offsetHeight
+    const isRowFullyVisible = rowTop >= currentScrollTop && rowBottom <= currentScrollBottom
 
-//     const targetRow = subscriptionRowRefs.current[autoRenewalIndex]
+    if (isRowFullyVisible) {
+      return
+    }
 
-//     if (!targetRow) {
-//       return
-//     }
+    targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [hasAutoRenewal, visibleSubscriptions])
 
-//     const currentScrollTop = viewportNode.scrollTop
-//     const currentScrollBottom = currentScrollTop + viewportNode.clientHeight
-//     const rowTop = targetRow.offsetTop
-//     const rowBottom = rowTop + targetRow.offsetHeight
-//     const isRowFullyVisible = rowTop >= currentScrollTop && rowBottom <= currentScrollBottom
+  useEffect(() => {
+    if (isSubscriptionsError) {
+      hadSubscriptionErrorRef.current = true
 
-//     if (isRowFullyVisible) {
-//       return
-//     }
+      return
+    }
 
-//     targetRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-//   }, [hasAutoRenewal, visibleSubscriptions])
+    if (!isSubscriptionsFetching) {
+      hadSubscriptionErrorRef.current = false
+    }
+  }, [isSubscriptionsError, isSubscriptionsFetching])
 
-//   useEffect(() => {
-//     if (isSubscriptionsError) {
-//       hadSubscriptionErrorRef.current = true
+  useEffect(() => {
+    if (externalSelectedPlan) {
+      setInternalSelectedPlanValue(externalSelectedPlan)
+    }
+  }, [externalSelectedPlan])
 
-//       return
-//     }
+  const resolveNextPaymentDate = (subscriptionIndex: number) => {
+    const current = subscriptions[subscriptionIndex]
+    const next = subscriptions[subscriptionIndex + 1]
 
-//     if (!isSubscriptionsFetching) {
-//       hadSubscriptionErrorRef.current = false
-//     }
-//   }, [isSubscriptionsError, isSubscriptionsFetching])
+    if (next) {
+      // Next payment should not be earlier than current period expiration.
+      const currentEndTime = new Date(current.endDateOfSubscription).getTime()
+      const nextPaymentTime = new Date(next.dateOfPayment).getTime()
+      const normalizedTime = Math.max(currentEndTime, nextPaymentTime)
 
-//   const resolveNextPaymentDate = (subscriptionIndex: number) => {
-//     const current = subscriptions[subscriptionIndex]
-//     const next = subscriptions[subscriptionIndex + 1]
+      return formatDate(new Date(normalizedTime).toISOString())
+    }
 
-//     if (next) {
-//       // "Next payment" should never be earlier than current period expiration.
-//       // If the next subscription was paid in advance, we show the next charge moment
-//       // at the current period boundary instead of a past payment date.
-//       const currentEndTime = new Date(current.endDateOfSubscription).getTime()
-//       const nextPaymentTime = new Date(next.dateOfPayment).getTime()
-//       const normalizedTime = Math.max(currentEndTime, nextPaymentTime)
+    if (hasAutoRenewal) {
+      return formatDate(current.endDateOfSubscription)
+    }
 
-//       return formatDate(new Date(normalizedTime).toISOString())
-//     }
+    return '—'
+  }
 
-//     if (hasAutoRenewal) {
-//       return formatDate(current.endDateOfSubscription)
-//     }
+  const shouldKeepFallbackDuringRetry = isSubscriptionsFetching && hadSubscriptionErrorRef.current
+  const shouldShowCurrentSubscriptionFallback =
+    isSubscriptionsError || shouldKeepFallbackDuringRetry
+  const shouldShowCurrentSubscriptionSection =
+    hasActiveSubscriptions || shouldShowCurrentSubscriptionFallback
 
-//     return '—'
-//   }
+  const selectedPlanValue =
+    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
 
-//   const shouldKeepFallbackDuringRetry = isSubscriptionsFetching && hadSubscriptionErrorRef.current
-//   const shouldShowCurrentSubscriptionFallback =
-//     isSubscriptionsError || shouldKeepFallbackDuringRetry
-//   const shouldShowCurrentSubscriptionSection =
-//     hasActiveSubscriptions || shouldShowCurrentSubscriptionFallback
-//   const hasAccountTypeSlot = accountTypeSlot != null
-//   const hasChangeSubscriptionSlot = changeSubscriptionSlot != null
+  const selectedPlanData = plans.find(plan => plan.value === selectedPlanValue)
+  const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
 
-//   if (isInitialLoading) {
-//     return <Loading />
-//   }
+  const radioOptions = plans.map(plan => ({
+    value: plan.value,
+    label: plan.label,
+    id: `plan-${plan.id}`,
+  }))
 
-//   return (
-//     <div className={styles.root}>
-//       {shouldShowCurrentSubscriptionSection && (
-//         <section className={styles.currentSubscriptionSection}>
-//           <Typography variant={'h3'}>Current Subscription:</Typography>
-//           {shouldShowCurrentSubscriptionFallback ? (
-//             <Card className={styles.stateCard}>
-//               <Typography variant={'h3'}>Could not load subscriptions data</Typography>
-//               <Typography className={styles.stateText} variant={'regular_16'}>
-//                 Please try again.
-//               </Typography>
-//               <Button
-//                 className={styles.retryButton}
-//                 variant={'outlined'}
-//                 disabled={isSubscriptionsFetching}
-//                 onClick={() => void refetchCurrentSubscription()}
-//               >
-//                 Retry
-//               </Button>
-//             </Card>
-//           ) : (
-//             <Card className={styles.currentSubscriptionCard}>
-//               <div className={styles.currentSubscriptionTable}>
-//                 <div className={styles.currentSubscriptionHeader}>
-//                   <Typography className={styles.metricLabel} variant={'regular_14'}>
-//                     Expire at
-//                   </Typography>
-//                   <Typography className={styles.metricLabel} variant={'regular_14'}>
-//                     Next payment
-//                   </Typography>
-//                 </div>
-//                 <div
-//                   ref={currentSubscriptionScrollAreaHostRef}
-//                   className={styles.currentSubscriptionScrollAreaHost}
-//                 >
-//                   <ScrollAreaRadix
-//                     className={styles.currentSubscriptionScrollArea}
-//                     viewportClassName={styles.currentSubscriptionViewport}
-//                   >
-//                     <div
-//                       ref={currentSubscriptionBodyRef}
-//                       className={styles.currentSubscriptionBody}
-//                       data-testid={'current-subscription-body'}
-//                     >
-//                       {visibleSubscriptions.map((subscription, index) => (
-//                         <div
-//                           key={subscription.subscriptionId}
-//                           ref={node => {
-//                             subscriptionRowRefs.current[index] = node
-//                           }}
-//                           data-subscription-id={subscription.subscriptionId}
-//                           className={clsx(
-//                             styles.currentSubscriptionRow,
-//                             index === 0 && styles.currentSubscriptionRowActive,
-//                             subscription.autoRenewal && styles.currentSubscriptionRowAutoRenew
-//                           )}
-//                         >
-//                           <Typography variant={'semibold_small_text'}>
-//                             {formatDate(subscription.endDateOfSubscription)}
-//                           </Typography>
-//                           <div className={styles.metricCell}>
-//                             <Typography variant={'semibold_small_text'}>
-//                               {resolveNextPaymentDate(index)}
-//                             </Typography>
-//                           </div>
-//                         </div>
-//                       ))}
-//                     </div>
-//                   </ScrollAreaRadix>
-//                 </div>
-//               </div>
-//             </Card>
-//           )}
+  const handleValueChange = (value: string) => {
+    const planValue = value as SubscriptionPlanValue
 
-//           <div className={styles.autoRenewalControl}>
-//             <CheckboxRadix
-//               required={false}
-//               label={'Auto-Renewal'}
-//               checked={hasAutoRenewal}
-//               disabled={isToggleDisabled || shouldShowCurrentSubscriptionFallback}
-//               onCheckedChange={() => void toggleAutoRenewal()}
-//             />
-//             {isToggleLoading && (
-//               <span
-//                 className={styles.autoRenewalSpinner}
-//                 aria-label={'Updating auto-renewal'}
-//                 role={'status'}
-//               />
-//             )}
-//           </div>
-//         </section>
-//       )}
+    if (onPlanChange) {
+      onPlanChange(planValue)
 
-//       {hasAccountTypeSlot && (
-//         <section
-//           className={clsx(
-//             styles.accountTypeSection,
-//             !shouldShowCurrentSubscriptionSection && styles.accountTypeSectionTopOffset
-//           )}
-//         >
-//           <Typography variant={'h3'}>Account type:</Typography>
-//           {accountTypeSlot}
-//         </section>
-//       )}
+      return
+    }
 
-//       {hasChangeSubscriptionSlot && (
-//         <section className={styles.businessPricingSection}>
-//           <Typography variant={'h3'}>Change your subscription:</Typography>
-//           {changeSubscriptionSlot}
-//         </section>
-//       )}
-//     </div>
-// =======
-//   const selectedPlanValue =
-//     externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
+    setInternalSelectedPlanValue(planValue)
+  }
 
-//   const selectedPlanData = plans.find(p => p.value === selectedPlanValue)
-//   const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
+  if (isInitialLoading) {
+    return <Loading />
+  }
 
-//   const radioOptions = plans.map(plan => ({
-//     value: plan.value,
-//     label: plan.label,
-//     id: `plan-${plan.id}`,
-//   }))
+  return (
+    <div className={styles.root}>
+      <SubscriptionCurrentSection
+        shouldShowCurrentSubscriptionSection={shouldShowCurrentSubscriptionSection}
+        shouldShowCurrentSubscriptionFallback={shouldShowCurrentSubscriptionFallback}
+        isSubscriptionsFetching={isSubscriptionsFetching}
+        refetchCurrentSubscription={refetchCurrentSubscription}
+        currentSubscriptionScrollAreaHostRef={currentSubscriptionScrollAreaHostRef}
+        currentSubscriptionBodyRef={currentSubscriptionBodyRef}
+        subscriptionRowRefs={subscriptionRowRefs}
+        visibleSubscriptions={visibleSubscriptions}
+        resolveNextPaymentDate={resolveNextPaymentDate}
+        hasAutoRenewal={hasAutoRenewal}
+        isToggleDisabled={isToggleDisabled}
+        toggleAutoRenewal={toggleAutoRenewal}
+        isToggleLoading={isToggleLoading}
+      />
 
-//   const handleValueChange = (value: string) => {
-//     const planValue = value as SubscriptionPlanValue
+      {accountTypeSlot}
 
-//     if (onPlanChange) {
-//       onPlanChange(planValue)
-//     } else {
-//       setInternalSelectedPlanValue(planValue)
-//     }
-//   }
+      <section className={styles.section}>
+        <Typography variant={'h3'} className={styles.section__title}>
+          Change your subscription:
+        </Typography>
 
-//   if (!plans.length) {
-//     return (
-//       <Card className={styles.stateCard}>
-//         <Typography variant={'h3'}>Нет доступных тарифов</Typography>
-//         <Typography className={styles.stateText} variant={'regular_16'}>
-//           Информация о тарифах временно недоступна.
-//         </Typography>
-//       </Card>
-//     )
-//   }
+        {!plans.length ? (
+          <Card className={styles.stateCard}>
+            <Typography variant={'h3'}>No plans available</Typography>
+            <Typography className={styles.stateText} variant={'regular_16'}>
+              Pricing data is temporarily unavailable.
+            </Typography>
+          </Card>
+        ) : (
+          <>
+            <div className={styles.pricingList}>
+              <Card className={styles.pricingCard}>
+                <RadioGroupRadix
+                  label={'Select subscription plan'}
+                  options={radioOptions}
+                  value={selectedPlanValue}
+                  onValueChange={handleValueChange}
+                  orientation={'vertical'}
+                  disabled={isPaymentLocked}
+                />
+              </Card>
+            </div>
 
-//   return (
-//     <section className={styles.section}>
-//       <Typography variant={'h3'} className={styles.section__title}>
-//         Change your subscription:
-//       </Typography>
-
-//       <div className={styles.pricingList}>
-//         <Card className={styles.pricingCard}>
-//           <RadioGroupRadix
-//             label={'Select subscription plan'}
-//             options={radioOptions}
-//             value={selectedPlanValue}
-//             onValueChange={handleValueChange}
-//             orientation={'vertical'}
-//             disabled={isPaymentLocked}
-//           />
-//         </Card>
-//       </div>
-
-//       <div className={styles.paymentContainer}>
-//         <div className={styles.paymentWrapper}>
-//           {/* <Button
-//             className={styles.paymentButton}
-//             onClick={onPayPalClick}
-//             disabled={isDisabled}
-//             variant={'outlined'}
-//           >
-//             <img src={'/paypal.svg'} alt={'PayPal'} className={styles.paymentIcon} />
-//           </Button>
-
-//           <span className={styles.paymentOr}>Or</span> */}
-
-//           <Button
-//             className={styles.paymentButton}
-//             onClick={onStripeClick}
-//             disabled={isDisabled}
-//             variant={'outlined'}
-//           >
-//             <img src={'/stripe.svg'} alt={'Stripe'} className={styles.paymentIcon} />
-//           </Button>
-//         </div>
-//       </div>
-//     </section>
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-//   )
-// }
+            <div className={styles.paymentContainer}>
+              <div className={styles.paymentWrapper}>
+                <Button
+                  className={styles.paymentButton}
+                  onClick={onStripeClick}
+                  disabled={isDisabled}
+                  variant={'outlined'}
+                >
+                  <img src={'/stripe.svg'} alt={'Stripe'} className={styles.paymentIcon} />
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </section>
+    </div>
+  )
+}

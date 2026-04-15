@@ -17,8 +17,16 @@ vi.mock('@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection', () 
 }))
 
 vi.mock('../SubscriptionPricing', () => ({
-  SubscriptionPricing: ({ isPaymentLocked }: { isPaymentLocked: boolean }) => (
-    <div data-testid={'pricing'} data-locked={String(isPaymentLocked)} />
+  SubscriptionPricing: ({
+    isPaymentLocked,
+    accountTypeSlot,
+  }: {
+    isPaymentLocked: boolean
+    accountTypeSlot?: React.ReactNode
+  }) => (
+    <div data-testid={'pricing'} data-locked={String(isPaymentLocked)}>
+      {accountTypeSlot}
+    </div>
   ),
 }))
 
@@ -32,24 +40,14 @@ const mockProps = {
   isPaymentLocked: false,
 }
 
-const mockSubscription = {
-  id: '1',
-  expireDate: '2025-12-31',
-  nextPaymentDate: '2025-06-01',
-  isActive: true,
-  autoRenewal: false,
-}
-
 describe('BusinessActiveSubscriptionView', () => {
   it('passes isPaymentLocked to SubscriptionPricing', () => {
     render(<BusinessActiveSubscriptionView {...mockProps} isPaymentLocked />)
     expect(screen.getByTestId('pricing')).toHaveAttribute('data-locked', 'true')
   })
 
-  it('renders without crashing when subscription is provided', () => {
-    const { container } = render(
-      <BusinessActiveSubscriptionView {...mockProps} subscription={mockSubscription} />
-    )
+  it('renders without crashing', () => {
+    const { container } = render(<BusinessActiveSubscriptionView {...mockProps} />)
 
     expect(screen.getByTestId('account-type')).toBeInTheDocument()
     expect(screen.getByTestId('pricing')).toBeInTheDocument()

@@ -1,137 +1,116 @@
+.root {
+  width: 100%;
+  display: grid;
+  gap: 24px;
+}
+
 .section {
   width: 100%;
-// <<<<<<< SCRUM-209-T4-Current-subscription-auto-renew-UC-3-queue-logic
-// }
 
-// .currentSubscriptionSection {
-//   display: grid;
-//   gap: 16px;
-//   margin-top: 30px;
-//   margin-bottom: 1px;
-// }
+  &__title {
+    margin-bottom: 18px;
+    font-family: Inter;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-light-100);
+  }
+}
 
-// .currentSubscriptionCard {
-//   display: grid;
-//   gap: 8px;
-//   width: 100%;
-//   padding: 12px 24px;
-// }
+.currentSubscriptionSection {
+  display: grid;
+  gap: 16px;
+  margin-top: 30px;
+  margin-bottom: 1px;
+}
 
-// .currentSubscriptionTable {
-//   --current-subscription-column-width: 120px;
-//   --current-subscription-body-max-height: 150px;
-//   --current-subscription-scrollbar-edge-gap: 5px;
-//   --current-subscription-scrollbar-shift: 19px;
+.currentSubscriptionCard {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  background-color: var(--color-dark-500);
+  border: 1px solid var(--color-dark-300);
+  padding: 12px 24px;
+}
 
-//   display: grid;
-//   grid-template-rows: auto auto;
-//   row-gap: 10px;
-//   width: 100%;
-// }
+.currentSubscriptionTable {
+  --current-subscription-column-width: 120px;
+  --current-subscription-body-max-height: 150px;
+  --current-subscription-scrollbar-edge-gap: 5px;
+  --current-subscription-scrollbar-shift: 19px;
 
-// .currentSubscriptionHeader {
-//   display: grid;
-//   grid-template-columns: repeat(2, var(--current-subscription-column-width));
-//   column-gap: 45px;
-// }
+  display: grid;
+  grid-template-rows: auto auto;
+  row-gap: 10px;
+  width: 100%;
+}
 
-// .currentSubscriptionBody {
-//   display: grid;
-//   gap: 6px;
-//   width: 100%;
-//   align-content: start;
-// }
+.currentSubscriptionHeader {
+  display: grid;
+  grid-template-columns: repeat(2, var(--current-subscription-column-width));
+  column-gap: 45px;
+}
 
-// .currentSubscriptionScrollAreaHost {
-//   width: 100%;
-// }
+.currentSubscriptionBody {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  align-content: start;
+}
 
-// .currentSubscriptionScrollArea {
-//   width: calc(100% + var(--current-subscription-scrollbar-shift));
-//   max-height: var(--current-subscription-body-max-height);
-//   margin-right: calc(var(--current-subscription-scrollbar-shift) * -1);
-// }
+.currentSubscriptionScrollAreaHost {
+  width: 100%;
+}
 
-// .currentSubscriptionViewport {
-//   max-height: var(--current-subscription-body-max-height);
-//   padding-right: var(--current-subscription-scrollbar-edge-gap);
-// }
+.currentSubscriptionScrollArea {
+  width: calc(100% + var(--current-subscription-scrollbar-shift));
+  max-height: var(--current-subscription-body-max-height);
+  margin-right: calc(var(--current-subscription-scrollbar-shift) * -1);
+}
 
-// .currentSubscriptionRow {
-//   display: grid;
-//   grid-template-columns: repeat(2, var(--current-subscription-column-width));
-//   column-gap: 45px;
-//   padding-top: 2px;
-//   transition:
-//     background-color 0.2s ease,
-//     box-shadow 0.2s ease;
-// }
+.currentSubscriptionViewport {
+  max-height: var(--current-subscription-body-max-height);
+  padding-right: var(--current-subscription-scrollbar-edge-gap);
+}
 
-// .currentSubscriptionRowActive {
-//   padding-bottom: 2px;
-// }
+.currentSubscriptionRow {
+  display: grid;
+  grid-template-columns: repeat(2, var(--current-subscription-column-width));
+  column-gap: 45px;
+  padding-top: 2px;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
 
-// .currentSubscriptionRowAutoRenew {
-//   background-color: rgba(57, 108, 240, 0.12);
-// }
+.currentSubscriptionRowActive {
+  padding-bottom: 2px;
+}
 
-// .currentSubscriptionRowPending {
-//   opacity: 0.72;
-// }
+.currentSubscriptionRowAutoRenew {
+  background-color: rgba(57, 108, 240, 0.12);
+}
 
-// .metricCell {
-//   display: grid;
-//   gap: 2px;
-// }
+.metricCell {
+  display: grid;
+  gap: 2px;
+}
 
-// .autoRenewBadge {
-//   color: var(--color-primary-500);
-// }
+.metricLabel {
+  color: var(--color-light-900);
+}
 
-// .metricLabel {
-//   color: var(--color-light-900);
-// }
+.autoRenewalControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-light-100);
 
-// .autoRenewalControl {
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-//   color: var(--color-light-100);
-
-//   // ui-kit bug: CheckboxRadix always marks label as required.
-//   :global(label[aria-label='Checkbox'] > p > span) {
-//     display: none;
-//   }
-// }
-
-// .autoRenewalCheckbox {
-//   width: 16px;
-//   height: 16px;
-// }
-
-// .autoRenewalStatus {
-//   color: var(--color-light-900);
-// =======
-
-//   &__title {
-//     margin-bottom: 18px;
-//     font-family: Inter;
-//     font-weight: 600;
-//     font-size: 16px;
-//     line-height: 24px;
-//     color: var(--color-light-100);
-//   }
-// }
-
-// .pricingList {
-//   display: flex;
-//   flex-direction: column;
-//   gap: 12px;
-//   width: 100%;
-//   box-sizing: border-box;
-//   margin-bottom: 24px;
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-// }
+  // ui-kit bug: CheckboxRadix always marks label as required.
+  :global(label[aria-label='Checkbox'] > p > span) {
+    display: none;
+  }
+}
 
 .autoRenewalSpinner {
   width: 12px;
@@ -142,41 +121,13 @@
   animation: autoRenewalSpinnerRotation 0.7s linear infinite;
 }
 
-.accountTypeSection {
-  display: grid;
-  gap: 16px;
-}
-
-.integrationSlot {
-  width: 100%;
-}
-
-.accountTypeSectionTopOffset {
-  margin-top: 30px;
-}
-
-.accountTypeCard {
-  display: grid;
-  gap: 10px;
-  padding: 14px 16px;
-}
-
-.accountTypeOption {
+.pricingList {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  cursor: pointer;
-}
-
-.accountTypeOption:focus-visible {
-  outline: 2px solid var(--color-primary-500);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-.accountTypeOptionDisabled {
-  cursor: not-allowed;
-  opacity: 0.72;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 24px;
 }
 
 .pricingCard {
@@ -199,96 +150,6 @@
   @media (max-width: 768px) {
     padding: 0;
   }
-
-  &__content {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-  }
-}
-
-.planRow {
-  width: 100%;
-  min-height: 60px;
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  transition: all 0.3s ease;
-  padding: 6px 24px;
-  box-sizing: border-box;
-
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.02);
-  }
-
-  @media (max-width: 768px) {
-    padding: 6px 16px;
-  }
-
-  &Selected {
-    background-color: var(--color-dark-400);
-
-    .planRadio__circle {
-      border-color: var(--color-light-100);
-    }
-  }
-
-  &Clickable {
-    cursor: pointer;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-  }
-}
-
-.planRadio {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  cursor: pointer;
-
-  &__circle {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--color-dark-100);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-    background-color: transparent;
-
-    &Selected {
-      border-color: var(--color-light-100);
-    }
-  }
-
-  &__dot {
-    width: 12px;
-    height: 12px;
-    background-color: var(--color-light-100);
-    border-radius: 50%;
-    display: block;
-  }
-
-  &__label {
-    flex: 1;
-    font-family: Inter;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 24px;
-    color: var(--color-light-100);
-    letter-spacing: 0%;
-    vertical-align: middle;
-  }
 }
 
 .paymentContainer {
@@ -305,65 +166,32 @@
   gap: 16px;
 }
 
-// <<<<<<< SCRUM-209-T4-Current-subscription-auto-renew-UC-3-queue-logic
-// .paymentProviders {
-//   display: flex;
-//   align-items: center;
-//   justify-content: flex-end;
-//   gap: 12px;
-// }
+.paymentButton {
+  all: unset;
+  cursor: pointer;
+  width: 96px;
+  height: 64px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-// .paymentProviderButton {
-//   min-width: 76px;
-//   height: 56px;
-//   padding: 10px 14px;
-// }
+  &:hover {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
 
-// .orLabel {
-//   color: var(--color-light-100);
-// }
+  &:active {
+    transform: scale(0.98);
+  }
 
-// .businessPricingSection {
-//   display: grid;
-//   gap: 16px;
-// }
-
-// .pseudoRadio,
-// .pseudoRadioSelected {
-//   flex-shrink: 0;
-//   display: block;
-//   width: 18px;
-//   height: 18px;
-//   border: 2px solid var(--color-light-100);
-//   border-radius: 50%;
-// =======
-// .paymentButton {
-//   all: unset;
-//   cursor: pointer;
-//   width: 96px;
-//   height: 64px;
-//   border-radius: 8px;
-//   transition: all 0.2s ease;
-//   opacity: 1;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-
-//   &:hover {
-//     transform: scale(1.02);
-//     opacity: 0.9;
-//   }
-
-//   &:active {
-//     transform: scale(0.98);
-//   }
-
-//   &:focus-visible {
-//     outline: 2px solid var(--color-light-100);
-//     outline-offset: 2px;
-//   }
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-// }
+  &:focus-visible {
+    outline: 2px solid var(--color-light-100);
+    outline-offset: 2px;
+  }
+}
 
 .paymentIcon {
   width: 100%;
@@ -371,28 +199,14 @@
   object-fit: contain;
 }
 
-.paymentOr {
-  color: var(--color-light-900);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
 .stateCard {
   display: grid;
   gap: 12px;
-// <<<<<<< SCRUM-209-T4-Current-subscription-auto-renew-UC-3-queue-logic
-//   width: 100%;
-//   justify-items: start;
-//   align-content: start;
-//   padding: 12px 24px;
-// =======
-//   padding: 16px;
-//   background-color: var(--color-dark-500);
-//   border: 1px solid var(--color-dark-300);
-//   border-radius: 8px;
-// >>>>>>> SCRUM-199-Payments-Delivery-UC-1.UC-4
-// }
+  width: 100%;
+  justify-items: start;
+  align-content: start;
+  padding: 12px 24px;
+}
 
 .stateText {
   color: var(--color-light-900);

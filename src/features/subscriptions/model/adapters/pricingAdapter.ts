@@ -1,4 +1,4 @@
-import { GetPricingResponseDto, SubscriptionType } from '@/shared/types'
+import { GetPricingResponseDto } from '@/shared/types'
 
 import { SubscriptionPlan } from '../types'
 

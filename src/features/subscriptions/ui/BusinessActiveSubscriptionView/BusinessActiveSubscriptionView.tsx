@@ -2,16 +2,10 @@ import React from 'react'
 
 import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
 
-import {
-  AccountTypeValue,
-  SubscriptionPlanValue,
-  UISubscription,
-  UISubscriptionPlan,
-} from '../../model/types'
+import { AccountTypeValue, SubscriptionPlanValue, UISubscriptionPlan } from '../../model/types'
 import { SubscriptionPricing } from '../SubscriptionPricing'
 
 interface BusinessActiveSubscriptionViewProps {
-  subscription?: UISubscription
   accountType: AccountTypeValue
   onAccountTypeChange: (type: AccountTypeValue) => void
   plans: UISubscriptionPlan[]
@@ -23,7 +17,6 @@ interface BusinessActiveSubscriptionViewProps {
 }
 
 export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscriptionViewProps> = ({
-  subscription,
   accountType,
   onAccountTypeChange,
   plans,
@@ -35,15 +28,6 @@ export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscription
 }) => {
   return (
     <div>
-      <AccountTypeSection
-        accountTypes={[
-          { value: 'personal', label: 'Personal' },
-          { value: 'business', label: 'Business' },
-        ]}
-        selectedType={accountType}
-        onTypeChange={onAccountTypeChange}
-      />
-
       <SubscriptionPricing
         plans={plans}
         selectedPlan={selectedPlan}
@@ -51,6 +35,16 @@ export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscription
         onPayPalClick={onPayPalClick}
         onStripeClick={onStripeClick}
         isPaymentLocked={isPaymentLocked}
+        accountTypeSlot={
+          <AccountTypeSection
+            accountTypes={[
+              { value: 'personal', label: 'Personal' },
+              { value: 'business', label: 'Business' },
+            ]}
+            selectedType={accountType}
+            onTypeChange={onAccountTypeChange}
+          />
+        }
       />
     </div>
   )

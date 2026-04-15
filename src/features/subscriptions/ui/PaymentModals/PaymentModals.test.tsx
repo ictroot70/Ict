@@ -4,7 +4,12 @@ import React from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { PaymentConfirmationModal, PaymentFailureModal, PaymentSuccessModal } from './index'
+import {
+  PaymentConfirmationModal,
+  PaymentFailureModal,
+  PaymentProcessingModal,
+  PaymentSuccessModal,
+} from './index'
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) =>
@@ -94,5 +99,12 @@ describe('PaymentModals (T6)', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to payment' }))
     expect(onBackToPayment).toHaveBeenCalledTimes(1)
+  })
+
+  it('Processing modal: is shown while payment confirmation is pending', () => {
+    render(<PaymentProcessingModal open />)
+
+    expect(screen.getByText('Please wait while we confirm your payment.')).not.toBeNull()
+    expect(screen.getByLabelText('Processing payment')).not.toBeNull()
   })
 })

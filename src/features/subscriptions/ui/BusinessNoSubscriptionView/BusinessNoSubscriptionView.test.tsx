@@ -19,8 +19,9 @@ vi.mock('@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection', () 
 }))
 
 vi.mock('../SubscriptionPricing', () => ({
-  SubscriptionPricing: ({ plans, isPaymentLocked, onPayPalClick }: any) => (
+  SubscriptionPricing: ({ plans, isPaymentLocked, onPayPalClick, accountTypeSlot }: any) => (
     <div data-testid={'subscription-pricing'} data-locked={isPaymentLocked}>
+      {accountTypeSlot}
       <button type={'button'} onClick={onPayPalClick} disabled={isPaymentLocked}>
         PayPal
       </button>
