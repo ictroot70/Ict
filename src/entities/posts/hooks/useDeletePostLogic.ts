@@ -1,15 +1,16 @@
 import { useState } from 'react'
 
 import { useDeletePostMutation } from '@/entities/posts/api/postApi'
-import { APP_ROUTES } from '@/shared/constant'
-import { useRouter } from 'next/navigation'
 
-export const useDeletePostLogic = (userId: number, options?: { enabled?: boolean }) => {
+type DeletePostLogicOptions = {
+  enabled?: boolean
+  onDeleted?: (postId: number) => void
+}
+
+export const useDeletePostLogic = (userId: number, options?: DeletePostLogicOptions) => {
   const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
-
-  const router = useRouter()
 
   const handleDeletePost = (postId: string) => {
     if (options?.enabled === false) {
@@ -31,7 +32,7 @@ export const useDeletePostLogic = (userId: number, options?: { enabled?: boolean
 
       setIsDeleteModalOpen(false)
       setSelectedPostId(null)
-      router.replace(APP_ROUTES.PROFILE.ID(userId))
+      options?.onDeleted?.(postIdNumber)
     } catch (error) {
       console.error('Ошибка при удалении поста:', error)
     }

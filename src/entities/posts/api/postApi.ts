@@ -24,9 +24,11 @@ export const postApi = baseApi.injectEndpoints({
           throw new Error('At least one image is required')
         }
 
+        const normalizedDescription = typeof body.description === 'string' ? body.description : ''
+
         const validatedBody = {
           ...body,
-          description: body.description || undefined,
+          description: normalizedDescription,
         }
 
         return {

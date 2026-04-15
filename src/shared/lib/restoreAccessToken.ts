@@ -1,6 +1,31 @@
-import { API_ROUTES } from '@/shared/api'
+import { API_ROUTES, refreshAuthTokens } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
-import { logger } from '@/shared/lib'
+import { logger } from '@/shared/lib/logger'
+import { isAuthForcedLoggedOut } from '@/shared/lib/storage'
+
+type RestoreTokenError = {
+  status?: number
+}
+
+async function requestRefresh(
+  endpoint: typeof API_ROUTES.AUTH.UPDATE | typeof API_ROUTES.AUTH.UPDATE_TOKENS
+) {
+  const response = await fetch(buildApiUrl(endpoint), {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (response.ok) {
+    const data = (await response.json().catch(() => null)) as unknown
+
+    return { data }
+  }
+
+  return { error: { status: response.status } satisfies RestoreTokenError }
+}
 
 /**
  * Restores access token via refresh token cookie
@@ -19,33 +44,31 @@ export async function restoreAccessToken(): Promise<{
   try {
     logger.log('[restoreAccessToken] Attempting to restore access token...')
 
-    const response = await fetch(buildApiUrl(API_ROUTES.AUTH.UPDATE_TOKENS), {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    if (isAuthForcedLoggedOut()) {
+      logger.log('[restoreAccessToken] Skipping restore due to forced local logout flag')
 
-    if (response.ok) {
-      const data = await response.json()
-
-      if (data.accessToken) {
-        logger.log('[restoreAccessToken] Access token restored successfully')
-
-        return { accessToken: data.accessToken, isAuthenticated: true }
-      }
-
-      throw new Error('No accessToken in response')
+      return { accessToken: null, isAuthenticated: false }
     }
 
-    if (response.status === 401) {
+    const refreshResult = await refreshAuthTokens<RestoreTokenError>(requestRefresh)
+
+    if (refreshResult.accessToken) {
+      logger.log('[restoreAccessToken] Access token restored successfully')
+
+      return { accessToken: refreshResult.accessToken, isAuthenticated: true }
+    }
+
+    if (refreshResult.status === 401) {
       logger.log('[restoreAccessToken] No valid refresh token')
 
       return { accessToken: null, isAuthenticated: false }
     }
 
-    throw new Error(`Unexpected response: ${response.status}`)
+    throw new Error(
+      `Unexpected refresh response: ${
+        refreshResult.status === null ? 'unknown status' : refreshResult.status
+      }`
+    )
   } catch (error) {
     logger.error('[restoreAccessToken] Failed to restore auth:', error)
 

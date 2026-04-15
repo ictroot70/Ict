@@ -13,9 +13,10 @@ import s from './SignInForm.module.scss'
 
 type SignInFormProps = {
   router: { replace: (url: string) => void }
+  redirectFrom?: null | string
 }
 
-export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
+export const SignInForm = ({ router, redirectFrom }: SignInFormProps): ReactElement => {
   const {
     form: {
       control,
@@ -23,7 +24,7 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
     },
     onSubmit,
     isLoading,
-  } = useSignIn(router)
+  } = useSignIn(router, redirectFrom)
 
   if (isLoading) {
     return <Loading />

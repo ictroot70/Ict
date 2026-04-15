@@ -1,4 +1,9 @@
 .tabs {
-  //padding-top: 20px;
+  position: sticky;
+  z-index: 30;
+  top: var(--settings-sticky-top, 0);
+
   width: 100%;
+  margin-bottom: 8px;
+  background-color: var(--color-dark-700);
 }

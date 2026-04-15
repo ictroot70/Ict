@@ -18,8 +18,21 @@ export function useImageDropzone(
 
   const onDrop = async (acceptedFiles: File[]) => {
     setError(null)
+    const availableSlots = MAX_FILES - files.length
 
-    for (const file of acceptedFiles) {
+    if (availableSlots <= 0) {
+      setError(`You can upload up to ${MAX_FILES} photos`)
+
+      return
+    }
+
+    const filesToProcess = acceptedFiles.slice(0, availableSlots)
+
+    if (acceptedFiles.length > availableSlots) {
+      setError(`You can upload up to ${MAX_FILES} photos`)
+    }
+
+    for (const file of filesToProcess) {
       if (!['image/jpeg', 'image/png'].includes(file.type)) {
         setError('The photo must be JPEG or PNG format')
         continue
@@ -37,16 +50,22 @@ export function useImageDropzone(
       reader.onload = () => {
         const preview = reader.result as string
 
-        setFiles(prev => [
-          ...prev,
-          {
-            id: uuidv4(),
-            file,
-            preview,
-            original: preview,
-            isModified: false,
-          },
-        ])
+        setFiles(prev => {
+          if (prev.length >= MAX_FILES) {
+            return prev
+          }
+
+          return [
+            ...prev,
+            {
+              id: uuidv4(),
+              file,
+              preview,
+              original: preview,
+              isModified: false,
+            },
+          ]
+        })
 
         onNext()
       }

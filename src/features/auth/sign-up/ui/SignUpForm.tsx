@@ -8,7 +8,6 @@ import { OAuthIcons } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 import { Button, Card, Typography } from '@/shared/ui'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 import styles from './SignUpForm.module.scss'
 
@@ -16,20 +15,27 @@ import { AgreementLabel } from './AgreementLabel'
 import { SignUpConfirmModal } from './SignUpConfirmModal'
 
 export const SignUpForm = () => {
-  const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
-    useSignUp()
+  const {
+    form,
+    onSubmit,
+    isAgreementChecked,
+    isLoading,
+    serverError,
+    isSuccess,
+    setIsSuccess,
+    clearDraft,
+  } = useSignUp()
 
   const {
     control,
     formState: { errors, isValid },
   } = form
   const email = useWatch({ control, name: 'email' })
-  const router = useRouter()
 
   const handleModalClose = () => {
     setIsSuccess(false)
+    clearDraft()
     form.reset()
-    router.replace(APP_ROUTES.AUTH.LOGIN)
   }
 
   if (isSuccess) {

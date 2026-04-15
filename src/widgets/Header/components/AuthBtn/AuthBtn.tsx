@@ -17,13 +17,11 @@ export const AuthBtn = ({ children }: Props): ReactElement => {
 
   return (
     <div className={styles.authButtons}>
-      {/* Todo: later need ad asChild*/}
-      <Button as={Link} href={APP_ROUTES.AUTH.LOGIN} variant={'text'}>
-        Log in
+      <Button asChild variant={'text'}>
+        <Link href={APP_ROUTES.AUTH.LOGIN}>Log in</Link>
       </Button>
-      {/* Todo: later need ad asChild*/}
-      <Button as={Link} href={APP_ROUTES.AUTH.REGISTRATION}>
-        Sign up
+      <Button asChild>
+        <Link href={APP_ROUTES.AUTH.REGISTRATION}>Sign up</Link>
       </Button>
     </div>
   )

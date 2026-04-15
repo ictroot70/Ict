@@ -1,4 +1,5 @@
-import { AccountManagement, Devices, GeneralInfo, Payments } from '@/features/profile/settings'
+import { Devices, GeneralInfo } from '@/features/profile/settings'
+import { AccountManagement, Payments } from '@/features/subscriptions/ui'
 
 const TABS = {
   general: GeneralInfo,

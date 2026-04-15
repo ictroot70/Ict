@@ -64,7 +64,7 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData.postId) {
+    if (onEditPost && postData.postId) {
       const updated = await onEditPost(postData.postId, trimmed)
 
       if (updated === false) {

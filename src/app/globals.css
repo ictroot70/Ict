@@ -3,7 +3,7 @@
 
 /* Theme tokens */
 :root {
-  --font-family: Arial, sans-serif;
+  --font-family: arial, sans-serif;
   --background: var(--color-dark-700);
   --color-dark-500-transparent: rgb(23 23 23 / 56%);
 }
@@ -11,12 +11,12 @@
 html,
 body {
   width: 100%;
-  font-family: var(--font-family), Arial, sans-serif;
+  height: 100%;
+  font-family: var(--font-family), sans-serif;
 }
 
 body {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 
   background: var(--background);
 
@@ -42,7 +42,7 @@ main {
   justify-content: center;
 
   max-width: 1220px;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 62px);
   margin: 60px auto 0;
   padding: 0 2rem;
 }

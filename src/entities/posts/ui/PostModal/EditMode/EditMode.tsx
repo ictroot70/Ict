@@ -74,7 +74,7 @@ export const EditMode = ({
     setHasUnsavedChanges(false)
   }
 
-  const shouldDisableSave = !descriptionValue.trim() || characterCount > maxCharacters
+  const shouldDisableSave = characterCount > maxCharacters
 
   return (
     <>

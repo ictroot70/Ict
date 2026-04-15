@@ -1,3 +1,1 @@
-export function Payments() {
-  return <div>Payments for user </div>
-}
+export { Payments } from '@/features/subscriptions/ui'

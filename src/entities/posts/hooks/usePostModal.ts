@@ -33,6 +33,7 @@ const postModalTextByLanguage = {
 } as const
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
+  const [isHydrated, setIsHydrated] = useState(false)
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
@@ -74,14 +75,20 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const uiText = postModalTextByLanguage[uiLanguage]
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const isAuthenticated = isHydrated && isAuthenticatedUi
+  const isAuthLoading = isHydrated && isAuthUiLoading
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   const isOwnProfile = Boolean(
-    isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
+    isAuthenticated && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
   let variant: PostVariant = 'public'
 
-  if (isAuthenticatedUi) {
+  if (isAuthenticated) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
   const postModalData: PostModalData = postData
@@ -179,8 +186,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     errors,
     postData: postModalData,
     variant,
-    isAuthLoading: isAuthUiLoading,
-    isAuthenticated: isAuthenticatedUi,
+    isAuthLoading,
+    isAuthenticated,
     isOwnProfile,
     hasPostData,
     isPostLoading,

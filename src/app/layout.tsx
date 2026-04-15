@@ -3,20 +3,26 @@ import type { Metadata } from 'next'
 import { ReactNode, Suspense } from 'react'
 
 import { RootLayoutClient } from '@/app/RootLayoutClient'
+import { MonitoringBootstrap } from '@/app/providers/MonitoringBootstrap/MonitoringBootstrap'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
-import { AuthSessionHintProvider } from '@/shared/auth'
+import { AuthSessionHintContextValue, AuthSessionHintProvider } from '@/shared/auth'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
+import { cookies } from 'next/headers'
 import Script from 'next/script'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
 
 import layoutShellStyles from './RootLayoutClient.module.scss'
 
+const DEFAULT_PAGE_TITLE = 'Ictroot — Modern Social Platform'
+
 export const metadata: Metadata = {
-  title: 'Ictroot — Modern Social Platform',
+  title: DEFAULT_PAGE_TITLE,
   description:
     'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
   keywords: [
@@ -28,7 +34,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Ictroot Team', url: 'https://ictroot.uk' }],
   openGraph: {
-    title: 'Ictroot — Modern Social Platform',
+    title: DEFAULT_PAGE_TITLE,
     description:
       'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
     url: 'https://ictroot.uk',
@@ -70,7 +76,7 @@ export const metadata: Metadata = {
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-family',
-  display: 'swap',
+  display: 'optional',
 })
 
 const AUTH_HINT_BOOTSTRAP_SCRIPT = `
@@ -112,25 +118,78 @@ function RootLayoutFallback({ children }: { children: ReactNode }) {
   )
 }
 
-export default function RootLayout({
+const CRITICAL_BASE_STYLE = `
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  overflow: hidden;
+  background: var(--background, var(--color-dark-700, #0d0d0d));
+}
+header[data-is-authorized] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 0.75rem 0;
+}
+main {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  min-height: 0;
+  margin: 0;
+  padding: 60px 0 0;
+}
+* {
+  box-sizing: border-box;
+}
+`
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode
 }>) {
+  const cookieStore = await cookies()
+
+  const hasAuthHint = cookieStore.get('auth_session_hint')?.value === '1'
+  const authUserIdHintRaw = Number(cookieStore.get('auth_user_id_hint')?.value ?? '')
+  const authUserIdHint: number | null =
+    Number.isInteger(authUserIdHintRaw) && authUserIdHintRaw > 0 ? authUserIdHintRaw : null
+
+  const initialAuthHint: AuthSessionHintContextValue = {
+    hasAuthHint,
+    authUserIdHint,
+  }
+  const messages = await getMessages()
+
   return (
     <html lang={'en'} suppressHydrationWarning>
+      <head>
+        <title>{DEFAULT_PAGE_TITLE}</title>
+        <style id={'critical-base-style'}>{CRITICAL_BASE_STYLE}</style>
+      </head>
       <body className={inter.variable} suppressHydrationWarning>
         <Script id={'auth-hint-bootstrap'} strategy={'beforeInteractive'}>
           {AUTH_HINT_BOOTSTRAP_SCRIPT}
         </Script>
-        <StoreProvider>
-          <AuthSessionHintProvider>
-            <AppHeader />
-            <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
-              <RootLayoutClient>{children}</RootLayoutClient>
-            </Suspense>
-          </AuthSessionHintProvider>
-        </StoreProvider>
+        <MonitoringBootstrap />
+        <NextIntlClientProvider messages={messages}>
+          <StoreProvider>
+            <AuthSessionHintProvider value={initialAuthHint}>
+              <AppHeader />
+              <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
+                <RootLayoutClient>{children}</RootLayoutClient>
+              </Suspense>
+            </AuthSessionHintProvider>
+          </StoreProvider>
+        </NextIntlClientProvider>
         <ToastWrapper />
       </body>
     </html>
