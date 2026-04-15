@@ -110,6 +110,24 @@ const createLongQueueSubscriptions = () =>
     },
   ] as ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
 
+const createInvalidQueueSubscriptions = () =>
+  [
+    {
+      userId: 1,
+      subscriptionId: 'sub-current',
+      dateOfPayment: '2026-03-01T00:00:00.000Z',
+      endDateOfSubscription: '2026-04-01T00:00:00.000Z',
+      autoRenewal: true,
+    },
+    {
+      userId: 1,
+      subscriptionId: 'sub-next-1',
+      dateOfPayment: '2026-04-01T00:00:00.000Z',
+      endDateOfSubscription: '2026-05-01T00:00:00.000Z',
+      autoRenewal: false,
+    },
+  ] as ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
+
 describe('SubscriptionPricing queue states', () => {
   it('shows full queue in a single list without Show more toggle', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
@@ -129,6 +147,7 @@ describe('SubscriptionPricing queue states', () => {
   it('disables toggle for invalid chain without exposing technical warning text', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
+        subscriptions: createInvalidQueueSubscriptions(),
         hasQueueInvariantViolation: true,
         isToggleDisabled: true,
       })
