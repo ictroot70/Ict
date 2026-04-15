@@ -38,7 +38,7 @@ export const BusinessActiveSubscriptionView: React.FC<BusinessActiveSubscription
         accountTypeSlot={
           <AccountTypeSection
             accountTypes={[
-              { value: 'personal', label: 'Personal' },
+              { value: 'personal', label: 'Personal', disabled: true },
               { value: 'business', label: 'Business' },
             ]}
             selectedType={accountType}
