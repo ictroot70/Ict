@@ -16,8 +16,12 @@ import { usePaymentReturnFlow } from './usePaymentReturnFlow'
 export function useAccountManagement() {
   const pathname = usePathname()
 
-  const { data: subscription, refetch } = useGetCurrentSubscriptionQuery()
-  const { data: pricingPlans } = useGetPricingQuery()
+  const {
+    data: subscription,
+    refetch,
+    isLoading: isSubscriptionLoading = false,
+  } = useGetCurrentSubscriptionQuery()
+  const { data: pricingPlans, isLoading: isPricingLoading = false } = useGetPricingQuery()
 
   const [createSubscription, { isLoading: isSubscribing }] = useCreateSubscriptionMutation()
 
@@ -99,6 +103,7 @@ export function useAccountManagement() {
     flowStatus,
     pricingPlans,
     selectedPlan,
+    isLoading: isSubscriptionLoading || isPricingLoading,
     isPaymentLocked,
     isAutoRenewEnabled,
     subscriptionQueue,

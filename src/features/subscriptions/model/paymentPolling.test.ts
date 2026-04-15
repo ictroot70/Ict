@@ -26,20 +26,18 @@ describe('waitForSubscriptionUpdate ', () => {
     vi.restoreAllMocks()
   })
 
-  it('returns success when subscription list grows on next poll', async () => {
+  it('returns success immediately when subscription list already changed', async () => {
     const fetchFn = vi
       .fn<() => Promise<ActiveSubscriptionViewModel[]>>()
       .mockResolvedValueOnce([make('a'), make('b')])
 
     const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
-    await vi.advanceTimersByTimeAsync(3000)
-
     await expect(promise).resolves.toBe('success')
     expect(fetchFn).toHaveBeenCalledTimes(1)
   })
 
-  it('returns success when existing subscription is updated in place', async () => {
+  it('returns success immediately when existing subscription is updated in place', async () => {
     const fetchFn = vi.fn<() => Promise<ActiveSubscriptionViewModel[]>>().mockResolvedValueOnce([
       make('a', {
         endDateOfSubscription: '2024-03-01',
@@ -47,8 +45,6 @@ describe('waitForSubscriptionUpdate ', () => {
     ])
 
     const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
-
-    await vi.advanceTimersByTimeAsync(3000)
 
     await expect(promise).resolves.toBe('success')
     expect(fetchFn).toHaveBeenCalledTimes(1)
@@ -73,10 +69,10 @@ describe('waitForSubscriptionUpdate ', () => {
 
     const promise = waitForSubscriptionUpdate(fetchFn, [make('a')])
 
-    await vi.advanceTimersByTimeAsync(3000)
     expect(fetchFn).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(3000)
+    expect(fetchFn).toHaveBeenCalledTimes(2)
 
     await expect(promise).resolves.toBe('success')
     expect(fetchFn).toHaveBeenCalledTimes(2)

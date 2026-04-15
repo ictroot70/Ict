@@ -11,12 +11,24 @@ export async function waitForSubscriptionUpdate(
   baseline: ActiveSubscriptionViewModel[]
 ): Promise<PollStatus> {
   const deadline = Date.now() + POLL_TIMEOUT_MS
+  const hasSubscriptionUpdate = async () => {
+    const current = await fetchFn()
+
+    return hasNewSubscription(baseline, current)
+  }
+
+  if (await hasSubscriptionUpdate()) {
+    return 'success'
+  }
 
   while (Date.now() < deadline) {
     await sleep(POLL_INTERVAL_MS)
-    const current = await fetchFn()
 
-    if (hasNewSubscription(baseline, current)) {
+    if (Date.now() >= deadline) {
+      break
+    }
+
+    if (await hasSubscriptionUpdate()) {
       return 'success'
     }
   }
