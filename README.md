@@ -22,12 +22,19 @@ pnpm install
 pnpm dev
 ```
 
+
 Git hooks are installed automatically on `pnpm install` (`prepare` script).
 Manual reinstall:
 
 ```bash
 pnpm run hooks:install
 ```
+
+## API Mode
+
+- Default mode (recommended): direct API URL (no proxy).
+- Tunnel mode (optional): run `pnpm dev:proxy` to enable `/api/proxy` rewrites for local tunnel scenarios only.
+
 
 ## Canonical checks
 

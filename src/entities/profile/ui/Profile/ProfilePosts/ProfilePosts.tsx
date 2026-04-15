@@ -180,15 +180,7 @@ export const ProfilePosts: React.FC<Props> = ({
     }
   }, [modalSource, router, syncUrlWithoutNavigation, userId])
 
-  if (!posts?.length) {
-    return (
-      <Typography variant={'h1'} className={s.message}>
-        {isOwnProfile
-          ? "You haven't published any posts yet"
-          : "This user hasn't published any posts yet"}
-      </Typography>
-    )
-  }
+  const hasPosts = Boolean(posts?.length)
 
   return (
     <div className={s.wrapper}>
@@ -198,11 +190,19 @@ export const ProfilePosts: React.FC<Props> = ({
           onChange={handleModalStateFromUrl}
         />
       </Suspense>
-      <ul className={s.posts}>
-        {posts.map(post => (
-          <PostCard key={post.id} post={post} onOpen={handleOpenPost} />
-        ))}
-      </ul>
+      {hasPosts ? (
+        <ul className={s.posts}>
+          {posts.map(post => (
+            <PostCard key={post.id} post={post} onOpen={handleOpenPost} />
+          ))}
+        </ul>
+      ) : (
+        <Typography variant={'h1'} className={s.message}>
+          {isOwnProfile
+            ? "You haven't published any posts yet"
+            : "This user hasn't published any posts yet"}
+        </Typography>
+      )}
 
       {isPostModalOpen && (
         <>
