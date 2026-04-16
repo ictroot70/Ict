@@ -55,48 +55,31 @@ vi.mock('@/features/subscriptions/ui/PersonalView/PersonalView', () => ({
   ),
 }))
 
-vi.mock(
-  '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView',
-  () => ({
-    BusinessNoSubscriptionView: ({
-      onStripeClick,
-      isPaymentLocked,
-      onPlanChange,
-    }: {
-      onStripeClick?: () => void
-      isPaymentLocked?: boolean
-      onPlanChange?: (plan: 'month') => void
-    }) => (
-      <div data-testid={'business-no-subscription-view'}>
-        <button type={'button'} onClick={() => onPlanChange?.('month')}>
-          select month
-        </button>
-        <button type={'button'} onClick={onStripeClick} disabled={isPaymentLocked}>
-          STRIPE
-        </button>
-      </div>
-    ),
-  })
-)
-
-vi.mock(
-  '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView',
-  () => ({
-    BusinessActiveSubscriptionView: ({
-      onStripeClick,
-      isPaymentLocked,
-    }: {
-      onStripeClick?: () => void
-      isPaymentLocked?: boolean
-    }) => (
-      <div data-testid={'business-active-subscription-view'}>
-        <button type={'button'} onClick={onStripeClick} disabled={isPaymentLocked}>
-          STRIPE
-        </button>
-      </div>
-    ),
-  })
-)
+vi.mock('@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView', () => ({
+  BusinessSubscriptionView: ({
+    onStripeClick,
+    isPaymentLocked,
+    onPlanChange,
+    hasActiveSubscription,
+  }: {
+    onStripeClick?: () => void
+    isPaymentLocked?: boolean
+    onPlanChange?: (plan: 'month') => void
+    hasActiveSubscription?: boolean
+  }) => (
+    <div
+      data-testid={'business-subscription-view'}
+      data-active={String(Boolean(hasActiveSubscription))}
+    >
+      <button type={'button'} onClick={() => onPlanChange?.('month')}>
+        select month
+      </button>
+      <button type={'button'} onClick={onStripeClick} disabled={isPaymentLocked}>
+        STRIPE
+      </button>
+    </div>
+  ),
+}))
 
 vi.mock('@/shared/composites', () => ({
   Loading: () => <div data-testid={'loading'} />,
@@ -154,10 +137,13 @@ describe('AccountManagement', () => {
 
     fireEvent.click(screen.getByText('to business'))
 
-    expect(screen.getByTestId('business-no-subscription-view')).not.toBeNull()
+    expect(screen.getByTestId('business-subscription-view')).not.toBeNull()
+    expect(screen.getByTestId('business-subscription-view').getAttribute('data-active')).toBe(
+      'false'
+    )
   })
 
-  it('renders business active subscription view when subscription queue exists', () => {
+  it('passes active-subscription flag to business subscription view when queue exists', () => {
     mocks.accountState.subscriptionQueue = [
       {
         subscriptionId: 'sub-1',
@@ -168,7 +154,9 @@ describe('AccountManagement', () => {
 
     render(<AccountManagement />)
 
-    expect(screen.getByTestId('business-active-subscription-view')).not.toBeNull()
+    expect(screen.getByTestId('business-subscription-view').getAttribute('data-active')).toBe(
+      'true'
+    )
   })
 
   it('shows processing modal with anti-flicker delay when polling starts', async () => {

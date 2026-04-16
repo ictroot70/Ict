@@ -3,16 +3,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAccountManagement, usePaymentModalState } from '@/features/subscriptions/hooks'
-import { mapPricingToPlans } from '@/features/subscriptions/model/adapters/pricingAdapter'
-import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
+import { resolveAccountManagementView, mapPricingToPlans } from '@/features/subscriptions/model'
 import {
   AccountTypeValue,
   SubscriptionPlanValue,
   UISubscriptionPlan,
-} from '@/features/subscriptions/model/types'
-import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
-import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
-import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
+} from '@/features/subscriptions/model/payments.types'
+import { BusinessSubscriptionView, PersonalView } from '@/features/subscriptions/ui'
 import { Loading } from '@/shared/composites'
 import { PaymentType } from '@/shared/types'
 
@@ -184,8 +181,8 @@ export const AccountManagement = () => {
           <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
         )}
 
-        {view === 'business-no-subscription' && (
-          <BusinessNoSubscriptionView
+        {(view === 'business-no-subscription' || view === 'business-active-subscription') && (
+          <BusinessSubscriptionView
             accountType={accountType}
             onAccountTypeChange={handleAccountTypeChange}
             plans={plans}
@@ -193,18 +190,7 @@ export const AccountManagement = () => {
             onPlanChange={handlePlanValueChange}
             onStripeClick={openConfirmModal}
             isPaymentLocked={isPaymentLocked}
-          />
-        )}
-
-        {view === 'business-active-subscription' && (
-          <BusinessActiveSubscriptionView
-            accountType={accountType}
-            onAccountTypeChange={handleAccountTypeChange}
-            plans={plans}
-            selectedPlan={selectedPlanValue}
-            onPlanChange={handlePlanValueChange}
-            onStripeClick={openConfirmModal}
-            isPaymentLocked={isPaymentLocked}
+            hasActiveSubscription={hasActiveSubscription}
           />
         )}
       </div>

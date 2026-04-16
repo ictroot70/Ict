@@ -1,12 +1,11 @@
 import React from 'react'
 
-import { Card, Typography } from '@/shared/ui'
-import { RadioGroupRadix } from '@ictroot/ui-kit'
+import { Card, Typography, RadioGroupRadix } from '@/shared/ui'
 
 import styles from './AccountTypeSection.module.scss'
 
 interface AccountTypeSectionProps {
-  accountTypes: Array<{ value: 'personal' | 'business'; label: string }>
+  accountTypes: Array<{ value: 'personal' | 'business'; label: string; disabled?: boolean }>
   selectedType: 'personal' | 'business'
   onTypeChange: (type: 'personal' | 'business') => void
 }
@@ -20,6 +19,7 @@ export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
     value: type.value,
     label: type.label,
     id: `account-type-${type.value}`,
+    disabled: type.disabled,
   }))
 
   return (

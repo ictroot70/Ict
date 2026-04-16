@@ -1,15 +1,20 @@
 import React from 'react'
 
-import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
+import { AccountTypeSection } from '@/features/subscriptions/ui'
 
-import { AccountTypeValue } from '../../model/types'
+import { AccountTypeValue } from '../../model/payments.types'
 
 interface PersonalViewProps {
   accountType: AccountTypeValue
   onAccountTypeChange: (type: AccountTypeValue) => void
+  disabled?: boolean
 }
 
-export const PersonalView: React.FC<PersonalViewProps> = ({ accountType, onAccountTypeChange }) => {
+export const PersonalView: React.FC<PersonalViewProps> = ({
+  accountType,
+  onAccountTypeChange,
+  disabled,
+}) => {
   return (
     <>
       <AccountTypeSection

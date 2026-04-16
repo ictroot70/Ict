@@ -1,5 +1,24 @@
 import { PaymentsSortBy, PaymentsSortDirection, CreateSubscriptionInputDto } from '@/shared/types'
 
+export type AccountTypeValue = 'personal' | 'business'
+export type SubscriptionPlanValue = '1day' | '7day' | 'month'
+
+export interface UISubscriptionPlan {
+  id: string
+  value: SubscriptionPlanValue
+  label: string
+  price: string
+  period: string
+}
+
+export interface SubscriptionPlan {
+  id: string
+  value: SubscriptionPlanValue
+  label: string
+  price: string
+  period: string
+}
+
 export type PaymentsSortState = {
   key: PaymentsSortBy | null
   direction: PaymentsSortDirection | null
