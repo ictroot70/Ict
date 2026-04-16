@@ -88,13 +88,10 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "jsdom": "26.1.0",
     "msw": "^2.12.11",
     "prettier": "3.5.3",
     "sass": "^1.87.0",
     "stylelint": "^17.0.0",
     "typescript": "^5.3.3",
-    "vite": "^7.3.1",
-    "vitest": "^4.0.18"
   }
 }
