@@ -13,18 +13,19 @@ vi.mock('@/features/subscriptions/hooks', () => ({
 }))
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => <div data-testid={'loading'} />,
+  Loading: () => React.createElement('div', { 'data-testid': 'loading' }),
 }))
 
 vi.mock('@ictroot/ui-kit', () => ({
-  RadioGroupRadix: () => <div role={'radiogroup'} />,
+  RadioGroupRadix: () => React.createElement('div', { role: 'radiogroup' }),
 }))
 
 vi.mock('@/shared/ui', () => ({
-  Button: ({ children }: { children: React.ReactNode }) => (
-    <button type={'button'}>{children}</button>
-  ),
-  Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Button: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('button', { type: 'button' }, children),
+
+  Card: ({ children }: { children: React.ReactNode }) => React.createElement('div', null, children),
+
   CheckboxRadix: ({
     label,
     checked,
@@ -33,17 +34,20 @@ vi.mock('@/shared/ui', () => ({
     label?: string
     checked?: boolean
     disabled?: boolean
-  }) => (
-    <input
-      type={'checkbox'}
-      aria-label={label}
-      checked={!!checked}
-      disabled={!!disabled}
-      readOnly
-    />
-  ),
-  ScrollAreaRadix: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  }) =>
+    React.createElement('input', {
+      type: 'checkbox',
+      'aria-label': label,
+      checked: !!checked,
+      disabled: !!disabled,
+      readOnly: true,
+    }),
+
+  ScrollAreaRadix: ({ children }: { children: React.ReactNode }) =>
+    React.createElement(React.Fragment, null, children),
+
+  Typography: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('div', null, children),
 }))
 
 const useCurrentSubscriptionChainMock = vi.mocked(useCurrentSubscriptionChain)
@@ -136,11 +140,11 @@ describe('SubscriptionPricing queue states', () => {
       })
     )
 
-    render(<SubscriptionPricing plans={plans} />)
+    render(React.createElement(SubscriptionPricing, { plans }))
 
-    expect(screen.getAllByText('01.08.2026').length).toBeGreaterThan(0)
-    expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
-    expect(screen.queryByRole('button', { name: /Show less/i })).toBeNull()
+    expect(screen.getAllByText(/01\.08\.2026/).length).toBeGreaterThan(0)
+    expect(screen.queryByRole('button', { name: 'Show more' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Show less' })).toBeNull()
     expect(screen.queryByText('Next subscriptions')).toBeNull()
   })
 
@@ -153,13 +157,14 @@ describe('SubscriptionPricing queue states', () => {
       })
     )
 
-    render(<SubscriptionPricing plans={plans} />)
+    render(React.createElement(SubscriptionPricing, { plans }))
 
     expect(
       screen.queryByText(
         'Queue invariant violated: auto-renew must be enabled only on the last subscription.'
       )
     ).toBeNull()
+
     expect((screen.getByLabelText('Auto-Renewal') as HTMLInputElement).disabled).toBe(true)
   })
 })
