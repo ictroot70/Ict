@@ -15,7 +15,7 @@ import { PublicPost } from './PublicPost/PublicPost'
 import { UsersCounter } from './UsersCounter/UsersCounter'
 
 type Props = {
-  postsData: GetPublicPostsResponse
+  postsData: GetPublicPostsResponse | null
 }
 
 const LCP_PRIORITY_POSTS_COUNT = 1
@@ -61,7 +61,7 @@ export function Public({ postsData }: Props) {
   }
 
   if (!dataForRender) {
-    return null
+    return <Loading />
   }
 
   const { items, totalUsers } = dataForRender

@@ -39,6 +39,7 @@ export const API_ROUTES = {
 
   POSTS: {
     BASE: '/v1/posts',
+    ALL: (endCursorPostId: number) => `/v1/posts/all/${endCursorPostId}`,
     BY_ID: (postId: number) => `/v1/posts/id/${postId}`,
     IMAGE: '/v1/posts/image',
     DELETE_IMAGE: (uploadId: string) => `/v1/posts/image/${uploadId}`,
