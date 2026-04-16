@@ -81,6 +81,7 @@
     "@types/react-google-recaptcha": "^2.1.9",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
+    "@vitejs/plugin-react": "5",
     "eslint": "8.56.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-pnpm": "^1.6.0",
