@@ -14,9 +14,7 @@ const stripProxySuffix = (value: string) => value.replace(/\/proxy$/, '')
 
 const configuredApiBase = process.env.NEXT_PUBLIC_API_URL?.trim() || ''
 const normalizedApiProxyTarget = stripProxySuffix(
-  trimTrailingSlash(
-  process.env.API_PROXY_TARGET?.trim() || DEFAULT_API_PROXY_TARGET
-  )
+  trimTrailingSlash(process.env.API_PROXY_TARGET?.trim() || DEFAULT_API_PROXY_TARGET)
 )
 let apiBase = configuredApiBase || DEFAULT_DEV_API_BASE
 
