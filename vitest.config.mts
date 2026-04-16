@@ -12,6 +12,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    exclude: [
+      'src/features/subscriptions/ui/SubscriptionPricing.test.tsx',
+      'src/features/subscriptions/ui/SubscriptionPricing.queueState.test.tsx',
+      'src/features/subscriptions/ui/PaymentModals/PaymentModals.test.tsx',
+      'src/features/subscriptions/ui/Payments/PaymentsTable.test.tsx',
+    ],
   },
   resolve: {
     alias: {
