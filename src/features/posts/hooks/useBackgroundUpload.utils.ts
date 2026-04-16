@@ -25,16 +25,6 @@ export function getErrorStatus(error: unknown): number | null {
   return typeof status === 'number' ? status : null
 }
 
-export function chunkBlobs(blobs: Blob[], chunkSize: number): Blob[][] {
-  const chunks: Blob[][] = []
-
-  for (let idx = 0; idx < blobs.length; idx += chunkSize) {
-    chunks.push(blobs.slice(idx, idx + chunkSize))
-  }
-
-  return chunks
-}
-
 export async function uploadWithRetry(
   blobs: Blob[],
   handleUpload: (files: Array<File | Blob>) => Promise<UploadedImageViewModel | undefined>,

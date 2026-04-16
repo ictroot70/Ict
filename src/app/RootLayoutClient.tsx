@@ -15,14 +15,19 @@ type Props = {
 
 export const RootLayoutClient = ({ children }: Props) => {
   const { status } = useAuthUiState()
+  const [isHydrated, setIsHydrated] = useState(false)
   const searchParams = useSearchParams()
-  const showSidebar = status === 'authenticated'
-  const showSidebarSkeleton = status === 'loading'
+  const showSidebar = isHydrated && status === 'authenticated'
+  const showSidebarSkeleton = isHydrated && status === 'loading'
   const postIdParam = searchParams.get('postId')
   const parsedPostId = postIdParam ? Number(postIdParam) : NaN
   const isPostModalOpen = Number.isInteger(parsedPostId) && parsedPostId > 0
   const [shouldPreserveSidebarSpaceForModal, setShouldPreserveSidebarSpaceForModal] =
     useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
 
   useEffect(() => {
     if (!isPostModalOpen) {
@@ -40,10 +45,10 @@ export const RootLayoutClient = ({ children }: Props) => {
     showSidebar || showSidebarSkeleton || (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
   const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
 
-  const isCreatePostOpen = status === 'authenticated'
+  const isCreatePostOpen = isHydrated && status === 'authenticated'
 
   return (
-    <main className={s.main}>
+    <main>
       <div className={s.wrapper}>
         {showSidebar && <Sidebar />}
         {shouldRenderSidebarSkeleton && <SidebarSkeleton />}

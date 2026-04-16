@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next'
 
 import withBundleAnalyzer from '@next/bundle-analyzer'
+import createNextIntlPlugin from 'next-intl/plugin'
 
 const DEFAULT_DEV_API_BASE = 'https://ictroot.uk/api'
 const DEFAULT_DEV_PROXY_BASE = '/api/proxy'
@@ -62,6 +63,8 @@ const nextConfig: NextConfig = {
   },
 }
 
+const withNextIntl = createNextIntlPlugin()
+
 export default withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})(nextConfig)
+})(withNextIntl(nextConfig))
