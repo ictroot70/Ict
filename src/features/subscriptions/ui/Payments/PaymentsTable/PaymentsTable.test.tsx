@@ -13,8 +13,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { PaymentsTable } from './PaymentsTable'
 
 vi.mock('next/image', () => ({
-  default: (props: { alt?: string }) => <img {...props} />,
+  default: (props: Record<string, unknown>) => React.createElement('img', props),
 }))
+
 const items: PaymentsViewModel[] = [
   {
     userId: 1,
@@ -29,7 +30,13 @@ const items: PaymentsViewModel[] = [
 
 describe('PaymentsTable', () => {
   it('renders columns and rows', () => {
-    render(<PaymentsTable items={items} sort={{ key: null, direction: null }} onSort={vi.fn()} />)
+    render(
+      React.createElement(PaymentsTable, {
+        items,
+        sort: { key: null, direction: null },
+        onSort: vi.fn(),
+      })
+    )
 
     expect(screen.getByText('Date of payment')).not.toBeNull()
     expect(screen.getByText('End date')).not.toBeNull()
@@ -43,17 +50,30 @@ describe('PaymentsTable', () => {
     expect(screen.getByText('1 month')).not.toBeNull()
     expect(screen.getByText('Stripe')).not.toBeNull()
   })
+
   it('calls onSort for sortable columns', () => {
     const onSort = vi.fn()
 
-    render(<PaymentsTable items={items} sort={{ key: null, direction: null }} onSort={onSort} />)
+    render(
+      React.createElement(PaymentsTable, {
+        items,
+        sort: { key: null, direction: null },
+        onSort,
+      })
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Date of payment' }))
     expect(onSort).toHaveBeenCalledWith(PaymentsSortBy.DATE_OF_PAYMENT)
   })
 
   it('does not render sort control for Subscription Type', () => {
-    render(<PaymentsTable items={items} sort={{ key: null, direction: null }} onSort={vi.fn()} />)
+    render(
+      React.createElement(PaymentsTable, {
+        items,
+        sort: { key: null, direction: null },
+        onSort: vi.fn(),
+      })
+    )
 
     expect(screen.queryByRole('button', { name: 'Subscription Type' })).toBeNull()
   })
