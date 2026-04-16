@@ -23,6 +23,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "echo \"CI placeholder: Vitest is temporarily disabled in Jenkins\" && exit 0",
+    "test:run": "vitest run",
     "test:vitest": "vitest",
     "test:vitest:run": "vitest run",
     "test:vitest:watch": "vitest"
