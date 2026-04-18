@@ -29,12 +29,24 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
     return <Loading />
   }
 
+  const handleGoogleSignIn = () => {
+    const params = new URLSearchParams({
+      redirect_uri: process.env.NEXT_PUBLIC_LOCAL_URL ?? '',
+      response_type: 'code',
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
+      scope: 'email profile',
+      prompt: 'consent',
+    })
+
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+  }
+
   return (
     <Card className={s.wrapper}>
       <Typography variant={'h1'} className={s.title}>
         Sign In
       </Typography>
-      <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
+      <OAuthIcons onSignInGoogle={handleGoogleSignIn} onSignInGithub={() => {}} />
 
       <form className={s.form} autoComplete={'on'} noValidate onSubmit={onSubmit}>
         <div className={s.fields}>

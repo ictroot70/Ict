@@ -2,12 +2,15 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 
+import { useGoogleAuth } from '@/features/auth/hooks/useGoogleAuth'
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
 import { useSearchParams } from 'next/navigation'
 
 import s from './RootLayoutClient.module.scss'
+
+import Loading from './profile/[id]/settings/loading'
 
 type Props = {
   children: ReactNode
@@ -46,6 +49,12 @@ export const RootLayoutClient = ({ children }: Props) => {
   const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
 
   const isCreatePostOpen = isHydrated && status === 'authenticated'
+
+  const { isLoading } = useGoogleAuth()
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <main>
