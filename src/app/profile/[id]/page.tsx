@@ -2,8 +2,9 @@ import type { PaginatedPosts } from '@/entities/posts/api'
 import type { PostOpenSource } from '@/shared/constant'
 
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
-import { fetchProfileData } from '@/entities/profile/lib'
-import { Profile } from '@/entities/profile/ui'
+import { fetchProfileData, resolveProfileSsrFailureMode } from '@/entities/profile/lib'
+import { Profile, ProfileClientRecovery } from '@/entities/profile/ui'
+import { logger } from '@/shared/lib/logger'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -25,21 +26,13 @@ const isPostSource = (value: string): value is PostOpenSource => {
   return value === 'home' || value === 'profile' || value === 'direct'
 }
 
-const getErrorStatus = (error: unknown) => {
-  if (typeof error === 'object' && error !== null && 'status' in error) {
-    const status = (error as { status?: unknown }).status
-
-    return typeof status === 'number' ? status : null
-  }
-
-  return null
-}
-
 const getEmptyPosts = (pageSize: number): PaginatedPosts => ({
   items: [],
   totalCount: 0,
   pageSize,
 })
+
+export const dynamic = 'force-dynamic'
 
 export default async function ProfilePage({ params, searchParams }: Props) {
   const { id } = await params
@@ -66,14 +59,15 @@ export default async function ProfilePage({ params, searchParams }: Props) {
   try {
     profileDataServer = await fetchProfileData(userId)
   } catch (error) {
-    console.error('[ProfilePage] fetchProfileData failed', {
-      userId,
-      error,
-      status: getErrorStatus(error),
-    })
-    const status = getErrorStatus(error)
+    const failureMode = resolveProfileSsrFailureMode(error)
 
-    if (status === 404) {
+    logger.error('[ProfilePage] fetchProfileData failed', {
+      failureMode,
+      userId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+
+    if (failureMode === 'not_found') {
       return (
         <div>
           <h1>Profile not found</h1>
@@ -82,10 +76,7 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     }
 
     return (
-      <div>
-        <h1>Server unavailable</h1>
-        <p>Please try again later.</p>
-      </div>
+      <ProfileClientRecovery userId={userId} initialPostId={postId} initialPostSource={source} />
     )
   }
 
