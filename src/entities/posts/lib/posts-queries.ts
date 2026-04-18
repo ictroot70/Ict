@@ -1,5 +1,7 @@
 import { API_ROUTES } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
+import { logger } from '@/shared/lib/logger'
+import { safeSsrFetchJson } from '@/shared/lib/ssr/safeSsrFetch'
 
 import { PaginatedPosts, PostViewModel } from '../api'
 
@@ -53,50 +55,62 @@ const fetchPaginatedPostsByRoute = async ({
   pageSize: number
   query?: Record<string, number | string>
 }): Promise<{ data: null | PaginatedPosts; status: null | number }> => {
-  try {
-    const response = await fetch(buildRouteUrl(route, query), REQUEST_OPTIONS)
+  const url = buildRouteUrl(route, query)
+  const result = await safeSsrFetchJson<unknown>(url, REQUEST_OPTIONS)
 
-    if (!response.ok) {
-      return { data: null, status: response.status }
-    }
+  if (!result.ok) {
+    logger.warn('[fetchPaginatedPostsByRoute] request failed', {
+      bodyPreview: result.error.bodyPreview,
+      kind: result.error.kind,
+      route,
+      status: result.error.status,
+      url,
+    })
 
-    const normalized = normalizePaginatedPosts(await response.json(), pageSize)
-
-    if (!normalized) {
-      return { data: null, status: response.status }
-    }
-
-    return { data: normalized, status: response.status }
-  } catch {
-    return { data: null, status: null }
+    return { data: null, status: result.error.status ?? null }
   }
+
+  const normalized = normalizePaginatedPosts(result.data, pageSize)
+
+  if (!normalized) {
+    logger.warn('[fetchPaginatedPostsByRoute] unexpected payload shape', {
+      route,
+      status: result.status,
+      url,
+    })
+
+    return { data: null, status: result.status }
+  }
+
+  return { data: normalized, status: result.status }
 }
 
 const fetchPostByParamRoute = async (postId: number): Promise<null | PostViewModel> => {
-  try {
-    const response = await fetch(
-      buildRouteUrl(API_ROUTES.POSTS.PARAM(String(postId)), {
-        pageNumber: 1,
-        pageSize: 1,
-        sortDirection: 'desc',
-      }),
-      REQUEST_OPTIONS
-    )
+  const url = buildRouteUrl(API_ROUTES.POSTS.PARAM(String(postId)), {
+    pageNumber: 1,
+    pageSize: 1,
+    sortDirection: 'desc',
+  })
+  const result = await safeSsrFetchJson<{ items?: PostViewModel[] }>(url, REQUEST_OPTIONS)
 
-    if (!response.ok) {
-      return null
-    }
+  if (!result.ok) {
+    logger.warn('[fetchPostByParamRoute] request failed', {
+      kind: result.error.kind,
+      postId,
+      status: result.error.status,
+      url,
+    })
 
-    const payload = (await response.json()) as { items?: PostViewModel[] }
-
-    if (!Array.isArray(payload.items)) {
-      return null
-    }
-
-    return payload.items.find(item => item.id === postId) || null
-  } catch {
     return null
   }
+
+  if (!Array.isArray(result.data.items)) {
+    logger.warn('[fetchPostByParamRoute] unexpected payload shape', { postId, url })
+
+    return null
+  }
+
+  return result.data.items.find(item => item.id === postId) || null
 }
 
 async function fetchUserPosts(
@@ -148,17 +162,21 @@ async function fetchUserPosts(
 const fetchPostByRoute = async (
   route: string
 ): Promise<{ post: PostViewModel | null; status: null | number }> => {
-  try {
-    const response = await fetch(buildApiUrl(route), REQUEST_OPTIONS)
+  const url = buildApiUrl(route)
+  const result = await safeSsrFetchJson<PostViewModel>(url, REQUEST_OPTIONS)
 
-    if (!response.ok) {
-      return { post: null, status: response.status }
-    }
+  if (!result.ok) {
+    logger.warn('[fetchPostByRoute] request failed', {
+      kind: result.error.kind,
+      route,
+      status: result.error.status,
+      url,
+    })
 
-    return { post: (await response.json()) as PostViewModel, status: response.status }
-  } catch {
-    return { post: null, status: null }
+    return { post: null, status: result.error.status ?? null }
   }
+
+  return { post: result.data, status: result.status }
 }
 
 async function fetchPostByIdForSSR(postId: number): Promise<PostViewModel | null> {

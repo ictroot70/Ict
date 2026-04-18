@@ -26,7 +26,8 @@
     "test:run": "vitest run",
     "test:vitest": "vitest",
     "test:vitest:run": "vitest run",
-    "test:vitest:watch": "vitest"
+    "test:vitest:watch": "vitest",
+    "smoke:ssr": "node ./scripts/smoke-ssr-routes.mjs"
   },
   "dependencies": {
     "@eslint/eslintrc": "^3",
