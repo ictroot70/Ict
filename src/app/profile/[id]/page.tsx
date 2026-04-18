@@ -66,6 +66,11 @@ export default async function ProfilePage({ params, searchParams }: Props) {
   try {
     profileDataServer = await fetchProfileData(userId)
   } catch (error) {
+    console.error('[ProfilePage] fetchProfileData failed', {
+      userId,
+      error,
+      status: getErrorStatus(error),
+    })
     const status = getErrorStatus(error)
 
     if (status === 404) {
