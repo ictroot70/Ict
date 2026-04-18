@@ -1,6 +1,7 @@
 import { API_ROUTES } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
 import { logger } from '@/shared/lib/logger'
+
 import { safeSsrFetchJson, toSsrFetchException } from '@/shared/lib/ssr/safeSsrFetch'
 
 import { PublicProfileData } from '../api'
