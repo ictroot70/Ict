@@ -1,96 +1,115 @@
 'use client'
 
-import { useMemo } from 'react'
+import React, { type ReactNode, useEffect, useState } from 'react'
 
-import { useGetPricingQuery } from '@/features/subscriptions/api'
-import { mapSubscriptionTypeToLabel } from '@/features/subscriptions/model'
-import { SubscriptionType } from '@/shared/types'
 import { Button, Card, Typography } from '@/shared/ui'
+import { RadioGroupRadix } from '@ictroot/ui-kit'
 
 import styles from './SubscriptionPricing.module.scss'
 
-const SUBSCRIPTION_ORDER: Record<SubscriptionType, number> = {
-  [SubscriptionType.DAY]: 0,
-  [SubscriptionType.WEEKLY]: 1,
-  [SubscriptionType.MONTHLY]: 2,
+import { SubscriptionPlan, SubscriptionPlanValue } from '../model/payments.types'
+import { SubscriptionCurrentSection } from './SubscriptionCurrentSection'
+
+interface SubscriptionPricingProps {
+  plans: SubscriptionPlan[]
+  selectedPlan?: SubscriptionPlanValue
+  onPlanChange?: (plan: SubscriptionPlanValue) => void
+  onPayPalClick?: () => void
+  onStripeClick?: () => void
+  isPaymentLocked?: boolean
+  accountTypeSlot?: ReactNode
 }
 
-export function SubscriptionPricing() {
-  const { data, isError, refetch } = useGetPricingQuery()
+export function SubscriptionPricing({
+  plans,
+  selectedPlan: externalSelectedPlan,
+  onPlanChange,
+  onStripeClick,
+  isPaymentLocked = false,
+  accountTypeSlot,
+}: SubscriptionPricingProps) {
+  const [internalSelectedPlanValue, setInternalSelectedPlanValue] = useState<SubscriptionPlanValue>(
+    externalSelectedPlan || plans[0]?.value || 'month'
+  )
 
-  const pricingPlans = useMemo(() => {
-    if (!data) {
-      return []
+  useEffect(() => {
+    if (externalSelectedPlan) {
+      setInternalSelectedPlanValue(externalSelectedPlan)
+    }
+  }, [externalSelectedPlan])
+
+  const selectedPlanValue =
+    externalSelectedPlan !== undefined ? externalSelectedPlan : internalSelectedPlanValue
+
+  const selectedPlanData = plans.find(plan => plan.value === selectedPlanValue)
+  const isDisabled = isPaymentLocked || !selectedPlanData || !plans.length
+
+  const radioOptions = plans.map(plan => ({
+    value: plan.value,
+    label: plan.label,
+    id: `plan-${plan.id}`,
+  }))
+
+  const handleValueChange = (value: string) => {
+    const planValue = value as SubscriptionPlanValue
+
+    if (onPlanChange) {
+      onPlanChange(planValue)
+
+      return
     }
 
-    return [...data.data].sort(
-      (left, right) =>
-        SUBSCRIPTION_ORDER[left.typeDescription] - SUBSCRIPTION_ORDER[right.typeDescription]
-    )
-  }, [data])
-
-  if (isError) {
-    return (
-      <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>Could not load pricing</Typography>
-        <Typography className={styles.stateText} variant={'regular_16'}>
-          Please try again.
-        </Typography>
-        <Button className={styles.retryButton} variant={'outlined'} onClick={() => refetch()}>
-          Retry
-        </Button>
-      </Card>
-    )
-  }
-
-  if (!data) {
-    // Global settings-tabs loading already covers this state, so no local pricing loader here.
-    return null
-  }
-
-  if (!pricingPlans.length) {
-    return (
-      <Card className={styles.stateCard}>
-        <Typography variant={'h3'}>No pricing plans</Typography>
-        <Typography className={styles.stateText} variant={'regular_16'}>
-          Pricing is currently unavailable.
-        </Typography>
-      </Card>
-    )
+    setInternalSelectedPlanValue(planValue)
   }
 
   return (
     <div className={styles.root}>
-      {/* TODO(SCRUM-199, T2/T3/T4): replace preview with final Account Management composition
-          and bind selected plan to payment flow (createSubscription + return/polling). */}
-      <Typography variant={'h3'}>Change your subscription:</Typography>
-      <Card className={styles.noticeCard}>
-        <Typography className={styles.noticeTitle} variant={'regular_16'}>
-          Temporary pricing preview
-        </Typography>
-        <Typography className={styles.noticeText} variant={'small_text'}>
-          Plans below are rendered from `useGetPricingQuery`.
-        </Typography>
-        <Typography className={styles.noticeText} variant={'small_text'}>
-          Next step for Account Management flow (T2+): connect selected plan with
-          `createSubscription` and subscription state from `getCurrentSubscription`.
-        </Typography>
-      </Card>
-      <Card className={styles.pricingCard}>
-        <div className={styles.pricingList}>
-          {pricingPlans.map((plan, index) => (
-            <div key={plan.typeDescription} className={styles.planRow}>
-              <span
-                aria-hidden
-                className={index === 0 ? styles.pseudoRadioSelected : styles.pseudoRadio}
-              />
-              <Typography variant={'regular_16'}>
-                ${plan.amount} per {mapSubscriptionTypeToLabel(plan.typeDescription)}
+      <SubscriptionCurrentSection>
+        {accountTypeSlot}
+
+        <section className={styles.section}>
+          <Typography variant={'h3'} className={styles.section__title}>
+            Change your subscription:
+          </Typography>
+
+          {!plans.length ? (
+            <Card className={styles.stateCard}>
+              <Typography variant={'h3'}>No plans available</Typography>
+              <Typography className={styles.stateText} variant={'regular_16'}>
+                Pricing data is temporarily unavailable.
               </Typography>
-            </div>
-          ))}
-        </div>
-      </Card>
+            </Card>
+          ) : (
+            <>
+              <div className={styles.pricingList}>
+                <Card className={styles.pricingCard}>
+                  <RadioGroupRadix
+                    label={'Select subscription plan'}
+                    options={radioOptions}
+                    value={selectedPlanValue}
+                    onValueChange={handleValueChange}
+                    orientation={'vertical'}
+                    disabled={isPaymentLocked}
+                  />
+                </Card>
+              </div>
+
+              <div className={styles.paymentContainer}>
+                <div className={styles.paymentWrapper}>
+                  <Button
+                    className={styles.paymentButton}
+                    onClick={onStripeClick}
+                    disabled={isDisabled}
+                    variant={'outlined'}
+                  >
+                    <img src={'/stripe.svg'} alt={'Stripe'} className={styles.paymentIcon} />
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </section>
+      </SubscriptionCurrentSection>
     </div>
   )
 }

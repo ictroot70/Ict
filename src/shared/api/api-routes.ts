@@ -10,6 +10,8 @@ export const API_ROUTES = {
     REGISTRATION: '/v1/auth/registration',
     REGISTRATION_CONFIRMATION: '/v1/auth/registration-confirmation',
     REGISTRATION_EMAIL_RESENDING: '/v1/auth/registration-email-resending',
+    UPDATE: '/v1/auth/update',
+    // Deprecated endpoint kept for backward compatibility fallback.
     UPDATE_TOKENS: '/v1/auth/update-tokens',
     GITHUB_LOGIN: '/v1/auth/github/login',
     GOOGLE_LOGIN: '/v1/auth/google/login',
@@ -37,6 +39,7 @@ export const API_ROUTES = {
 
   POSTS: {
     BASE: '/v1/posts',
+    ALL: (endCursorPostId: number) => `/v1/posts/all/${endCursorPostId}`,
     BY_ID: (postId: number) => `/v1/posts/id/${postId}`,
     IMAGE: '/v1/posts/image',
     DELETE_IMAGE: (uploadId: string) => `/v1/posts/image/${uploadId}`,
