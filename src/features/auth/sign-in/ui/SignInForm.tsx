@@ -4,6 +4,8 @@ import { ReactElement } from 'react'
 
 import { useSignIn } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
+import { API_ROUTES } from '@/shared/api'
+import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { Loading, OAuthIcons } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 import { Button, Card, Typography } from '@/shared/ui'
@@ -41,12 +43,19 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
   }
 
+  const handleGitHubSignIn = () => {
+    const redirectUrl = `${window.location.origin}${APP_ROUTES.ROOT}`
+    const params = new URLSearchParams({ redirectUrl })
+
+    window.location.href = `${getApiBaseUrl()}${API_ROUTES.AUTH.GITHUB_LOGIN}?${params.toString()}`
+  }
+
   return (
     <Card className={s.wrapper}>
       <Typography variant={'h1'} className={s.title}>
         Sign In
       </Typography>
-      <OAuthIcons onSignInGoogle={handleGoogleSignIn} onSignInGithub={() => {}} />
+      <OAuthIcons onSignInGoogle={handleGoogleSignIn} onSignInGithub={handleGitHubSignIn} />
 
       <form className={s.form} autoComplete={'on'} noValidate onSubmit={onSubmit}>
         <div className={s.fields}>

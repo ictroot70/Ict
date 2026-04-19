@@ -42,6 +42,30 @@ function isRefreshTokenResponse(data: unknown): data is RefreshTokenResponse {
   )
 }
 
+async function tryRefreshToken(
+  api: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[1],
+  extraOptions: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[2]
+) {
+  const refreshEndpoints = [
+    API_ROUTES.AUTH.UPDATE_TOKENS,
+    API_ROUTES.AUTH.GITHUB_UPDATE_TOKENS,
+  ] as const
+
+  for (const url of refreshEndpoints) {
+    const refreshResult = (await baseQuery(
+      { url, method: 'POST', credentials: 'include' },
+      api,
+      extraOptions
+    )) as QueryReturnValue<unknown, FetchBaseQueryError>
+
+    if (isRefreshTokenResponse(refreshResult.data)) {
+      return refreshResult
+    }
+  }
+
+  return null
+}
+
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -69,12 +93,17 @@ export const baseQueryWithReauth: BaseQueryFn<
           authTokenStorage.setAccessToken(refreshResult.data.accessToken)
           result = await baseQuery(args, api, extraOptions)
         } else {
-          authTokenStorage.clear()
-          api.dispatch(logout())
+          const refreshResult = await tryRefreshToken(api, extraOptions)
 
-          return refreshResult.error
-            ? { error: refreshResult.error }
-            : { error: { status: 401, data: 'Session expired' } }
+          if (refreshResult?.data && isRefreshTokenResponse(refreshResult.data)) {
+            authTokenStorage.setAccessToken(refreshResult.data.accessToken)
+            result = await baseQuery(args, api, extraOptions)
+          } else {
+            authTokenStorage.clear()
+            api.dispatch(logout())
+
+            return { error: { status: 401, data: 'Session expired' } }
+          }
         }
       } finally {
         release()
