@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { useLazyGetMyProfileQuery } from '@/entities/profile'
+import { useLazyGetMyProfileQuery } from '@/entities/profile/api/profileApi'
 import { useAppDispatch } from '@/lib/hooks'
-import { setAuthenticated } from '@/shared/auth/authSlice'
+import { logout, setAuthenticated } from '@/shared/auth/authSlice'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
@@ -40,10 +40,11 @@ export const useGitHubAuth = () => {
         authTokenStorage.setAccessToken(accessToken)
         dispatch(setAuthenticated())
 
-        const profile = await triggerProfile().unwrap()
-
+        await triggerProfile().unwrap()
         router.replace(APP_ROUTES.ROOT)
       } catch {
+        authTokenStorage.clear()
+        dispatch(logout())
         showToastAlert({
           message: 'GitHub authorization failed. Try again please',
           type: 'error',

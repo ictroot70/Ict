@@ -4,7 +4,6 @@ import { ReactElement } from 'react'
 
 import { useSignIn } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
-import { API_ROUTES } from '@/shared/api'
 import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { Loading, OAuthIcons } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
@@ -12,6 +11,8 @@ import { Button, Card, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
 import s from './SignInForm.module.scss'
+
+import { buildGoogleAuthUrl, buildGitHubAuthUrl } from '../lib'
 
 type SignInFormProps = {
   router: { replace: (url: string) => void }
@@ -32,22 +33,11 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
   }
 
   const handleGoogleSignIn = () => {
-    const params = new URLSearchParams({
-      redirect_uri: process.env.NEXT_PUBLIC_LOCAL_URL ?? '',
-      response_type: 'code',
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
-      scope: 'email profile',
-      prompt: 'consent',
-    })
-
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+    window.location.href = buildGoogleAuthUrl(window.location.origin)
   }
 
   const handleGitHubSignIn = () => {
-    const redirectUrl = `${window.location.origin}${APP_ROUTES.ROOT}`
-    const params = new URLSearchParams({ redirectUrl })
-
-    window.location.href = `${getApiBaseUrl()}${API_ROUTES.AUTH.GITHUB_LOGIN}?${params.toString()}`
+    window.location.href = buildGitHubAuthUrl(getApiBaseUrl(), window.location.origin)
   }
 
   return (

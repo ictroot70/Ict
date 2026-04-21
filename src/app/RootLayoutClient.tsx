@@ -2,8 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 
-import { useGitHubAuth } from '@/features/auth/hooks/useGitHubAuth'
-import { useGoogleAuth } from '@/features/auth/hooks/useGoogleAuth'
+import { useGitHubAuth, useGoogleAuth } from '@/features/auth/hooks'
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'

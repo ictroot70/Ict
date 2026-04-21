@@ -83,27 +83,16 @@ export const baseQueryWithReauth: BaseQueryFn<
       const release = await mutex.acquire()
 
       try {
-        const refreshResult = (await baseQuery(
-          { url: API_ROUTES.AUTH.UPDATE_TOKENS, method: 'POST', credentials: 'include' },
-          api,
-          extraOptions
-        )) as QueryReturnValue<unknown, FetchBaseQueryError>
+        const refreshResult = await tryRefreshToken(api, extraOptions)
 
-        if (isRefreshTokenResponse(refreshResult.data)) {
+        if (refreshResult?.data && isRefreshTokenResponse(refreshResult.data)) {
           authTokenStorage.setAccessToken(refreshResult.data.accessToken)
           result = await baseQuery(args, api, extraOptions)
         } else {
-          const refreshResult = await tryRefreshToken(api, extraOptions)
+          authTokenStorage.clear()
+          api.dispatch(logout())
 
-          if (refreshResult?.data && isRefreshTokenResponse(refreshResult.data)) {
-            authTokenStorage.setAccessToken(refreshResult.data.accessToken)
-            result = await baseQuery(args, api, extraOptions)
-          } else {
-            authTokenStorage.clear()
-            api.dispatch(logout())
-
-            return { error: { status: 401, data: 'Session expired' } }
-          }
+          return { error: { status: 401, data: 'Session expired' } }
         }
       } finally {
         release()
