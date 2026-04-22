@@ -1,5 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useNotificationCenter } from '@/features/notifications/model/useNotificationsCenter'
+import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll'
 import { BellOutline, ScrollAreaRadix, Typography } from '@/shared/ui'
 
 import s from './NotificationButton.module.scss'
@@ -28,58 +30,45 @@ export interface Notification {
  * @property {Notification[]} [notifications] - Notification array
  * @property {Function} [onNotificationClick] - Notification Click Handler
  * @property {string} [className] - Additional CSS classes
+ * @property {number} [unreadCount] - Number of unread notifications
+ * @property {boolean} [isOpen] - Controlled open state
+ * @property {(open: boolean) => void} [onOpenChange] - Open state change callback
+ * @property {() => void} [onLoadMore] - Load more notifications callback
+ * @property {boolean} [isLoadingMore] - Whether more notifications are loading
+ * @property {boolean} [hasMore] - Whether there are more notifications to load
  */
 
 interface NotificationButtonProps {
   notifications?: Notification[]
   onNotificationClick?: (notification: Notification) => void
   className?: string
+  unreadCount?: number
+  isOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  onLoadMore?: () => void
+  isLoadingMore?: boolean
+  hasMore?: boolean
 }
 
 export const NotificationButton = ({
-  notifications = [
-    {
-      id: 1,
-      title: 'New Message',
-      message: 'You have a new message from the system administrator',
-      time: '2 hours ago',
-      isRead: false,
-    },
-    {
-      id: 2,
-      title: 'System Update',
-      message: 'Maintenance scheduled for tomorrow from 23:00 to 01:00',
-      time: '5 hours ago',
-      isRead: false,
-    },
-    {
-      id: 3,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-    {
-      id: 4,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-    {
-      id: 5,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-  ],
+  notifications = [],
   onNotificationClick,
   className,
+  unreadCount = 0,
+  isOpen: controlledOpen,
+  onOpenChange,
+  onLoadMore,
+  isLoadingMore = false,
+  hasMore = false,
 }: NotificationButtonProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = controlledOpen !== undefined
+  const isMenuOpen = isControlled ? controlledOpen : internalOpen
+
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const isOpeningRef = useRef(false)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -89,36 +78,73 @@ export const NotificationButton = ({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsMenuOpen(false)
+        if (!isControlled) {
+          setInternalOpen(false)
+        }
+        onOpenChange?.(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [isControlled, onOpenChange])
 
-  const handleButtonClick = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+  // Infinite scroll sentinel
+  const { observerRef } = useInfiniteScroll({
+    hasNextPage: hasMore,
+    onLoadMore: onLoadMore ?? (() => {}),
+  })
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (onNotificationClick) {
-      onNotificationClick(notification)
+  useEffect(() => {
+    if (sentinelRef.current && observerRef.current) {
+      observerRef.current.appendChild(sentinelRef.current)
     }
-  }
+  }, [observerRef, isMenuOpen])
+
+  const handleButtonClick = useCallback(() => {
+    const next = !isMenuOpen
+
+    if (!isControlled) {
+      setInternalOpen(next)
+    }
+    onOpenChange?.(next)
+  }, [isMenuOpen, isControlled, onOpenChange])
+
+  const handleNotificationClick = useCallback(
+    (notification: Notification) => {
+      if (onNotificationClick) {
+        onNotificationClick(notification)
+      }
+    },
+    [onNotificationClick]
+  )
+
+  const handleItemKeyDown = useCallback(
+    (e: React.KeyboardEvent, notification: Notification) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleNotificationClick(notification)
+      }
+    },
+    [handleNotificationClick]
+  )
 
   return (
-    <div className={`${s.notificationWrapper} ${className}`}>
+    <div className={`${s.notificationWrapper} ${className || ''}`}>
       <button
         ref={buttonRef}
         className={s.notificationBtn}
         onClick={handleButtonClick}
         title={'Уведомления'}
         aria-expanded={isMenuOpen}
+        aria-label={`Уведомления${unreadCount > 0 ? `, непрочитанных: ${unreadCount}` : ''}`}
         type={'button'}
       >
-        <BellOutline size={24} />
+        <BellOutline size={24} notificationCount={unreadCount} />
+        {/*{unreadCount > 0 && (*/}
+        {/*  <span className={s.unreadBadge}>{unreadCount > 99 ? '99+' : unreadCount}</span>*/}
+        {/*)}*/}
       </button>
 
       {isMenuOpen && (
@@ -143,18 +169,15 @@ export const NotificationButton = ({
                   <div
                     className={`${s.notificationItem} ${!notification.isRead ? s.unread : ''}`}
                     onClick={() => handleNotificationClick(notification)}
+                    onKeyDown={e => handleItemKeyDown(e, notification)}
                     role={'button'}
                     tabIndex={0}
                   >
                     <div className={s.notificationContent}>
                       <div className={s.notificationTitle}>
-                        <span className={s.titleText}>{notification.title}</span>
+                        <span className={s.titleText}>{notification.message}</span>
                         {!notification.isRead && <span className={s.newLabel}>Новое</span>}
                       </div>
-
-                      <Typography variant={'regular_14'} className={s.notificationMessage}>
-                        {notification.message}
-                      </Typography>
 
                       <Typography variant={'small_text'} className={s.notificationTime}>
                         {notification.time}
@@ -171,10 +194,20 @@ export const NotificationButton = ({
                   )}
                 </React.Fragment>
               ))}
+
+              {isLoadingMore && (
+                <div className={s.loadingMore}>
+                  <Typography variant={'small_text'} className={s.loadingText}>
+                    Загрузка...
+                  </Typography>
+                </div>
+              )}
+
+              <div ref={sentinelRef} className={s.scrollSentinel} />
             </div>
           </ScrollAreaRadix>
 
-          {notifications.length === 0 && (
+          {notifications.length === 0 && !isLoadingMore && (
             <div className={s.emptyState}>
               <Typography variant={'regular_14'} className={s.emptyText}>
                 Нет новых уведомлений
