@@ -141,10 +141,10 @@ export const NotificationButton = ({
         aria-label={`Уведомления${unreadCount > 0 ? `, непрочитанных: ${unreadCount}` : ''}`}
         type={'button'}
       >
-        <BellOutline size={24} />
-        {unreadCount > 0 && (
-          <span className={s.unreadBadge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
-        )}
+        <BellOutline size={24} notificationCount={unreadCount} />
+        {/*{unreadCount > 0 && (*/}
+        {/*  <span className={s.unreadBadge}>{unreadCount > 99 ? '99+' : unreadCount}</span>*/}
+        {/*)}*/}
       </button>
 
       {isMenuOpen && (
