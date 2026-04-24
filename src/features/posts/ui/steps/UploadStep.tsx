@@ -1,7 +1,9 @@
 'use client'
 import React from 'react'
 
-import { UploadArea } from '@/shared/composites/UploadArea/UploadArea'
+import { ImageOutline, Card, Button } from '@/shared/ui'
+
+import styles from './UploadStep.module.scss'
 
 import { UploadedFile } from '../../model/types'
 
@@ -15,25 +17,32 @@ interface Props {
   error: string | null
 }
 
-export const UploadStep = ({
-  files,
-  setFiles,
-  openDialog,
-  getRootProps,
-  getInputProps,
-  error,
-  onNext,
-}: Props) => {
+export const UploadStep: React.FC<Props> = ({ openDialog, getRootProps, getInputProps, error }) => {
   return (
-    <UploadArea
-      getRootProps={getRootProps}
-      getInputProps={getInputProps}
-      openDialog={openDialog}
-      error={error}
-      showDraft
-      onOpenDraft={() => {
-        // draft logic
-      }}
-    />
+    <div className={styles.wrapper}>
+      <Card {...getRootProps()} className={styles.dropzone}>
+        <input
+          {...getInputProps({
+            onClick: (event: React.MouseEvent<HTMLInputElement>) => {
+              event.currentTarget.value = ''
+            },
+          })}
+        />
+        <div className={styles.iconWrapper}>
+          <ImageOutline size={48} />
+        </div>
+      </Card>
+
+      {error && <p className={styles.error}>{error}</p>}
+
+      <div className={styles.actions}>
+        <Button variant={'primary'} className={styles.primaryBtn} onClick={openDialog}>
+          Select from Computer
+        </Button>
+        <Button variant={'outlined'} className={styles.secondaryBtn} type={'button'}>
+          Open Draft
+        </Button>
+      </div>
+    </div>
   )
 }

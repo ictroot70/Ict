@@ -7,21 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { APP_ROUTES } from '@/shared/constant'
 
-type SearchParamsLike = {
-  get: (name: string) => null | string
-  toString: () => string
-}
-
-type RouterLike = {
-  push: (url: string) => void
-  replace: (url: string, options?: { scroll?: boolean }) => void
-}
-
-export const useCreatePostModal = (
-  pathname: string,
-  searchParams: SearchParamsLike,
-  router: RouterLike
-) => {
+export const useCreatePostModal = (pathname: any, searchParams: any, router: any) => {
   const { user } = useAuth()
 
   const action = useMemo(() => searchParams.get('action'), [searchParams])
@@ -39,17 +25,13 @@ export const useCreatePostModal = (
 
   const handlePublish = useCallback(
     (_post: PostViewModel) => {
-      close()
-
       if (user?.userId) {
-        const profileUrl = APP_ROUTES.PROFILE.ID(user.userId)
-
-        if (pathname !== profileUrl) {
-          router.replace(profileUrl)
-        }
+        router.push(APP_ROUTES.PROFILE.ID(user.userId))
+      } else {
+        close()
       }
     },
-    [close, pathname, router, user]
+    [user, router, close]
   )
 
   return {

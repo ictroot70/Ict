@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { UserImage } from '@/entities/users/api/api.types'
-import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
 import { ArrowBackSimple, ArrowForwardSimple } from '@/shared/ui'
 import useEmblaCarousel from 'embla-carousel-react'
 import Image from 'next/image'
@@ -15,19 +14,10 @@ type PropType = {
   options?: EmblaOptionsType
   filtersState?: Record<number, string>
   onSlideChange?: (index: number) => void
-  imageSizes?: string
-  priorityFirstImage?: boolean
 }
 
 export const Carousel: React.FC<PropType> = props => {
-  const {
-    slides,
-    options,
-    filtersState,
-    onSlideChange,
-    imageSizes = IMAGE_SIZES.PUBLIC_POST,
-    priorityFirstImage = false,
-  } = props
+  const { slides, options, filtersState, onSlideChange } = props
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -84,20 +74,14 @@ export const Carousel: React.FC<PropType> = props => {
         <div className={s.carousel__container}>
           {slides.map((slide, index) => {
             const filter = filtersState && filtersState[index] ? filtersState[index] : ''
-            const imageLoadingStrategy =
-              priorityFirstImage && index === 0
-                ? IMAGE_LOADING_STRATEGY.lcp
-                : IMAGE_LOADING_STRATEGY.default
 
             return (
               <div className={s.carousel__slide} key={index}>
                 <div className={s.carousel__image}>
                   <Image
-                    {...imageLoadingStrategy}
                     src={typeof slide === 'string' ? slide : slide.url}
                     alt={`Image ${index + 1}`}
                     fill
-                    sizes={imageSizes}
                     className={filter ? s[filter.toLowerCase()] : ''}
                   />
                 </div>

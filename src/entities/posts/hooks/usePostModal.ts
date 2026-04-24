@@ -2,40 +2,19 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { showToastAlert } from '@/shared/lib'
+import { useAuth } from '@/features/posts/utils/useAuth'
 import {
   mapPostToModalData,
   PostModalData,
   PostVariant,
-  CommentFormData,
-  DescriptionFormData,
-  PostViewModel,
+  CommentFormData, // ← добавил
+  DescriptionFormData, // ← добавил
 } from '@/shared/types'
+import { useSearchParams } from 'next/navigation'
 
-type UiLanguage = 'en' | 'rus'
-
-const postModalTextByLanguage = {
-  en: {
-    loadingPost: 'Loading post...',
-    unavailablePost: 'Post is unavailable',
-    notFoundPost: 'Post not found or unavailable',
-    copySuccess: 'Link copied',
-    copyError: 'Failed to copy link',
-  },
-  rus: {
-    loadingPost: 'Загрузка поста...',
-    unavailablePost: 'Пост недоступен',
-    notFoundPost: 'Пост не найден или недоступен',
-    copySuccess: 'Ссылка скопирована',
-    copyError: 'Не удалось скопировать ссылку',
-  },
-} as const
-
-export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
+export const usePostModal = (open: boolean) => {
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
-  const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
   const {
     control: commentControl,
@@ -57,31 +36,23 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     mode: 'onChange',
   })
 
-  const resolvedPostId = postId
+  const searchParams = useSearchParams()
+  const postIdFromQuery = searchParams.get('postId')
+  const postId = postIdFromQuery ? Number(postIdFromQuery) : undefined
 
-  const {
-    data: postDataFromQuery,
-    isError: isPostError,
-    isFetching: isPostFetching,
-  } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || !!initialPostData,
+  const { data: postData } = useGetPostByIdQuery(postId as number, {
+    skip: !open || !postId,
   })
-  const basePostData = initialPostData ?? postDataFromQuery
-  const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
-  const postData = localPostData
-  const hasPostData = Boolean(postData)
-  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
-  const uiText = postModalTextByLanguage[uiLanguage]
 
-  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const { user, isAuthenticated } = useAuth()
 
   const isOwnProfile = Boolean(
-    isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
+    isAuthenticated && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
   let variant: PostVariant = 'public'
 
-  if (isAuthenticatedUi) {
+  if (isAuthenticated) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
   const postModalData: PostModalData = postData
@@ -106,18 +77,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     resetDescription({ description: postModalData.description })
   }, [postModalData.description, resetDescription])
 
-  useEffect(() => {
-    setLocalPostData(basePostData)
-  }, [basePostData, resolvedPostId])
-
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('language')
-
-    if (savedLanguage === 'en' || savedLanguage === 'rus') {
-      setUiLanguage(savedLanguage)
-    }
-  }, [])
-
   const handlePublish = (data: CommentFormData) => {
     const trimmed = data.comment.trim()
 
@@ -137,35 +96,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     setIsEditingDescription(false)
   }
 
-  const applyLocalDescription = (description: string) => {
-    setLocalPostData(prev => {
-      if (!prev) {
-        return prev
-      }
-
-      return {
-        ...prev,
-        description,
-        updatedAt: new Date().toISOString(),
-      }
-    })
-  }
-
-  const handleCopyLink = async () => {
-    const url = window.location.href
-
-    try {
-      if (!window.isSecureContext || !navigator.clipboard?.writeText) {
-        throw new Error('Clipboard API unavailable')
-      }
-
-      await navigator.clipboard.writeText(url)
-      showToastAlert({ message: uiText.copySuccess, type: 'success' })
-    } catch {
-      showToastAlert({ message: uiText.copyError, type: 'error' })
-    }
-  }
-
   return {
     comments,
     isEditingDescription,
@@ -179,18 +109,11 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     errors,
     postData: postModalData,
     variant,
-    isAuthLoading: isAuthUiLoading,
-    isAuthenticated: isAuthenticatedUi,
+    isAuthenticated,
     isOwnProfile,
-    hasPostData,
-    isPostLoading,
-    isPostError,
-    uiText,
     formattedCreatedAt,
     handlePublish,
     handleEditPost,
     handleCancelEdit,
-    handleCopyLink,
-    applyLocalDescription,
   }
 }

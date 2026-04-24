@@ -1,7 +1,0 @@
-export * from './SubscriptionPricing'
-export * from './Payments'
-export * from './PaymentModals'
-export * from './AccountManagement'
-export * from './PersonalView'
-export * from './BusinessSubscriptionView'
-export * from './AccountTypeSection'

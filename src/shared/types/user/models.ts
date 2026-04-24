@@ -1,13 +1,9 @@
-import { AvatarViewDto } from '@/shared/types/base/common'
-
-type AvatarView = AvatarViewDto & {
-  createdAt: string
-}
+import { AvatarViewDto } from '@/entities/profile'
 
 export interface UserBase {
   id: number
   userName: string
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
 }
 
 export interface UserMetadata {
@@ -26,7 +22,7 @@ export interface FullProfileResponse {
   region: string
   dateOfBirth: string
   aboutMe: string
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
   isFollowing: boolean
   isFollowedBy: boolean
   followingCount: number
@@ -38,7 +34,7 @@ export interface PublicProfileResponse {
   id: number
   userName: string
   aboutMe: string | null
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
   userMetadata: UserMetadata
   isFollowing: boolean
   isFollowedBy: boolean
@@ -46,7 +42,7 @@ export interface PublicProfileResponse {
 
 export interface ProfileWithPostsResponse {
   aboutMe: string
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
   city: string
   country: string
   dateOfBirth: string
@@ -120,7 +116,7 @@ export interface ProfileViewModel {
   region: string
   dateOfBirth: string
   aboutMe: string
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
   createdAt?: string
 }
 
@@ -181,5 +177,5 @@ export interface ResponseCountRegisteredUsers {
 }
 
 export interface AvatarsViewModel {
-  avatars: AvatarView[]
+  avatars: AvatarViewDto[]
 }
