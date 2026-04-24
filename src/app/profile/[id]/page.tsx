@@ -2,9 +2,10 @@ import type { PaginatedPosts } from '@/entities/posts/api'
 import type { PostOpenSource } from '@/shared/constant'
 
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
-import { fetchProfileData, resolveProfileSsrFailureMode } from '@/entities/profile/lib'
-import { Profile, ProfileClientRecovery } from '@/entities/profile/ui'
+import { fetchProfileData } from '@/entities/profile/lib'
+import { Profile } from '@/entities/profile/ui'
 import { logger } from '@/shared/lib/logger'
+import { getSsrFetchErrorStatus } from '@/shared/lib/ssr/safeSsrFetch'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -59,15 +60,15 @@ export default async function ProfilePage({ params, searchParams }: Props) {
   try {
     profileDataServer = await fetchProfileData(userId)
   } catch (error) {
-    const failureMode = resolveProfileSsrFailureMode(error)
+    const status = getSsrFetchErrorStatus(error)
 
     logger.error('[ProfilePage] fetchProfileData failed', {
-      failureMode,
+      status,
       userId,
       errorMessage: error instanceof Error ? error.message : 'Unknown error',
     })
 
-    if (failureMode === 'not_found') {
+    if (status === 404) {
       return (
         <div>
           <h1>Profile not found</h1>
@@ -76,7 +77,10 @@ export default async function ProfilePage({ params, searchParams }: Props) {
     }
 
     return (
-      <ProfileClientRecovery userId={userId} initialPostId={postId} initialPostSource={source} />
+      <div>
+        <h1>Server unavailable</h1>
+        <p>Please try again later.</p>
+      </div>
     )
   }
 
