@@ -1,33 +1,35 @@
-export {
-  PaperPlane,
-  HeartOutline,
-  GitHub,
-  Google,
-  BellOutline,
-  RussiaFlag,
-  Select,
-  UkFlag,
-  ArrowBack,
-  ArrowForwardSimple,
-  ArrowBackSimple,
-  PlusCircle,
-  Expand,
-  TrendingUp,
-  Bookmark,
-  BookmarkOutline,
-  Home,
-  HomeOutline,
-  LogOut,
-  MessageCircle,
-  MessageCircleOutline,
-  Person,
-  PersonOutline,
-  PlusSquare,
-  PlusSquareOutline,
-  Search,
-  TrashOutline,
-  EditOutline,
-  ImageOutline,
-  MoreHorizontal,
-  Close,
-} from '@ictroot/ui-kit'
+import * as Icons from '@ictroot/ui-kit/icons'
+
+export const PaperPlane = Icons.PaperPlane
+export const HeartOutline = Icons.HeartOutline
+export const GitHub = Icons.GitHub
+export const Google = Icons.Google
+export const BellOutline = Icons.BellOutline
+export const RussiaFlag = Icons.RussiaFlag
+export const UkFlag = Icons.UkFlag
+export const ArrowBack = Icons.ArrowBack
+export const ArrowForwardSimple = Icons.ArrowForwardSimple
+export const ArrowBackSimple = Icons.ArrowBackSimple
+export const PlusCircle = Icons.PlusCircle
+export const Expand = Icons.Expand
+export const TrendingUp = Icons.TrendingUp
+export const Bookmark = Icons.Bookmark
+export const BookmarkOutline = Icons.BookmarkOutline
+export const Home = Icons.Home
+export const HomeOutline = Icons.HomeOutline
+export const LogOut = Icons.LogOut
+export const MessageCircle = Icons.MessageCircle
+export const MessageCircleOutline = Icons.MessageCircleOutline
+export const Person = Icons.Person
+export const PersonOutline = Icons.PersonOutline
+export const PlusSquare = Icons.PlusSquare
+export const PlusSquareOutline = Icons.PlusSquareOutline
+export const Search = Icons.Search
+export const TrashOutline = Icons.TrashOutline
+export const EditOutline = Icons.EditOutline
+export const ImageOutline = Icons.ImageOutline
+export const MoreHorizontal = Icons.MoreHorizontal
+export const Close = Icons.Close
+export const PersonAddOutline = Icons.PersonAddOutline
+export const CopyOutline = Icons.CopyOutline
+export const Pin = Icons.Pin

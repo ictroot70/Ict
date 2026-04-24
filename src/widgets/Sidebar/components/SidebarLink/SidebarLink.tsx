@@ -1,6 +1,6 @@
 import type { MouseEvent, ReactNode } from 'react'
 
-import clsx from 'clsx'
+import { clsx } from 'clsx'
 import Link, { type LinkProps } from 'next/link'
 
 import s from './SidebarLink.module.scss'

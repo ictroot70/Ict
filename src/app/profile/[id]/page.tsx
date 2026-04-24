@@ -1,34 +1,105 @@
-'use client'
+import type { PaginatedPosts } from '@/entities/posts/api'
+import type { PostOpenSource } from '@/shared/constant'
 
-import MyProfile from '@/entities/profile/ui/MyProfile/MyProfile'
-import PublicUser from '@/entities/profile/ui/PublicProfile/PublicProfile'
-import UserProfile from '@/entities/profile/ui/UserProfile/UserProfile'
-import { useAuth } from '@/features/posts/utils/useAuth'
-import { Loading } from '@/shared/composites'
-import { useParams } from 'next/navigation'
+import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
+import { fetchProfileData } from '@/entities/profile/lib'
+import { Profile } from '@/entities/profile/ui'
+import { logger } from '@/shared/lib/logger'
+import { getSsrFetchErrorStatus } from '@/shared/lib/ssr/safeSsrFetch'
 
-export default function ProfilePage() {
-  const { id } = useParams<{ id: string }>()
-  const userId = Number(id)
+type Props = {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{
+    from?: string | string[]
+    postId?: string | string[]
+  }>
+}
 
-  const { user, isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <Loading />
+const getSingleSearchParam = (value?: string | string[]) => {
+  if (Array.isArray(value)) {
+    return value[0]
   }
-  if (Number.isNaN(userId)) {
+
+  return value
+}
+
+const isPostSource = (value: string): value is PostOpenSource => {
+  return value === 'home' || value === 'profile' || value === 'direct'
+}
+
+const getEmptyPosts = (pageSize: number): PaginatedPosts => ({
+  items: [],
+  totalCount: 0,
+  pageSize,
+})
+
+export const dynamic = 'force-dynamic'
+
+export default async function ProfilePage({ params, searchParams }: Props) {
+  const { id } = await params
+  const query = await searchParams
+  const userId = Number(id)
+  const pageSize = 8
+
+  if (!Number.isInteger(userId) || userId <= 0) {
     return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
-        Invalid user ID
+      <div>
+        <h1>Profile not found</h1>
       </div>
     )
   }
 
-  if (!isAuthenticated) {
-    return <PublicUser id={userId} />
+  const postIdRaw = getSingleSearchParam(query.postId)
+  const parsedPostId = postIdRaw ? Number(postIdRaw) : NaN
+  const postId = Number.isInteger(parsedPostId) && parsedPostId > 0 ? parsedPostId : null
+  const sourceRaw = getSingleSearchParam(query.from)
+  const source = sourceRaw && isPostSource(sourceRaw) ? sourceRaw : 'direct'
+
+  let profileDataServer
+
+  try {
+    profileDataServer = await fetchProfileData(userId)
+  } catch (error) {
+    const status = getSsrFetchErrorStatus(error)
+
+    logger.error('[ProfilePage] fetchProfileData failed', {
+      status,
+      userId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    })
+
+    if (status === 404) {
+      return (
+        <div>
+          <h1>Profile not found</h1>
+        </div>
+      )
+    }
+
+    return (
+      <div>
+        <h1>Server unavailable</h1>
+        <p>Please try again later.</p>
+      </div>
+    )
   }
 
-  return userId === user?.userId ? <MyProfile /> : <UserProfile id={userId} />
+  const [postsResult, initialPostResult] = await Promise.allSettled([
+    fetchUserPosts(userId, pageSize, profileDataServer.userName),
+    postId ? fetchPostByIdForSSR(postId) : Promise.resolve(null),
+  ])
+
+  const postsData = postsResult.status === 'fulfilled' ? postsResult.value : getEmptyPosts(pageSize)
+  const initialPostDataServer =
+    initialPostResult.status === 'fulfilled' ? initialPostResult.value : null
+
+  return (
+    <Profile
+      profileDataServer={profileDataServer}
+      postsDataServer={postsData}
+      initialPostIdServer={postId}
+      initialPostDataServer={initialPostDataServer}
+      initialPostSourceServer={source}
+    />
+  )
 }

@@ -1,37 +1,32 @@
 import type { Metadata } from 'next'
 
-import { ReactNode } from 'react'
+import { ReactNode, Suspense } from 'react'
 
 import { RootLayoutClient } from '@/app/RootLayoutClient'
 import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
+import { AuthSessionHintProvider } from '@/shared/auth'
 import { AppHeader } from '@/widgets/Header'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
 
 import './globals.css'
 import 'react-toastify/ReactToastify.css'
+
+import layoutShellStyles from './RootLayoutClient.module.scss'
 
 export const metadata: Metadata = {
   title: 'Ictroot — Modern Social Platform',
   description:
     'A fully functional social web application built with React, Next.js, and Redux Toolkit.',
   keywords: [
-    'Ictroot',
-    'social platform',
-    'photo gallery',
-    'React',
-    'Next.js',
-    'Redux Toolkit',
-    'Zod',
-    'React Hook Form',
-    'RTK Query',
-    'TypeScript',
-    'Framer Motion',
-    'Docker',
-    'Jenkins',
-    'Storybook',
-    'Sass',
-    'UI library',
+    'social network',
+    'photo sharing',
+    'community platform',
+    'online gallery',
+    'social media',
   ],
   authors: [{ name: 'Ictroot Team', url: 'https://ictroot.uk' }],
   openGraph: {
@@ -80,20 +75,70 @@ const inter = Inter({
   display: 'swap',
 })
 
-export default function RootLayout({
+const AUTH_HINT_BOOTSTRAP_SCRIPT = `
+(() => {
+  try {
+    const key = 'auth_session_hint'
+    const expectedValue = '1'
+    const hasCookieHint = document.cookie
+      .split('; ')
+      .some(cookie => cookie.startsWith(key + '=') && cookie.slice(key.length + 1) === expectedValue)
+    let hasLocalStorageHint = false
+
+    try {
+      hasLocalStorageHint = window.localStorage.getItem(key) === expectedValue
+    } catch {}
+
+    if (hasCookieHint || hasLocalStorageHint) {
+      document.documentElement.setAttribute('data-auth-hint', expectedValue)
+
+      return
+    }
+
+    document.documentElement.removeAttribute('data-auth-hint')
+  } catch {}
+})()
+`
+
+function RootLayoutFallback({ children }: { children: ReactNode }) {
+  return (
+    <main>
+      <div className={layoutShellStyles.wrapper}>
+        <div
+          className={`${layoutShellStyles.content} ${layoutShellStyles['content--withoutSidebar']}`}
+        >
+          {children}
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: ReactNode
 }>) {
+  const messages = await getMessages()
+
   return (
-    <html lang={'en'}>
-      <body className={`${inter.variable}`}>
-        <StoreProvider>
-          <AppHeader />
-          <ToastWrapper>
-            <RootLayoutClient>{children}</RootLayoutClient>
-          </ToastWrapper>
-        </StoreProvider>
+    <html lang={'en'} suppressHydrationWarning>
+      <body className={inter.variable} suppressHydrationWarning>
+        <Script id={'auth-hint-bootstrap'} strategy={'beforeInteractive'}>
+          {AUTH_HINT_BOOTSTRAP_SCRIPT}
+        </Script>
+        <NextIntlClientProvider messages={messages}>
+          <StoreProvider>
+            <AuthSessionHintProvider>
+              <AppHeader />
+              <Suspense fallback={<RootLayoutFallback>{children}</RootLayoutFallback>}>
+                <RootLayoutClient>{children}</RootLayoutClient>
+              </Suspense>
+            </AuthSessionHintProvider>
+          </StoreProvider>
+        </NextIntlClientProvider>
+
+        <ToastWrapper />
       </body>
     </html>
   )

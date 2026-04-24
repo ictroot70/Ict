@@ -1,0 +1,54 @@
+.modal {
+  width: 378px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 114px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  label {
+    margin-bottom: 0;
+  }
+}
+
+.checkbox {
+  div {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  p > span {
+    display: none;
+  }
+}
+
+.processingContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+}
+
+.processingSpinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(57, 125, 246, 0.2);
+  border-top-color: var(--color-primary-500);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: paymentProcessingSpinnerRotation 0.7s linear infinite;
+}
+
+@keyframes paymentProcessingSpinnerRotation {
+  to {
+    transform: rotate(360deg);
+  }
+}

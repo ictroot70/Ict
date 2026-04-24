@@ -21,7 +21,7 @@
 .range {
   position: absolute;
   height: 100%;
-  background-color: #3b82f6; // синий, как у твоей кнопки
+  background-color: var(--color-primary-500);
   border-radius: 9999px;
 }
 
