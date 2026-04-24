@@ -5,7 +5,6 @@ import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Carousel } from '@/shared/composites'
 import { Avatar } from '@/shared/composites/Avatar'
-import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
 import { Typography } from '@ictroot/ui-kit'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,19 +14,14 @@ import s from './PublicPost.module.scss'
 type Props = {
   post: PublicPostResponse
   urlProfile: string
-  isPriorityPost?: boolean
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
 
-export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
-  const { id, ownerId, userName, images, avatarOwner, description, createdAt } = post
+export const PublicPost = ({ post, urlProfile }: Props) => {
+  const { userName, images, avatarOwner, description, createdAt } = post
 
   const timeAgo = useTimeAgo(createdAt)
-  const postUrl = APP_ROUTES.PROFILE.WITH_POST(ownerId, id, 'home')
-  const imageLoadingStrategy = isPriorityPost
-    ? IMAGE_LOADING_STRATEGY.lcp
-    : IMAGE_LOADING_STRATEGY.default
 
   const MAX_CHAR_COUNT = 67
 
@@ -40,37 +34,13 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
 
   return (
     <div className={s.post}>
-      <Link
-        href={postUrl}
-        scroll={false}
-        prefetch={false}
-        className={s.post__media}
-        onClick={event => {
-          const target = event.target as HTMLElement
-
-          if (target.closest('button')) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-        }}
-      >
+      <div className={s.post__media}>
         {images.length > 1 ? (
-          <Carousel
-            slides={images}
-            imageSizes={IMAGE_SIZES.PUBLIC_POST}
-            priorityFirstImage={isPriorityPost}
-          />
+          <Carousel slides={images} />
         ) : (
-          <Image
-            {...imageLoadingStrategy}
-            src={images[0]?.url || DEFAULT_IMAGE}
-            alt={'Image'}
-            fill
-            sizes={IMAGE_SIZES.PUBLIC_POST}
-            className={s.post__image}
-          />
+          <Image priority src={images[0]?.url || DEFAULT_IMAGE} alt={"Image"} fill sizes={'(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'} className={s.post__image} />
         )}
-      </Link>
+      </div>
 
       <div className={s.post__user}>
         <Avatar image={avatarOwner} size={36} />

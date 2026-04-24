@@ -1,1 +1,1 @@
-export { Public } from './public/Public'
+export { Public } from './public'

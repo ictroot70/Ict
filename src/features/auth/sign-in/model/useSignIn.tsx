@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useLazyGetMyProfileQuery } from '@/entities/profile/api'
+import { useLazyGetMyProfileQuery } from '@/entities/profile'
 import { type LoginFields, signInSchema, useLoginMutation } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
 
@@ -31,14 +30,14 @@ export const useSignIn = (router: { replace: (arg0: string) => void }) => {
       const decoded = jwtDecode<{ userId: number }>(response.accessToken)
       const userId = decoded?.userId
 
-      authTokenStorage.setAccessToken(response.accessToken)
+      localStorage.setItem('access_token', response.accessToken)
 
       const profile = await triggerProfile().unwrap()
 
       if (profile) {
         router.replace(APP_ROUTES.PROFILE.ID(userId))
       } else {
-        router.replace(APP_ROUTES.PROFILE.EDIT(userId))
+        router.replace(APP_ROUTES.PROFILE.EDIT)
       }
     } catch (error: any) {
       setIsRedirecting(false)

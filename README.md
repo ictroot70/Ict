@@ -1,50 +1,36 @@
-# Instagramm Web App
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Instagram-like social network built with Next.js App Router, React and TypeScript.
+## Getting Started
 
-## Stack
-
-- Next.js 15 (App Router)
-- React 19
-- TypeScript (strict)
-- Redux Toolkit + RTK Query
-- pnpm
-
-## Requirements
-
-- Node.js LTS
-- pnpm
-
-## Quick start
+First, run the development server:
 
 ```bash
-pnpm install
+npm run dev
+# or
+yarn dev
+# or
 pnpm dev
+# or
+bun dev
 ```
 
-## API Mode
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- Default mode (recommended): direct API URL (no proxy).
-- Tunnel mode (optional): run `pnpm dev:proxy` to enable `/api/proxy` rewrites for local tunnel scenarios only.
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Canonical checks
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Before PR/merge, run:
+## Learn More
 
-```bash
-pnpm run ci:check
-```
+To learn more about Next.js, take a look at the following resources:
 
-## Governance model
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-- Architecture and invariants: `.ai/policy.md` (single source of truth)
-- Quality gates: `.ai/quality-gates.md`
-- Anti-patterns: `.ai/anti-patterns.md`
-- Playbooks: `.ai/playbooks/*`
-- Agent hints (without new rules): `AGENTS.md`
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Contribution
+## Deploy on Vercel
 
-Contribution process and mandatory PR checklist:
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-- `CONTRIBUTING.md`
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

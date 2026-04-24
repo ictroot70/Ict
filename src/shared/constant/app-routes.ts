@@ -1,5 +1,3 @@
-export type PostOpenSource = 'home' | 'profile' | 'direct'
-
 export const APP_ROUTES = {
   ROOT: '/',
 
@@ -24,18 +22,13 @@ export const APP_ROUTES = {
 
   PROFILE: {
     ID: (id: number) => `/profile/${id}`,
-    WITH_POST: (id: number, postId: number, from?: PostOpenSource) => {
-      const params = new URLSearchParams({ postId: String(postId) })
-
-      if (from) {
-        params.set('from', from)
-      }
-
-      return `/profile/${id}?${params.toString()}`
-    },
-    EDIT: (id: number) => `/profile/${id}/settings/general`,
-    ACCOUNT: (id: number) => `/profile/${id}/settings/account`,
+    EDIT: `/settings`,
   },
+
+  // PUBLIC_USERS: {
+  //   PROFILE: '/public-users/profile',
+  //   EDIT_PROFILE: (id: number) => `/public-users/profile/${id}/edit`,
+  // },
 
   POSTS: {
     POST_BY_ID: (postId: string) => `/posts/${postId}`,
@@ -44,7 +37,7 @@ export const APP_ROUTES = {
 
   MESSENGER: {
     BASE: '/messenger',
-    DIALOGUE: (userId: number) => `/messenger/${userId}`,
+    DIALOGUE: (userId: string) => `/messenger/${userId}`,
   },
 
   NOTIFICATIONS: {

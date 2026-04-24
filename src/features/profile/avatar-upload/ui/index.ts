@@ -1,6 +1,0 @@
-export * from './CropStep/CropStep'
-export * from './AvatarPreview/AvatarPreview'
-export * from './AvatarUpload'
-export * from './CameraCapture'
-export * from './DeleteModal'
-export * from './UploadStep/UploadStep'

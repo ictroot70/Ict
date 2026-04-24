@@ -1,59 +1,29 @@
 'use client'
 
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode } from 'react'
 
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
-import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/features/posts/utils/useAuth'
+import { Loading } from '@/shared/composites'
+import { Sidebar } from '@/widgets/Sidebar'
 
 import s from './RootLayoutClient.module.scss'
 
-type Props = {
-  children: ReactNode
-}
+export const RootLayoutClient = ({ children }: { children: ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth()
 
-export const RootLayoutClient = ({ children }: Props) => {
-  const { status } = useAuthUiState()
-  const [isHydrated, setIsHydrated] = useState(false)
-  const searchParams = useSearchParams()
-  const showSidebar = isHydrated && status === 'authenticated'
-  const showSidebarSkeleton = isHydrated && status === 'loading'
-  const postIdParam = searchParams.get('postId')
-  const parsedPostId = postIdParam ? Number(postIdParam) : NaN
-  const isPostModalOpen = Number.isInteger(parsedPostId) && parsedPostId > 0
-  const [shouldPreserveSidebarSpaceForModal, setShouldPreserveSidebarSpaceForModal] =
-    useState(false)
+  const isCreatePostOpen = isAuthenticated
 
-  useEffect(() => {
-    setIsHydrated(true)
-  }, [])
-
-  useEffect(() => {
-    if (!isPostModalOpen) {
-      setShouldPreserveSidebarSpaceForModal(false)
-
-      return
-    }
-
-    if (showSidebar || showSidebarSkeleton) {
-      setShouldPreserveSidebarSpaceForModal(true)
-    }
-  }, [isPostModalOpen, showSidebar, showSidebarSkeleton])
-
-  const shouldReserveSidebarSpace =
-    showSidebar || showSidebarSkeleton || (isPostModalOpen && shouldPreserveSidebarSpaceForModal)
-  const shouldRenderSidebarSkeleton = showSidebarSkeleton && !isPostModalOpen
-
-  const isCreatePostOpen = isHydrated && status === 'authenticated'
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
-    <main>
+    <main className={s.main}>
       <div className={s.wrapper}>
-        {showSidebar && <Sidebar />}
-        {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
+        {isAuthenticated && <Sidebar />}
         <div
-          className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
+          className={`${s.content} ${isAuthenticated ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
         >
           {children}
         </div>

@@ -1,0 +1,218 @@
+.modalOverlay {
+  min-width: 100vw;
+  min-height: 100vh;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editMode {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-dark-300);
+  width: 972px;
+  height: 574px;
+  border: 1px solid var(--color-dark-100);
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  z-index: 1001;
+}
+
+.editHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--color-dark-100);
+  flex-shrink: 0;
+}
+
+.closeButton {
+  padding: 0;
+  min-width: auto;
+  color: var(--color-light-100);
+
+  &:hover {
+    background: transparent;
+    opacity: 0.7;
+  }
+}
+
+.editContent {
+  display: grid;
+  grid-template-columns: 490px 1fr;
+  height: calc(100% - 60px);
+  flex: 1;
+}
+
+.editImageContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.editImage {
+  object-fit: cover;
+  object-position: center;
+}
+
+.editFormContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  padding-top: 24px;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-top: 0;
+}
+
+.editFormSection {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.formLabel {
+  color: var(--color-light-900);
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.editDescriptionForm {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-top: 0;
+  overflow: hidden;
+}
+
+.descriptionTextarea {
+  width: 100%;
+  height: 120px;
+  background: var(--color-dark-500);
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    &:horizontal {
+      height: 4px;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-dark-300);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background: var(--color-dark-100);
+    border-radius: 2px;
+    &:hover {
+      background: var(--color-light-900);
+    }
+  }
+}
+
+.characterCounter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0;
+}
+
+.characterInfo {
+  color: var(--color-light-900);
+}
+
+.characterError {
+  color: #ff4d4f;
+}
+
+.errorMessage {
+  color: #ff4d4f;
+  margin-top: -8px;
+  margin-bottom: 0;
+}
+
+.editDescriptionActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+.exitConfirmationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.exitConfirmationDialog {
+  max-width: 486px;
+}
+
+.exitConfirmationHeader {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--color-dark-100);
+}
+
+.exitConfirmationHeaderContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exitConfirmationHeader {
+  color: var(--color-light-100);
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.exitCloseButton {
+  color: var(--color-light-100);
+  min-width: auto;
+  padding: 0;
+  margin: 0;
+}
+
+.exitConfirmationContent {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.exitConfirmationActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  margin-top: 0;
+}
+
+.modal {
+  max-width: 378px;
+  width: 100%;
+}

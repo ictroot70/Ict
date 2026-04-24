@@ -12,9 +12,9 @@ export const publicUsersApi = baseApi.injectEndpoints({
       }),
     }),
     getPublicPosts: builder.query<GetPublicPostsResponse, GetPublicPostsRequest>({
-      query: ({ endCursorPostId = 0, ...params }) => ({
+      query: ({ endCursorPostId, ...params }) => ({
         params,
-        url: API_ROUTES.POSTS.ALL(endCursorPostId),
+        url: `v1/public-posts/all/${endCursorPostId}`,
       }),
     }),
   }),

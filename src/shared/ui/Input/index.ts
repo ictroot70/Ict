@@ -1,1 +1,1 @@
-export { Input, type InputProps } from '@ictroot/ui-kit'
+export { Input } from '@ictroot/ui-kit'

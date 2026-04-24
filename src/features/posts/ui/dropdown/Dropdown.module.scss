@@ -1,16 +1,16 @@
 :root {
-  --dropdown-bg-light: var(--color-light-100);
-  --dropdown-bg-dark: var(--color-dark-500);
-  --dropdown-text-light: var(--color-dark-300);
-  --dropdown-text-dark: var(--color-light-100);
-  --dropdown-border-light: var(--color-light-700);
-  --dropdown-border-dark: var(--color-dark-300);
-  --dropdown-hover-light: var(--color-light-500);
-  --dropdown-hover-dark: var(--color-dark-400);
-  --dropdown-accent-light: var(--color-primary-700);
-  --dropdown-accent-dark: var(--color-primary-500);
-  --dropdown-danger-light: var(--color-danger-500);
-  --dropdown-danger-dark: var(--color-danger-300);
+  --dropdown-bg-light: #ffffff;
+  --dropdown-bg-dark: #1a1a1a;
+  --dropdown-text-light: #333333;
+  --dropdown-text-dark: #ffffff;
+  --dropdown-border-light: #e0e0e0;
+  --dropdown-border-dark: #333333;
+  --dropdown-hover-light: #f5f5f5;
+  --dropdown-hover-dark: #2a2a2a;
+  --dropdown-accent-light: #007acc;
+  --dropdown-accent-dark: #0099ff;
+  --dropdown-danger-light: #dc3545;
+  --dropdown-danger-dark: #ff6b6b;
   --dropdown-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   --dropdown-z-index: 1000;
 }
@@ -109,7 +109,7 @@
       &:focus,
       &[data-highlighted] {
         background: var(--dropdown-danger-light);
-        color: var(--color-light-100);
+        color: white;
       }
     }
   }
@@ -128,7 +128,7 @@
       &:focus,
       &[data-highlighted] {
         background: var(--dropdown-danger-dark);
-        color: var(--color-light-100);
+        color: white;
       }
     }
   }

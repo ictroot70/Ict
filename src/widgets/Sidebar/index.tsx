@@ -1,4 +1,3 @@
-'use client'
 import { useCallback, useMemo, type MouseEvent } from 'react'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -7,7 +6,7 @@ import s from './Sidebar.module.scss'
 
 import { SidebarGroup, SidebarLink } from './components'
 import { LogOutButton } from './components/LogoutButton/LogOutButton'
-import { useLinkGroups, type SidebarLinkItem } from './model/useLinkGroups'
+import { type SidebarLinkItem, useLinkGroups } from './model/useLinkGroups'
 
 export const Sidebar = () => {
   const pathname = usePathname()
@@ -102,5 +101,3 @@ export const Sidebar = () => {
     </nav>
   )
 }
-
-export { SidebarSkeleton } from './components/SidebarSkeleton'

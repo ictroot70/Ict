@@ -1,0 +1,1 @@
+export { useHomeLink } from './useHomeLink'

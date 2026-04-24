@@ -5,16 +5,57 @@
   width: 100%;
   margin: 0 auto;
   min-height: 100%;
-}
 
-.postsFallback {
-  width: 100%;
-  display: grid;
-  gap: 1rem 0.75rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
-}
+  &__details {
+    display: flex;
+    gap: 38px;
+  }
 
-.postCardSkeleton {
-  width: 100%;
-  aspect-ratio: 234 / 228;
+  &__info {
+    width: 100%;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  &__stats {
+    display: flex;
+    gap: 80px;
+    margin-bottom: 1.5rem;
+    &Item {
+    }
+  }
+
+  &__about {
+  }
+
+  &__section {
+    display: flex;
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  &__posts {
+    width: 100%;
+    display: grid;
+    gap: 1rem 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
+  }
+
+  &__post {
+    cursor: pointer;
+    position: relative;
+    height: 228px;
+    &Image {
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__message {
+    width: 100%;
+  }
 }

@@ -1,3 +1,5 @@
+/** @prettier */
+
 import { ReactElement } from 'react'
 
 import { useAuth } from '@/features/posts/utils/useAuth'

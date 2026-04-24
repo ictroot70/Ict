@@ -1,5 +1,0 @@
-export const DEFAULT_PAYMENTS_PAGE_NUMBER = 1
-
-export const DEFAULT_PAYMENTS_PAGE_SIZE = 12
-
-export const PAYMENTS_PAGE_SIZE_OPTIONS = [8, 12, 16, 24]

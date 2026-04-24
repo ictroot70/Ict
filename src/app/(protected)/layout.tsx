@@ -1,7 +1,10 @@
+'use client'
+
 import { ReactNode } from 'react'
 
-import { AuthRestoreProvider } from '@/features/auth/providers'
 import { AuthGuard } from '@/shared/guards'
+
+// import s from './ProtectedLayout.module.scss'
 
 export default function ProtectedLayout({
   children,
@@ -11,11 +14,9 @@ export default function ProtectedLayout({
   modal: ReactNode
 }) {
   return (
-    <AuthRestoreProvider>
-      <AuthGuard>
-        <div>{children}</div>
-        {modal}
-      </AuthGuard>
-    </AuthRestoreProvider>
+    <AuthGuard>
+      <div>{children}</div>
+      {modal}
+    </AuthGuard>
   )
 }

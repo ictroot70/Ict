@@ -2,7 +2,6 @@
 FROM node:20.11-alpine as dependencies
 WORKDIR /app
 COPY package*.json ./
-COPY .npmrc ./
 RUN npm install
 
 #Билдим приложение

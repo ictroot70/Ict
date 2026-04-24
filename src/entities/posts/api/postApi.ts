@@ -1,20 +1,15 @@
-/* eslint-disable max-lines */
 import {
   CreatePostInputDto,
   GetPostsByUserParams,
   GetPostsParams,
-  PaginatedPosts,
   PaginatedResponse,
-  PostImageViewModel,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
+  UploadedImageViewModel,
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { InfiniteData } from '@reduxjs/toolkit/query'
-
-const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -35,54 +30,25 @@ export const postApi = baseApi.injectEndpoints({
           body: validatedBody,
         }
       },
-      invalidatesTags: (result, error, { userId }) => {
-        const targetUserId = result?.ownerId ?? userId
-
-        return [
-          'Posts',
-          'Profile',
-          { type: 'Post', id: 'LIST' },
-          ...(isValidUserId(targetUserId)
-            ? [
-                { type: 'UserPosts' as const, id: targetUserId },
-                { type: 'Post' as const, id: `USER-${targetUserId}` },
-              ]
-            : []),
-        ]
-      },
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data: createdPost } = await queryFulfilled
-
-          dispatch(
-            postApi.util.updateQueryData(
-              'getInfinitePostsByUser',
-              { userId: createdPost.ownerId },
-              (draft: InfiniteData<PaginatedPosts, null | number>) => {
-                if (!draft.pages.length) {
-                  return
-                }
-
-                const firstPage = draft.pages[0]
-
-                if (firstPage.items.some(post => post.id === createdPost.id)) {
-                  return
-                }
-
-                firstPage.items.unshift(createdPost)
-
-                for (const page of draft.pages) {
-                  page.totalCount += 1
-                }
-
-                if (firstPage.items.length > firstPage.pageSize) {
-                  firstPage.items = firstPage.items.slice(0, firstPage.pageSize)
-                }
-              }
-            )
+      invalidatesTags: (result, error, { userId }) => [
+        { type: 'Post', id: 'LIST' },
+        { type: 'Post', id: `USER-${userId}` },
+      ],
+      async onQueryStarted({ userId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getPostsByUser',
+            { userId, endCursorPostId: 0 },
+            (draft: PaginatedResponse<PostViewModel>) => {
+              draft.totalCount += 1
+            }
           )
+        )
+
+        try {
+          await queryFulfilled
         } catch {
-          // handled by invalidation/refetch
+          patchResult.undo()
         }
       },
     }),
@@ -97,51 +63,21 @@ export const postApi = baseApi.injectEndpoints({
         body,
       }),
       invalidatesTags: (result, error, { postId, userId }) => [
-        'Posts',
-        'Profile',
         { type: 'Post', id: postId },
         { type: 'Post', id: 'LIST' },
-        ...(isValidUserId(userId)
-          ? [
-              { type: 'UserPosts' as const, id: userId },
-              { type: 'Post' as const, id: `USER-${userId}` },
-            ]
-          : []),
+        { type: 'Post', id: `USER-${userId}` },
       ],
       async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
-        if (!isValidUserId(userId)) {
-          try {
-            await queryFulfilled
-          } catch {
-            // handled by invalidation/refetch
-          }
-
-          return
-        }
-
-        const postByIdPatchResult = dispatch(
-          postApi.util.updateQueryData('getPostById', postId, draft => {
-            if (body.description) {
-              draft.description = body.description
-              draft.updatedAt = new Date().toISOString()
-            }
-          })
-        )
-
         const patchResult = dispatch(
           postApi.util.updateQueryData(
-            'getInfinitePostsByUser',
-            { userId },
-            (draft: InfiniteData<PaginatedPosts, null | number>) => {
-              for (const page of draft.pages) {
-                const post = page.items.find(item => item.id === postId)
+            'getPostsByUser',
+            { userId, endCursorPostId: 0 },
+            (draft: PaginatedResponse<PostViewModel>) => {
+              const post = draft.items.find(p => p.id === postId)
 
-                if (post && body.description) {
-                  post.description = body.description
-                  post.updatedAt = new Date().toISOString()
-
-                  break
-                }
+              if (post && body.description) {
+                post.description = body.description
+                post.updatedAt = new Date().toISOString()
               }
             }
           )
@@ -150,7 +86,6 @@ export const postApi = baseApi.injectEndpoints({
         try {
           await queryFulfilled
         } catch {
-          postByIdPatchResult.undo()
           patchResult.undo()
         }
       },
@@ -162,47 +97,18 @@ export const postApi = baseApi.injectEndpoints({
         method: 'DELETE',
       }),
       invalidatesTags: (result, error, { postId, userId }) => [
-        'Posts',
-        'Profile',
         { type: 'Post', id: postId },
         { type: 'Post', id: 'LIST' },
-        ...(isValidUserId(userId)
-          ? [
-              { type: 'UserPosts' as const, id: userId },
-              { type: 'Post' as const, id: `USER-${userId}` },
-            ]
-          : []),
+        { type: 'Post', id: `USER-${userId}` },
       ],
       async onQueryStarted({ postId, userId }, { dispatch, queryFulfilled }) {
-        if (!isValidUserId(userId)) {
-          try {
-            await queryFulfilled
-          } catch {
-            // handled by invalidation/refetch
-          }
-
-          return
-        }
-
         const patchResult = dispatch(
           postApi.util.updateQueryData(
-            'getInfinitePostsByUser',
-            { userId },
-            (draft: InfiniteData<PaginatedPosts, null | number>) => {
-              let removedCount = 0
-
-              for (const page of draft.pages) {
-                const before = page.items.length
-
-                page.items = page.items.filter(post => post.id !== postId)
-                removedCount += before - page.items.length
-              }
-
-              if (removedCount > 0) {
-                for (const page of draft.pages) {
-                  page.totalCount = Math.max(0, page.totalCount - removedCount)
-                }
-              }
+            'getPostsByUser',
+            { userId, endCursorPostId: 0 },
+            (draft: PaginatedResponse<PostViewModel>) => {
+              draft.items = draft.items.filter(p => p.id !== postId)
+              draft.totalCount = Math.max(0, draft.totalCount - 1)
             }
           )
         )
@@ -215,7 +121,7 @@ export const postApi = baseApi.injectEndpoints({
       },
     }),
 
-    uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
+    uploadImage: builder.mutation<UploadedImageViewModel, FormData>({
       query: formData => ({
         url: API_ROUTES.POSTS.IMAGE,
         method: 'POST',
@@ -267,41 +173,6 @@ export const postApi = baseApi.injectEndpoints({
         currentArg?.endCursorPostId !== previousArg?.endCursorPostId,
     }),
 
-    getInfinitePostsByUser: builder.infiniteQuery<
-      PaginatedPosts,
-      GetPostsByUserParams,
-      null | number
-    >({
-      keepUnusedDataFor: 300,
-      infiniteQueryOptions: {
-        initialPageParam: null,
-        getNextPageParam: ({ items }) => {
-          const expectedPageSize = 8
-
-          if (!items || items.length < expectedPageSize) {
-            return null
-          }
-
-          const lastItem = items[items.length - 1]
-
-          return lastItem ? lastItem.id : null
-        },
-      },
-      query: ({ pageParam, queryArg }) => {
-        const cursorId = pageParam === null ? 0 : pageParam
-        const pageSize = queryArg.pageSize ?? (cursorId === 0 ? 8 : 9)
-
-        return {
-          url: API_ROUTES.POSTS.USER_POSTS(queryArg.userId, cursorId),
-          params: {
-            pageSize,
-            sortDirection: queryArg.sortDirection ?? 'desc',
-          },
-        }
-      },
-      providesTags: (result, error, arg) => ['Posts', { type: 'UserPosts', id: arg.userId }],
-    }),
-
     getPosts: builder.query<PaginatedResponse<PostViewModel>, GetPostsParams>({
       query: ({ param, pageSize = 12, pageNumber = 1, sortDirection = 'desc', sortBy }) => ({
         url: API_ROUTES.POSTS.PARAM(param),
@@ -338,7 +209,6 @@ export const {
   useDeleteImageMutation,
   useGetPostByIdQuery,
   useGetPostsByUserQuery,
-  useGetInfinitePostsByUserInfiniteQuery: useGetPostsByUserInfiniteQuery,
   useLazyGetPostsByUserQuery,
   useGetPostsQuery,
   useUpdateLikeStatusMutation,
