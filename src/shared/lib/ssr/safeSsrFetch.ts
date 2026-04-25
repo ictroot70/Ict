@@ -2,6 +2,7 @@ export type SsrFetchErrorKind = 'http' | 'network' | 'parse'
 
 export type SsrFetchError = {
   bodyPreview?: string
+  causeCode?: string
   kind: SsrFetchErrorKind
   message: string
   status?: number
@@ -9,6 +10,20 @@ export type SsrFetchError = {
 }
 
 export type SsrFetchException = Error & SsrFetchError
+
+const getCauseCode = (error: unknown): string | undefined => {
+  if (error instanceof Error) {
+    const { cause } = error as Error & { cause?: unknown }
+
+    if (cause && typeof cause === 'object' && 'code' in cause) {
+      const code = (cause as { code?: unknown }).code
+
+      return typeof code === 'string' ? code : undefined
+    }
+  }
+
+  return undefined
+}
 
 type SsrFetchInit = globalThis.RequestInit & {
   next?: {
@@ -41,6 +56,7 @@ export const toSsrFetchException = (error: SsrFetchError): SsrFetchException => 
   exception.url = error.url
   exception.status = error.status
   exception.bodyPreview = error.bodyPreview
+  exception.causeCode = error.causeCode
 
   return exception
 }
@@ -72,10 +88,15 @@ export const safeSsrFetchJson = async <TData>(
   try {
     response = await fetch(url, init)
   } catch (error) {
+    const causeCode = getCauseCode(error)
+
     return {
       error: {
+        causeCode,
         kind: 'network',
-        message: toUnknownErrorMessage(error),
+        message: causeCode
+          ? `${toUnknownErrorMessage(error)} [${causeCode}]`
+          : toUnknownErrorMessage(error),
         url,
       },
       ok: false,

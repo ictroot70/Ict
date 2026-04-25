@@ -67,4 +67,22 @@ describe('safeSsrFetchJson', () => {
       expect(result.error.message).toContain('ENOTFOUND')
     }
   })
+
+  it('attaches causeCode for network errors with Error.cause chain', async () => {
+    const inner = new Error('dns') as Error & { code: string }
+
+    inner.code = 'ENOTFOUND'
+    const fetchMock = vi.fn().mockRejectedValue(new Error('fetch failed', { cause: inner }))
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    const result = await safeSsrFetchJson('https://example.com/network-cause')
+
+    expect(result.ok).toBe(false)
+
+    if (!result.ok) {
+      expect(result.error.kind).toBe('network')
+      expect(result.error.causeCode).toBe('ENOTFOUND')
+    }
+  })
 })

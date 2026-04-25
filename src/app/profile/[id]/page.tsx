@@ -128,7 +128,7 @@ const renderProfileError = (error: unknown, userId: number) => {
   return <ServerUnavailableView details={details} />
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
 
 export default async function ProfilePage({ params, searchParams }: Readonly<Props>) {
   const [{ id }, query] = await Promise.all([params, searchParams])

@@ -5,7 +5,13 @@ import { safeSsrFetchJson, toSsrFetchException } from '@/shared/lib/ssr/safeSsrF
 
 import { PublicProfileData } from '../api'
 
-const REQUEST_OPTIONS = { cache: 'no-store' as const }
+const PROFILE_SSR_REVALIDATE_SECONDS = 60
+
+const REQUEST_OPTIONS = {
+  next: {
+    revalidate: PROFILE_SSR_REVALIDATE_SECONDS,
+  },
+} as const
 
 async function fetchProfileData(userId: number): Promise<PublicProfileData> {
   const url = buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId))
@@ -14,6 +20,7 @@ async function fetchProfileData(userId: number): Promise<PublicProfileData> {
   if (!result.ok) {
     logger.error('[fetchProfileData] request failed', {
       bodyPreview: result.error.bodyPreview,
+      causeCode: result.error.causeCode,
       kind: result.error.kind,
       message: result.error.message,
       status: result.error.status,
