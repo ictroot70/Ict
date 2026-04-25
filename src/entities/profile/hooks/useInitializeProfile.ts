@@ -1,32 +1,28 @@
-import { useCallback } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { PaginatedPosts, postApi } from '@/entities/posts/api'
 import { useAppStore } from '@/lib/hooks'
-import { useGuardedHydration } from '@/shared/lib/ssr/useGuardedHydration'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 import { profileApi, PublicProfileData } from '../api'
 
-type UseInitializeProfileParams = {
-  hasPostsDataInCache: boolean
-  hasProfileDataInCache: boolean
+export const useInitializeProfile = (
+  userId: number,
+  profileDataServer: PublicProfileData,
   postsDataServer: PaginatedPosts
-  profileDataServer: PublicProfileData
-  userId: number
-}
-
-export const useInitializeProfile = ({
-  userId,
-  profileDataServer,
-  postsDataServer,
-  hasProfileDataInCache,
-  hasPostsDataInCache,
-}: UseInitializeProfileParams) => {
+): {
+  isInit: boolean
+} => {
   const store = useAppStore()
-  const shouldHydrateProfile = Boolean(profileDataServer) && !hasProfileDataInCache
-  const shouldHydratePosts = Boolean(postsDataServer) && !hasPostsDataInCache
-  const hydrateCacheFromServer = useCallback(() => {
-    if (shouldHydrateProfile && profileDataServer) {
+  const isInitialized = useRef(false)
+  const [isInit, setInit] = useState(false)
+
+  useEffect(() => {
+    if (isInitialized.current || (!profileDataServer && !postsDataServer)) {
+      return
+    }
+
+    if (profileDataServer) {
       store.dispatch(
         profileApi.util.upsertQueryData(
           'getPublicProfile',
@@ -36,7 +32,7 @@ export const useInitializeProfile = ({
       )
     }
 
-    if (shouldHydratePosts && postsDataServer) {
+    if (postsDataServer) {
       const initialData: InfiniteData<PaginatedPosts, number | null> = {
         pages: [postsDataServer],
         pageParams: [null],
@@ -46,11 +42,16 @@ export const useInitializeProfile = ({
         postApi.util.upsertQueryData('getInfinitePostsByUser', { userId }, initialData)
       )
     }
-  }, [profileDataServer, postsDataServer, shouldHydratePosts, shouldHydrateProfile, store, userId])
 
-  useGuardedHydration({
-    hydrate: hydrateCacheFromServer,
-    hydrateKey: `profile-page-${userId}`,
-    shouldHydrate: shouldHydrateProfile || shouldHydratePosts,
-  })
+    isInitialized.current = true
+    setInit(true)
+  }, [userId, profileDataServer, postsDataServer, store])
+
+  useEffect(() => {
+    return () => {
+      store.dispatch(postApi.util.invalidateTags([{ type: 'UserPosts', id: userId }]))
+    }
+  }, [store, userId])
+
+  return { isInit }
 }

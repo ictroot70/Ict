@@ -7,22 +7,12 @@ import { Profile } from '@/entities/profile/ui'
 import { logger } from '@/shared/lib/logger'
 import { getSsrFetchErrorStatus } from '@/shared/lib/ssr/safeSsrFetch'
 
-import s from './page.module.scss'
-
 type Props = {
   params: Promise<{ id: string }>
   searchParams: Promise<{
     from?: string | string[]
     postId?: string | string[]
   }>
-}
-
-type SsrErrorDetails = {
-  bodyPreview: string
-  kind: string
-  message: string
-  status: null | number
-  url: string
 }
 
 const PAGE_SIZE = 8
@@ -50,82 +40,33 @@ const getEmptyPosts = (pageSize: number): PaginatedPosts => ({
   pageSize,
 })
 
-const readErrorField = (error: unknown, field: string): unknown => {
-  if (typeof error === 'object' && error !== null && field in error) {
-    return (error as Record<string, unknown>)[field]
-  }
-
-  return undefined
-}
-
-const safeStringify = (value: unknown, fallback = ''): string => {
-  if (value === undefined || value === null) {
-    return fallback
-  }
-  if (typeof value === 'string') {
-    return value
-  }
-  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
-    return String(value)
-  }
-  try {
-    return JSON.stringify(value)
-  } catch {
-    return fallback
-  }
-}
-
-const extractSsrErrorDetails = (error: unknown): SsrErrorDetails => ({
-  status: getSsrFetchErrorStatus(error),
-  kind: safeStringify(readErrorField(error, 'kind'), 'unknown'),
-  url: safeStringify(readErrorField(error, 'url')),
-  bodyPreview: safeStringify(readErrorField(error, 'bodyPreview')),
-  message: error instanceof Error ? error.message : 'Unknown error',
-})
-
-const formatDebugLine = (details: SsrErrorDetails) =>
-  `status: ${details.status ?? 'n/a'} | kind: ${details.kind}\nurl: ${details.url}\nmessage: ${details.message}${
-    details.bodyPreview ? `\nbodyPreview: ${details.bodyPreview}` : ''
-  }`
-
-const NotFoundView = ({ details }: { details?: SsrErrorDetails }) => (
+const NotFoundView = () => (
   <div>
     <h1>Profile not found</h1>
-    {details ? (
-      <pre className={s.debugBlock} data-ssr-debug={'profile-not-found'}>
-        {formatDebugLine(details)}
-      </pre>
-    ) : null}
   </div>
 )
 
-const ServerUnavailableView = ({ details }: { details: SsrErrorDetails }) => (
+const ServerUnavailableView = () => (
   <div>
     <h1>Server unavailable</h1>
     <p>Please try again later.</p>
-    <pre className={s.ssrDebugBlock} data-ssr-debug={'ssr-catch'}>
-      {`[SSR debug] ${formatDebugLine(details)}`}
-    </pre>
   </div>
 )
 
 const renderProfileError = (error: unknown, userId: number) => {
-  const details = extractSsrErrorDetails(error)
+  const status = getSsrFetchErrorStatus(error)
 
   logger.error('[ProfilePage] fetchProfileData failed', {
     userId,
-    status: details.status,
-    kind: details.kind,
-    url: details.url,
-    errorMessage: details.message,
-    bodyPreview: details.bodyPreview,
+    status,
+    errorMessage: error instanceof Error ? error.message : 'Unknown error',
   })
 
-  if (details.status === 404) {
-    return <NotFoundView details={details} />
+  if (status === 404) {
+    return <NotFoundView />
   }
 
-  return <ServerUnavailableView details={details} />
+  return <ServerUnavailableView />
 }
 
 export const revalidate = 60

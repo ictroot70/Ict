@@ -5,7 +5,7 @@ import type { PostOpenSource } from '@/shared/constant'
 
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
-import { InfiniteScrollTrigger } from '@/shared/composites'
+import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
 
 import s from './Profile.module.scss'
 
@@ -20,19 +20,18 @@ type Props = {
   initialPostSourceServer?: PostOpenSource
 }
 
-const PROFILE_POSTS_SKELETON_COUNT = 8
-
 export function Profile({
   profileDataServer,
   postsDataServer,
   initialPostIdServer = null,
   initialPostDataServer = null,
   initialPostSourceServer = 'direct',
-}: Props) {
+}: Readonly<Props>) {
   const {
     posts,
     userId,
     profile,
+    isLoading,
     hasNextPage,
     isOwnProfile,
     isAuthenticated,
@@ -41,6 +40,10 @@ export function Profile({
     profileInfoActions,
     loadMorePostsHandler,
   } = useProfile(profileDataServer, postsDataServer)
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <>

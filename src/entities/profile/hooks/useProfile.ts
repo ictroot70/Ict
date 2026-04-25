@@ -1,24 +1,13 @@
 'use client'
 
-import { postApi, type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
-import {
-  profileApi,
-  type PublicProfileData,
-  useGetPublicProfileQuery,
-} from '@/entities/profile/api'
+import { useMeQuery } from '@/features/auth'
+import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
+import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
-import { useAppSelector } from '@/lib/hooks'
-import { baseApi } from '@/shared/api/base-api'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { logger } from '@/shared/lib'
 import { useParams, useRouter } from 'next/navigation'
-
-type MeQueryCacheEntry = {
-  data?: unknown
-  endpointName?: string
-  status?: 'fulfilled' | 'pending' | 'rejected' | 'uninitialized'
-}
 
 export const useProfile = (
   profileDataServer: PublicProfileData,
@@ -29,34 +18,14 @@ export const useProfile = (
   const router = useRouter()
   const profileQueryArgs = { profileId: userId }
   const postsQueryArgs = { userId }
-
-  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated)
-  const profileDataFromCache = useAppSelector(
-    profileApi.endpoints.getPublicProfile.select(profileQueryArgs)
-  )?.data
-  const postsDataFromCache = useAppSelector(
-    postApi.endpoints.getInfinitePostsByUser.select(postsQueryArgs)
-  )?.data
-  const hasProfileDataInCache = Boolean(profileDataFromCache)
-  const hasPostsDataInCache = Boolean(postsDataFromCache?.pages?.length)
-  const meQueryState = useAppSelector(state => {
-    const queries = Object.values(state[baseApi.reducerPath].queries) as MeQueryCacheEntry[]
-
-    return queries.find(query => query.endpointName === 'me')
-  })
+  const { data: user, isLoading: isMeLoading, isUninitialized: isMeUninitialized } = useMeQuery()
   const { hasAuthHint, authUserIdHint } = useAuthSessionHintContext()
 
-  useInitializeProfile({
-    userId,
-    profileDataServer,
-    postsDataServer,
-    hasProfileDataInCache,
-    hasPostsDataInCache,
-  })
+  const { isInit } = useInitializeProfile(userId, profileDataServer, postsDataServer)
 
   const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     profileQueryArgs,
-    { skip: Boolean(profileDataServer) && !hasProfileDataInCache }
+    { skip: !isInit }
   )
 
   const {
@@ -66,18 +35,14 @@ export const useProfile = (
     fetchNextPage,
     hasNextPage,
   } = useGetPostsByUserInfiniteQuery(postsQueryArgs, {
-    skip: Boolean(postsDataServer) && !hasPostsDataInCache,
+    skip: !isInit,
   })
 
   const isLoading = isProfileLoading || isPostsLoading
 
-  const profile = profileData || profileDataFromCache || profileDataServer
+  const profile = profileData || profileDataServer
 
-  const posts =
-    postsData?.pages?.flatMap(page => page.items || []) ||
-    postsDataFromCache?.pages?.flatMap(page => page.items || []) ||
-    postsDataServer?.items ||
-    []
+  const posts = postsData?.pages?.flatMap(page => page.items || []) || postsDataServer?.items || []
 
   const loadMorePostsHandler = () => {
     if (hasNextPage && !isFetchingPosts) {
@@ -94,36 +59,33 @@ export const useProfile = (
   }
 
   const handleFollow = async () => {
-    // TODO: implement follow logic
+    // Follow flow is intentionally deferred to a separate task.
     logger.info('[profile] Follow user:', profile.id)
   }
 
   const handleUnfollow = async () => {
-    // TODO: implement unfollow logic
+    // Unfollow flow is intentionally deferred to a separate task.
     logger.info('[profile] Unfollow user:', profile.id)
   }
 
-  const meUserId =
-    meQueryState?.data &&
-    typeof meQueryState.data === 'object' &&
-    'userId' in meQueryState.data &&
-    typeof meQueryState.data.userId === 'number'
-      ? meQueryState.data.userId
-      : null
+  const isAuthenticated = Boolean(user)
   const isAuthResolving =
     hasAuthHint &&
     !isAuthenticated &&
-    (!meQueryState || meQueryState.status === 'pending' || meQueryState.status === 'uninitialized')
+    (isMeLoading || isMeUninitialized)
   const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
-  const isOwnProfile = isAuthenticated && profile.id === (meUserId ?? authUserIdHint)
+  const isOwnProfile = isAuthenticated && profile.id === (user?.userId ?? authUserIdHint)
+  const canInteractWithOtherProfile = isOwnProfile === false
   const authActionSkeletonVariant: 'single' | 'double' =
     authUserIdHint === profile.id ? 'single' : 'double'
 
   const profileInfoActions = {
     onEditProfile: isOwnProfile ? handleEditProfile : undefined,
-    onSendMessage: !isOwnProfile ? handleSendMessage : undefined,
-    onFollow: !isOwnProfile && !profile.isFollowing ? handleFollow : undefined,
-    onUnfollow: !isOwnProfile && profile.isFollowing ? handleUnfollow : undefined,
+    onSendMessage: canInteractWithOtherProfile ? handleSendMessage : undefined,
+    onFollow:
+      canInteractWithOtherProfile && !profile.isFollowing ? handleFollow : undefined,
+    onUnfollow:
+      canInteractWithOtherProfile && profile.isFollowing ? handleUnfollow : undefined,
   }
 
   return {
