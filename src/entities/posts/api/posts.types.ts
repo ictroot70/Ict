@@ -55,6 +55,8 @@ export type PaginatedResponse<T> = {
   pageSize: number
 }
 
+export type PaginatedPosts = PaginatedResponse<PostViewModel>
+
 export type CommonPostParams = {
   pageSize?: number
   sortBy?: string

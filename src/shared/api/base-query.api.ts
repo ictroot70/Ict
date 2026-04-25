@@ -1,6 +1,9 @@
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
+import { logout } from '@/shared/auth/authSlice'
 import { isBrowser } from '@/shared/environment/is-browser'
+import { logger } from '@/shared/lib/logger'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {
   BaseQueryFn,
@@ -13,13 +16,15 @@ import { Mutex } from 'async-mutex'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  baseUrl: getApiBaseUrl(),
+
   prepareHeaders: headers => {
-    let token
+    let token: null | string = null
 
     if (isBrowser()) {
       token = authTokenStorage.getAccessToken()
     }
+
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
@@ -44,13 +49,12 @@ export const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   const url = typeof args === 'string' ? args : args.url
 
-  console.log('Making request to:', url)
+  logger.debug('[baseQuery] Making request to:', url)
   await mutex.waitForUnlock()
   let result = await baseQuery(args, api, extraOptions)
 
-  console.log('Request result:', result)
+  logger.debug('[baseQuery] Request result:', result)
   if (result.error && result.error.status === 401) {
-    // checking whether the mutex is locked
     if (!mutex.isLocked()) {
       const release = await mutex.acquire()
 
@@ -60,29 +64,22 @@ export const baseQueryWithReauth: BaseQueryFn<
           api,
           extraOptions
         )) as QueryReturnValue<unknown, FetchBaseQueryError>
-        // console.log('refreshResult', refreshResult)
 
         if (isRefreshTokenResponse(refreshResult.data)) {
           authTokenStorage.setAccessToken(refreshResult.data.accessToken)
-          // retry the initial query
           result = await baseQuery(args, api, extraOptions)
-
-          // console.log(result)
         } else {
           authTokenStorage.clear()
-          // you can make logout, redirect, or show the message
-          console.warn('Invalid refresh token. Logging out.')
+          api.dispatch(logout())
 
           return refreshResult.error
             ? { error: refreshResult.error }
-            : { error: { status: 401, data: 'Unauthorized' } }
+            : { error: { status: 401, data: 'Session expired' } }
         }
       } finally {
-        // release must be called once the mutex should be released again.
         release()
       }
     } else {
-      // wait until the mutex is available without locking it
       await mutex.waitForUnlock()
       result = await baseQuery(args, api, extraOptions)
     }

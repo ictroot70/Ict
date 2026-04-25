@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-03-12",
+  "routes": {
+    "/": {
+      "performance": 100,
+      "fcpSeconds": 0.38,
+      "lcpSeconds": 0.5,
+      "tbtMs": 0,
+      "cls": 0.0013792907801418442,
+      "speedIndexSeconds": 1.05,
+      "ttiSeconds": 0.5,
+      "requestCount": 53
+    },
+    "/profile/[id]": {
+      "sampleRoute": "/profile/1",
+      "performance": 99,
+      "fcpSeconds": 0.37,
+      "lcpSeconds": 0.86,
+      "tbtMs": 0,
+      "cls": 0,
+      "speedIndexSeconds": 0.9,
+      "ttiSeconds": 0.86,
+      "requestCount": 40
+    }
+  }
+}

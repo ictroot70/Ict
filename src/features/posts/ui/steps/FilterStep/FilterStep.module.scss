@@ -9,6 +9,12 @@
   display: flex;
   width: max-content;
 }
+
+.processingStatus {
+  padding: 8px 24px;
+  color: var(--color-light-900);
+  border-bottom: 1px solid var(--color-dark-100);
+}
 .preview {
   flex: 1;
   display: flex;
@@ -53,7 +59,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #0d0d0d;
+    background: var(--color-dark-700);
     border-radius: 3px;
   }
 }
@@ -129,5 +135,5 @@
 .separator {
   width: 1px;
   height: auto;
-  box-shadow: 3px 3px 6px 1px #fff;
+  box-shadow: 3px 3px 6px 1px var(--color-light-100);
 }

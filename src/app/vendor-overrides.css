@@ -1,0 +1,30 @@
+/* Scroll lock stabilization for Radix/react-remove-scroll.
+   Keep one scroll-lock mechanism (Radix/remove-scroll) and neutralize
+   dynamic scrollbar compensation to avoid layout shift.
+*/
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
+html:has(body[data-scroll-locked]) {
+  overflow: hidden;
+}
+
+/* Temporary ui-kit hashed class overrides (remove after ui-kit update) */
+._overlay_1p3pc_119 {
+  z-index: 1000;
+}
+
+._content_1p3pc_126 {
+  z-index: 1001;
+}
+
+._alert_vrmkq_1 {
+  min-height: 0;
+  max-height: none;
+}
+
+/* Temporary date-picker tweak */
+.rdp-day {
+  padding-inline: 1px;
+}

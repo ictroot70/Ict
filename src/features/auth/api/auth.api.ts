@@ -1,6 +1,5 @@
 import {
   API_ROUTES,
-  baseQueryWithReauth,
   CheckRecoveryCodeRequest,
   LoginRequest,
   MeResponse,
@@ -10,8 +9,10 @@ import {
   RefreshTokenResponse,
 } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { authTokenStorage } from '@/shared/lib'
-import { createApi } from '@reduxjs/toolkit/query/react'
+import { logout, setAuthenticated } from '@/shared/auth/authSlice'
+import { authTokenStorage, logger } from '@/shared/lib'
+import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import { jwtDecode } from 'jwt-decode'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -23,7 +24,30 @@ export const authApi = baseApi.injectEndpoints({
         credentials: 'include',
       }),
 
-      invalidatesTags: ['Me'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          if (data.accessToken) {
+            let userId: number | undefined
+
+            try {
+              const decoded = jwtDecode<{ userId?: number }>(data.accessToken)
+
+              userId = typeof decoded.userId === 'number' ? decoded.userId : undefined
+            } catch (decodeError) {
+              logger.warn('[login] Failed to decode userId from accessToken:', decodeError)
+            }
+
+            authTokenStorage.setAccessToken(data.accessToken)
+            markAuthSessionHint(userId)
+            dispatch(setAuthenticated())
+            dispatch(authApi.util.invalidateTags(['Me']))
+          }
+        } catch (error) {
+          logger.error('[login] Failed:', error)
+        }
+      },
     }),
     me: builder.query<MeResponse, void>({
       query: () => {
@@ -34,6 +58,17 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ['Me'],
       transformResponse: (user: MeResponse) => {
         return user
+      },
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          markAuthSessionHint(data.userId)
+          dispatch(setAuthenticated())
+        } catch (error) {
+          clearAuthSessionHint()
+          dispatch(logout())
+        }
       },
     }),
     logout: builder.mutation<void, void>({
@@ -47,11 +82,15 @@ export const authApi = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
-          authTokenStorage.removeAccessToken()
+
+          authTokenStorage.clear()
+          clearAuthSessionHint()
+
+          dispatch(logout())
           dispatch(authApi.util.invalidateTags(['Me']))
           dispatch(authApi.util.resetApiState())
         } catch (error) {
-          console.error('Logout failed:', error)
+          logger.error('Logout failed:', error)
         }
       },
     }),
@@ -65,7 +104,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+    confirmRegistration: builder.mutation<unknown, { confirmationCode: string }>({
       query: body => ({
         url: API_ROUTES.AUTH.REGISTRATION_CONFIRMATION,
         method: 'POST',
