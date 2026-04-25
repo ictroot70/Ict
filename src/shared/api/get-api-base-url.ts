@@ -11,6 +11,15 @@ const ensureLeadingSlash = (value: string) => (value.startsWith('/') ? value : `
 const stripProxySuffix = (value: string) => value.replace(/\/proxy$/, '')
 
 const getProductionApiBase = () => {
+  // Server-only: k8s / private network often cannot resolve or reach the public
+  // browser URL — use an internal service base (no NEXT_PUBLIC_ prefix on purpose).
+  const isServer = globalThis.window === undefined
+  const internalBase = trimTrailingSlash(process.env.INTERNAL_API_BASE_URL?.trim() || '')
+
+  if (isServer && internalBase && isAbsoluteUrl(internalBase)) {
+    return stripProxySuffix(internalBase)
+  }
+
   const configuredBase = trimTrailingSlash(process.env.NEXT_PUBLIC_API_URL?.trim() || '')
 
   if (configuredBase && isAbsoluteUrl(configuredBase)) {
@@ -39,7 +48,7 @@ export const getApiBaseUrl = () => {
     return normalizedBase
   }
 
-  if (typeof window !== 'undefined') {
+  if (globalThis.window !== undefined) {
     return ensureLeadingSlash(normalizedBase)
   }
 
