@@ -14,6 +14,7 @@ export const API_ROUTES = {
     // Deprecated endpoint kept for backward compatibility fallback.
     UPDATE_TOKENS: '/v1/auth/update-tokens',
     GITHUB_LOGIN: '/v1/auth/github/login',
+    GITHUB_UPDATE_TOKENS: '/v1/auth/github/update-tokens',
     GOOGLE_LOGIN: '/v1/auth/google/login',
   },
 

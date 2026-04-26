@@ -62,3 +62,12 @@ export type RegistrationErrorResponse = {
   }[]
   error: string
 }
+
+export interface GoogleAuthRequest {
+  redirectUrl?: string
+  code: string
+}
+export interface GoogleAuthResponse {
+  accessToken: string
+  email: string
+}
