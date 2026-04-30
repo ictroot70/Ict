@@ -1,20 +1,15 @@
-import type {
-  NotificationsListResponse,
+import { API_ROUTES } from '@/shared/api'
+import { baseApi } from '@/shared/api/base-api'
+import {
+  NotificationsPageDto,
   UpdateNotificationIsReadDto,
 } from '@/shared/types/notifications/notification.models'
 
-import { API_ROUTES } from '@/shared/api'
-import { baseApi } from '@/shared/api/base-api'
-
 export const notificationsApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    getNotificationsByCursor: builder.query<NotificationsListResponse, string>({
+    getNotificationsByCursor: builder.query<NotificationsPageDto, string>({
       query: cursor => ({
         url: API_ROUTES.NOTIFICATIONS.BY_CURSOR(cursor),
-        params: {
-          sortBy: 'notifyAt',
-          sortDirection: 'desc',
-        },
       }),
       providesTags: ['Notifications'],
     }),
@@ -25,7 +20,6 @@ export const notificationsApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: ['Notifications'],
     }),
 
     deleteNotification: builder.mutation<void, number>({

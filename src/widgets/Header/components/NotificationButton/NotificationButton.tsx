@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { useNotificationCenter } from '@/features/notifications/model/useNotificationsCenter'
+import { useNotificationsCenter } from '@/features/notifications/model/useNotificationsCenter'
 import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll'
 import { BellOutline, ScrollAreaRadix, Typography } from '@/shared/ui'
 

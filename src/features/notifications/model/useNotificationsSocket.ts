@@ -1,153 +1,231 @@
-import type { NotificationSocketPayload } from '@/shared/types/notifications/notification.models'
+'use client'
+import { useCallback, useEffect, useRef } from 'react'
 
-import { useEffect, useRef, useState } from 'react'
-
+import { useAppDispatch } from '@/app/store'
+import { API_ROUTES } from '@/shared/api/api-routes'
+import { logout } from '@/shared/auth/authSlice'
 import { logger } from '@/shared/lib/logger'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import {
+  WsNotificationPayload,
+  WsNotificationPayloadRaw,
+} from '@/shared/types/notifications/notification.models'
 import { io, Socket } from 'socket.io-client'
 
-const SOCKET_URL = 'https://inctagram.work'
-const WS_EVENT_PATH = 'notifications'
-const WS_ERROR_PATH = 'error'
+const WS_URL = 'https://inctagram.work'
+const WS_EVENTS = ['notifications', 'notification', 'NOTIFICATION'] as const
 
-// Compatibility alias paths from the plan
-const COMPATIBILITY_ALIAS = ['notification', 'NOTIFICATION'] as const
+// Auth-related error indicators from Socket.IO connect_error
+const AUTH_ERROR_INDICATORS = ['unauthorized', 'jwt', 'token', 'auth', '401', '403']
 
-interface UseNotificationsSocketReturn {
-  isConnected: boolean
-  onNewNotification: (cb: (payload: NotificationSocketPayload) => void) => void
-  onError: (cb: (error: unknown) => void) => void
-  disconnect: () => void
-  reconnect: () => void
+function isAuthError(err: Error): boolean {
+  const msg = err.message?.toLowerCase() ?? ''
+
+  return AUTH_ERROR_INDICATORS.some(indicator => msg.includes(indicator))
 }
 
-export function useNotificationsSocket(): UseNotificationsSocketReturn {
+export function validateWsPayload(payload: unknown): payload is WsNotificationPayload {
+  if (typeof payload !== 'object' || payload === null) {
+    return false
+  }
+  const p = payload as WsNotificationPayloadRaw
+
+  return (
+    typeof p['id'] === 'number' &&
+    typeof p['message'] === 'string' &&
+    typeof p['isRead'] === 'boolean' &&
+    typeof p['notifyAt'] === 'string'
+  )
+}
+
+export interface UseNotificationsSocketOptions {
+  accessToken: string | null
+  onNotification: (payload: WsNotificationPayload) => void
+  onInvalidPayload: () => void
+  onAuthError: () => void
+}
+
+export function useNotificationsSocket({
+  accessToken,
+  onNotification,
+  onInvalidPayload,
+  onAuthError,
+}: UseNotificationsSocketOptions): void {
+  const dispatch = useAppDispatch()
   const socketRef = useRef<Socket | null>(null)
-  const handlersRef = useRef<{
-    newNotification: Array<(payload: NotificationSocketPayload) => void>
-    error: Array<(error: unknown) => void>
-  }>({ newNotification: [], error: [] })
-  const [isConnected, setIsConnected] = useState(false)
-  const isConnectingRef = useRef(false)
+  const isReconnectingRef = useRef(false)
 
-  const connect = () => {
-    if (isConnectingRef.current || socketRef.current?.connected) {
-      return
-    }
-
-    const accessToken = authTokenStorage.getAccessToken()
-
-    if (!accessToken) {
-      logger.warn('[useNotificationsSocket] No access token, skipping connect')
-
-      return
-    }
-
-    isConnectingRef.current = true
-    logger.info('[useNotificationsSocket] Connecting to', SOCKET_URL)
-
-    const socket = io(SOCKET_URL, {
-      query: { accessToken },
-      transports: ['websocket'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    })
-
-    socket.on('connect', () => {
-      logger.info('[useNotificationsSocket] Connected')
-      setIsConnected(true)
-      isConnectingRef.current = false
-    })
-
-    socket.on('disconnect', () => {
-      logger.info('[useNotificationsSocket] Disconnected')
-      setIsConnected(false)
-    })
-
-    // Main event path
-    socket.on(WS_EVENT_PATH, (payload: NotificationSocketPayload) => {
-      logger.debug('[useNotificationsSocket] Received notification:', payload)
-      handlersRef.current.newNotification.forEach(cb => cb(payload))
-    })
-
-    // Compatibility alias listeners
-    COMPATIBILITY_ALIAS.forEach(alias => {
-      socket.on(alias, (payload: NotificationSocketPayload) => {
-        logger.debug('[useNotificationsSocket] Received notification via alias:', alias, payload)
-        handlersRef.current.newNotification.forEach(cb => cb(payload))
-      })
-    })
-
-    socket.on(WS_ERROR_PATH, (error: unknown) => {
-      logger.error('[useNotificationsSocket] Socket error:', error)
-      handlersRef.current.error.forEach(cb => cb(error))
-    })
-
-    socket.on('connect_error', error => {
-      logger.error('[useNotificationsSocket] Connect error:', error)
-      setIsConnected(false)
-      isConnectingRef.current = false
-
-      // Auth error: disconnect and let caller handle reauth
-      if (
-        (error as { type?: string })?.type === 'Unauthorized' ||
-        (error as { message?: string })?.message?.includes('401')
-      ) {
-        logger.warn('[useNotificationsSocket] Auth error, disconnecting')
-        socket.disconnect()
-      }
-    })
-
-    socketRef.current = socket
-  }
-
-  const disconnect = () => {
-    if (socketRef.current) {
-      logger.info('[useNotificationsSocket] Manual disconnect')
-      socketRef.current.disconnect()
-      socketRef.current = null
-      setIsConnected(false)
-      isConnectingRef.current = false
-    }
-  }
-
-  const reconnect = () => {
-    disconnect()
-    connect()
-  }
-
-  const onNewNotification = (cb: (payload: NotificationSocketPayload) => void) => {
-    handlersRef.current.newNotification.push(cb)
-
-    return () => {
-      handlersRef.current.newNotification = handlersRef.current.newNotification.filter(
-        h => h !== cb
-      )
-    }
-  }
-
-  const onError = (cb: (error: unknown) => void) => {
-    handlersRef.current.error.push(cb)
-
-    return () => {
-      handlersRef.current.error = handlersRef.current.error.filter(h => h !== cb)
-    }
-  }
+  // Stable callback refs — не пересоздаём socket при смене колбэков
+  const onNotificationRef = useRef(onNotification)
+  const onInvalidPayloadRef = useRef(onInvalidPayload)
+  const onAuthErrorRef = useRef(onAuthError)
 
   useEffect(() => {
-    connect()
+    onNotificationRef.current = onNotification
+  })
+  useEffect(() => {
+    onInvalidPayloadRef.current = onInvalidPayload
+  })
+  useEffect(() => {
+    onAuthErrorRef.current = onAuthError
+  })
 
-    return () => {
-      disconnect()
+  /**
+   * Регистрирует обработчики событий идемпотентно:
+   * проверяет hasListeners перед каждым socket.on,
+   * чтобы при reconnect не накапливались дубли.
+   */
+  const registerHandlers = useCallback((socket: Socket) => {
+    // Единый handler для всех алиасов WS-событий
+    const handleEvent = (raw: unknown) => {
+      try {
+        if (validateWsPayload(raw)) {
+          onNotificationRef.current(raw)
+        } else {
+          logger.error('[NotificationsSocket] Invalid WS payload:', raw)
+          onInvalidPayloadRef.current()
+        }
+      } catch (err) {
+        logger.error('[NotificationsSocket] Error handling WS event:', err)
+        onInvalidPayloadRef.current()
+      }
+    }
+
+    for (const event of WS_EVENTS) {
+      // Idempotent: не добавляем если уже есть listener
+      if (socket.hasListeners(event)) {
+        continue
+      }
+      socket.on(event, handleEvent)
+    }
+
+    if (!socket.hasListeners('error')) {
+      socket.on('error', (err: unknown) => {
+        logger.error('[NotificationsSocket] Socket error event:', err)
+      })
     }
   }, [])
 
-  return {
-    isConnected,
-    onNewNotification,
-    onError,
-    disconnect,
-    reconnect,
+  /**
+   * Инициирует refresh flow через существующий endpoint.
+   * Возвращает новый accessToken или null при неудаче.
+   */
+  const doRefresh = useCallback(async (): Promise<string | null> => {
+    try {
+      const res = await fetch(`${getRefreshBaseUrl()}${API_ROUTES.AUTH.UPDATE_TOKENS}`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+
+      if (!res.ok) {
+        return null
+      }
+      const data: unknown = await res.json()
+
+      if (
+        typeof data === 'object' &&
+        data !== null &&
+        'accessToken' in data &&
+        typeof (data as Record<string, unknown>)['accessToken'] === 'string'
+      ) {
+        const newToken = (data as { accessToken: string }).accessToken
+
+        authTokenStorage.setAccessToken(newToken)
+
+        return newToken
+      }
+
+      return null
+    } catch {
+      return null
+    }
+  }, [])
+
+  /**
+   * Создаёт и подключает socket с заданным токеном.
+   * Навешивает connect_error handler с auth-aware reconnect flow.
+   */
+  const createSocket = useCallback(
+    (token: string): Socket => {
+      const socket = io(WS_URL, {
+        query: { accessToken: token },
+        autoConnect: true,
+        reconnection: false, // управляем reconnect вручную для auth-aware flow
+        transports: ['websocket'],
+      })
+
+      registerHandlers(socket)
+
+      socket.on('connect_error', async (err: Error) => {
+        logger.warn('[NotificationsSocket] connect_error:', err.message)
+
+        if (!isAuthError(err)) {
+          // Сетевая ошибка — не трогаем, Socket.IO сам переподключится
+          return
+        }
+
+        if (isReconnectingRef.current) {
+          return
+        }
+        isReconnectingRef.current = true
+
+        logger.info('[NotificationsSocket] Auth error detected, initiating refresh flow')
+        socket.disconnect()
+
+        const newToken = await doRefresh()
+
+        if (newToken) {
+          logger.info('[NotificationsSocket] Refresh success, reconnecting with new token')
+          // Пересоздаём socket с новым токеном
+          socketRef.current = createSocket(newToken)
+        } else {
+          logger.warn('[NotificationsSocket] Refresh failed, dispatching logout')
+          authTokenStorage.clear()
+          dispatch(logout())
+          onAuthErrorRef.current()
+        }
+
+        isReconnectingRef.current = false
+      })
+
+      return socket
+    },
+    [dispatch, doRefresh, registerHandlers]
+  )
+
+  useEffect(() => {
+    if (!accessToken) {
+      return
+    }
+
+    const socket = createSocket(accessToken)
+
+    socketRef.current = socket
+
+    return () => {
+      logger.debug('[NotificationsSocket] Cleanup: disconnecting socket')
+      socket.off() // снимаем все listeners
+      socket.disconnect()
+      socketRef.current = null
+      isReconnectingRef.current = false
+    }
+  }, [accessToken, createSocket])
+}
+
+/**
+ * Возвращает base URL для refresh запроса.
+ * Использует тот же origin что и API, но без /api суффикса.
+ */
+function getRefreshBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    // В браузере используем относительный путь через Next.js proxy если он настроен,
+    // иначе прямой URL бэкенда
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
+
+    if (apiUrl && /^https?:\/\//.test(apiUrl)) {
+      return apiUrl
+    }
   }
+
+  return 'https://inctagram.work/api'
 }

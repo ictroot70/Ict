@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useNotificationCenter } from '@/features/notifications/model/useNotificationsCenter'
+import { useNotificationsCenter } from '@/features/notifications/model/useNotificationsCenter'
 import {
   Notification,
   NotificationButton,
@@ -45,7 +45,7 @@ export const NotificationCenter = () => {
     hasMore,
     loadMore,
     markAllVisibleAsRead,
-  } = useNotificationCenter()
+  } = useNotificationsCenter()
 
   const [isOpen, setIsOpen] = useState(false)
 
