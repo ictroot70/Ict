@@ -6,9 +6,10 @@ export interface NotificationViewDto {
   createdAt: string
 }
 
-export interface NotificationsListResponse {
+export interface NotificationsPageDto {
   pageSize: number
   totalCount: number
+  /** Source of truth для unread badge. null означает «не изменилось» */
   notReadCount: number | null
   items: NotificationViewDto[]
 }
@@ -17,10 +18,12 @@ export interface UpdateNotificationIsReadDto {
   ids: number[]
 }
 
-export interface NotificationSocketPayload {
+export interface WsNotificationPayload {
   id: number
-  clientId?: string
   message: string
   isRead: boolean
   notifyAt: string
+  [key: string]: unknown
 }
+
+export type WsNotificationPayloadRaw = Record<string, unknown>
