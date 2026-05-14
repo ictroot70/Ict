@@ -2,7 +2,7 @@ import {
   NotificationsPageDto,
   NotificationViewDto,
 } from '@/shared/types/notifications/notification.models'
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 const BOOTSTRAP_CURSOR = '0'
 const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000
@@ -13,8 +13,6 @@ function isWithinOneMonth(notifyAt: string): boolean {
 
 interface NotificationsState {
   items: NotificationViewDto[]
-  /** B1: источник истины для badge — берётся из notReadCount API */
-  serverUnreadCount: number
   cursor: string
   hasMore: boolean
   bootstrapCursor: string
@@ -24,7 +22,6 @@ interface NotificationsState {
 
 const initialState: NotificationsState = {
   items: [],
-  serverUnreadCount: 0,
   cursor: BOOTSTRAP_CURSOR,
   hasMore: true,
   bootstrapCursor: BOOTSTRAP_CURSOR,
@@ -37,12 +34,7 @@ export const notificationsSlice = createSlice({
   initialState,
   reducers: {
     setPageResult(state, action: PayloadAction<NotificationsPageDto>) {
-      const { items: incoming, notReadCount } = action.payload
-
-      // B1: обновляем serverUnreadCount только если notReadCount non-null
-      if (notReadCount !== null && notReadCount !== undefined) {
-        state.serverUnreadCount = notReadCount
-      }
+      const { items: incoming } = action.payload
 
       // Month cutoff + dedupe
       const freshItems = incoming.filter(item => isWithinOneMonth(item.notifyAt))
@@ -65,10 +57,8 @@ export const notificationsSlice = createSlice({
       }
     },
 
-    setServerUnreadCount(state, action: PayloadAction<number | null>) {
-      if (action.payload !== null && action.payload !== undefined) {
-        state.serverUnreadCount = action.payload
-      }
+    setServerUnreadCount(_state, _action: PayloadAction<number | null>) {
+      // no-op: unread count теперь derived из items (только видимые / month-cutoff)
     },
 
     mergeRealtimeItem(state, action: PayloadAction<NotificationViewDto>) {
@@ -110,3 +100,13 @@ export const {
 } = notificationsSlice.actions
 
 export const notificationsReducer = notificationsSlice.reducer
+
+/**
+ * Количество непрочитанных уведомлений среди тех, что видит пользователь
+ * (только за последний месяц, после month-cutoff фильтрации в setPageResult).
+ * Используется как badge value вместо глобального notReadCount с сервера.
+ */
+export const selectVisibleUnreadCount = createSelector(
+  (state: { notifications: NotificationsState }) => state.notifications.items,
+  items => items.filter(i => !i.isRead).length
+)

@@ -16,7 +16,7 @@ function toUiNotification(item: NotificationViewDto): Notification {
     id: item.id,
     message: item.message,
     isRead: item.isRead,
-    time: new Date(item.notifyAt).toLocaleString(),
+    time: item.notifyAt,
   }
 }
 
@@ -24,7 +24,7 @@ export const HeaderControls = () => {
   const { status } = useAuthUiState()
   const isAuthenticated = status === 'authenticated'
 
-  const { items, serverUnreadCount, hasMore, isLoading, onLoadMore, onMarkAsRead } =
+  const { items, unreadCount, hasMore, isLoading, onLoadMore, onMarkAsRead } =
     useNotificationsCenter(isAuthenticated)
 
   // Controlled open state — нужен useSeenTracker и useMarkAsReadBatch
@@ -72,7 +72,7 @@ export const HeaderControls = () => {
     leadingControl = (
       <NotificationButton
         notifications={items.map(toUiNotification)}
-        unreadCount={serverUnreadCount}
+        unreadCount={unreadCount}
         hasMore={hasMore}
         isLoading={isLoading}
         isOpen={isOpen}

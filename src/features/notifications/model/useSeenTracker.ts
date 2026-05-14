@@ -55,7 +55,7 @@ export function useSeenTracker({
     seenIdsRef.current = new Set()
     cumulativeTimeRef.current = new Map()
     visibleSinceRef.current = new Map()
-  }, [unreadIds.join(',')])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [unreadIds.join(',')]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const observe = useCallback(() => {
     if (!isOpen) {
@@ -148,7 +148,7 @@ export function useSeenTracker({
       clearInterval(interval)
       observer.disconnect()
     }
-  }, [isOpen, unreadIds, itemRefs])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, unreadIds, itemRefs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const cleanup = observe()

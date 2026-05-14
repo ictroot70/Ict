@@ -13,10 +13,10 @@ import {
   markItemsAsRead,
   mergeRealtimeItem,
   reset,
+  selectVisibleUnreadCount,
   setError,
   setLoading,
   setPageResult,
-  setServerUnreadCount,
 } from './notificationsSlice'
 import { useNotificationsSocket } from './useNotificationsSocket'
 
@@ -24,8 +24,8 @@ const BOOTSTRAP_CURSOR = '0'
 
 export interface NotificationsCenterResult {
   items: NotificationViewDto[]
-  /** B1: source of truth — из notReadCount API */
-  serverUnreadCount: number
+  /** Количество непрочитанных среди видимых (за последний месяц) */
+  unreadCount: number
   hasMore: boolean
   isLoading: boolean
   error: string | null
@@ -37,9 +37,8 @@ export interface NotificationsCenterResult {
 
 export function useNotificationsCenter(isAuthenticated: boolean): NotificationsCenterResult {
   const dispatch = useAppDispatch()
-  const { items, serverUnreadCount, cursor, hasMore, isLoading, error } = useAppSelector(
-    state => state.notifications
-  )
+  const { items, cursor, hasMore, isLoading, error } = useAppSelector(state => state.notifications)
+  const unreadCount = useAppSelector(selectVisibleUnreadCount)
 
   const [triggerGetPage] = notificationsApi.endpoints.getNotificationsByCursor.useLazyQuery()
   const [markAsRead] = notificationsApi.endpoints.markNotificationsAsRead.useMutation()
@@ -73,14 +72,11 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
     }
   }, [isAuthenticated, dispatch])
 
-  // Refetch первой страницы — обновляет serverUnreadCount из notReadCount (B1)
+  // Refetch первой страницы — обновляет items (и derived unreadCount) из API
   const onRefetchFirst = useCallback(() => {
     triggerGetPage(BOOTSTRAP_CURSOR, /* preferCacheValue */ false)
       .unwrap()
       .then(page => {
-        if (page.notReadCount !== null && page.notReadCount !== undefined) {
-          dispatch(setServerUnreadCount(page.notReadCount))
-        }
         dispatch(setPageResult(page))
       })
       .catch(() => {
@@ -174,7 +170,7 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
 
   return {
     items,
-    serverUnreadCount,
+    unreadCount,
     hasMore,
     isLoading,
     error,

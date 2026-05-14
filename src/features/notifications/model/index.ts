@@ -1,4 +1,8 @@
-export { notificationsReducer, notificationsSlice } from './notificationsSlice'
+export {
+  notificationsReducer,
+  notificationsSlice,
+  selectVisibleUnreadCount,
+} from './notificationsSlice'
 export {
   setPageResult,
   setServerUnreadCount,

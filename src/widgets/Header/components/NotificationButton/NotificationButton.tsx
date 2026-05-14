@@ -1,44 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { useNotificationsCenter } from '@/features/notifications/model/useNotificationsCenter'
-import { useInfiniteScroll } from '@/shared/hooks/useInfiniteScroll'
 import { BellOutline, ScrollAreaRadix, Typography } from '@/shared/ui'
 
 import s from './NotificationButton.module.scss'
 
-export interface Notification {
-  id: number
-  title?: string
-  message: string
-  time: string
-  isRead: boolean
-}
-
-/*
- * Props of the NotificationButton component
- * @interface NotificationButtonProps
- * @property {Notification[]} [notifications] - Notification array
- * @property {Function} [onNotificationClick] - Notification Click Handler
- * @property {string} [className] - Additional CSS classes
- */
+import { Notification, NotificationItem } from './NotificationItem'
 
 interface NotificationButtonProps {
   notifications?: Notification[]
   onNotificationClick?: (notification: Notification) => void
   className?: string
-  /** B1: badge value — из serverUnreadCount (API notReadCount) */
   unreadCount?: number
   isOpen?: boolean
   onOpenChange?: (open: boolean) => void
   onLoadMore?: () => void
   isLoading?: boolean
   hasMore?: boolean
-  /**
-   * B4 fallback: вызывается при клике на непрочитанный item
-   * когда IntersectionObserver недоступен.
-   */
   onSeenFallback?: (id: number) => void
-  /** B4: ref-map для IntersectionObserver в useSeenTracker */
   itemRefsMap?: React.RefObject<Map<number, HTMLElement>>
 }
 
@@ -146,16 +124,9 @@ export const NotificationButton = ({
         onClick={handleButtonClick}
         title={'Уведомления'}
         aria-expanded={isMenuOpen}
-        aria-label={`Уведомления${unreadCount > 0 ? `, непрочитанных: ${unreadCount}` : ''}`}
         type={'button'}
       >
-        <BellOutline size={24} />
-        {/* B1: badge отображает serverUnreadCount из API */}
-        {unreadCount > 0 && (
-          <span className={s.unreadBadge} aria-label={`${unreadCount} непрочитанных`}>
-            {unreadCount > 99 ? '99+' : unreadCount}
-          </span>
-        )}
+        <BellOutline size={24} notificationCount={unreadCount} />
       </button>
 
       {isMenuOpen && (
@@ -164,7 +135,7 @@ export const NotificationButton = ({
 
           <div className={s.menuHeader}>
             <Typography variant={'h3'} className={s.menuTitle}>
-              Уведомления
+              Notifications
             </Typography>
           </div>
 
@@ -176,38 +147,14 @@ export const NotificationButton = ({
           >
             <div className={s.notificationsList} ref={scrollRef} onScroll={handleScroll}>
               {notifications.map((notification, index) => (
-                <React.Fragment key={notification.id}>
-                  <div
-                    ref={el => setItemRef(notification.id, el)}
-                    data-notification-id={notification.id}
-                    className={`${s.notificationItem} ${!notification.isRead ? s.unread : ''}`}
-                    onClick={() => handleNotificationClick(notification)}
-                    onKeyDown={e => handleKeyDown(e, notification)}
-                    role={'button'}
-                    tabIndex={0}
-                  >
-                    <div className={s.notificationContent}>
-                      <div className={s.notificationTitle}>
-                        {notification.title && (
-                          <span className={s.titleText}>{notification.title}</span>
-                        )}
-                        {!notification.isRead && <span className={s.newLabel}>Новое</span>}
-                      </div>
-
-                      <Typography variant={'small_text'} className={s.notificationTime}>
-                        {notification.time}
-                      </Typography>
-                    </div>
-
-                    {!notification.isRead && (
-                      <div className={s.unreadDot} aria-hidden={'true'}></div>
-                    )}
-                  </div>
-
-                  {index < notifications.length - 1 && (
-                    <div className={s.menuDivider} aria-hidden={'true'}></div>
-                  )}
-                </React.Fragment>
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onNotificationClick={handleNotificationClick}
+                  onKeyDown={handleKeyDown}
+                  setItemRef={setItemRef}
+                  isLast={index === notifications.length - 1}
+                />
               ))}
 
               {isLoading && (
