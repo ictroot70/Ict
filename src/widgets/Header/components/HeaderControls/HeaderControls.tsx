@@ -7,7 +7,7 @@ import { useSeenTracker } from '@/features/notifications/model/useSeenTracker'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { NotificationViewDto } from '@/shared/types/notifications/notification.models'
 import { AuthBtn, LanguageSelect, NotificationButton } from '@/widgets/Header/components'
-import { Notification } from '@/widgets/Header/components/NotificationButton/NotificationButton'
+import { NotificationUiModel as Notification } from '@/widgets/Header/components/NotificationButton/NotificationItem'
 
 import { HeaderSkeleton } from './HeaderSkeleton'
 

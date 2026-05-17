@@ -17,24 +17,6 @@
   transition: background-color 0.2s ease;
 }
 
-/* B1: badge отображает serverUnreadCount из API notReadCount */
-.unreadBadge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background-color: var(--color-danger-500, #f00);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 16px;
-  border-radius: 8px;
-  text-align: center;
-  pointer-events: none;
-}
-
 .loadingState {
   padding: 8px 16px;
   text-align: center;
@@ -91,6 +73,9 @@
   transition: background-color 0.2s ease;
   border-bottom: none;
 
+  &.unread {
+  }
+
   &:hover {
     background-color: var(--color-dark-500);
   }
@@ -107,6 +92,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  .titleText {
+    font-weight: 600;
+  }
 }
 
 .newLabel {

@@ -1,11 +1,11 @@
-import React from 'react'
+import { KeyboardEvent } from 'react'
 
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Typography } from '@/shared/ui'
 
 import s from './NotificationButton.module.scss'
 
-export interface Notification {
+export interface NotificationUiModel {
   id: number
   title?: string
   message: string
@@ -20,9 +20,9 @@ export const NotificationItem = ({
   setItemRef,
   isLast,
 }: {
-  notification: Notification
-  onNotificationClick: (notification: Notification) => void
-  onKeyDown: (e: React.KeyboardEvent, notification: Notification) => void
+  notification: NotificationUiModel
+  onNotificationClick: (notification: NotificationUiModel) => void
+  onKeyDown: (e: KeyboardEvent, notification: NotificationUiModel) => void
   setItemRef: (id: number, el: HTMLElement | null) => void
   isLast: boolean
 }) => {
@@ -42,7 +42,7 @@ export const NotificationItem = ({
         <div className={s.notificationContent}>
           <div className={s.notificationTitle}>
             {notification.title && <span className={s.titleText}>{notification.title}</span>}
-            {!notification.isRead && <span className={s.newLabel}>Новое</span>}
+            {!notification.isRead && <span className={s.newLabel}>New</span>}
           </div>
 
           <Typography variant={'regular_14'} className={s.notificationMessage}>
@@ -53,8 +53,6 @@ export const NotificationItem = ({
             {timeAgo}
           </Typography>
         </div>
-
-        {!notification.isRead && <div className={s.unreadDot} aria-hidden={'true'}></div>}
       </div>
 
       {!isLast && <div className={s.menuDivider} aria-hidden={'true'}></div>}

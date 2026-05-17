@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState, KeyboardEvent } from 'react'
 
 import { BellOutline, ScrollAreaRadix, Typography } from '@/shared/ui'
 
 import s from './NotificationButton.module.scss'
 
-import { Notification, NotificationItem } from './NotificationItem'
+import { NotificationItem, NotificationUiModel } from './NotificationItem'
 
 interface NotificationButtonProps {
-  notifications?: Notification[]
-  onNotificationClick?: (notification: Notification) => void
+  notifications?: NotificationUiModel[]
+  onNotificationClick?: (notification: NotificationUiModel) => void
   className?: string
   unreadCount?: number
   isOpen?: boolean
@@ -74,7 +74,7 @@ export const NotificationButton = ({
     handleOpenChange(!isMenuOpen)
   }
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = (notification: NotificationUiModel) => {
     // B4 fallback: если IntersectionObserver недоступен — seen по клику
     if (!notification.isRead && typeof IntersectionObserver === 'undefined') {
       onSeenFallback?.(notification.id)
@@ -82,7 +82,7 @@ export const NotificationButton = ({
     onNotificationClick?.(notification)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent, notification: Notification) => {
+  const handleKeyDown = (e: KeyboardEvent, notification: NotificationUiModel) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       handleNotificationClick(notification)

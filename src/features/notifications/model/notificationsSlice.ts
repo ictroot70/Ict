@@ -11,6 +11,16 @@ function isWithinOneMonth(notifyAt: string): boolean {
   return Date.now() - new Date(notifyAt).getTime() <= ONE_MONTH_MS
 }
 
+function formatNotificationMessage(message: string): string {
+  const subscriptionPattern =
+    /Your subscription has been activated and is valid until (\d{2})\/(\d{2})\/(\d{4})\./
+
+  return message.replace(
+    subscriptionPattern,
+    'Your subscription has been activated and is valid until $2.$1.$3'
+  )
+}
+
 interface NotificationsState {
   items: NotificationViewDto[]
   cursor: string
@@ -37,7 +47,9 @@ export const notificationsSlice = createSlice({
       const { items: incoming } = action.payload
 
       // Month cutoff + dedupe
-      const freshItems = incoming.filter(item => isWithinOneMonth(item.notifyAt))
+      const freshItems = incoming
+        .filter(item => isWithinOneMonth(item.notifyAt))
+        .map(item => ({ ...item, message: formatNotificationMessage(item.message) }))
       const existingIds = new Set(state.items.map(i => i.id))
       const newItems = freshItems.filter(i => !existingIds.has(i.id))
 
@@ -65,7 +77,10 @@ export const notificationsSlice = createSlice({
       const exists = state.items.some(i => i.id === action.payload.id)
 
       if (!exists) {
-        state.items = [action.payload, ...state.items]
+        state.items = [
+          { ...action.payload, message: formatNotificationMessage(action.payload.message) },
+          ...state.items,
+        ]
       }
     },
 
