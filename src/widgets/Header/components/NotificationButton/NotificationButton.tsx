@@ -1,85 +1,57 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState, KeyboardEvent } from 'react'
 
 import { BellOutline, ScrollAreaRadix, Typography } from '@/shared/ui'
 
 import s from './NotificationButton.module.scss'
 
-/*
- * Notification interface
- * @interface Notification
- * @property {number} id - Unique identifier of the notification
- * @property {string} title - Notification title
- * @property {string} message - Notification text
- * @property {string} time - Notification time (e.g. "2 hours ago")
- * @property {boolean} isRead - Notification read status
- */
-
-export interface Notification {
-  id: number
-  title: string
-  message: string
-  time: string
-  isRead: boolean
-}
-
-/*
- * Props of the NotificationButton component
- * @interface NotificationButtonProps
- * @property {Notification[]} [notifications] - Notification array
- * @property {Function} [onNotificationClick] - Notification Click Handler
- * @property {string} [className] - Additional CSS classes
- */
+import { NotificationItem, NotificationUiModel } from './NotificationItem'
 
 interface NotificationButtonProps {
-  notifications?: Notification[]
-  onNotificationClick?: (notification: Notification) => void
+  notifications?: NotificationUiModel[]
+  onNotificationClick?: (notification: NotificationUiModel) => void
   className?: string
+  unreadCount?: number
+  isOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+  onLoadMore?: () => void
+  isLoading?: boolean
+  hasMore?: boolean
+  onSeenFallback?: (id: number) => void
+  itemRefsMap?: React.RefObject<Map<number, HTMLElement>>
 }
 
 export const NotificationButton = ({
-  notifications = [
-    {
-      id: 1,
-      title: 'New Message',
-      message: 'You have a new message from the system administrator',
-      time: '2 hours ago',
-      isRead: false,
-    },
-    {
-      id: 2,
-      title: 'System Update',
-      message: 'Maintenance scheduled for tomorrow from 23:00 to 01:00',
-      time: '5 hours ago',
-      isRead: false,
-    },
-    {
-      id: 3,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-    {
-      id: 4,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-    {
-      id: 5,
-      title: 'Task completed',
-      message: 'Your "Monthly Report" task has been completed successfully',
-      time: '1 day ago',
-      isRead: true,
-    },
-  ],
+  notifications = [],
   onNotificationClick,
   className,
+  unreadCount = 0,
+  isOpen: controlledOpen,
+  onOpenChange,
+  onLoadMore,
+  isLoading,
+  onSeenFallback,
+  itemRefsMap,
 }: NotificationButtonProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isMenuOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
   const menuRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const onOpenChangeRef = useRef(onOpenChange)
+
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange
+  })
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (controlledOpen === undefined) {
+        setInternalOpen(open)
+      }
+      onOpenChangeRef.current?.(open)
+    },
+    [controlledOpen]
+  )
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -89,27 +61,63 @@ export const NotificationButton = ({
         buttonRef.current &&
         !buttonRef.current.contains(event.target as Node)
       ) {
-        setIsMenuOpen(false)
+        handleOpenChange(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
 
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  }, [handleOpenChange])
 
   const handleButtonClick = () => {
-    setIsMenuOpen(!isMenuOpen)
+    handleOpenChange(!isMenuOpen)
   }
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (onNotificationClick) {
-      onNotificationClick(notification)
+  const handleNotificationClick = (notification: NotificationUiModel) => {
+    // B4 fallback: если IntersectionObserver недоступен — seen по клику
+    if (!notification.isRead && typeof IntersectionObserver === 'undefined') {
+      onSeenFallback?.(notification.id)
+    }
+    onNotificationClick?.(notification)
+  }
+
+  const handleKeyDown = (e: KeyboardEvent, notification: NotificationUiModel) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      handleNotificationClick(notification)
     }
   }
 
+  // Infinite scroll trigger
+  const handleScroll = () => {
+    const el = scrollRef.current
+
+    if (!el || !onLoadMore) {
+      return
+    }
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+      onLoadMore()
+    }
+  }
+
+  // B4: регистрируем ref элемента в itemRefsMap для IntersectionObserver
+  const setItemRef = useCallback(
+    (id: number, el: HTMLElement | null) => {
+      if (!itemRefsMap?.current) {
+        return
+      }
+      if (el) {
+        itemRefsMap.current.set(id, el)
+      } else {
+        itemRefsMap.current.delete(id)
+      }
+    },
+    [itemRefsMap]
+  )
+
   return (
-    <div className={`${s.notificationWrapper} ${className}`}>
+    <div className={`${s.notificationWrapper} ${className ?? ''}`}>
       <button
         ref={buttonRef}
         className={s.notificationBtn}
@@ -118,7 +126,7 @@ export const NotificationButton = ({
         aria-expanded={isMenuOpen}
         type={'button'}
       >
-        <BellOutline size={24} />
+        <BellOutline size={24} notificationCount={unreadCount} />
       </button>
 
       {isMenuOpen && (
@@ -127,7 +135,7 @@ export const NotificationButton = ({
 
           <div className={s.menuHeader}>
             <Typography variant={'h3'} className={s.menuTitle}>
-              Уведомления
+              Notifications
             </Typography>
           </div>
 
@@ -137,44 +145,27 @@ export const NotificationButton = ({
             className={s.notificationsScrollArea}
             viewportClassName={s.notificationsViewport}
           >
-            <div className={s.notificationsList}>
+            <div className={s.notificationsList} ref={scrollRef} onScroll={handleScroll}>
               {notifications.map((notification, index) => (
-                <React.Fragment key={notification.id}>
-                  <div
-                    className={`${s.notificationItem} ${!notification.isRead ? s.unread : ''}`}
-                    onClick={() => handleNotificationClick(notification)}
-                    role={'button'}
-                    tabIndex={0}
-                  >
-                    <div className={s.notificationContent}>
-                      <div className={s.notificationTitle}>
-                        <span className={s.titleText}>{notification.title}</span>
-                        {!notification.isRead && <span className={s.newLabel}>Новое</span>}
-                      </div>
-
-                      <Typography variant={'regular_14'} className={s.notificationMessage}>
-                        {notification.message}
-                      </Typography>
-
-                      <Typography variant={'small_text'} className={s.notificationTime}>
-                        {notification.time}
-                      </Typography>
-                    </div>
-
-                    {!notification.isRead && (
-                      <div className={s.unreadDot} aria-hidden={'true'}></div>
-                    )}
-                  </div>
-
-                  {index < notifications.length - 1 && (
-                    <div className={s.menuDivider} aria-hidden={'true'}></div>
-                  )}
-                </React.Fragment>
+                <NotificationItem
+                  key={notification.id}
+                  notification={notification}
+                  onNotificationClick={handleNotificationClick}
+                  onKeyDown={handleKeyDown}
+                  setItemRef={setItemRef}
+                  isLast={index === notifications.length - 1}
+                />
               ))}
+
+              {isLoading && (
+                <div className={s.loadingState}>
+                  <Typography variant={'small_text'}>Загрузка...</Typography>
+                </div>
+              )}
             </div>
           </ScrollAreaRadix>
 
-          {notifications.length === 0 && (
+          {notifications.length === 0 && !isLoading && (
             <div className={s.emptyState}>
               <Typography variant={'regular_14'} className={s.emptyText}>
                 Нет новых уведомлений
