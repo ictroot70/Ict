@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useLazyGetMyProfileQuery } from '@/entities/profile/api'
-import { type LoginFields, signInSchema, useLoginMutation } from '@/features/auth'
+import {
+  type LoginFields,
+  signInSchema,
+  useLoginMutation,
+  resolvePostLoginRedirectPath,
+} from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { jwtDecode } from 'jwt-decode'
-
-import { resolvePostLoginRedirectPath } from './resolvePostLoginRedirect'
 
 export const useSignIn = (
   router: { replace: (arg0: string) => void },
@@ -23,7 +26,7 @@ export const useSignIn = (
       email: '',
       password: '',
     },
-    mode: 'onChange',
+    mode: 'onTouched',
     reValidateMode: 'onChange',
     resolver: zodResolver(signInSchema),
   })
