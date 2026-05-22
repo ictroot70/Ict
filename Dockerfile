@@ -2,7 +2,6 @@
 FROM node:20.11-alpine as dependencies
 WORKDIR /app
 COPY package*.json ./
-COPY .npmrc ./
 RUN npm install
 
 #Билдим приложение
@@ -16,6 +15,7 @@ RUN npm run build:production
 
 #Стейдж запуска
 FROM node:20.11-alpine as runner
+USER node
 WORKDIR /app
 ENV NODE_ENV production
 COPY --from=builder /app/ ./
