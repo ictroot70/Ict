@@ -1,3 +1,5 @@
+import { logger } from '@/shared/lib'
+
 import { FilterName, FILTER_CONFIGS } from '../constants/filter-configs'
 
 interface ApplyFilterOptions {
@@ -23,7 +25,7 @@ export async function applyFilterToImage(
 
   const { width, height } = calculateResizedDimensions(img.width, img.height, maxDimension)
 
-  console.log(`🖼️ Resizing image: ${img.width}x${img.height} → ${width}x${height}`)
+  logger.info(`🖼️ Resizing image: ${img.width}x${img.height} → ${width}x${height}`)
 
   canvas.width = width
   canvas.height = height
@@ -37,7 +39,7 @@ export async function applyFilterToImage(
 
   const blob = await canvasToBlob(canvas, quality)
 
-  console.log(`📦 Blob created: ${(blob.size / 1024).toFixed(0)}KB (quality: ${quality})`)
+  logger.info(`📦 Blob created: ${(blob.size / 1024).toFixed(0)}KB (quality: ${quality})`)
 
   return blob
 }
