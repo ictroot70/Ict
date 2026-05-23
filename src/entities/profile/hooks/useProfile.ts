@@ -1,9 +1,9 @@
 'use client'
 
-import { useMeQuery } from '@/features/auth'
 import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
+import { useMeQuery } from '@/features/auth'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { logger } from '@/shared/lib'
@@ -69,10 +69,7 @@ export const useProfile = (
   }
 
   const isAuthenticated = Boolean(user)
-  const isAuthResolving =
-    hasAuthHint &&
-    !isAuthenticated &&
-    (isMeLoading || isMeUninitialized)
+  const isAuthResolving = hasAuthHint && !isAuthenticated && (isMeLoading || isMeUninitialized)
   const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
   const isOwnProfile = isAuthenticated && profile.id === (user?.userId ?? authUserIdHint)
   const canInteractWithOtherProfile = isOwnProfile === false
@@ -82,10 +79,8 @@ export const useProfile = (
   const profileInfoActions = {
     onEditProfile: isOwnProfile ? handleEditProfile : undefined,
     onSendMessage: canInteractWithOtherProfile ? handleSendMessage : undefined,
-    onFollow:
-      canInteractWithOtherProfile && !profile.isFollowing ? handleFollow : undefined,
-    onUnfollow:
-      canInteractWithOtherProfile && profile.isFollowing ? handleUnfollow : undefined,
+    onFollow: canInteractWithOtherProfile && !profile.isFollowing ? handleFollow : undefined,
+    onUnfollow: canInteractWithOtherProfile && profile.isFollowing ? handleUnfollow : undefined,
   }
 
   return {
