@@ -1,11 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef } from 'react'
 
-import { useAppDispatch } from '@/app/store'
-import { API_ROUTES } from '@/shared/api/api-routes'
-import { logout } from '@/shared/auth/authSlice'
 import { logger } from '@/shared/lib/logger'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {
   WsNotificationPayload,
   WsNotificationPayloadRaw,
@@ -51,7 +47,6 @@ export function useNotificationsSocket({
   onInvalidPayload,
   onAuthError,
 }: UseNotificationsSocketOptions): void {
-  const dispatch = useAppDispatch()
   const socketRef = useRef<Socket | null>(null)
   const isReconnectingRef = useRef(false)
 
@@ -107,41 +102,6 @@ export function useNotificationsSocket({
   }, [])
 
   /**
-   * Инициирует refresh flow через существующий endpoint.
-   * Возвращает новый accessToken или null при неудаче.
-   */
-  const doRefresh = useCallback(async (): Promise<string | null> => {
-    try {
-      const res = await fetch(`${getRefreshBaseUrl()}${API_ROUTES.AUTH.UPDATE_TOKENS}`, {
-        method: 'POST',
-        credentials: 'include',
-      })
-
-      if (!res.ok) {
-        return null
-      }
-      const data: unknown = await res.json()
-
-      if (
-        typeof data === 'object' &&
-        data !== null &&
-        'accessToken' in data &&
-        typeof (data as Record<string, unknown>)['accessToken'] === 'string'
-      ) {
-        const newToken = (data as { accessToken: string }).accessToken
-
-        authTokenStorage.setAccessToken(newToken)
-
-        return newToken
-      }
-
-      return null
-    } catch {
-      return null
-    }
-  }, [])
-
-  /**
    * Создаёт и подключает socket с заданным токеном.
    * Навешивает connect_error handler с auth-aware reconnect flow.
    */
@@ -150,7 +110,7 @@ export function useNotificationsSocket({
       const socket = io(WS_URL, {
         query: { accessToken: token },
         autoConnect: true,
-        reconnection: false, // управляем reconnect вручную для auth-aware flow
+        reconnection: true, // позволяем автоматический reconnect при сетевых ошибках
         transports: ['websocket'],
       })
 
@@ -164,33 +124,14 @@ export function useNotificationsSocket({
           return
         }
 
-        if (isReconnectingRef.current) {
-          return
-        }
-        isReconnectingRef.current = true
-
-        logger.info('[NotificationsSocket] Auth error detected, initiating refresh flow')
+        logger.info('[NotificationsSocket] Auth error detected, disconnecting and notifying app')
         socket.disconnect()
-
-        const newToken = await doRefresh()
-
-        if (newToken) {
-          logger.info('[NotificationsSocket] Refresh success, reconnecting with new token')
-          // Пересоздаём socket с новым токеном
-          socketRef.current = createSocket(newToken)
-        } else {
-          logger.warn('[NotificationsSocket] Refresh failed, dispatching logout')
-          authTokenStorage.clear()
-          dispatch(logout())
-          onAuthErrorRef.current()
-        }
-
-        isReconnectingRef.current = false
+        onAuthErrorRef.current()
       })
 
       return socket
     },
-    [dispatch, doRefresh, registerHandlers]
+    [registerHandlers]
   )
 
   useEffect(() => {
@@ -210,22 +151,4 @@ export function useNotificationsSocket({
       isReconnectingRef.current = false
     }
   }, [accessToken, createSocket])
-}
-
-/**
- * Возвращает base URL для refresh запроса.
- * Использует тот же origin что и API, но без /api суффикса.
- */
-function getRefreshBaseUrl(): string {
-  if (typeof window !== 'undefined') {
-    // В браузере используем относительный путь через Next.js proxy если он настроен,
-    // иначе прямой URL бэкенда
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
-
-    if (apiUrl && /^https?:\/\//.test(apiUrl)) {
-      return apiUrl
-    }
-  }
-
-  return 'https://inctagram.work/api'
 }

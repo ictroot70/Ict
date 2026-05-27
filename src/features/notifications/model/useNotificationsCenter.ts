@@ -24,14 +24,12 @@ const BOOTSTRAP_CURSOR = '0'
 
 export interface NotificationsCenterResult {
   items: NotificationViewDto[]
-  /** Количество непрочитанных среди видимых (за последний месяц) */
   unreadCount: number
   hasMore: boolean
   isLoading: boolean
   error: string | null
   onLoadMore: () => void
   onMarkAsRead: (ids: number[]) => Promise<void>
-  onRealtimeNotification: (item: NotificationViewDto) => void
   onRefetchFirst: () => void
 }
 
@@ -43,7 +41,6 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
   const [triggerGetPage] = notificationsApi.endpoints.getNotificationsByCursor.useLazyQuery()
   const [markAsRead] = notificationsApi.endpoints.markNotificationsAsRead.useMutation()
 
-  // Загрузка первой страницы при монтировании (authenticated only)
   useEffect(() => {
     if (!isAuthenticated) {
       return
@@ -63,25 +60,21 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
       .finally(() => {
         dispatch(setLoading(false))
       })
-  }, [isAuthenticated]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dispatch, isAuthenticated, triggerGetPage])
 
-  // Сброс при logout
   useEffect(() => {
     if (!isAuthenticated) {
       dispatch(reset())
     }
   }, [isAuthenticated, dispatch])
 
-  // Refetch первой страницы — обновляет items (и derived unreadCount) из API
   const onRefetchFirst = useCallback(() => {
-    triggerGetPage(BOOTSTRAP_CURSOR, /* preferCacheValue */ false)
+    triggerGetPage(BOOTSTRAP_CURSOR, false)
       .unwrap()
       .then(page => {
         dispatch(setPageResult(page))
       })
-      .catch(() => {
-        // silent — не ломаем UI при фоновом refetch
-      })
+      .catch(() => {})
   }, [dispatch, triggerGetPage])
 
   const onLoadMore = useCallback(() => {
@@ -110,21 +103,13 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
       if (ids.length === 0) {
         return
       }
-
-      try {
-        await markAsRead({ ids }).unwrap()
-        // Оптимистичное обновление локального isRead
-        dispatch(markItemsAsRead(ids))
-        // B1: refetch для синхронизации serverUnreadCount
-        onRefetchFirst()
-      } catch {
-        // B1 req 4.7: при 400/401 не коммитим optimistic update
-      }
+      await markAsRead({ ids }).unwrap()
+      dispatch(markItemsAsRead(ids))
+      onRefetchFirst()
     },
     [dispatch, markAsRead, onRefetchFirst]
   )
 
-  // B2: WS callback — merge item + refetch для serverUnreadCount
   const handleWsNotification = useCallback(
     (payload: WsNotificationPayload) => {
       dispatch(
@@ -136,37 +121,23 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
           createdAt: payload.notifyAt,
         })
       )
-      // B1 req 1.6: после WS-события refetch для обновления serverUnreadCount
       onRefetchFirst()
     },
     [dispatch, onRefetchFirst]
   )
 
-  // B3: fallback refetch при невалидном WS payload
   const handleInvalidPayload = useCallback(() => {
     onRefetchFirst()
   }, [onRefetchFirst])
 
-  // B2: auth error → logout уже обрабатывается внутри useNotificationsSocket
-  const handleAuthError = useCallback(() => {
-    // logout dispatched inside useNotificationsSocket
-  }, [])
+  const handleAuthError = useCallback(() => {}, [])
 
-  // B2: Socket.IO lifecycle с auth-aware reconnect
   useNotificationsSocket({
     accessToken: isAuthenticated ? (authTokenStorage.getAccessToken() ?? null) : null,
     onNotification: handleWsNotification,
     onInvalidPayload: handleInvalidPayload,
     onAuthError: handleAuthError,
   })
-
-  const onRealtimeNotification = useCallback(
-    (item: NotificationViewDto) => {
-      dispatch(mergeRealtimeItem(item))
-      onRefetchFirst()
-    },
-    [dispatch, onRefetchFirst]
-  )
 
   return {
     items,
@@ -176,7 +147,6 @@ export function useNotificationsCenter(isAuthenticated: boolean): NotificationsC
     error,
     onLoadMore,
     onMarkAsRead,
-    onRealtimeNotification,
     onRefetchFirst,
   }
 }

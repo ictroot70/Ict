@@ -25,7 +25,6 @@ interface NotificationsState {
   items: NotificationViewDto[]
   cursor: string
   hasMore: boolean
-  bootstrapCursor: string
   isLoading: boolean
   error: string | null
 }
@@ -34,7 +33,6 @@ const initialState: NotificationsState = {
   items: [],
   cursor: BOOTSTRAP_CURSOR,
   hasMore: true,
-  bootstrapCursor: BOOTSTRAP_CURSOR,
   isLoading: false,
   error: null,
 }
@@ -46,7 +44,6 @@ export const notificationsSlice = createSlice({
     setPageResult(state, action: PayloadAction<NotificationsPageDto>) {
       const { items: incoming } = action.payload
 
-      // Month cutoff + dedupe
       const freshItems = incoming
         .filter(item => isWithinOneMonth(item.notifyAt))
         .map(item => ({ ...item, message: formatNotificationMessage(item.message) }))
@@ -55,7 +52,6 @@ export const notificationsSlice = createSlice({
 
       state.items = [...state.items, ...newItems]
 
-      // hasMore: если все incoming старые или смешанная страница — стоп
       const allOld = incoming.length > 0 && freshItems.length === 0
       const mixed = incoming.length > 0 && freshItems.length < incoming.length
 
@@ -63,14 +59,9 @@ export const notificationsSlice = createSlice({
         state.hasMore = false
       }
 
-      // Следующий cursor — id последнего загруженного item
       if (incoming.length > 0) {
         state.cursor = String(incoming[incoming.length - 1].id)
       }
-    },
-
-    setServerUnreadCount(_state, _action: PayloadAction<number | null>) {
-      // no-op: unread count теперь derived из items (только видимые / month-cutoff)
     },
 
     mergeRealtimeItem(state, action: PayloadAction<NotificationViewDto>) {
@@ -104,23 +95,11 @@ export const notificationsSlice = createSlice({
   },
 })
 
-export const {
-  setPageResult,
-  setServerUnreadCount,
-  mergeRealtimeItem,
-  markItemsAsRead,
-  setLoading,
-  setError,
-  reset,
-} = notificationsSlice.actions
+export const { setPageResult, mergeRealtimeItem, markItemsAsRead, setLoading, setError, reset } =
+  notificationsSlice.actions
 
 export const notificationsReducer = notificationsSlice.reducer
 
-/**
- * Количество непрочитанных уведомлений среди тех, что видит пользователь
- * (только за последний месяц, после month-cutoff фильтрации в setPageResult).
- * Используется как badge value вместо глобального notReadCount с сервера.
- */
 export const selectVisibleUnreadCount = createSelector(
   (state: { notifications: NotificationsState }) => state.notifications.items,
   items => items.filter(i => !i.isRead).length

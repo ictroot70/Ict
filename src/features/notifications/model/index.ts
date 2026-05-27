@@ -5,7 +5,6 @@ export {
 } from './notificationsSlice'
 export {
   setPageResult,
-  setServerUnreadCount,
   mergeRealtimeItem,
   markItemsAsRead,
   setLoading,

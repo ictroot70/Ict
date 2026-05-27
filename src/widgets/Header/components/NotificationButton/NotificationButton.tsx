@@ -15,7 +15,6 @@ interface NotificationButtonProps {
   onOpenChange?: (open: boolean) => void
   onLoadMore?: () => void
   isLoading?: boolean
-  hasMore?: boolean
   onSeenFallback?: (id: number) => void
   itemRefsMap?: React.RefObject<Map<number, HTMLElement>>
 }
@@ -75,7 +74,6 @@ export const NotificationButton = ({
   }
 
   const handleNotificationClick = (notification: NotificationUiModel) => {
-    // B4 fallback: если IntersectionObserver недоступен — seen по клику
     if (!notification.isRead && typeof IntersectionObserver === 'undefined') {
       onSeenFallback?.(notification.id)
     }
@@ -89,7 +87,6 @@ export const NotificationButton = ({
     }
   }
 
-  // Infinite scroll trigger
   const handleScroll = () => {
     const el = scrollRef.current
 
@@ -101,7 +98,6 @@ export const NotificationButton = ({
     }
   }
 
-  // B4: регистрируем ref элемента в itemRefsMap для IntersectionObserver
   const setItemRef = useCallback(
     (id: number, el: HTMLElement | null) => {
       if (!itemRefsMap?.current) {

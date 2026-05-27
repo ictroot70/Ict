@@ -24,25 +24,20 @@ export const HeaderControls = () => {
   const { status } = useAuthUiState()
   const isAuthenticated = status === 'authenticated'
 
-  const { items, unreadCount, hasMore, isLoading, onLoadMore, onMarkAsRead } =
+  const { items, unreadCount, isLoading, onLoadMore, onMarkAsRead } =
     useNotificationsCenter(isAuthenticated)
 
-  // Controlled open state — нужен useSeenTracker и useMarkAsReadBatch
   const [isOpen, setIsOpen] = useState(false)
 
-  // B4: ref-map id → DOM-элемент для IntersectionObserver
   const itemRefsMap = useRef<Map<number, HTMLElement>>(new Map())
 
-  // B4: ids непрочитанных для отслеживания
   const unreadIds = items.filter(i => !i.isRead).map(i => i.id)
 
-  // B4: батч mark-as-read — flush при закрытии и debounce 2s
   const { addSeenId, flushNow } = useMarkAsReadBatch({
     isOpen,
     onFlush: useCallback((ids: number[]) => onMarkAsRead(ids), [onMarkAsRead]),
   })
 
-  // B4: IntersectionObserver seen-tracking
   useSeenTracker({
     itemRefs: itemRefsMap,
     unreadIds,
@@ -54,11 +49,9 @@ export const HeaderControls = () => {
     setIsOpen(open)
   }, [])
 
-  // B4 fallback: seen по клику когда IntersectionObserver недоступен
   const handleSeenFallback = useCallback(
     (id: number) => {
       addSeenId(id)
-      // Немедленный flush при явном действии
       void flushNow()
     },
     [addSeenId, flushNow]
@@ -73,7 +66,6 @@ export const HeaderControls = () => {
       <NotificationButton
         notifications={items.map(toUiNotification)}
         unreadCount={unreadCount}
-        hasMore={hasMore}
         isLoading={isLoading}
         isOpen={isOpen}
         onOpenChange={handleOpenChange}
