@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { Button, CheckboxRadix, Modal, Typography } from '@/shared/ui'
+import { clsx } from 'clsx'
 import { useTranslations } from 'next-intl'
 
 import s from './PaymentModals.module.scss'
@@ -10,10 +11,15 @@ interface Props {
   open: boolean
   onClose: () => void
   onConfirm: () => void
-  isSubmitting?: boolean
+  isPaymentCreating?: boolean
 }
 
-export function PaymentConfirmationModal({ open, onClose, onConfirm, isSubmitting }: Props) {
+export function PaymentConfirmationModal({
+  open,
+  onClose,
+  onConfirm,
+  isPaymentCreating = false,
+}: Props) {
   const t = useTranslations('subscriptions.account')
   const [isAgreed, setIsAgreed] = useState(false)
 
@@ -23,21 +29,50 @@ export function PaymentConfirmationModal({ open, onClose, onConfirm, isSubmittin
     }
   }, [open])
 
-  return (
-    <Modal open={open} onClose={onClose} className={s.modal} modalTitle={t('autoRenewTitle')}>
-      <div className={s.content}>
-        <Typography variant={'regular_16'}>{t('autoRenewText')}</Typography>
+  const handleClose = () => {
+    if (isPaymentCreating) {
+      return
+    }
 
-        <div className={s.actions}>
-          <CheckboxRadix
-            className={s.checkbox}
-            label={t('agree')}
-            checked={isAgreed}
-            onCheckedChange={value => setIsAgreed(value === true)}
-          />
-          <Button onClick={onConfirm} disabled={!isAgreed || isSubmitting}>
-            {isSubmitting ? t('sending') : t('ok')}
-          </Button>
+    onClose()
+  }
+
+  const renderPaymentCreationState = () => (
+    <span
+      className={clsx(s.processingSpinner, s.paymentCreationSpinner)}
+      aria-label={t('paymentCreationInProgress')}
+      role={'status'}
+    />
+  )
+
+  const renderConfirmationActions = () => (
+    <>
+      <CheckboxRadix
+        className={s.checkbox}
+        label={t('agree')}
+        checked={isAgreed}
+        onCheckedChange={value => setIsAgreed(value === true)}
+      />
+      <Button onClick={onConfirm} disabled={!isAgreed}>
+        {t('ok')}
+      </Button>
+    </>
+  )
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      className={clsx(s.modal, isPaymentCreating && s.modalLocked)}
+      modalTitle={t('autoRenewTitle')}
+    >
+      <div className={s.content}>
+        <Typography variant={'regular_16'}>
+          {isPaymentCreating ? t('paymentCreationStarted') : t('autoRenewText')}
+        </Typography>
+
+        <div className={clsx(s.actions, isPaymentCreating && s.actionsCentered)}>
+          {isPaymentCreating ? renderPaymentCreationState() : renderConfirmationActions()}
         </div>
       </div>
     </Modal>

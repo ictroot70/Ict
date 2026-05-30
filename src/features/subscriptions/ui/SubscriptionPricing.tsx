@@ -64,7 +64,7 @@ export function SubscriptionPricing({
 
   return (
     <div className={styles.root}>
-      <SubscriptionCurrentSection>
+      <SubscriptionCurrentSection isPaymentLocked={isPaymentLocked}>
         {accountTypeSlot}
 
         <section className={styles.section}>

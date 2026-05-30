@@ -12,9 +12,10 @@ import styles from './SubscriptionPricing.module.scss'
 
 type Props = {
   children: ReactNode
+  isPaymentLocked?: boolean
 }
 
-export const SubscriptionCurrentSection = ({ children }: Props) => {
+export const SubscriptionCurrentSection = ({ children, isPaymentLocked = false }: Props) => {
   const {
     subscriptions,
     hasAutoRenewal,
@@ -199,8 +200,16 @@ export const SubscriptionCurrentSection = ({ children }: Props) => {
               required={false}
               label={'Auto-Renewal'}
               checked={hasAutoRenewal}
-              disabled={isToggleDisabled || shouldShowCurrentSubscriptionFallback}
-              onCheckedChange={() => void toggleAutoRenewal()}
+              disabled={
+                isPaymentLocked || isToggleDisabled || shouldShowCurrentSubscriptionFallback
+              }
+              onCheckedChange={() => {
+                if (isPaymentLocked || isToggleDisabled || shouldShowCurrentSubscriptionFallback) {
+                  return
+                }
+
+                void toggleAutoRenewal()
+              }}
             />
             {isToggleLoading && (
               <span

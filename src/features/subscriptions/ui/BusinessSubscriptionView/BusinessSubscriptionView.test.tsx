@@ -12,13 +12,16 @@ vi.mock('@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection', () 
   AccountTypeSection: ({
     selectedType,
     accountTypes,
+    disabled,
   }: {
     selectedType: string
     accountTypes: Array<{ value: string; disabled?: boolean }>
+    disabled?: boolean
   }) =>
     React.createElement(
       'div',
       {
+        'data-disabled': String(Boolean(disabled)),
         'data-testid': 'account-type-section',
         'data-selected': selectedType,
       },
@@ -91,5 +94,16 @@ describe('BusinessSubscriptionView', () => {
     )
 
     expect(screen.getByTestId('personal-disabled').textContent).toBe('false')
+  })
+
+  it('disables account type controls while payment is locked', () => {
+    render(
+      React.createElement(BusinessSubscriptionView, {
+        ...mockProps,
+        isPaymentLocked: true,
+      })
+    )
+
+    expect(screen.getByTestId('account-type-section').getAttribute('data-disabled')).toBe('true')
   })
 })
