@@ -20,6 +20,7 @@ export const baseApi = createApi({
     'CountriesWithCities',
     'Cities',
     'Countries',
+    'Notifications',
   ],
 })
 
