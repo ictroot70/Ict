@@ -14,17 +14,14 @@ export const PersonalView: React.FC<PersonalViewProps> = ({
   accountType,
   onAccountTypeChange,
   disabled,
-}) => {
-  return (
-    <>
-      <AccountTypeSection
-        accountTypes={[
-          { value: 'personal', label: 'Personal' },
-          { value: 'business', label: 'Business' },
-        ]}
-        selectedType={accountType}
-        onTypeChange={onAccountTypeChange}
-      />
-    </>
-  )
-}
+}) => (
+  <AccountTypeSection
+    accountTypes={[
+      { value: 'personal', label: 'Personal' },
+      { value: 'business', label: 'Business' },
+    ]}
+    selectedType={accountType}
+    onTypeChange={onAccountTypeChange}
+    disabled={disabled}
+  />
+)
