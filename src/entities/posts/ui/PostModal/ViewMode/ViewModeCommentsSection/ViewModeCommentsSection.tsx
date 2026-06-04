@@ -1,7 +1,9 @@
+import type { CommentThreadItem } from '@/entities/posts/hooks/usePostModal'
+
 import React from 'react'
 
 import { Avatar } from '@/shared/composites'
-import { Button, Typography, Separator, HeartOutline } from '@/shared/ui'
+import { Button, HeartOutline, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
@@ -10,8 +12,9 @@ interface CommentsSectionProps {
     avatar: string
     userName: string
     description: string
+    createdAt: string
   }
-  comments: string[]
+  comments: CommentThreadItem[]
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postData, comments }) => {
@@ -31,15 +34,15 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postDa
           </div>
         </div>
 
-        {comments.map((comment, index) => (
-          <div className={s.comment} key={index}>
+        {comments.map(comment => (
+          <div className={s.comment} key={comment.id}>
             <Avatar size={36} image={postData.avatar} />
             <div>
               <Typography variant={'regular_14'} color={'light'}>
-                <strong>UserName</strong> {comment}
+                <strong>{comment.userName}</strong> {comment.content}
               </Typography>
               <Typography variant={'small_text'} className={s.commentTimestamp}>
-                2 minutes ago
+                {comment.createdAt}
               </Typography>
             </div>
             <Button variant={'text'} className={s.commentLikeButton}>

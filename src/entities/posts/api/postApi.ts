@@ -10,14 +10,14 @@ import {
   UpdateLikeStatusDto,
   UpdatePostInputDto,
 } from '@/entities/posts/api/posts.types'
+import { API_ROUTES } from '@/shared/api'
+import { baseApi } from '@/shared/api/base-api'
 import {
   AnswersViewModel,
   CommentsViewModel,
   CreateAnswerDto,
   CreateCommentDto,
 } from '@/shared/types'
-import { API_ROUTES } from '@/shared/api'
-import { baseApi } from '@/shared/api/base-api'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0

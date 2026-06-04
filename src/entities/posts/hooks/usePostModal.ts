@@ -32,8 +32,27 @@ const postModalTextByLanguage = {
   },
 } as const
 
+export type CommentThreadAnswer = {
+  id: number | string
+  content: string
+  createdAt: string
+  userName: string
+  avatar?: string
+  isOptimistic?: boolean
+}
+
+export type CommentThreadItem = {
+  id: number | string
+  content: string
+  createdAt: string
+  userName: string
+  avatar?: string
+  isOptimistic?: boolean
+  answers: CommentThreadAnswer[]
+}
+
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
-  const [comments, setComments] = useState<string[]>([])
+  const [comments, setComments] = useState<CommentThreadItem[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
@@ -124,7 +143,17 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     if (!trimmed) {
       return
     }
-    setComments(prev => [...prev, trimmed])
+
+    const optimisticComment: CommentThreadItem = {
+      id: `local-comment-${Date.now()}`,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+      userName: user?.name ?? 'UserName',
+      isOptimistic: true,
+      answers: [],
+    }
+
+    setComments(prev => [...prev, optimisticComment])
     resetComment()
   }
 

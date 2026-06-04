@@ -1,3 +1,5 @@
+import type { CommentThreadItem } from '@/entities/posts/hooks/usePostModal'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
@@ -18,7 +20,7 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[]
+  comments: CommentThreadItem[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
