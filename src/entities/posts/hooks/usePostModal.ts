@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import { useCreateCommentMutation, useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
@@ -11,6 +11,7 @@ import {
   CommentFormData,
   DescriptionFormData,
   PostViewModel,
+  CommentsViewModel,
 } from '@/shared/types'
 
 type UiLanguage = 'en' | 'rus'
@@ -94,6 +95,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
+  const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
+
   const isOwnProfile = Boolean(
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
@@ -137,15 +140,32 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }, [])
 
-  const handlePublish = (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
+  const mapCreatedCommentToThreadItem = (comment: CommentsViewModel): CommentThreadItem => {
+    const author = comment.from as CommentsViewModel['from'] & { username?: string }
 
-    if (!trimmed) {
+    return {
+      id: comment.id,
+      content: comment.content,
+      createdAt: comment.createdAt,
+      userName: author.userName ?? author.username ?? 'UserName',
+      avatar: author.avatars?.[0]?.url,
+      isOptimistic: false,
+      answers: [],
+    }
+  }
+
+  const handlePublish = async (data: CommentFormData) => {
+    const trimmed = data.comment.trim()
+    const numericPostId = Number(postModalData.postId)
+
+    if (!trimmed || !Number.isInteger(numericPostId) || isCreateCommentLoading) {
       return
     }
 
+    const optimisticId = `local-comment-${Date.now()}`
+
     const optimisticComment: CommentThreadItem = {
-      id: `local-comment-${Date.now()}`,
+      id: optimisticId,
       content: trimmed,
       createdAt: new Date().toISOString(),
       userName: user?.name ?? 'UserName',
@@ -155,6 +175,22 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
     setComments(prev => [...prev, optimisticComment])
     resetComment()
+
+    try {
+      const createdComment = await createComment({
+        postId: numericPostId,
+        body: { content: trimmed },
+      }).unwrap()
+
+      setComments(prev =>
+        prev.map(comment =>
+          comment.id === optimisticId ? mapCreatedCommentToThreadItem(createdComment) : comment
+        )
+      )
+    } catch {
+      setComments(prev => prev.filter(comment => comment.id !== optimisticId))
+      showToastAlert({ message: 'Failed to publish comment', type: 'error' })
+    }
   }
 
   const handleEditPost = () => {
@@ -209,6 +245,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     postData: postModalData,
     variant,
     isAuthLoading: isAuthUiLoading,
+    isCreateCommentLoading,
     isAuthenticated: isAuthenticatedUi,
     isOwnProfile,
     hasPostData,

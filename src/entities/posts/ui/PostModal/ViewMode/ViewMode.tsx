@@ -27,6 +27,7 @@ interface ViewModeProps {
   handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
 }
@@ -44,6 +45,7 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isCreateCommentLoading,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
@@ -74,6 +76,7 @@ export const ViewMode = ({
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
+          isCreateCommentLoading={isCreateCommentLoading}
         />
       </div>
     </div>

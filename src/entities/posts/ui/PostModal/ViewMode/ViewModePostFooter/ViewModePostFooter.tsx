@@ -23,6 +23,7 @@ interface PostFooterProps {
   watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
 }
 
 export const ViewModePostFooter: React.FC<PostFooterProps> = ({
@@ -33,6 +34,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
   watchComment,
   handlePublish,
   isAuthLoading,
+  isCreateCommentLoading,
 }) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
@@ -104,7 +106,11 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
                 placeholder={'Add a Comment'}
                 className={s.input}
               />
-              <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
+              <Button
+                variant={'text'}
+                type={'submit'}
+                disabled={!watchComment('comment')?.trim() || isCreateCommentLoading}
+              >
                 Publish
               </Button>
             </form>

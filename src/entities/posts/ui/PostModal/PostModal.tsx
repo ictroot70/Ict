@@ -43,6 +43,7 @@ export const PostModal = ({
     postData,
     variant,
     isAuthLoading,
+    isCreateCommentLoading,
     isAuthenticated,
     isOwnProfile,
     hasPostData,
@@ -172,6 +173,7 @@ export const PostModal = ({
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
+        isCreateCommentLoading={isCreateCommentLoading}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
       />
