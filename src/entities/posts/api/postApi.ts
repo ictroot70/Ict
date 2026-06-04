@@ -10,6 +10,12 @@ import {
   UpdateLikeStatusDto,
   UpdatePostInputDto,
 } from '@/entities/posts/api/posts.types'
+import {
+  AnswersViewModel,
+  CommentsViewModel,
+  CreateAnswerDto,
+  CreateCommentDto,
+} from '@/shared/types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
 import { InfiniteData } from '@reduxjs/toolkit/query'
@@ -215,6 +221,33 @@ export const postApi = baseApi.injectEndpoints({
       },
     }),
 
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.CREATE_COMMENT(postId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Comments', id: postId },
+        { type: 'Post', id: postId },
+      ],
+    }),
+
+    createCommentAnswer: builder.mutation<
+      AnswersViewModel,
+      { postId: number; commentId: number; body: CreateAnswerDto }
+    >({
+      query: ({ postId, commentId, body }) => ({
+        url: API_ROUTES.POSTS.CREATE_ANSWER_COMMENT(postId, commentId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Comments', id: postId },
+        { type: 'Post', id: postId },
+      ],
+    }),
+
     uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
       query: formData => ({
         url: API_ROUTES.POSTS.IMAGE,
@@ -334,6 +367,8 @@ export const {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useCreateCommentMutation,
+  useCreateCommentAnswerMutation,
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,

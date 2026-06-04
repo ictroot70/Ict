@@ -53,6 +53,7 @@ export interface PostViewModel {
 }
 
 // Комментарии
+
 export interface BaseComment {
   id: number
   from: UserBase
@@ -72,6 +73,10 @@ export interface AnswersViewModel extends BaseComment {
 }
 
 export interface CreateCommentDto {
+  content: string
+}
+
+export interface CreateAnswerDto {
   content: string
 }
 
