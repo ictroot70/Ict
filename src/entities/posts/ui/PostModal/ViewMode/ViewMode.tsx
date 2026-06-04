@@ -30,6 +30,7 @@ interface ViewModeProps {
   isCreateCommentLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
+  commentMaxLength: number
 }
 
 export const ViewMode = ({
@@ -46,6 +47,7 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isCreateCommentLoading,
+  commentMaxLength,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
@@ -77,6 +79,7 @@ export const ViewMode = ({
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
           isCreateCommentLoading={isCreateCommentLoading}
+          commentMaxLength={commentMaxLength}
         />
       </div>
     </div>

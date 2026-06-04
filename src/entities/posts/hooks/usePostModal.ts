@@ -42,6 +42,8 @@ export type CommentThreadAnswer = {
   isOptimistic?: boolean
 }
 
+const COMMENT_MAX_LENGTH = 300
+
 export type CommentThreadItem = {
   id: number | string
   content: string
@@ -158,7 +160,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     const trimmed = data.comment.trim()
     const numericPostId = Number(postModalData.postId)
 
-    if (!trimmed || !Number.isInteger(numericPostId) || isCreateCommentLoading) {
+    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
+
+    if (!isCommentValid || !Number.isInteger(numericPostId) || isCreateCommentLoading) {
       return
     }
 
@@ -246,6 +250,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     variant,
     isAuthLoading: isAuthUiLoading,
     isCreateCommentLoading,
+    commentMaxLength: COMMENT_MAX_LENGTH,
     isAuthenticated: isAuthenticatedUi,
     isOwnProfile,
     hasPostData,

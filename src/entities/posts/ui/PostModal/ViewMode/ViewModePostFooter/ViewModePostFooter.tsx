@@ -24,6 +24,7 @@ interface PostFooterProps {
   handlePublish: (data: CommentFormData) => void
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
+  commentMaxLength: number
 }
 
 export const ViewModePostFooter: React.FC<PostFooterProps> = ({
@@ -35,9 +36,15 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
   handlePublish,
   isAuthLoading,
   isCreateCommentLoading,
+  commentMaxLength,
 }) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
+
+  const commentText = watchComment('comment') ?? ''
+  const trimmedCommentText = commentText.trim()
+  const isCommentInvalid =
+    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
 
   return (
     <div className={s.footer}>
@@ -105,11 +112,12 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
                 inputType={'text'}
                 placeholder={'Add a Comment'}
                 className={s.input}
+                maxLength={commentMaxLength}
               />
               <Button
                 variant={'text'}
                 type={'submit'}
-                disabled={!watchComment('comment')?.trim() || isCreateCommentLoading}
+                disabled={isCommentInvalid || isCreateCommentLoading}
               >
                 Publish
               </Button>

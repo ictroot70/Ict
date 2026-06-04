@@ -56,6 +56,7 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    commentMaxLength,
   } = usePostModal(open, initialPostData, postId)
 
   const handleSaveDescription = async ({
@@ -174,6 +175,7 @@ export const PostModal = ({
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}
+        commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
       />
