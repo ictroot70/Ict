@@ -1,8 +1,11 @@
-/* eslint-disable max-lines */
 import {
   CreatePostInputDto,
+  GetCommentAnswersParams,
+  GetCommentsParams,
   GetPostsByUserParams,
   GetPostsParams,
+  PaginatedAnswersResponse,
+  PaginatedCommentsResponse,
   PaginatedPosts,
   PaginatedResponse,
   PostImageViewModel,
@@ -10,8 +13,20 @@ import {
   UpdateLikeStatusDto,
   UpdatePostInputDto,
 } from '@/entities/posts/api/posts.types'
+import {
+  COMMENTS_PAGE_SIZE,
+  getAnswersNextPageParam,
+  getCommentsNextPageParam,
+  incrementCommentAnswerCount,
+  patchAnswerLikeInPages,
+  patchCommentLikeInPages,
+  patchPostLikeFields,
+  prependAnswerToPages,
+  prependCommentToPages,
+} from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
+import { AnswersViewModel, CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
@@ -318,14 +333,211 @@ export const postApi = baseApi.injectEndpoints({
 
     updateLikeStatus: builder.mutation<
       PostViewModel,
-      { postId: number; data: UpdateLikeStatusDto }
+      { postId: number; data: UpdateLikeStatusDto; userId?: number }
     >({
       query: ({ postId, data }) => ({
         url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
+      async onQueryStarted({ postId, data, userId }, { dispatch, queryFulfilled }) {
+        const postByIdPatchResult = dispatch(
+          postApi.util.updateQueryData('getPostById', postId, draft => {
+            patchPostLikeFields(draft, data.likeStatus)
+          })
+        )
+
+        const userPostsPatchResult =
+          isValidUserId(userId ?? 0) &&
+          dispatch(
+            postApi.util.updateQueryData(
+              'getInfinitePostsByUser',
+              { userId: userId as number },
+              (draft: InfiniteData<PaginatedPosts, null | number>) => {
+                for (const page of draft.pages) {
+                  const post = page.items.find(item => item.id === postId)
+
+                  if (post) {
+                    patchPostLikeFields(post, data.likeStatus)
+                    break
+                  }
+                }
+              }
+            )
+          )
+
+        try {
+          await queryFulfilled
+        } catch {
+          postByIdPatchResult.undo()
+
+          if (userPostsPatchResult) {
+            userPostsPatchResult.undo()
+          }
+        }
+      },
+    }),
+
+    getPostComments: builder.infiniteQuery<PaginatedCommentsResponse, GetCommentsParams, number>({
+      infiniteQueryOptions: {
+        initialPageParam: 1,
+        getNextPageParam: getCommentsNextPageParam,
+      },
+      query: ({ pageParam, queryArg }) => ({
+        url: API_ROUTES.POSTS.COMMENTS(queryArg.postId),
+        params: {
+          pageSize: queryArg.pageSize ?? COMMENTS_PAGE_SIZE,
+          pageNumber: pageParam,
+          sortDirection: queryArg.sortDirection ?? 'desc',
+          sortBy: queryArg.sortBy,
+        },
+      }),
+      providesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
+      serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.postId}`,
+    }),
+
+    getCommentAnswers: builder.infiniteQuery<
+      PaginatedAnswersResponse,
+      GetCommentAnswersParams,
+      number
+    >({
+      infiniteQueryOptions: {
+        initialPageParam: 1,
+        getNextPageParam: getAnswersNextPageParam,
+      },
+      query: ({ pageParam, queryArg }) => ({
+        url: API_ROUTES.POSTS.COMMENT_ANSWERS(queryArg.postId, queryArg.commentId),
+        params: {
+          pageSize: queryArg.pageSize ?? COMMENTS_PAGE_SIZE,
+          pageNumber: pageParam,
+          sortDirection: queryArg.sortDirection ?? 'desc',
+          sortBy: queryArg.sortBy,
+        },
+      }),
+      providesTags: (result, error, { postId, commentId }) => [
+        { type: 'Comments', id: `${postId}-${commentId}` },
+      ],
+      serializeQueryArgs: ({ endpointName, queryArgs }) =>
+        `${endpointName}-${queryArgs.postId}-${queryArgs.commentId}`,
+    }),
+
+    updateCommentLikeStatus: builder.mutation<
+      void,
+      { postId: number; commentId: number; data: UpdateLikeStatusDto }
+    >({
+      query: ({ postId, commentId, data }) => ({
+        url: API_ROUTES.POSTS.LIKE_STATUS_COMMENT(postId, commentId),
+        method: 'PUT',
+        body: data,
+      }),
+      async onQueryStarted({ postId, commentId, data }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getPostComments',
+            { postId, pageSize: COMMENTS_PAGE_SIZE },
+            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+              patchCommentLikeInPages(draft, commentId, data.likeStatus)
+            }
+          )
+        )
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+    }),
+
+    updateAnswerLikeStatus: builder.mutation<
+      void,
+      { postId: number; commentId: number; answerId: number; data: UpdateLikeStatusDto }
+    >({
+      query: ({ postId, commentId, answerId, data }) => ({
+        url: API_ROUTES.POSTS.LIKE_STATUS_ANSWER(postId, commentId, answerId),
+        method: 'PUT',
+        body: data,
+      }),
+      async onQueryStarted({ postId, commentId, answerId, data }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getCommentAnswers',
+            { postId, commentId, pageSize: COMMENTS_PAGE_SIZE },
+            (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
+              patchAnswerLikeInPages(draft, answerId, data.likeStatus)
+            }
+          )
+        )
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+    }),
+
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.CREATE_COMMENT(postId),
+        method: 'POST',
+        body,
+      }),
+      async onQueryStarted({ postId }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: createdComment } = await queryFulfilled
+
+          dispatch(
+            postApi.util.updateQueryData(
+              'getPostComments',
+              { postId, pageSize: COMMENTS_PAGE_SIZE },
+              (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+                prependCommentToPages(draft, createdComment)
+              }
+            )
+          )
+        } catch {
+          // handled by caller
+        }
+      },
+    }),
+
+    createAnswer: builder.mutation<
+      AnswersViewModel,
+      { postId: number; commentId: number; body: CreateCommentDto }
+    >({
+      query: ({ postId, commentId, body }) => ({
+        url: API_ROUTES.POSTS.CREATE_ANSWER_COMMENT(postId, commentId),
+        method: 'POST',
+        body,
+      }),
+      async onQueryStarted({ postId, commentId }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: createdAnswer } = await queryFulfilled
+
+          dispatch(
+            postApi.util.updateQueryData(
+              'getCommentAnswers',
+              { postId, commentId, pageSize: COMMENTS_PAGE_SIZE },
+              (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
+                prependAnswerToPages(draft, createdAnswer)
+              }
+            )
+          )
+
+          dispatch(
+            postApi.util.updateQueryData(
+              'getPostComments',
+              { postId, pageSize: COMMENTS_PAGE_SIZE },
+              (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+                incrementCommentAnswerCount(draft, commentId)
+              }
+            )
+          )
+        } catch {
+          // handled by caller
+        }
+      },
     }),
   }),
 })
@@ -342,4 +554,10 @@ export const {
   useLazyGetPostsByUserQuery,
   useGetPostsQuery,
   useUpdateLikeStatusMutation,
+  useGetPostCommentsInfiniteQuery,
+  useGetCommentAnswersInfiniteQuery,
+  useUpdateCommentLikeStatusMutation,
+  useUpdateAnswerLikeStatusMutation,
+  useCreateCommentMutation,
+  useCreateAnswerMutation,
 } = postApi

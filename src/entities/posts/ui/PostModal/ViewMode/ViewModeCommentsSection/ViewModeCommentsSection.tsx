@@ -1,52 +1,84 @@
+'use client'
+
 import React from 'react'
 
-import { Avatar } from '@/shared/composites'
-import { Button, Typography, Separator, HeartOutline } from '@/shared/ui'
+import { usePostComments } from '@/entities/posts/hooks'
+import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
+import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
+import { PostModalData } from '@/shared/types'
+import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
+import { CommentItem } from './CommentItem'
+
 interface CommentsSectionProps {
-  postData: {
-    avatar: string
-    userName: string
-    description: string
-  }
-  comments: string[]
+  postData: PostModalData
+  postId: number
+  isAuthenticated: boolean
+  currentUserId?: number
+  enabled: boolean
 }
 
-export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postData, comments }) => {
+export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
+  postData,
+  postId,
+  isAuthenticated,
+  currentUserId,
+  enabled,
+}) => {
+  const descriptionTimeAgo = useTimeAgo(postData.createdAt)
+  const { comments, loadMore, hasNextPage, isLoading, isFetchingNextPage, isError, totalCount } =
+    usePostComments(postId, enabled, currentUserId)
+
   return (
     <>
       <Separator />
       <div className={s.comments}>
         <div className={s.comment}>
-          <Avatar size={36} image={postData.avatar} />
-          <div>
+          <Avatar size={36} image={postData.avatar} alt={postData.userName} />
+          <div className={s.commentBody}>
             <Typography variant={'regular_14'} color={'light'} className={s.description}>
               <strong>{postData.userName}</strong> {postData.description}
             </Typography>
             <Typography variant={'small_text'} className={s.commentTimestamp}>
-              2 minutes ago
+              {descriptionTimeAgo}
             </Typography>
           </div>
         </div>
 
-        {comments.map((comment, index) => (
-          <div className={s.comment} key={index}>
-            <Avatar size={36} image={postData.avatar} />
-            <div>
-              <Typography variant={'regular_14'} color={'light'}>
-                <strong>UserName</strong> {comment}
-              </Typography>
-              <Typography variant={'small_text'} className={s.commentTimestamp}>
-                2 minutes ago
-              </Typography>
-            </div>
-            <Button variant={'text'} className={s.commentLikeButton}>
-              <HeartOutline size={16} color={'white'} />
-            </Button>
-          </div>
-        ))}
+        {isLoading && (
+          <Typography variant={'small_text'} className={s.commentTimestamp}>
+            Loading comments...
+          </Typography>
+        )}
+
+        {isError && (
+          <Typography variant={'small_text'} className={s.commentTimestamp}>
+            Failed to load comments
+          </Typography>
+        )}
+
+        {!isLoading &&
+          comments.map(comment => (
+            <CommentItem
+              key={comment.id}
+              postId={postId}
+              comment={comment}
+              isAuthenticated={isAuthenticated}
+            />
+          ))}
+
+        {hasNextPage && (
+          <>
+            <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
+            {!isFetchingNextPage && totalCount > comments.length && (
+              <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
+                Load more comments
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </>
   )

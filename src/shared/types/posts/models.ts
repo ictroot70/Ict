@@ -1,7 +1,6 @@
 import { UserImage } from '@/entities/users/api/api.types'
 
 import { LikeStatus } from '../base/enums'
-import { UserBase } from '../user/models'
 
 export interface PostImageViewModel {
   url: string
@@ -52,28 +51,12 @@ export interface PostViewModel {
   avatarWhoLikes: string[]
 }
 
-// Комментарии
-export interface BaseComment {
-  id: number
-  from: UserBase
-  content: string
-  createdAt: string
-  likeCount: number
-  isLiked: boolean
-}
-
-export interface CommentsViewModel extends BaseComment {
-  postId: number
-  answerCount: number
-}
-
-export interface AnswersViewModel extends BaseComment {
-  commentId: number
-}
-
-export interface CreateCommentDto {
-  content: string
-}
+export type {
+  AnswersViewModel,
+  BaseComment,
+  CommentsViewModel,
+  CreateCommentDto,
+} from '../comments'
 
 export interface PublicationsFollowersWithPaginationViewModel {
   totalCount: number
@@ -114,6 +97,9 @@ export interface PostModalData {
   createdAt: string
   postId: string
   ownerId?: number
+  likesCount: number
+  isLiked: boolean
+  avatarWhoLikes: string[]
 }
 
 export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
@@ -124,4 +110,7 @@ export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
   createdAt: post.createdAt,
   postId: post.id.toString(),
   ownerId: post.ownerId,
+  likesCount: post.likesCount,
+  isLiked: post.isLiked,
+  avatarWhoLikes: post.avatarWhoLikes ?? [],
 })

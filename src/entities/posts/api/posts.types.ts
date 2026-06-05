@@ -1,3 +1,5 @@
+import { AnswersViewModel, CommentsViewModel, LikeStatus } from '@/shared/types/comments'
+
 export type PostImageViewModel = {
   url: string
   width: number
@@ -46,7 +48,7 @@ export type UploadedImageViewModel = {
 }
 
 export type UpdateLikeStatusDto = {
-  likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
+  likeStatus: LikeStatus
 }
 
 export type PaginatedResponse<T> = {
@@ -71,4 +73,27 @@ export type GetPostsByUserParams = CommonPostParams & {
 export type GetPostsParams = CommonPostParams & {
   param: string
   pageNumber?: number
+}
+
+export type PaginatedCommentsResponse = {
+  pageSize: number
+  totalCount: number
+  notReadCount?: number
+  items: CommentsViewModel[]
+}
+
+export type PaginatedAnswersResponse = {
+  pageSize: number
+  totalCount: number
+  notReadCount?: number
+  items: AnswersViewModel[]
+}
+
+export type GetCommentsParams = CommonPostParams & {
+  postId: number
+}
+
+export type GetCommentAnswersParams = CommonPostParams & {
+  postId: number
+  commentId: number
 }

@@ -30,7 +30,6 @@ export const PostModal = ({
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,
@@ -55,6 +54,12 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    isPublishingComment,
+    currentUserId,
+    resolvedPostId,
+    commentMaxLength,
+    handleTogglePostLike,
+    isPostLikeLoading,
   } = usePostModal(open, initialPostData, postId)
 
   const handleSaveDescription = async ({
@@ -160,11 +165,11 @@ export const PostModal = ({
       <ViewMode
         onClose={handleCloseModal}
         postData={postData}
+        postId={resolvedPostId ?? Number(postData.postId)}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
         isEditing={isEditing}
-        comments={comments}
         commentControl={commentControl}
         handleCommentSubmit={handleCommentSubmit}
         watchComment={watchComment}
@@ -174,6 +179,12 @@ export const PostModal = ({
         isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
+        currentUserId={currentUserId}
+        isPublishingComment={isPublishingComment}
+        commentMaxLength={commentMaxLength}
+        commentsEnabled={open && hasPostData}
+        isPostLikeLoading={isPostLikeLoading}
+        onTogglePostLike={handleTogglePostLike}
       />
     )
   }

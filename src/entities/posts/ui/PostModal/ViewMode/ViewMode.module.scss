@@ -97,8 +97,33 @@
   padding: 8px 0;
 }
 
+.commentBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+}
+
 .commentTimestamp {
   color: var(--color-light-900);
+}
+
+.commentLikeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
 }
 
 .commentLikeButton {
@@ -107,7 +132,49 @@
   width: 16px;
   height: 16px;
   padding-top: 10px;
-  margin-left: auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.likeCount {
+  color: var(--color-light-900);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.replies {
+  display: flex;
+  flex-direction: column;
+  margin-left: 44px;
+  padding-left: 0;
+}
+
+.replyInputForm {
+  display: flex;
+  align-items: center;
+  margin-left: 44px;
+  margin-bottom: 4px;
+}
+
+.replyButton,
+.viewRepliesButton,
+.loadMoreButton {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  color: var(--color-light-900);
+  font-size: 12px;
+}
+
+.viewRepliesButton {
+  margin-left: 44px;
+  margin-bottom: 4px;
+}
+
+.loadMoreButton {
+  align-self: flex-start;
+  margin-top: 4px;
 }
 
 .footer {
@@ -161,20 +228,8 @@
   border-radius: 50%;
 }
 
-.likeAvatar1 {
-  background: var(--color-danger-700);
-}
-
-.likeAvatar2 {
-  background: rgba(255, 255, 255, 0.77);
+.likeAvatarOverlap {
   margin-left: -8px;
-  z-index: -1;
-}
-
-.likeAvatar3 {
-  background: var(--color-primary-500);
-  margin-left: -8px;
-  z-index: -2;
 }
 
 .timestamp {

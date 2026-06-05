@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import {
+  useCreateCommentMutation,
+  useUpdateLikeStatusMutation,
+  useGetPostByIdQuery,
+} from '@/entities/posts/api/postApi'
+import { getNextLikeStatus, patchPostLikeFields } from '@/entities/posts/lib/comment-likes'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
@@ -12,6 +17,8 @@ import {
   DescriptionFormData,
   PostViewModel,
 } from '@/shared/types'
+import { COMMENT_CONTENT_MAX, commentFormSchema } from '@/shared/types/comments'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -22,6 +29,7 @@ const postModalTextByLanguage = {
     notFoundPost: 'Post not found or unavailable',
     copySuccess: 'Link copied',
     copyError: 'Failed to copy link',
+    commentError: 'Failed to publish comment',
   },
   rus: {
     loadingPost: 'Загрузка поста...',
@@ -29,11 +37,11 @@ const postModalTextByLanguage = {
     notFoundPost: 'Пост не найден или недоступен',
     copySuccess: 'Ссылка скопирована',
     copyError: 'Не удалось скопировать ссылку',
+    commentError: 'Не удалось опубликовать комментарий',
   },
 } as const
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
-  const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
@@ -44,6 +52,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     watch: watchComment,
   } = useForm<CommentFormData>({
     defaultValues: { comment: '' },
+    resolver: zodResolver(commentFormSchema),
+    mode: 'onChange',
   })
 
   const {
@@ -74,6 +84,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const uiText = postModalTextByLanguage[uiLanguage]
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const [createComment, { isLoading: isPublishingComment }] = useCreateCommentMutation()
+  const [updatePostLike, { isLoading: isPostLikeLoading }] = useUpdateLikeStatusMutation()
 
   const isOwnProfile = Boolean(
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
@@ -94,6 +106,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         createdAt: new Date().toISOString(),
         postId: '',
         ownerId: undefined,
+        likesCount: 0,
+        isLiked: false,
+        avatarWhoLikes: [],
       }
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
@@ -118,14 +133,43 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }, [])
 
-  const handlePublish = (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
-
-    if (!trimmed) {
+  const handleTogglePostLike = async () => {
+    if (!localPostData || !resolvedPostId) {
       return
     }
-    setComments(prev => [...prev, trimmed])
-    resetComment()
+
+    const previousPost = localPostData
+    const likeStatus = getNextLikeStatus(previousPost.isLiked)
+    const optimisticPost = { ...previousPost }
+
+    patchPostLikeFields(optimisticPost, likeStatus)
+    setLocalPostData(optimisticPost)
+
+    try {
+      await updatePostLike({
+        postId: resolvedPostId,
+        userId: previousPost.ownerId,
+        data: { likeStatus },
+      }).unwrap()
+    } catch {
+      setLocalPostData(previousPost)
+    }
+  }
+
+  const handlePublish = async (data: CommentFormData) => {
+    if (!resolvedPostId) {
+      return
+    }
+
+    try {
+      await createComment({
+        postId: resolvedPostId,
+        body: { content: data.comment.trim() },
+      }).unwrap()
+      resetComment()
+    } catch {
+      showToastAlert({ message: uiText.commentError, type: 'error' })
+    }
   }
 
   const handleEditPost = () => {
@@ -167,7 +211,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   return {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,
@@ -192,5 +235,11 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    isPublishingComment,
+    currentUserId: user?.userId,
+    resolvedPostId,
+    commentMaxLength: COMMENT_CONTENT_MAX,
+    handleTogglePostLike,
+    isPostLikeLoading,
   }
 }

@@ -13,12 +13,12 @@ import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 interface ViewModeProps {
   onClose: () => void
   postData: PostModalData
+  postId: number
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -27,23 +27,38 @@ interface ViewModeProps {
   isAuthLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
+  currentUserId?: number
+  isPublishingComment: boolean
+  commentMaxLength: number
+  commentsEnabled: boolean
+  isPostLikeLoading: boolean
+  onTogglePostLike: () => void
 }
 
 export const ViewMode = ({
   postData,
+  postId,
   variant,
   handleEditPost,
   handleDeletePost,
   onCopyLink,
-  comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isAuthenticated,
+  currentUserId,
+  isPublishingComment,
+  commentMaxLength,
+  commentsEnabled,
+  isPostLikeLoading,
+  onTogglePostLike,
 }: ViewModeProps) => {
-  const handleFollow = () => {}
+  const handleFollow = () => {
+    console.log('handleFollow')
+  }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -60,18 +75,29 @@ export const ViewMode = ({
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postData} comments={comments} />
+        <ViewModeCommentsSection
+          postData={postData}
+          postId={postId}
+          isAuthenticated={isAuthenticated}
+          currentUserId={currentUserId}
+          enabled={commentsEnabled}
+        />
 
         <Separator />
 
         <ViewModePostFooter
           variant={variant}
+          postData={postData}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
+          isPublishingComment={isPublishingComment}
+          isPostLikeLoading={isPostLikeLoading}
+          commentMaxLength={commentMaxLength}
+          onTogglePostLike={onTogglePostLike}
         />
       </div>
     </div>
