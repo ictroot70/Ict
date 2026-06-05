@@ -31,6 +31,7 @@ interface ViewModeProps {
   isAuthenticated: boolean
   isOwnProfile: boolean
   commentMaxLength: number
+  handleReplyPublish: (commentId: number | string, content: string) => void
 }
 
 export const ViewMode = ({
@@ -48,6 +49,7 @@ export const ViewMode = ({
   isAuthLoading,
   isCreateCommentLoading,
   commentMaxLength,
+  handleReplyPublish,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
@@ -66,7 +68,12 @@ export const ViewMode = ({
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postData} comments={comments} />
+        <ViewModeCommentsSection
+          postData={postData}
+          comments={comments}
+          handleReplyPublish={handleReplyPublish}
+          commentMaxLength={commentMaxLength}
+        />
 
         <Separator />
 

@@ -53,6 +53,7 @@ export const PostModal = ({
     formattedCreatedAt,
     handlePublish,
     handleEditPost,
+    handleReplyPublish,
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
@@ -178,6 +179,7 @@ export const PostModal = ({
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
+        handleReplyPublish={handleReplyPublish}
       />
     )
   }

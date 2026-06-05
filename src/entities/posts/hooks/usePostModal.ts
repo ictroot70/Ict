@@ -235,6 +235,33 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }
 
+  const handleReplyPublish = (commentId: number | string, content: string) => {
+    const trimmed = content.trim()
+
+    if (!trimmed || trimmed.length > COMMENT_MAX_LENGTH) {
+      return
+    }
+
+    const optimisticAnswer: CommentThreadAnswer = {
+      id: `local-answer-${Date.now()}`,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+      userName: user?.name ?? 'UserName',
+      isOptimistic: true,
+    }
+
+    setComments(prev =>
+      prev.map(comment =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              answers: [...comment.answers, optimisticAnswer],
+            }
+          : comment
+      )
+    )
+  }
+
   return {
     comments,
     isEditingDescription,
@@ -263,5 +290,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    handleReplyPublish,
   }
 }
