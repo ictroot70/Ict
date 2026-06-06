@@ -76,7 +76,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
         {comments.map(comment => (
           <div className={s.commentThread} key={comment.id}>
             <div className={s.comment}>
-              <Avatar size={36} image={comment.avatar ?? postData.avatar} />
+              <Avatar size={36} image={comment.avatar || ''} />
               <div className={s.commentContent}>
                 <Typography variant={'regular_14'} color={'light'}>
                   <strong>{comment.userName}</strong> {comment.content}
@@ -101,7 +101,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
 
             {comment.answers.map(answer => (
               <div className={s.answer} key={answer.id}>
-                <Avatar size={32} image={answer.avatar ?? postData.avatar} />
+                <Avatar size={32} image={answer.avatar || ''} />
                 <div>
                   <Typography variant={'regular_14'} color={'light'}>
                     <strong>{answer.userName}</strong> {answer.content}
