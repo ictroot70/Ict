@@ -49,6 +49,14 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
 
   const isReplySubmitting = (commentId: number | string) => replySubmittingCommentId === commentId
 
+  const formatCommentDate = (date: string) =>
+    new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(date))
+
   return (
     <>
       <Separator />
@@ -75,7 +83,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
                 </Typography>
                 <div className={s.commentMeta}>
                   <Typography variant={'small_text'} className={s.commentTimestamp}>
-                    {comment.createdAt}
+                    {formatCommentDate(comment.createdAt)}
                   </Typography>
                   <Button
                     variant={'text'}
@@ -99,7 +107,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
                     <strong>{answer.userName}</strong> {answer.content}
                   </Typography>
                   <Typography variant={'small_text'} className={s.commentTimestamp}>
-                    {answer.createdAt}
+                    {formatCommentDate(answer.createdAt)}
                   </Typography>
                 </div>
               </div>
