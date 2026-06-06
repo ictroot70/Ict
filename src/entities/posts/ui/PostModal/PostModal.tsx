@@ -44,6 +44,7 @@ export const PostModal = ({
     variant,
     isAuthLoading,
     isCreateCommentLoading,
+    replySubmittingCommentId,
     isAuthenticated,
     isOwnProfile,
     hasPostData,
@@ -176,6 +177,7 @@ export const PostModal = ({
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}
+        replySubmittingCommentId={replySubmittingCommentId}
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}

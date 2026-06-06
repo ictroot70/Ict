@@ -14,8 +14,9 @@ interface CommentsSectionProps {
     description: string
   }
   comments: CommentThreadItem[]
-  handleReplyPublish: (commentId: number | string, content: string) => void
+  handleReplyPublish: (commentId: number | string, content: string) => Promise<void>
   commentMaxLength: number
+  replySubmittingCommentId: number | string | null
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
@@ -23,6 +24,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
   comments,
   handleReplyPublish,
   commentMaxLength,
+  replySubmittingCommentId,
 }) => {
   const [activeReplyCommentId, setActiveReplyCommentId] = useState<number | string | null>(null)
   const [replyText, setReplyText] = useState('')
@@ -35,15 +37,17 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
     setReplyText('')
   }
 
-  const handleReplySubmit = (commentId: number | string) => {
-    if (isReplyInvalid) {
+  const handleReplySubmit = async (commentId: number | string) => {
+    if (isReplyInvalid || isReplySubmitting(commentId)) {
       return
     }
 
-    handleReplyPublish(commentId, trimmedReplyText)
+    await handleReplyPublish(commentId, trimmedReplyText)
     setReplyText('')
     setActiveReplyCommentId(null)
   }
+
+  const isReplySubmitting = (commentId: number | string) => replySubmittingCommentId === commentId
 
   return (
     <>
@@ -113,7 +117,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
                 <Button
                   variant={'text'}
                   type={'button'}
-                  disabled={isReplyInvalid}
+                  disabled={isReplyInvalid || isReplySubmitting(comment.id)}
                   onClick={() => handleReplySubmit(comment.id)}
                 >
                   Publish

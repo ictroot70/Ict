@@ -31,7 +31,8 @@ interface ViewModeProps {
   isAuthenticated: boolean
   isOwnProfile: boolean
   commentMaxLength: number
-  handleReplyPublish: (commentId: number | string, content: string) => void
+  handleReplyPublish: (commentId: number | string, content: string) => Promise<void>
+  replySubmittingCommentId: number | string | null
 }
 
 export const ViewMode = ({
@@ -50,6 +51,7 @@ export const ViewMode = ({
   isCreateCommentLoading,
   commentMaxLength,
   handleReplyPublish,
+  replySubmittingCommentId,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
@@ -73,6 +75,7 @@ export const ViewMode = ({
           comments={comments}
           handleReplyPublish={handleReplyPublish}
           commentMaxLength={commentMaxLength}
+          replySubmittingCommentId={replySubmittingCommentId}
         />
 
         <Separator />
