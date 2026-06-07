@@ -11,11 +11,16 @@ import { getNextLikeStatus, patchPostLikeFields } from '@/entities/posts/lib/com
 import { useGetMyProfileQuery } from '@/entities/profile/api'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-
 import { COMMENT_CONTENT_MAX, commentFormSchema } from '@/shared/types/comments'
+import {
+  CommentFormData,
+  DescriptionFormData,
+  PostVariant,
+  PostModalData,
+  mapPostToModalData,
+} from '@/shared/types/posts/models'
 import { UserBase } from '@/shared/types/user/models'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CommentFormData, DescriptionFormData, PostVariant, PostModalData, mapPostToModalData } from '@/shared/types/posts/models'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -100,17 +105,17 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const postModalData: PostModalData = postData
     ? mapPostToModalData(postData)
     : {
-      images: [],
-      userName: '',
-      avatar: '',
-      description: '',
-      createdAt: new Date().toISOString(),
-      postId: '',
-      ownerId: undefined,
-      likesCount: 0,
-      isLiked: false,
-      avatarWhoLikes: [],
-    }
+        images: [],
+        userName: '',
+        avatar: '',
+        description: '',
+        createdAt: new Date().toISOString(),
+        postId: '',
+        ownerId: undefined,
+        likesCount: 0,
+        isLiked: false,
+        avatarWhoLikes: [],
+      }
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -178,10 +183,10 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   const currentUser: UserBase | undefined = user
     ? {
-      id: user.userId,
-      userName: user.name,
-      avatars: myProfile?.avatars ?? [],
-    }
+        id: user.userId,
+        userName: user.name,
+        avatars: myProfile?.avatars ?? [],
+      }
     : undefined
 
   const handlePublish = async (data: CommentFormData) => {

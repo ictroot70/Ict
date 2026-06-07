@@ -4,14 +4,13 @@ import { ReactElement, useCallback, useLayoutEffect, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { usePostModal } from '@/entities/posts/hooks'
+import { PostModalHandlers } from '@/shared/types/posts/models'
 import { Close, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
-import { PostModalHandlers } from '@/shared/types/posts/models'
-
 
 interface Props extends PostModalHandlers {
   open: boolean
