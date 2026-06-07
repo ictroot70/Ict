@@ -102,3 +102,22 @@ export type GetPostsParams = CommonPostParams & {
   param: string
   pageNumber?: number
 }
+
+export type FollowersFeedParams = {
+  pageSize?: number
+}
+
+export type FollowersFeedResponse = {
+  totalCount: number
+  pagesCount: number
+  page: number
+  pageSize: number
+  prevCursor: number
+  nextCursor: number | null
+  items: PostViewModel[]
+}
+
+export type FollowersFeedPageParams = {
+  endCursorPostId: number
+  pageNumber: number
+}
