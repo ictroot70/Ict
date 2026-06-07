@@ -7,12 +7,14 @@ import { Typography } from '@/shared/ui'
 
 import s from './FeedPost.module.scss'
 
+import { FeedPostFooter } from './FeedPostFooter'
+
 type Props = {
   post: PostViewModel
 }
 
 export function FeedPost({ post }: Props) {
-  const { avatarOwner, userName, createdAt, images, description } = post
+  const { avatarOwner, userName, createdAt, images } = post
 
   const timeAgo = useTimeAgo(createdAt)
 
@@ -31,7 +33,7 @@ export function FeedPost({ post }: Props) {
         <Carousel slides={images} />
       </div>
 
-      <Typography variant={'regular_14'}>{description}</Typography>
+      <FeedPostFooter post={post} />
     </article>
   )
 }
