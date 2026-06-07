@@ -2,23 +2,31 @@
 
 import React from 'react'
 
-import { Button, HeartOutline, Typography } from '@/shared/ui'
+import { Button, HeartFilled, HeartOutline, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
+
+const LIKE_ACTIVE_COLOR = '#ED4956'
 
 interface CommentLikeButtonProps {
   isLiked: boolean
   likeCount: number
   isAuthenticated: boolean
-  isLoading?: boolean
   onToggle: () => void
+}
+
+const formatLikeCount = (count: number): string => {
+  if (count === 1) {
+    return '1 like'
+  }
+
+  return `${count.toLocaleString()} likes`
 }
 
 export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
   isLiked,
   likeCount,
   isAuthenticated,
-  isLoading = false,
   onToggle,
 }) => {
   return (
@@ -28,16 +36,19 @@ export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
           variant={'text'}
           className={s.commentLikeButton}
           onClick={onToggle}
-          disabled={isLoading}
           aria-label={isLiked ? 'Unlike' : 'Like'}
           aria-pressed={isLiked}
         >
-          <HeartOutline size={16} color={isLiked ? 'var(--color-danger-500)' : 'white'} />
+          {isLiked ? (
+            <HeartFilled size={16} color={LIKE_ACTIVE_COLOR} />
+          ) : (
+            <HeartOutline size={16} color={'white'} />
+          )}
         </Button>
       )}
       {likeCount > 0 && (
         <Typography variant={'small_text'} className={s.likeCount}>
-          {likeCount}
+          {formatLikeCount(likeCount)}
         </Typography>
       )}
     </div>

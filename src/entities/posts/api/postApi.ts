@@ -15,6 +15,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import {
   COMMENTS_PAGE_SIZE,
+  createOptimisticId,
   getAnswersNextPageParam,
   getCommentsNextPageParam,
   incrementCommentAnswerCount,
@@ -23,48 +24,38 @@ import {
   patchPostLikeFields,
   prependAnswerToPages,
   prependCommentToPages,
+  replaceAnswerInPages,
+  replaceCommentInPages,
 } from '@/entities/posts/lib/comment-likes'
+import {
+  getCreatePostInvalidationTags,
+  getPostMutationInvalidationTags,
+  getUserPostsNextPageParam,
+  isValidUserId,
+  mergeUserPostsCache,
+  patchPostDescriptionInUserFeed,
+  patchPostLikeInUserFeed,
+  prependPostToUserFeed,
+  removePostFromUserFeed,
+} from '@/entities/posts/lib/post-cache-patches'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
+import { showToastAlert } from '@/shared/lib'
 import { AnswersViewModel, CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
+import { UserBase } from '@/shared/types/user/models'
 import { InfiniteData } from '@reduxjs/toolkit/query'
-
-const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
+    // ===== POSTS =====
     createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto; userId: number }>({
-      query: ({ body }) => {
-        if (body.childrenMetadata.length === 0) {
-          throw new Error('At least one image is required')
-        }
-
-        const validatedBody = {
-          ...body,
-          description: body.description || undefined,
-        }
-
-        return {
-          url: API_ROUTES.POSTS.BASE,
-          method: 'POST',
-          body: validatedBody,
-        }
-      },
-      invalidatesTags: (result, error, { userId }) => {
-        const targetUserId = result?.ownerId ?? userId
-
-        return [
-          'Posts',
-          'Profile',
-          { type: 'Post', id: 'LIST' },
-          ...(isValidUserId(targetUserId)
-            ? [
-                { type: 'UserPosts' as const, id: targetUserId },
-                { type: 'Post' as const, id: `USER-${targetUserId}` },
-              ]
-            : []),
-        ]
-      },
+      query: ({ body }) => ({
+        url: API_ROUTES.POSTS.BASE,
+        method: 'POST',
+        body: { ...body, description: body.description || undefined },
+      }),
+      invalidatesTags: (result, error, { userId }) =>
+        getCreatePostInvalidationTags(result?.ownerId ?? userId),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: createdPost } = await queryFulfilled
@@ -73,31 +64,11 @@ export const postApi = baseApi.injectEndpoints({
             postApi.util.updateQueryData(
               'getInfinitePostsByUser',
               { userId: createdPost.ownerId },
-              (draft: InfiniteData<PaginatedPosts, null | number>) => {
-                if (!draft.pages.length) {
-                  return
-                }
-
-                const firstPage = draft.pages[0]
-
-                if (firstPage.items.some(post => post.id === createdPost.id)) {
-                  return
-                }
-
-                firstPage.items.unshift(createdPost)
-
-                for (const page of draft.pages) {
-                  page.totalCount += 1
-                }
-
-                if (firstPage.items.length > firstPage.pageSize) {
-                  firstPage.items = firstPage.items.slice(0, firstPage.pageSize)
-                }
-              }
+              draft => prependPostToUserFeed(draft, createdPost)
             )
           )
         } catch {
-          // handled by invalidation/refetch
+          // handled by invalidation
         }
       },
     }),
@@ -111,24 +82,14 @@ export const postApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { postId, userId }) => [
-        'Posts',
-        'Profile',
-        { type: 'Post', id: postId },
-        { type: 'Post', id: 'LIST' },
-        ...(isValidUserId(userId)
-          ? [
-              { type: 'UserPosts' as const, id: userId },
-              { type: 'Post' as const, id: `USER-${userId}` },
-            ]
-          : []),
-      ],
+      invalidatesTags: (result, error, { postId, userId }) =>
+        getPostMutationInvalidationTags(postId, userId),
       async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
-        if (!isValidUserId(userId)) {
+        if (!isValidUserId(userId) || !body.description) {
           try {
             await queryFulfilled
           } catch {
-            // handled by invalidation/refetch
+            // handled by invalidation
           }
 
           return
@@ -136,29 +97,14 @@ export const postApi = baseApi.injectEndpoints({
 
         const postByIdPatchResult = dispatch(
           postApi.util.updateQueryData('getPostById', postId, draft => {
-            if (body.description) {
-              draft.description = body.description
-              draft.updatedAt = new Date().toISOString()
-            }
+            draft.description = body.description!
+            draft.updatedAt = new Date().toISOString()
           })
         )
 
         const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getInfinitePostsByUser',
-            { userId },
-            (draft: InfiniteData<PaginatedPosts, null | number>) => {
-              for (const page of draft.pages) {
-                const post = page.items.find(item => item.id === postId)
-
-                if (post && body.description) {
-                  post.description = body.description
-                  post.updatedAt = new Date().toISOString()
-
-                  break
-                }
-              }
-            }
+          postApi.util.updateQueryData('getInfinitePostsByUser', { userId }, draft =>
+            patchPostDescriptionInUserFeed(draft, postId, body.description!)
           )
         )
 
@@ -176,49 +122,22 @@ export const postApi = baseApi.injectEndpoints({
         url: API_ROUTES.POSTS.BY_POST_ID(postId),
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { postId, userId }) => [
-        'Posts',
-        'Profile',
-        { type: 'Post', id: postId },
-        { type: 'Post', id: 'LIST' },
-        ...(isValidUserId(userId)
-          ? [
-              { type: 'UserPosts' as const, id: userId },
-              { type: 'Post' as const, id: `USER-${userId}` },
-            ]
-          : []),
-      ],
+      invalidatesTags: (result, error, { postId, userId }) =>
+        getPostMutationInvalidationTags(postId, userId),
       async onQueryStarted({ postId, userId }, { dispatch, queryFulfilled }) {
         if (!isValidUserId(userId)) {
           try {
             await queryFulfilled
           } catch {
-            // handled by invalidation/refetch
+            // handled by invalidation
           }
 
           return
         }
 
         const patchResult = dispatch(
-          postApi.util.updateQueryData(
-            'getInfinitePostsByUser',
-            { userId },
-            (draft: InfiniteData<PaginatedPosts, null | number>) => {
-              let removedCount = 0
-
-              for (const page of draft.pages) {
-                const before = page.items.length
-
-                page.items = page.items.filter(post => post.id !== postId)
-                removedCount += before - page.items.length
-              }
-
-              if (removedCount > 0) {
-                for (const page of draft.pages) {
-                  page.totalCount = Math.max(0, page.totalCount - removedCount)
-                }
-              }
-            }
+          postApi.util.updateQueryData('getInfinitePostsByUser', { userId }, draft =>
+            removePostFromUserFeed(draft, postId)
           )
         )
 
@@ -267,17 +186,7 @@ export const postApi = baseApi.injectEndpoints({
               { type: 'Post', id: `USER-${userId}` },
             ],
       serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.userId}`,
-      merge: (currentCache, newItems) => {
-        const existingIds = new Set(currentCache.items.map(item => item.id))
-        const newUniqueItems = newItems.items.filter(item => !existingIds.has(item.id))
-
-        currentCache.items.push(...newUniqueItems)
-        currentCache.items.sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-        currentCache.pageSize = newItems.pageSize
-        currentCache.totalCount = newItems.totalCount
-      },
+      merge: mergeUserPostsCache,
       forceRefetch: ({ currentArg, previousArg }) =>
         currentArg?.endCursorPostId !== previousArg?.endCursorPostId,
     }),
@@ -290,17 +199,7 @@ export const postApi = baseApi.injectEndpoints({
       keepUnusedDataFor: 300,
       infiniteQueryOptions: {
         initialPageParam: null,
-        getNextPageParam: ({ items }) => {
-          const expectedPageSize = 8
-
-          if (!items || items.length < expectedPageSize) {
-            return null
-          }
-
-          const lastItem = items[items.length - 1]
-
-          return lastItem ? lastItem.id : null
-        },
+        getNextPageParam: ({ items }) => getUserPostsNextPageParam(items),
       },
       query: ({ pageParam, queryArg }) => {
         const cursorId = pageParam === null ? 0 : pageParam
@@ -333,17 +232,25 @@ export const postApi = baseApi.injectEndpoints({
 
     updateLikeStatus: builder.mutation<
       PostViewModel,
-      { postId: number; data: UpdateLikeStatusDto; userId?: number }
+      {
+        postId: number
+        data: UpdateLikeStatusDto
+        userId?: number
+        currentUserAvatar?: string
+      }
     >({
       query: ({ postId, data }) => ({
         url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
         method: 'PUT',
         body: data,
       }),
-      async onQueryStarted({ postId, data, userId }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(
+        { postId, data, userId, currentUserAvatar },
+        { dispatch, queryFulfilled }
+      ) {
         const postByIdPatchResult = dispatch(
           postApi.util.updateQueryData('getPostById', postId, draft => {
-            patchPostLikeFields(draft, data.likeStatus)
+            patchPostLikeFields(draft, data.likeStatus, currentUserAvatar)
           })
         )
 
@@ -353,16 +260,7 @@ export const postApi = baseApi.injectEndpoints({
             postApi.util.updateQueryData(
               'getInfinitePostsByUser',
               { userId: userId as number },
-              (draft: InfiniteData<PaginatedPosts, null | number>) => {
-                for (const page of draft.pages) {
-                  const post = page.items.find(item => item.id === postId)
-
-                  if (post) {
-                    patchPostLikeFields(post, data.likeStatus)
-                    break
-                  }
-                }
-              }
+              draft => patchPostLikeInUserFeed(draft, postId, data.likeStatus, currentUserAvatar)
             )
           )
 
@@ -370,14 +268,15 @@ export const postApi = baseApi.injectEndpoints({
           await queryFulfilled
         } catch {
           postByIdPatchResult.undo()
-
           if (userPostsPatchResult) {
             userPostsPatchResult.undo()
           }
+          showToastAlert({ message: 'Failed to update like', type: 'error' })
         }
       },
     }),
 
+    // ===== COMMENTS =====
     getPostComments: builder.infiniteQuery<PaginatedCommentsResponse, GetCommentsParams, number>({
       infiniteQueryOptions: {
         initialPageParam: 1,
@@ -434,7 +333,7 @@ export const postApi = baseApi.injectEndpoints({
         const patchResult = dispatch(
           postApi.util.updateQueryData(
             'getPostComments',
-            { postId, pageSize: COMMENTS_PAGE_SIZE },
+            { postId },
             (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
               patchCommentLikeInPages(draft, commentId, data.likeStatus)
             }
@@ -445,6 +344,7 @@ export const postApi = baseApi.injectEndpoints({
           await queryFulfilled
         } catch {
           patchResult.undo()
+          showToastAlert({ message: 'Failed to update like', type: 'error' })
         }
       },
     }),
@@ -462,7 +362,7 @@ export const postApi = baseApi.injectEndpoints({
         const patchResult = dispatch(
           postApi.util.updateQueryData(
             'getCommentAnswers',
-            { postId, commentId, pageSize: COMMENTS_PAGE_SIZE },
+            { postId, commentId },
             (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
               patchAnswerLikeInPages(draft, answerId, data.likeStatus)
             }
@@ -473,17 +373,43 @@ export const postApi = baseApi.injectEndpoints({
           await queryFulfilled
         } catch {
           patchResult.undo()
+          showToastAlert({ message: 'Failed to update like', type: 'error' })
         }
       },
     }),
 
-    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+    createComment: builder.mutation<
+      CommentsViewModel,
+      { postId: number; body: CreateCommentDto; optimisticFrom?: UserBase }
+    >({
       query: ({ postId, body }) => ({
         url: API_ROUTES.POSTS.CREATE_COMMENT(postId),
         method: 'POST',
         body,
       }),
-      async onQueryStarted({ postId }, { dispatch, queryFulfilled }) {
+      async onQueryStarted({ postId, body, optimisticFrom }, { dispatch, queryFulfilled }) {
+        const tempId = createOptimisticId()
+        const optimisticComment: CommentsViewModel = {
+          id: tempId,
+          postId,
+          content: body.content,
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          isLiked: false,
+          answerCount: 0,
+          from: optimisticFrom ?? { id: 0, userName: 'You', avatars: [] },
+        }
+
+        const patchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getPostComments',
+            { postId, pageSize: COMMENTS_PAGE_SIZE },
+            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+              prependCommentToPages(draft, optimisticComment)
+            }
+          )
+        )
+
         try {
           const { data: createdComment } = await queryFulfilled
 
@@ -492,50 +418,120 @@ export const postApi = baseApi.injectEndpoints({
               'getPostComments',
               { postId, pageSize: COMMENTS_PAGE_SIZE },
               (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-                prependCommentToPages(draft, createdComment)
+                replaceCommentInPages(draft, tempId, createdComment)
               }
             )
           )
         } catch {
-          // handled by caller
+          patchResult.undo()
+          showToastAlert({ message: 'Failed to publish comment', type: 'error' })
         }
       },
     }),
 
     createAnswer: builder.mutation<
       AnswersViewModel,
-      { postId: number; commentId: number; body: CreateCommentDto }
+      { postId: number; commentId: number; body: CreateCommentDto; optimisticFrom?: UserBase }
     >({
       query: ({ postId, commentId, body }) => ({
         url: API_ROUTES.POSTS.CREATE_ANSWER_COMMENT(postId, commentId),
         method: 'POST',
         body,
       }),
-      async onQueryStarted({ postId, commentId }, { dispatch, queryFulfilled }) {
+      async onQueryStarted(
+        { postId, commentId, body, optimisticFrom },
+        { dispatch, queryFulfilled, getState }
+      ) {
+        const answersArgs = { postId, commentId, pageSize: COMMENTS_PAGE_SIZE }
+        const tempId = createOptimisticId()
+        const optimisticAnswer: AnswersViewModel = {
+          id: tempId,
+          commentId,
+          content: body.content,
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          isLiked: false,
+          from: optimisticFrom ?? { id: 0, userName: 'You', avatars: [] },
+        }
+
+        const cacheEntry = postApi.endpoints.getCommentAnswers.select(answersArgs)(getState())
+        const hasCache = Boolean(cacheEntry.data?.pages?.length)
+
+        let undoAnswer: (() => void) | undefined
+
+        if (hasCache) {
+          const patchResult = dispatch(
+            postApi.util.updateQueryData(
+              'getCommentAnswers',
+              answersArgs,
+              (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
+                prependAnswerToPages(draft, optimisticAnswer)
+              }
+            )
+          )
+
+          undoAnswer = () => patchResult.undo()
+        } else {
+          dispatch(
+            postApi.util.upsertQueryData('getCommentAnswers', answersArgs, {
+              pages: [
+                {
+                  items: [optimisticAnswer],
+                  pageSize: COMMENTS_PAGE_SIZE,
+                  totalCount: 1,
+                },
+              ],
+              pageParams: [1],
+            } as unknown as InfiniteData<PaginatedAnswersResponse, number>)
+          )
+          undoAnswer = () => {
+            dispatch(
+              postApi.util.invalidateTags([{ type: 'Comments', id: `${postId}-${commentId}` }])
+            )
+          }
+        }
+
+        const countPatchResult = dispatch(
+          postApi.util.updateQueryData(
+            'getPostComments',
+            { postId, pageSize: COMMENTS_PAGE_SIZE },
+            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+              incrementCommentAnswerCount(draft, commentId)
+            }
+          )
+        )
+
         try {
           const { data: createdAnswer } = await queryFulfilled
 
-          dispatch(
-            postApi.util.updateQueryData(
-              'getCommentAnswers',
-              { postId, commentId, pageSize: COMMENTS_PAGE_SIZE },
-              (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-                prependAnswerToPages(draft, createdAnswer)
-              }
+          if (hasCache) {
+            dispatch(
+              postApi.util.updateQueryData(
+                'getCommentAnswers',
+                answersArgs,
+                (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
+                  replaceAnswerInPages(draft, tempId, createdAnswer)
+                }
+              )
             )
-          )
-
-          dispatch(
-            postApi.util.updateQueryData(
-              'getPostComments',
-              { postId, pageSize: COMMENTS_PAGE_SIZE },
-              (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-                incrementCommentAnswerCount(draft, commentId)
-              }
+          } else {
+            dispatch(
+              postApi.util.upsertQueryData('getCommentAnswers', answersArgs, {
+                pages: [
+                  {
+                    items: [createdAnswer],
+                    pageSize: COMMENTS_PAGE_SIZE,
+                    totalCount: 1,
+                  },
+                ],
+                pageParams: [1],
+              } as unknown as InfiniteData<PaginatedAnswersResponse, number>)
             )
-          )
+          }
         } catch {
-          // handled by caller
+          undoAnswer?.()
+          countPatchResult.undo()
+          showToastAlert({ message: 'Failed to publish answer', type: 'error' })
         }
       },
     }),

@@ -5,20 +5,17 @@ import {
   useCreateCommentMutation,
   useUpdateLikeStatusMutation,
   useGetPostByIdQuery,
-} from '@/entities/posts/api/postApi'
+  PostViewModel,
+} from '@/entities/posts/api'
 import { getNextLikeStatus, patchPostLikeFields } from '@/entities/posts/lib/comment-likes'
+import { useGetMyProfileQuery } from '@/entities/profile/api'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-import {
-  mapPostToModalData,
-  PostModalData,
-  PostVariant,
-  CommentFormData,
-  DescriptionFormData,
-  PostViewModel,
-} from '@/shared/types'
+
 import { COMMENT_CONTENT_MAX, commentFormSchema } from '@/shared/types/comments'
+import { UserBase } from '@/shared/types/user/models'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { CommentFormData, DescriptionFormData, PostVariant, PostModalData, mapPostToModalData } from '@/shared/types/posts/models'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -74,8 +71,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     isError: isPostError,
     isFetching: isPostFetching,
   } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || !!initialPostData,
+    skip: !open || !resolvedPostId,
   })
+
   const basePostData = initialPostData ?? postDataFromQuery
   const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
   const postData = localPostData
@@ -84,6 +82,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const uiText = postModalTextByLanguage[uiLanguage]
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const { data: myProfile } = useGetMyProfileQuery(undefined, { skip: !isAuthenticatedUi })
+  const currentUserAvatar = myProfile?.avatars?.[0]?.url
   const [createComment, { isLoading: isPublishingComment }] = useCreateCommentMutation()
   const [updatePostLike, { isLoading: isPostLikeLoading }] = useUpdateLikeStatusMutation()
 
@@ -96,20 +96,21 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   if (isAuthenticatedUi) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
+
   const postModalData: PostModalData = postData
     ? mapPostToModalData(postData)
     : {
-        images: [],
-        userName: '',
-        avatar: '',
-        description: '',
-        createdAt: new Date().toISOString(),
-        postId: '',
-        ownerId: undefined,
-        likesCount: 0,
-        isLiked: false,
-        avatarWhoLikes: [],
-      }
+      images: [],
+      userName: '',
+      avatar: '',
+      description: '',
+      createdAt: new Date().toISOString(),
+      postId: '',
+      ownerId: undefined,
+      likesCount: 0,
+      isLiked: false,
+      avatarWhoLikes: [],
+    }
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -123,7 +124,24 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   useEffect(() => {
     setLocalPostData(basePostData)
-  }, [basePostData, resolvedPostId])
+  }, [resolvedPostId])
+
+  useEffect(() => {
+    if (postDataFromQuery && localPostData && localPostData.id === postDataFromQuery.id) {
+      setLocalPostData(prev => {
+        if (!prev) {
+          return prev
+        }
+
+        return {
+          ...prev,
+          isLiked: postDataFromQuery.isLiked,
+          likesCount: postDataFromQuery.likesCount,
+          avatarWhoLikes: postDataFromQuery.avatarWhoLikes,
+        }
+      })
+    }
+  }, [postDataFromQuery])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -142,7 +160,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     const likeStatus = getNextLikeStatus(previousPost.isLiked)
     const optimisticPost = { ...previousPost }
 
-    patchPostLikeFields(optimisticPost, likeStatus)
+    patchPostLikeFields(optimisticPost, likeStatus, currentUserAvatar)
     setLocalPostData(optimisticPost)
 
     try {
@@ -150,23 +168,37 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         postId: resolvedPostId,
         userId: previousPost.ownerId,
         data: { likeStatus },
+        currentUserAvatar,
       }).unwrap()
     } catch {
       setLocalPostData(previousPost)
+      showToastAlert({ message: 'Failed to update like', type: 'error' })
     }
   }
+
+  const currentUser: UserBase | undefined = user
+    ? {
+      id: user.userId,
+      userName: user.name,
+      avatars: myProfile?.avatars ?? [],
+    }
+    : undefined
 
   const handlePublish = async (data: CommentFormData) => {
     if (!resolvedPostId) {
       return
     }
 
+    const content = data.comment.trim()
+
+    resetComment()
+
     try {
       await createComment({
         postId: resolvedPostId,
-        body: { content: data.comment.trim() },
+        body: { content },
+        optimisticFrom: currentUser,
       }).unwrap()
-      resetComment()
     } catch {
       showToastAlert({ message: uiText.commentError, type: 'error' })
     }
@@ -237,6 +269,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     applyLocalDescription,
     isPublishingComment,
     currentUserId: user?.userId,
+    currentUser,
     resolvedPostId,
     commentMaxLength: COMMENT_CONTENT_MAX,
     handleTogglePostLike,

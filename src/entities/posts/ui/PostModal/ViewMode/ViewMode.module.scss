@@ -84,7 +84,7 @@
 .comments {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -93,8 +93,9 @@
 
 .comment {
   display: flex;
-  gap: 8px;
-  padding: 8px 0;
+  gap: 12px;
+  padding: 0;
+  align-items: flex-start;
 }
 
 .commentBlock {
@@ -115,7 +116,12 @@
 }
 
 .commentTimestamp {
-  color: var(--color-light-900);
+  color: #8e8e8e;
+}
+
+.mention {
+  color: #0095f6;
+  font-weight: 600;
 }
 
 .commentLikeWrapper {
@@ -127,11 +133,11 @@
 }
 
 .commentLikeButton {
-  align-items: flex-start;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
   width: 16px;
   height: 16px;
-  padding-top: 10px;
+  padding: 0;
   min-width: 0;
   min-height: 0;
 }
@@ -145,8 +151,14 @@
 .replies {
   display: flex;
   flex-direction: column;
-  margin-left: 44px;
-  padding-left: 0;
+  margin-left: 32px;
+  padding-left: 12px;
+  gap: 14px;
+}
+
+.answerBlock {
+  display: flex;
+  flex-direction: column;
 }
 
 .replyInputForm {
@@ -154,22 +166,48 @@
   align-items: center;
   margin-left: 44px;
   margin-bottom: 4px;
+  gap: 8px;
+}
+
+.nestedReplyInputForm {
+  display: flex;
+  align-items: center;
+  margin-left: 44px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  gap: 8px;
 }
 
 .replyButton,
 .viewRepliesButton,
-.loadMoreButton {
+.loadMoreButton,
+.commentActionButton {
   padding: 0;
   min-width: 0;
   min-height: 0;
   height: auto;
-  color: var(--color-light-900);
+  color: #8e8e8e;
   font-size: 12px;
+}
+
+.commentActionButton {
+  width: 16px;
+  height: 16px;
 }
 
 .viewRepliesButton {
   margin-left: 44px;
   margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.publishButton {
+  color: #0095f6;
+  font-weight: 600;
+
+  &:disabled {
+    color: #0095f680;
+  }
 }
 
 .loadMoreButton {

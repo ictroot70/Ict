@@ -4,13 +4,14 @@ import { ReactElement, useCallback, useLayoutEffect, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { usePostModal } from '@/entities/posts/hooks'
-import { PostModalHandlers } from '@/shared/types'
 import { Close, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
+import { PostModalHandlers } from '@/shared/types/posts/models'
+
 
 interface Props extends PostModalHandlers {
   open: boolean
@@ -56,6 +57,7 @@ export const PostModal = ({
     applyLocalDescription,
     isPublishingComment,
     currentUserId,
+    currentUser,
     resolvedPostId,
     commentMaxLength,
     handleTogglePostLike,
@@ -180,6 +182,7 @@ export const PostModal = ({
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
         currentUserId={currentUserId}
+        currentUser={currentUser}
         isPublishingComment={isPublishingComment}
         commentMaxLength={commentMaxLength}
         commentsEnabled={open && hasPostData}

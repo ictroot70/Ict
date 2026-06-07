@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useDeletePostMutation } from '@/entities/posts/api/postApi'
+import { useDeletePostMutation } from '@/entities/posts/api'
 import { APP_ROUTES } from '@/shared/constant'
 import { useRouter } from 'next/navigation'
 

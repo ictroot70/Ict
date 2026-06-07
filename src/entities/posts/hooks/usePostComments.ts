@@ -2,7 +2,8 @@
 
 import { useCallback, useMemo } from 'react'
 
-import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postApi'
+import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api'
+import { PaginatedCommentsResponse } from '@/entities/posts/api/posts.types'
 import { COMMENTS_PAGE_SIZE } from '@/entities/posts/lib/comment-likes'
 import { sortComments } from '@/entities/posts/lib/sort-comments'
 
@@ -17,7 +18,11 @@ export const usePostComments = (
     useGetPostCommentsInfiniteQuery({ postId: postId ?? 0, pageSize: COMMENTS_PAGE_SIZE }, { skip })
 
   const comments = useMemo(
-    () => sortComments(data?.pages.flatMap(page => page.items) ?? [], currentUserId),
+    () =>
+      sortComments(
+        data?.pages.flatMap((page: PaginatedCommentsResponse) => page.items) ?? [],
+        currentUserId
+      ),
     [currentUserId, data]
   )
 

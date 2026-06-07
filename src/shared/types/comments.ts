@@ -57,3 +57,27 @@ export const getCommentAuthorName = (from: CommentAuthor): string =>
 
 export const getCommentAvatarUrl = (from: CommentAuthor): string | undefined =>
   from.avatars?.[0]?.url
+
+/** Prefix for replying to an answer (flat thread — API has no nested answers). */
+export const buildReplyMentionPrefix = (userName: string): string => `@${userName} `
+
+export const ensureReplyMention = (content: string, replyToUserName: string): string => {
+  const trimmed = content.trim()
+  const mention = `@${replyToUserName}`
+
+  if (trimmed.startsWith(mention)) {
+    return trimmed
+  }
+
+  return `${buildReplyMentionPrefix(replyToUserName)}${trimmed}`.trim()
+}
+
+export const parseReplyMention = (content: string): { mention: string | null; text: string } => {
+  const match = content.match(/^@(\S+)\s+(.*)$/s)
+
+  if (!match) {
+    return { mention: null, text: content }
+  }
+
+  return { mention: match[1], text: match[2] }
+}

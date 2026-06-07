@@ -6,6 +6,7 @@ import { usePostComments } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
 import { PostModalData } from '@/shared/types'
+import { UserBase } from '@/shared/types/user/models'
 import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
@@ -17,6 +18,7 @@ interface CommentsSectionProps {
   postId: number
   isAuthenticated: boolean
   currentUserId?: number
+  currentUser?: UserBase
   enabled: boolean
 }
 
@@ -25,6 +27,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
   postId,
   isAuthenticated,
   currentUserId,
+  currentUser,
   enabled,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
@@ -36,7 +39,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
       <Separator />
       <div className={s.comments}>
         <div className={s.comment}>
-          <Avatar size={36} image={postData.avatar} alt={postData.userName} />
+          <Avatar size={32} image={postData.avatar} alt={postData.userName} />
           <div className={s.commentBody}>
             <Typography variant={'regular_14'} color={'light'} className={s.description}>
               <strong>{postData.userName}</strong> {postData.description}
@@ -66,6 +69,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
               postId={postId}
               comment={comment}
               isAuthenticated={isAuthenticated}
+              currentUser={currentUser}
             />
           ))}
 

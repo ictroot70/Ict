@@ -12,9 +12,12 @@ export {
   COMMENT_CONTENT_MAX,
   COMMENT_CONTENT_MIN,
   answerFormSchema,
+  buildReplyMentionPrefix,
   commentContentSchema,
   commentFormSchema,
   createCommentSchema,
+  ensureReplyMention,
   getCommentAuthorName,
   getCommentAvatarUrl,
+  parseReplyMention,
 } from '@/shared/types/comments'

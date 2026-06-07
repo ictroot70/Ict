@@ -12,6 +12,8 @@ type LikeableItem = {
 
 export const COMMENTS_PAGE_SIZE = 12
 
+export const createOptimisticId = (): number => -Date.now()
+
 export const getNextLikeStatus = (isLiked: boolean): LikeStatus =>
   isLiked ? LikeStatus.NONE : LikeStatus.LIKE
 
@@ -29,15 +31,32 @@ export const patchLikeFields = (item: LikeableItem, likeStatus: LikeStatus): voi
   }
 }
 
+const MAX_LIKER_AVATARS = 3
+
 type PostLikeableItem = {
   isLiked: boolean
   likesCount: number
+  avatarWhoLikes: string[]
 }
 
-export const patchPostLikeFields = (item: PostLikeableItem, likeStatus: LikeStatus): void => {
+const prependLikerAvatar = (avatars: string[], avatarUrl: string): string[] =>
+  [avatarUrl, ...avatars.filter(url => url !== avatarUrl)].slice(0, MAX_LIKER_AVATARS)
+
+const removeLikerAvatar = (avatars: string[], avatarUrl: string): string[] =>
+  avatars.filter(url => url !== avatarUrl)
+
+export const patchPostLikeFields = (
+  item: PostLikeableItem,
+  likeStatus: LikeStatus,
+  currentUserAvatar?: string
+): void => {
   if (likeStatus === LikeStatus.LIKE && !item.isLiked) {
     item.isLiked = true
     item.likesCount += 1
+
+    if (currentUserAvatar) {
+      item.avatarWhoLikes = prependLikerAvatar(item.avatarWhoLikes, currentUserAvatar)
+    }
 
     return
   }
@@ -45,6 +64,10 @@ export const patchPostLikeFields = (item: PostLikeableItem, likeStatus: LikeStat
   if (likeStatus === LikeStatus.NONE && item.isLiked) {
     item.isLiked = false
     item.likesCount = Math.max(0, item.likesCount - 1)
+
+    if (currentUserAvatar) {
+      item.avatarWhoLikes = removeLikerAvatar(item.avatarWhoLikes, currentUserAvatar)
+    }
   }
 }
 
@@ -146,6 +169,38 @@ export const prependAnswerToPages = (
 
   for (const page of draft.pages) {
     page.totalCount += 1
+  }
+}
+
+export const replaceCommentInPages = (
+  draft: InfiniteData<PaginatedCommentsResponse, number>,
+  tempId: number,
+  comment: PaginatedCommentsResponse['items'][number]
+): void => {
+  for (const page of draft.pages) {
+    const index = page.items.findIndex(item => item.id === tempId)
+
+    if (index !== -1) {
+      page.items[index] = comment
+
+      return
+    }
+  }
+}
+
+export const replaceAnswerInPages = (
+  draft: InfiniteData<PaginatedAnswersResponse, number>,
+  tempId: number,
+  answer: PaginatedAnswersResponse['items'][number]
+): void => {
+  for (const page of draft.pages) {
+    const index = page.items.findIndex(item => item.id === tempId)
+
+    if (index !== -1) {
+      page.items[index] = answer
+
+      return
+    }
   }
 }
 

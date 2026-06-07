@@ -1,4 +1,4 @@
-import { CommentsViewModel } from '@/shared/types/comments'
+import { AnswersViewModel, CommentsViewModel } from '@/shared/types/comments'
 
 export const sortComments = (
   comments: CommentsViewModel[],
@@ -16,4 +16,10 @@ export const sortComments = (
 
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
+}
+
+export const sortAnswers = (answers: AnswersViewModel[]): AnswersViewModel[] => {
+  return [...answers].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
 }

@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 import {
   useUpdateAnswerLikeStatusMutation,
   useUpdateCommentLikeStatusMutation,
-} from '@/entities/posts/api/postApi'
+} from '@/entities/posts/api'
 import { getNextLikeStatus } from '@/entities/posts/lib/comment-likes'
 
 export const useCommentLikeToggle = (postId: number) => {

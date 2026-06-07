@@ -1,6 +1,7 @@
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { UserBase } from '@/shared/types/user/models'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
@@ -28,6 +29,7 @@ interface ViewModeProps {
   isAuthenticated: boolean
   isOwnProfile: boolean
   currentUserId?: number
+  currentUser?: UserBase
   isPublishingComment: boolean
   commentMaxLength: number
   commentsEnabled: boolean
@@ -50,6 +52,7 @@ export const ViewMode = ({
   isAuthLoading,
   isAuthenticated,
   currentUserId,
+  currentUser,
   isPublishingComment,
   commentMaxLength,
   commentsEnabled,
@@ -80,6 +83,7 @@ export const ViewMode = ({
           postId={postId}
           isAuthenticated={isAuthenticated}
           currentUserId={currentUserId}
+          currentUser={currentUser}
           enabled={commentsEnabled}
         />
 

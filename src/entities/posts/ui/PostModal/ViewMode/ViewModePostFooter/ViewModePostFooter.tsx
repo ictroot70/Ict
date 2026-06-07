@@ -8,6 +8,7 @@ import {
   Button,
   Typography,
   BookmarkOutline,
+  HeartFilled,
   HeartOutline,
   PaperPlane,
   Separator,
@@ -28,6 +29,14 @@ interface PostFooterProps {
   isPostLikeLoading: boolean
   commentMaxLength: number
   onTogglePostLike: () => void
+}
+
+const formatLikesCount = (count: number): string => {
+  if (count === 1) {
+    return '1 like'
+  }
+
+  return `${count.toLocaleString()} likes`
 }
 
 export const ViewModePostFooter: React.FC<PostFooterProps> = ({
@@ -75,12 +84,12 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
                 aria-label={isLiked ? 'Unlike post' : 'Like post'}
                 aria-pressed={isLiked}
               >
-                <HeartOutline color={isLiked ? 'var(--color-danger-500)' : 'white'} />
+                {isLiked ? <HeartFilled color={'#ED4956'} /> : <HeartOutline color={'white'} />}
               </Button>
-              <Button variant={'text'} className={s.postButton}>
+              <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
                 <PaperPlane color={'white'} />
               </Button>
-              <Button variant={'text'} className={s.postButton}>
+              <Button variant={'text'} className={s.postButton} aria-label={'Save post'}>
                 <BookmarkOutline color={'white'} />
               </Button>
             </>
@@ -103,7 +112,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
             </div>
           )}
           <Typography variant={'regular_14'} color={'light'}>
-            {likesCount.toLocaleString()} <strong>Likes</strong>
+            <strong>{formatLikesCount(likesCount)}</strong>
           </Typography>
         </div>
       )}
@@ -129,13 +138,14 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
                 name={'comment'}
                 control={commentControl}
                 inputType={'text'}
-                placeholder={'Add a Comment'}
+                placeholder={'Add a Comment...'}
                 className={s.input}
                 maxLength={commentMaxLength}
               />
               <Button
                 variant={'text'}
                 type={'submit'}
+                className={s.publishButton}
                 disabled={!watchComment('comment')?.trim() || isPublishingComment}
               >
                 Publish
