@@ -3,7 +3,10 @@
 import { useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
 import { InfiniteScrollTrigger, Loading, LinearProgress } from '@/shared/composites'
 
+import s from './Feed.module.scss'
+
 import { FeedEmptyState } from './FeedEmptyState'
+import { FeedPost } from './FeedPost'
 
 export function Feed() {
   const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
@@ -33,9 +36,9 @@ export function Feed() {
     <>
       <LinearProgress active={isFetchingNextPage} />
 
-      <div>
+      <div className={s.list}>
         {posts.map(post => (
-          <div key={post.id}>{post.description || post.userName}</div>
+          <FeedPost key={post.id} post={post} />
         ))}
       </div>
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={handleLoadMore} />
