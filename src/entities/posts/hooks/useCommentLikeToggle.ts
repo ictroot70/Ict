@@ -2,11 +2,12 @@
 
 import { useCallback } from 'react'
 
+import { getNextLikeStatus } from '@/entities/posts/lib/comment-likes'
+
 import {
   useUpdateAnswerLikeStatusMutation,
   useUpdateCommentLikeStatusMutation,
-} from '@/entities/posts/api'
-import { getNextLikeStatus } from '@/entities/posts/lib/comment-likes'
+} from '../api/postCommentsApi'
 
 export const useCommentLikeToggle = (postId: number) => {
   const [updateCommentLike, { isLoading: isCommentLikeLoading }] =

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
-  useCreateCommentMutation,
   useUpdateLikeStatusMutation,
   useGetPostByIdQuery,
   PostViewModel,
@@ -21,6 +20,8 @@ import {
 } from '@/shared/types/posts/models'
 import { UserBase } from '@/shared/types/user/models'
 import { zodResolver } from '@hookform/resolvers/zod'
+
+import { useCreateCommentMutation } from '../api/postCommentsApi'
 
 type UiLanguage = 'en' | 'rus'
 

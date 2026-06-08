@@ -2,7 +2,7 @@ import {
   PaginatedAnswersResponse,
   PaginatedCommentsResponse,
 } from '@/entities/posts/api/posts.types'
-import { LikeStatus } from '@/shared/types'
+import { LikeStatus } from '@/shared/types/base'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 type LikeableItem = {

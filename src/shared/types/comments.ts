@@ -73,7 +73,7 @@ export const ensureReplyMention = (content: string, replyToUserName: string): st
 }
 
 export const parseReplyMention = (content: string): { mention: string | null; text: string } => {
-  const match = content.match(/^@(\S+)\s+(.*)$/s)
+  const match = content.match(/^@(\S+)\s+(.*)$/)
 
   if (!match) {
     return { mention: null, text: content }

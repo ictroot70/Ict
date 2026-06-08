@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo } from 'react'
 
-import { useGetCommentAnswersInfiniteQuery } from '@/entities/posts/api'
 import { PaginatedAnswersResponse } from '@/entities/posts/api/posts.types'
 import { COMMENTS_PAGE_SIZE } from '@/entities/posts/lib/comment-likes'
 import { sortAnswers } from '@/entities/posts/lib/sort-comments'
+
+import { useGetCommentAnswersInfiniteQuery } from '../api/postCommentsApi'
 
 export const useCommentAnswers = (postId: number, commentId: number, enabled = false) => {
   const queryArg = { postId, commentId, pageSize: COMMENTS_PAGE_SIZE }

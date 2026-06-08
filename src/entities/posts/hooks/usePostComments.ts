@@ -2,10 +2,11 @@
 
 import { useCallback, useMemo } from 'react'
 
-import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api'
 import { PaginatedCommentsResponse } from '@/entities/posts/api/posts.types'
 import { COMMENTS_PAGE_SIZE } from '@/entities/posts/lib/comment-likes'
 import { sortComments } from '@/entities/posts/lib/sort-comments'
+
+import { useGetPostCommentsInfiniteQuery } from '../api/postCommentsApi'
 
 export const usePostComments = (
   postId: number | undefined,

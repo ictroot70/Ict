@@ -1,4 +1,5 @@
-import { AnswersViewModel, CommentsViewModel, LikeStatus } from '@/shared/types/comments'
+import { LikeStatus } from '@/shared/types'
+import { AnswersViewModel, CommentsViewModel } from '@/shared/types/comments'
 
 export type PostImageViewModel = {
   url: string

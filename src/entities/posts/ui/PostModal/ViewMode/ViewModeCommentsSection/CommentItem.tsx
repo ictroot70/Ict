@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useCreateAnswerMutation } from '@/entities/posts/api'
+import { useCreateAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
