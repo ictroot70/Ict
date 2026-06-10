@@ -28,7 +28,9 @@ export function Feed() {
     return <div>Failed to load posts</div>
   }
 
-  const posts = data?.pages.flatMap(page => page.items) ?? []
+  const posts = Array.from(
+    new Map((data?.pages.flatMap(page => page.items) ?? []).map(post => [post.id, post])).values()
+  )
 
   if (posts.length === 0) {
     return <FeedEmptyState />
