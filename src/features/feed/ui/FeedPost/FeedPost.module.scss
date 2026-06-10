@@ -23,6 +23,11 @@
   background-color: var(--color-light-700);
 }
 
+.menu {
+  margin-left: auto;
+  z-index: 2;
+}
+
 .media {
   position: relative;
   width: 100%;
