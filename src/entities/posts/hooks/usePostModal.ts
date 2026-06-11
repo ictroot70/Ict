@@ -2,7 +2,11 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useCreateCommentMutation, useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import {
+  useCreateCommentMutation,
+  useGetPostByIdQuery,
+  useGetPostCommentsQuery,
+} from '@/entities/posts/api/postApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
@@ -46,7 +50,7 @@ export type CommentThreadItem = {
 }
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
-  const [comments, setComments] = useState<CommentThreadItem[]>([])
+  const [optimisticComments, setOptimisticComments] = useState<CommentThreadItem[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
@@ -111,6 +115,20 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         ownerId: undefined,
       }
 
+  const numericPostId = Number(postModalData.postId)
+
+  const { data: commentsData } = useGetPostCommentsQuery(
+    {
+      postId: numericPostId,
+      pageSize: 12,
+      pageNumber: 1,
+      sortDirection: 'desc',
+    },
+    {
+      skip: !open || !Number.isInteger(numericPostId),
+    }
+  )
+
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -133,7 +151,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }, [])
 
-  const mapCreatedCommentToThreadItem = (comment: CommentsViewModel): CommentThreadItem => {
+  const mapCommentToThreadItem = (comment: CommentsViewModel): CommentThreadItem => {
     const author = comment.from as CommentsViewModel['from'] & { username?: string }
 
     return {
@@ -146,9 +164,11 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }
 
+  const serverComments = commentsData?.items.map(mapCommentToThreadItem) ?? []
+  const comments = [...optimisticComments, ...serverComments]
+
   const handlePublish = async (data: CommentFormData) => {
     const trimmed = data.comment.trim()
-    const numericPostId = Number(postModalData.postId)
 
     const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
 
@@ -166,22 +186,18 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       isOptimistic: true,
     }
 
-    setComments(prev => [...prev, optimisticComment])
+    setOptimisticComments(prev => [optimisticComment, ...prev])
     resetComment()
 
     try {
-      const createdComment = await createComment({
+      await createComment({
         postId: numericPostId,
         body: { content: trimmed },
       }).unwrap()
 
-      setComments(prev =>
-        prev.map(comment =>
-          comment.id === optimisticId ? mapCreatedCommentToThreadItem(createdComment) : comment
-        )
-      )
+      setOptimisticComments(prev => prev.filter(comment => comment.id !== optimisticId))
     } catch {
-      setComments(prev => prev.filter(comment => comment.id !== optimisticId))
+      setOptimisticComments(prev => prev.filter(comment => comment.id !== optimisticId))
       showToastAlert({ message: 'Failed to publish comment', type: 'error' })
     }
   }
