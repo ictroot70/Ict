@@ -4,13 +4,13 @@ import React from 'react'
 
 import { Carousel } from '@/shared/composites'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { PostModalData } from '@/shared/types'
+import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 
 import s from '../ViewMode.module.scss'
 
 interface PhotoSectionProps {
-  postData: PostModalData
+  postData: PostViewModel
 }
 
 export const ViewModePhotoSection: React.FC<PhotoSectionProps> = ({ postData }) => {
