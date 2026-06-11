@@ -247,35 +247,3 @@
   align-items: center;
   gap: 12px;
 }
-
-.answerButton {
-  padding: 0;
-  color: var(--color-light-900);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 16px;
-}
-
-.answer {
-  display: flex;
-  gap: 8px;
-  padding: 4px 0 4px 44px;
-}
-
-.replyForm {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0 8px 44px;
-}
-
-.replyInput {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--color-light-100);
-
-  &:focus {
-    outline: none;
-  }
-}

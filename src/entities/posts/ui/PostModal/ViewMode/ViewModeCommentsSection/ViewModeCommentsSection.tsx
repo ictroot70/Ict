@@ -1,6 +1,6 @@
 import type { CommentThreadItem } from '@/entities/posts/hooks/usePostModal'
 
-import React, { useState } from 'react'
+import React from 'react'
 
 import { Avatar } from '@/shared/composites'
 import { Button, HeartOutline, Separator, Typography } from '@/shared/ui'
@@ -14,41 +14,9 @@ interface CommentsSectionProps {
     description: string
   }
   comments: CommentThreadItem[]
-  handleReplyPublish: (commentId: number | string, content: string) => Promise<void>
-  commentMaxLength: number
-  replySubmittingCommentId: number | string | null
 }
 
-export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
-  postData,
-  comments,
-  handleReplyPublish,
-  commentMaxLength,
-  replySubmittingCommentId,
-}) => {
-  const [activeReplyCommentId, setActiveReplyCommentId] = useState<number | string | null>(null)
-  const [replyText, setReplyText] = useState('')
-
-  const trimmedReplyText = replyText.trim()
-  const isReplyInvalid = trimmedReplyText.length === 0 || trimmedReplyText.length > commentMaxLength
-
-  const handleAnswerClick = (commentId: number | string) => {
-    setActiveReplyCommentId(prev => (prev === commentId ? null : commentId))
-    setReplyText('')
-  }
-
-  const handleReplySubmit = async (commentId: number | string) => {
-    if (isReplyInvalid || isReplySubmitting(commentId)) {
-      return
-    }
-
-    await handleReplyPublish(commentId, trimmedReplyText)
-    setReplyText('')
-    setActiveReplyCommentId(null)
-  }
-
-  const isReplySubmitting = (commentId: number | string) => replySubmittingCommentId === commentId
-
+export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postData, comments }) => {
   const formatCommentDate = (date: string) =>
     new Intl.DateTimeFormat('en-US', {
       month: 'long',
@@ -85,53 +53,12 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
                   <Typography variant={'small_text'} className={s.commentTimestamp}>
                     {formatCommentDate(comment.createdAt)}
                   </Typography>
-                  <Button
-                    variant={'text'}
-                    className={s.answerButton}
-                    onClick={() => handleAnswerClick(comment.id)}
-                  >
-                    Answer
-                  </Button>
                 </div>
               </div>
               <Button variant={'text'} className={s.commentLikeButton}>
                 <HeartOutline size={16} color={'white'} />
               </Button>
             </div>
-
-            {comment.answers.map(answer => (
-              <div className={s.answer} key={answer.id}>
-                <Avatar size={32} image={answer.avatar || ''} />
-                <div>
-                  <Typography variant={'regular_14'} color={'light'}>
-                    <strong>{answer.userName}</strong> {answer.content}
-                  </Typography>
-                  <Typography variant={'small_text'} className={s.commentTimestamp}>
-                    {formatCommentDate(answer.createdAt)}
-                  </Typography>
-                </div>
-              </div>
-            ))}
-
-            {activeReplyCommentId === comment.id && (
-              <div className={s.replyForm}>
-                <input
-                  value={replyText}
-                  onChange={event => setReplyText(event.target.value)}
-                  maxLength={commentMaxLength}
-                  placeholder={'Add answer'}
-                  className={s.replyInput}
-                />
-                <Button
-                  variant={'text'}
-                  type={'button'}
-                  disabled={isReplyInvalid || isReplySubmitting(comment.id)}
-                  onClick={() => handleReplySubmit(comment.id)}
-                >
-                  Publish
-                </Button>
-              </div>
-            )}
           </div>
         ))}
       </div>

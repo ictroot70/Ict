@@ -76,10 +76,6 @@ export interface CreateCommentDto {
   content: string
 }
 
-export interface CreateAnswerDto {
-  content: string
-}
-
 export interface PublicationsFollowersWithPaginationViewModel {
   totalCount: number
   pagesCount: number

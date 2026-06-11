@@ -2,15 +2,10 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import {
-  useCreateCommentAnswerMutation,
-  useCreateCommentMutation,
-  useGetPostByIdQuery,
-} from '@/entities/posts/api/postApi'
+import { useCreateCommentMutation, useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
-  AnswersViewModel,
   mapPostToModalData,
   PostModalData,
   PostVariant,
@@ -39,15 +34,6 @@ const postModalTextByLanguage = {
   },
 } as const
 
-export type CommentThreadAnswer = {
-  id: number | string
-  content: string
-  createdAt: string
-  userName: string
-  avatar?: string
-  isOptimistic?: boolean
-}
-
 const COMMENT_MAX_LENGTH = 300
 
 export type CommentThreadItem = {
@@ -57,7 +43,6 @@ export type CommentThreadItem = {
   userName: string
   avatar?: string
   isOptimistic?: boolean
-  answers: CommentThreadAnswer[]
 }
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
@@ -104,11 +89,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
-
-  const [createCommentAnswer] = useCreateCommentAnswerMutation()
-  const [replySubmittingCommentId, setReplySubmittingCommentId] = useState<number | string | null>(
-    null
-  )
 
   const isOwnProfile = Boolean(
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
@@ -163,20 +143,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       userName: author.userName ?? author.username ?? 'UserName',
       avatar: author.avatars?.[0]?.url,
       isOptimistic: false,
-      answers: [],
-    }
-  }
-
-  const mapCreatedAnswerToThreadAnswer = (answer: AnswersViewModel): CommentThreadAnswer => {
-    const author = answer.from as AnswersViewModel['from'] & { username?: string }
-
-    return {
-      id: answer.id,
-      content: answer.content,
-      createdAt: answer.createdAt,
-      userName: author.userName ?? author.username ?? 'UserName',
-      avatar: author.avatars?.[0]?.url,
-      isOptimistic: false,
     }
   }
 
@@ -198,7 +164,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       createdAt: new Date().toISOString(),
       userName: user?.name ?? 'UserName',
       isOptimistic: true,
-      answers: [],
     }
 
     setComments(prev => [...prev, optimisticComment])
@@ -259,83 +224,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }
 
-  const handleReplyPublish = async (commentId: number | string, content: string) => {
-    const trimmed = content.trim()
-    const numericPostId = Number(postModalData.postId)
-    const numericCommentId = Number(commentId)
-
-    const isReplyValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
-
-    if (
-      !isReplyValid ||
-      !Number.isInteger(numericPostId) ||
-      !Number.isInteger(numericCommentId) ||
-      replySubmittingCommentId === commentId
-    ) {
-      return
-    }
-
-    const optimisticAnswerId = `local-answer-${Date.now()}`
-
-    const optimisticAnswer: CommentThreadAnswer = {
-      id: optimisticAnswerId,
-      content: trimmed,
-      createdAt: new Date().toISOString(),
-      userName: user?.name ?? 'UserName',
-      isOptimistic: true,
-    }
-
-    setReplySubmittingCommentId(commentId)
-
-    setComments(prev =>
-      prev.map(comment =>
-        comment.id === commentId
-          ? {
-              ...comment,
-              answers: [...comment.answers, optimisticAnswer],
-            }
-          : comment
-      )
-    )
-
-    try {
-      const createdAnswer = await createCommentAnswer({
-        postId: numericPostId,
-        commentId: numericCommentId,
-        body: { content: trimmed },
-      }).unwrap()
-
-      setComments(prev =>
-        prev.map(comment =>
-          comment.id === commentId
-            ? {
-                ...comment,
-                answers: comment.answers.map(answer =>
-                  answer.id === optimisticAnswerId
-                    ? mapCreatedAnswerToThreadAnswer(createdAnswer)
-                    : answer
-                ),
-              }
-            : comment
-        )
-      )
-    } catch {
-      setComments(prev =>
-        prev.map(comment =>
-          comment.id === commentId
-            ? {
-                ...comment,
-                answers: comment.answers.filter(answer => answer.id !== optimisticAnswerId),
-              }
-            : comment
-        )
-      )
-      showToastAlert({ message: 'Failed to publish answer', type: 'error' })
-    } finally {
-      setReplySubmittingCommentId(null)
-    }
-  }
-
   return {
     comments,
     isEditingDescription,
@@ -353,7 +241,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     isCreateCommentLoading,
     commentMaxLength: COMMENT_MAX_LENGTH,
     isAuthenticated: isAuthenticatedUi,
-    replySubmittingCommentId,
     isOwnProfile,
     hasPostData,
     isPostLoading,
@@ -365,6 +252,5 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
-    handleReplyPublish,
   }
 }

@@ -12,12 +12,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import {
-  AnswersViewModel,
-  CommentsViewModel,
-  CreateAnswerDto,
-  CreateCommentDto,
-} from '@/shared/types'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
@@ -233,21 +228,6 @@ export const postApi = baseApi.injectEndpoints({
       ],
     }),
 
-    createCommentAnswer: builder.mutation<
-      AnswersViewModel,
-      { postId: number; commentId: number; body: CreateAnswerDto }
-    >({
-      query: ({ postId, commentId, body }) => ({
-        url: API_ROUTES.POSTS.CREATE_ANSWER_COMMENT(postId, commentId),
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: (result, error, { postId }) => [
-        { type: 'Comments', id: postId },
-        { type: 'Post', id: postId },
-      ],
-    }),
-
     uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
       query: formData => ({
         url: API_ROUTES.POSTS.IMAGE,
@@ -368,7 +348,6 @@ export const {
   useUpdatePostMutation,
   useDeletePostMutation,
   useCreateCommentMutation,
-  useCreateCommentAnswerMutation,
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,
