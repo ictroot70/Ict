@@ -7,6 +7,7 @@ import {
   useGetPostByIdQuery,
   useGetPostCommentsQuery,
 } from '@/entities/posts/api/postApi'
+import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
@@ -92,6 +93,14 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
+  const { data: currentUserProfile, isLoading: isCurrentUserProfileLoading } =
+    useGetPublicProfileQuery({ profileId: user?.userId ?? 0 }, { skip: !user?.userId })
+
+  const currentUserName = user?.name ?? currentUserProfile?.userName ?? 'UserName'
+  const currentUserAvatar =
+    currentUserProfile?.avatars.find(avatar => avatar.width === 45)?.url ??
+    currentUserProfile?.avatars[0]?.url
+
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
 
   const isOwnProfile = Boolean(
@@ -125,7 +134,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       sortDirection: 'desc',
     },
     {
-      skip: !open || !Number.isInteger(numericPostId),
+      skip: !open || !Number.isInteger(numericPostId) || numericPostId <= 0,
     }
   )
 
@@ -165,14 +174,24 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   const serverComments = commentsData?.items.map(mapCommentToThreadItem) ?? []
-  const comments = [...optimisticComments, ...serverComments]
+  const serverCommentIds = new Set(serverComments.map(comment => comment.id))
+  const visibleOptimisticComments = optimisticComments.filter(
+    comment => !serverCommentIds.has(comment.id)
+  )
+  const comments = [...visibleOptimisticComments, ...serverComments]
 
   const handlePublish = async (data: CommentFormData) => {
     const trimmed = data.comment.trim()
 
     const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
 
-    if (!isCommentValid || !Number.isInteger(numericPostId) || isCreateCommentLoading) {
+    if (
+      !isCommentValid ||
+      !Number.isInteger(numericPostId) ||
+      numericPostId <= 0 ||
+      isCreateCommentLoading ||
+      isCurrentUserProfileLoading
+    ) {
       return
     }
 
@@ -182,7 +201,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       id: optimisticId,
       content: trimmed,
       createdAt: new Date().toISOString(),
-      userName: user?.name ?? 'UserName',
+      userName: currentUserName,
+      avatar: currentUserAvatar,
       isOptimistic: true,
     }
 
@@ -190,12 +210,16 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     resetComment()
 
     try {
-      await createComment({
+      const createdComment = await createComment({
         postId: numericPostId,
         body: { content: trimmed },
       }).unwrap()
 
-      setOptimisticComments(prev => prev.filter(comment => comment.id !== optimisticId))
+      setOptimisticComments(prev =>
+        prev.map(comment =>
+          comment.id === optimisticId ? mapCommentToThreadItem(createdComment) : comment
+        )
+      )
     } catch {
       setOptimisticComments(prev => prev.filter(comment => comment.id !== optimisticId))
       showToastAlert({ message: 'Failed to publish comment', type: 'error' })
@@ -254,7 +278,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     postData: postModalData,
     variant,
     isAuthLoading: isAuthUiLoading,
-    isCreateCommentLoading,
+    isCreateCommentLoading: isCreateCommentLoading || isCurrentUserProfileLoading,
     commentMaxLength: COMMENT_MAX_LENGTH,
     isAuthenticated: isAuthenticatedUi,
     isOwnProfile,
