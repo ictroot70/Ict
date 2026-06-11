@@ -66,10 +66,10 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData.postId) {
-      const updated = await onEditPost(postData.postId, trimmed)
+    if (trimmed && onEditPost && postData?.id) {
+      const updated = await onEditPost(postData.id, trimmed)
 
-      if (updated === false) {
+      if (!updated) {
         return
       }
 
@@ -79,8 +79,8 @@ export const PostModal = ({
   }
 
   const handleDeletePostAction = () => {
-    if (onDeletePost && postData.postId) {
-      onDeletePost(postData.postId)
+    if (onDeletePost && postData?.id) {
+      onDeletePost(postData.id)
     }
   }
 
@@ -136,7 +136,7 @@ export const PostModal = ({
       )
     }
 
-    if (!hasPostData) {
+    if (!hasPostData || !postData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
