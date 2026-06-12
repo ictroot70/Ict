@@ -1,3 +1,4 @@
+import { logout } from '@/shared/auth'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface UserFollowState {
@@ -20,6 +21,9 @@ const userFollowSlice = createSlice({
         state.unfollowedUserIds.push(action.payload)
       }
     },
+  },
+  extraReducers: builder => {
+    builder.addCase(logout, () => initialState)
   },
 })
 
