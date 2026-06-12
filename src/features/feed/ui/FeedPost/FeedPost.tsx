@@ -5,7 +5,7 @@ import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar, Carousel } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { Typography } from '@/shared/ui'
-import Link from 'next/dist/client/link'
+import Link from 'next/link'
 
 import s from './FeedPost.module.scss'
 

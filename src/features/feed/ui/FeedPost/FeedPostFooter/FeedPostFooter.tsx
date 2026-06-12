@@ -10,7 +10,7 @@ import {
   PaperPlane,
   Typography,
 } from '@/shared/ui'
-import Link from 'next/dist/client/link'
+import Link from 'next/link'
 
 import s from './FeedPostFooter.module.scss'
 
