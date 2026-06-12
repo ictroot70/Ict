@@ -4,11 +4,13 @@ import {
   FollowersFeedParams,
   FollowersFeedResponse,
   FollowersFeedPageParams,
+  GetPostLikesParams,
   GetPostsByUserParams,
   GetPostsParams,
   PaginatedPosts,
   PaginatedResponse,
   PostImageViewModel,
+  PostLikesResponse,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
@@ -18,6 +20,79 @@ import { baseApi } from '@/shared/api/base-api'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
+const DEFAULT_AVATAR = '/default-avatar.svg'
+const POST_LIKE_AVATARS_LIMIT = 3
+
+export const POST_LIKES_QUERY_ARG = {
+  cursor: 0,
+  pageNumber: 1,
+  pageSize: 50,
+}
+
+type CurrentLikeUser = {
+  avatarUrl?: string
+  userId: number
+  userName: string
+}
+
+type PostLikePatch = {
+  avatarUrl: string
+  delta: number
+  isLike: boolean
+}
+
+const getAvatarUrl = (user: PostLikesResponse['items'][number]) =>
+  user.avatars.find(avatar => avatar.width === 45)?.url ?? user.avatars[0]?.url ?? DEFAULT_AVATAR
+
+const sortPostLikeUsersByRecent = (items: PostLikesResponse['items']) =>
+  [...items].sort((a, b) => {
+    const createdAtDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+
+    return createdAtDiff || b.id - a.id
+  })
+
+export const getAvatarWhoLikes = (likes: PostLikesResponse) =>
+  sortPostLikeUsersByRecent(likes.items).slice(0, POST_LIKE_AVATARS_LIMIT).map(getAvatarUrl)
+
+const getUpdatedLikeAvatarUrls = (avatarUrls: string[], { avatarUrl, isLike }: PostLikePatch) => {
+  if (isLike) {
+    return [avatarUrl, ...avatarUrls.filter(url => url !== avatarUrl)].slice(
+      0,
+      POST_LIKE_AVATARS_LIMIT
+    )
+  }
+
+  const nextAvatarUrls = [...avatarUrls]
+  const avatarIndex = nextAvatarUrls.findIndex(url => url === avatarUrl)
+
+  if (avatarIndex >= 0) {
+    nextAvatarUrls.splice(avatarIndex, 1)
+  }
+
+  return nextAvatarUrls
+}
+
+const applyPostLikePatch = (post: PostViewModel, patch: PostLikePatch) => {
+  post.isLiked = patch.isLike
+  post.likesCount = Math.max(0, post.likesCount + patch.delta)
+  post.avatarWhoLikes = getUpdatedLikeAvatarUrls(post.avatarWhoLikes, patch)
+}
+
+const applyPostLikePatchToPages = (
+  pages: Array<{ items: PostViewModel[] }>,
+  postId: number,
+  patch: PostLikePatch
+) => {
+  for (const page of pages) {
+    const post = page.items.find(item => item.id === postId)
+
+    if (post) {
+      applyPostLikePatch(post, patch)
+
+      return
+    }
+  }
+}
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -319,16 +394,109 @@ export const postApi = baseApi.injectEndpoints({
           : [{ type: 'Post', id: 'LIST' }],
     }),
 
+    getPostLikes: builder.query<PostLikesResponse, GetPostLikesParams>({
+      query: ({ postId, pageSize = 3, pageNumber = 1, cursor = 0 }) => ({
+        url: API_ROUTES.POSTS.POST_LIKES(postId),
+        params: { pageSize, pageNumber, cursor },
+      }),
+    }),
+
     updateLikeStatus: builder.mutation<
-      PostViewModel,
-      { postId: number; data: UpdateLikeStatusDto }
+      void,
+      { postId: number; data: UpdateLikeStatusDto; ownerId: number; currentUser: CurrentLikeUser }
     >({
       query: ({ postId, data }) => ({
         url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
+      async onQueryStarted({ postId, data, ownerId, currentUser }, { dispatch, queryFulfilled }) {
+        const isLike = data.likeStatus === 'LIKE'
+        const delta = isLike ? 1 : -1
+        const avatarUrl = currentUser.avatarUrl || DEFAULT_AVATAR
+        const likePatch = { avatarUrl, delta, isLike }
+        const patches: Array<{ undo: () => void }> = []
+
+        patches.push(
+          dispatch(
+            postApi.util.updateQueryData('getPostById', postId, draft => {
+              applyPostLikePatch(draft, likePatch)
+            })
+          )
+        )
+
+        patches.push(
+          dispatch(
+            postApi.util.updateQueryData(
+              'getPostLikes',
+              { postId, ...POST_LIKES_QUERY_ARG },
+              draft => {
+                if (isLike) {
+                  const hasCurrentUserLike = draft.items.some(
+                    item => item.userId === currentUser.userId
+                  )
+
+                  draft.totalCount = Math.max(
+                    0,
+                    draft.totalCount + (hasCurrentUserLike ? 0 : delta)
+                  )
+                  draft.items = [
+                    {
+                      id: currentUser.userId,
+                      userId: currentUser.userId,
+                      userName: currentUser.userName,
+                      createdAt: new Date().toISOString(),
+                      avatars: currentUser.avatarUrl
+                        ? [
+                            {
+                              url: currentUser.avatarUrl,
+                              width: 45,
+                              height: 45,
+                              fileSize: 0,
+                            },
+                          ]
+                        : [],
+                      isFollowing: false,
+                      isFollowedBy: false,
+                    },
+                    ...draft.items.filter(item => item.userId !== currentUser.userId),
+                  ]
+                } else {
+                  draft.totalCount = Math.max(0, draft.totalCount + delta)
+                  draft.items = draft.items.filter(item => item.userId !== currentUser.userId)
+                }
+
+                draft.items = sortPostLikeUsersByRecent(draft.items).slice(
+                  0,
+                  POST_LIKES_QUERY_ARG.pageSize
+                )
+              }
+            )
+          )
+        )
+
+        if (isValidUserId(ownerId)) {
+          patches.push(
+            dispatch(
+              postApi.util.updateQueryData(
+                'getInfinitePostsByUser',
+                { userId: ownerId },
+                (draft: InfiniteData<PaginatedPosts, null | number>) => {
+                  applyPostLikePatchToPages(draft.pages, postId, likePatch)
+                }
+              )
+            )
+          )
+        }
+
+        try {
+          await queryFulfilled
+        } catch {
+          patches.forEach(p => p.undo())
+
+          return
+        }
+      },
     }),
     getFollowersFeed: builder.infiniteQuery<
       FollowersFeedResponse,
@@ -377,6 +545,7 @@ export const {
   useGetInfinitePostsByUserInfiniteQuery: useGetPostsByUserInfiniteQuery,
   useLazyGetPostsByUserQuery,
   useGetPostsQuery,
+  useGetPostLikesQuery,
   useUpdateLikeStatusMutation,
   useGetFollowersFeedInfiniteQuery,
 } = postApi

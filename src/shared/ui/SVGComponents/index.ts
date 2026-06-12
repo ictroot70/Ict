@@ -1,6 +1,7 @@
 import * as Icons from '@ictroot/ui-kit/icons'
 
 export const PaperPlane = Icons.PaperPlane
+export const Heart = Icons.Heart
 export const HeartOutline = Icons.HeartOutline
 export const GitHub = Icons.GitHub
 export const Google = Icons.Google
