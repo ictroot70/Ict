@@ -32,6 +32,12 @@ type CurrentLikeUser = {
   userName: string
 }
 
+type PostLikePatch = {
+  avatarUrl: string
+  delta: number
+  isLike: boolean
+}
+
 const getAvatarUrl = (user: PostLikesResponse['items'][number]) =>
   user.avatars.find(avatar => avatar.width === 45)?.url ?? user.avatars[0]?.url ?? DEFAULT_AVATAR
 
@@ -44,6 +50,46 @@ const sortPostLikeUsersByRecent = (items: PostLikesResponse['items']) =>
 
 export const getAvatarWhoLikes = (likes: PostLikesResponse) =>
   sortPostLikeUsersByRecent(likes.items).slice(0, POST_LIKE_AVATARS_LIMIT).map(getAvatarUrl)
+
+const getUpdatedLikeAvatarUrls = (avatarUrls: string[], { avatarUrl, isLike }: PostLikePatch) => {
+  if (isLike) {
+    return [avatarUrl, ...avatarUrls.filter(url => url !== avatarUrl)].slice(
+      0,
+      POST_LIKE_AVATARS_LIMIT
+    )
+  }
+
+  const nextAvatarUrls = [...avatarUrls]
+  const avatarIndex = nextAvatarUrls.findIndex(url => url === avatarUrl)
+
+  if (avatarIndex >= 0) {
+    nextAvatarUrls.splice(avatarIndex, 1)
+  }
+
+  return nextAvatarUrls
+}
+
+const applyPostLikePatch = (post: PostViewModel, patch: PostLikePatch) => {
+  post.isLiked = patch.isLike
+  post.likesCount = Math.max(0, post.likesCount + patch.delta)
+  post.avatarWhoLikes = getUpdatedLikeAvatarUrls(post.avatarWhoLikes, patch)
+}
+
+const applyPostLikePatchToPages = (
+  pages: Array<{ items: PostViewModel[] }>,
+  postId: number,
+  patch: PostLikePatch
+) => {
+  for (const page of pages) {
+    const post = page.items.find(item => item.id === postId)
+
+    if (post) {
+      applyPostLikePatch(post, patch)
+
+      return
+    }
+  }
+}
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -365,31 +411,13 @@ export const postApi = baseApi.injectEndpoints({
         const isLike = data.likeStatus === 'LIKE'
         const delta = isLike ? 1 : -1
         const avatarUrl = currentUser.avatarUrl || DEFAULT_AVATAR
+        const likePatch = { avatarUrl, delta, isLike }
         const patches: Array<{ undo: () => void }> = []
-        const updateAvatarUrls = (avatarUrls: string[]) => {
-          if (isLike) {
-            return [avatarUrl, ...avatarUrls.filter(url => url !== avatarUrl)].slice(
-              0,
-              POST_LIKE_AVATARS_LIMIT
-            )
-          }
-
-          const nextAvatarUrls = [...avatarUrls]
-          const avatarIndex = nextAvatarUrls.findIndex(url => url === avatarUrl)
-
-          if (avatarIndex >= 0) {
-            nextAvatarUrls.splice(avatarIndex, 1)
-          }
-
-          return nextAvatarUrls
-        }
 
         patches.push(
           dispatch(
             postApi.util.updateQueryData('getPostById', postId, draft => {
-              draft.isLiked = isLike
-              draft.likesCount = Math.max(0, draft.likesCount + delta)
-              draft.avatarWhoLikes = updateAvatarUrls(draft.avatarWhoLikes)
+              applyPostLikePatch(draft, likePatch)
             })
           )
         )
@@ -451,16 +479,7 @@ export const postApi = baseApi.injectEndpoints({
                 'getInfinitePostsByUser',
                 { userId: ownerId },
                 (draft: InfiniteData<PaginatedPosts, null | number>) => {
-                  for (const page of draft.pages) {
-                    const post = page.items.find(item => item.id === postId)
-
-                    if (post) {
-                      post.isLiked = isLike
-                      post.likesCount = Math.max(0, post.likesCount + delta)
-                      post.avatarWhoLikes = updateAvatarUrls(post.avatarWhoLikes)
-                      break
-                    }
-                  }
+                  applyPostLikePatchToPages(draft.pages, postId, likePatch)
                 }
               )
             )
