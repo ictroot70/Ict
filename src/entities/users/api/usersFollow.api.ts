@@ -10,14 +10,16 @@ export const usersFollowApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['Profile'],
+      invalidatesTags: (result, error, { selectedUserId }) => [
+        { type: 'Profile', id: selectedUserId },
+      ],
     }),
     unfollowUser: builder.mutation<void, number>({
       query: userId => ({
         url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(userId),
         method: 'DELETE',
       }),
-      invalidatesTags: ['Profile'],
+      invalidatesTags: (result, error, userId) => [{ type: 'Profile', id: userId }],
     }),
   }),
 })
