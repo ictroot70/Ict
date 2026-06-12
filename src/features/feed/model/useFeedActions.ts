@@ -3,6 +3,12 @@
 import { useCallback, useState } from 'react'
 
 import { useFollowUserMutation, useUnfollowUserMutation } from '@/entities/users/api'
+import {
+  markUserFollowed,
+  markUserUnfollowed,
+  selectUnfollowedUserIds,
+} from '@/entities/users/model'
+import { useAppDispatch, useAppSelector } from '@/lib/hooks'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 
@@ -15,13 +21,14 @@ const copyText = async (text: string) => {
 }
 
 export const useFeedActions = () => {
-  const [unfollowedUserIds, setUnfollowedUserIds] = useState<Set<number>>(() => new Set())
+  const dispatch = useAppDispatch()
+  const unfollowedUserIds = useAppSelector(selectUnfollowedUserIds)
   const [pendingUserIds, setPendingUserIds] = useState<Set<number>>(() => new Set())
   const [followUser] = useFollowUserMutation()
   const [unfollowUser] = useUnfollowUserMutation()
 
   const isFollowing = useCallback(
-    (userId: number) => !unfollowedUserIds.has(userId),
+    (userId: number) => !unfollowedUserIds.includes(userId),
     [unfollowedUserIds]
   )
 
@@ -36,23 +43,17 @@ export const useFeedActions = () => {
         return
       }
 
-      const shouldUnfollow = !unfollowedUserIds.has(userId)
+      const shouldUnfollow = !unfollowedUserIds.includes(userId)
 
       setPendingUserIds(current => new Set(current).add(userId))
 
       try {
         if (shouldUnfollow) {
           await unfollowUser(userId).unwrap()
-          setUnfollowedUserIds(current => new Set(current).add(userId))
+          dispatch(markUserUnfollowed(userId))
         } else {
           await followUser({ selectedUserId: userId }).unwrap()
-          setUnfollowedUserIds(current => {
-            const next = new Set(current)
-
-            next.delete(userId)
-
-            return next
-          })
+          dispatch(markUserFollowed(userId))
         }
       } catch {
         showToastAlert({
@@ -69,7 +70,7 @@ export const useFeedActions = () => {
         })
       }
     },
-    [followUser, pendingUserIds, unfollowUser, unfollowedUserIds]
+    [dispatch, followUser, pendingUserIds, unfollowUser, unfollowedUserIds]
   )
 
   const copyPostLink = useCallback(async (ownerId: number, postId: number) => {
