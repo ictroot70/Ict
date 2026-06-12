@@ -35,6 +35,12 @@
   overflow-wrap: anywhere;
 }
 
+.descriptionText {
+  strong {
+    margin-right: 0.25rem;
+  }
+}
+
 .likes {
   display: flex;
   align-items: center;
