@@ -36,7 +36,7 @@ afterEach(() => {
 })
 
 describe('usersFollowApi profile invalidation', () => {
-  it('refetches all active public profiles after follow and unfollow', async () => {
+  it('refetches only the affected public profile after follow and unfollow', async () => {
     const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(asJsonResponse({})))
     const store = createTestStore()
 
@@ -46,17 +46,17 @@ describe('usersFollowApi profile invalidation', () => {
     await store.dispatch(profileApi.endpoints.getPublicProfile.initiate({ profileId: 8 }))
     await store.dispatch(usersFollowApi.endpoints.followUser.initiate({ selectedUserId: 7 }))
 
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(5))
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(4))
 
     await store.dispatch(usersFollowApi.endpoints.unfollowUser.initiate(7))
 
-    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(8))
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(6))
 
     const requestedPaths = fetchMock.mock.calls.map(call => new URL(asRequest(call).url).pathname)
     const publicProfileRequests = (profileId: number) =>
       requestedPaths.filter(path => path.endsWith(API_ROUTES.PUBLIC_USER.PROFILE(profileId)))
 
     expect(publicProfileRequests(7)).toHaveLength(3)
-    expect(publicProfileRequests(8)).toHaveLength(3)
+    expect(publicProfileRequests(8)).toHaveLength(1)
   })
 })
