@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
+import { FOLLOWERS_FEED_QUERY_ARGS, useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
 import { InfiniteScrollTrigger, Loading, LinearProgress } from '@/shared/composites'
 
 import s from './Feed.module.scss'
@@ -12,7 +12,7 @@ import { FeedPost } from './FeedPost'
 export function Feed() {
   const { copyPostLink, isFollowing, isFollowPending, toggleFollow } = useFeedActions()
   const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useGetFollowersFeedInfiniteQuery({ pageSize: 10 })
+    useGetFollowersFeedInfiniteQuery(FOLLOWERS_FEED_QUERY_ARGS)
 
   const handleLoadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {

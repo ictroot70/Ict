@@ -14,7 +14,7 @@ import Link from 'next/dist/client/link'
 
 import s from './FeedPostFooter.module.scss'
 
-import { MOCK_COMMENTS_COUNT, MOCK_LIKED_BY_AVATARS, MOCK_LIKES_COUNT } from './feedPost.constants'
+import { MOCK_COMMENTS_COUNT } from './feedPost.constants'
 
 type Props = {
   post: PostViewModel
@@ -29,6 +29,7 @@ export function FeedPostFooter({ post }: Props) {
           className={s.actionButton}
           type={'button'}
           aria-label={'Like post'}
+          aria-pressed={post.isLiked}
         >
           <HeartOutline />
         </Button>
@@ -71,12 +72,12 @@ export function FeedPostFooter({ post }: Props) {
 
       <div className={s.likes}>
         <div className={s.likeAvatars} aria-hidden={'true'}>
-          {MOCK_LIKED_BY_AVATARS.map((avatar, index) => (
+          {post.avatarWhoLikes.map((avatar, index) => (
             <Avatar className={s.likeAvatar} image={avatar} size={24} key={`${avatar}-${index}`} />
           ))}
         </div>
         <Typography variant={'regular_14'}>
-          <span className={s.countComments}>{MOCK_LIKES_COUNT.toLocaleString('ru-RU')}</span>
+          <span className={s.countComments}>{post.likesCount.toLocaleString('ru-RU')}</span>
           <span>&quot;</span>
           <strong>Like</strong>
           <span>&quot;</span>
