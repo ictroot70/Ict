@@ -1,5 +1,6 @@
 import { PostViewModel } from '@/entities/posts/api'
 import { Avatar } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant/app-routes'
 import {
   BookmarkOutline,
   Button,
@@ -9,6 +10,7 @@ import {
   PaperPlane,
   Typography,
 } from '@/shared/ui'
+import Link from 'next/dist/client/link'
 
 import s from './FeedPostFooter.module.scss'
 
@@ -58,8 +60,12 @@ export function FeedPostFooter({ post }: Props) {
 
       <div className={s.description}>
         <Avatar image={post.avatarOwner} size={36} alt={`${post.userName} avatar`} />
-        <Typography variant={'regular_14'}>
-          <strong>{post.userName}</strong> {post.description}
+
+        <Typography variant={'regular_14'} className={s.descriptionText}>
+          <Link href={APP_ROUTES.PROFILE.ID(post.ownerId)}>
+            <strong>{post.userName}</strong>
+          </Link>
+          {post.description}
         </Typography>
       </div>
 
