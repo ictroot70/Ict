@@ -1,5 +1,6 @@
 import { useDispatch, useSelector, useStore } from 'react-redux'
 
+import { userFollowReducer } from '@/entities/users/model'
 import { notificationsReducer } from '@/features/notifications/model/notificationsSlice'
 import { editProfileFormListenerMiddleware } from '@/features/profile/edit-profile/model/editProfileForm.listeners'
 import { editProfileFormReducer } from '@/features/profile/edit-profile/model/editProfileForm.slice'
@@ -16,6 +17,7 @@ export const makeStore = () => {
       auth: authReducer,
       editProfileForm: editProfileFormReducer,
       notifications: notificationsReducer,
+      userFollow: userFollowReducer,
     }),
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({

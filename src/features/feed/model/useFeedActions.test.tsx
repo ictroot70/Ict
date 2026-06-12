@@ -1,5 +1,9 @@
 /* @vitest-environment jsdom */
 
+import { PropsWithChildren } from 'react'
+import { Provider } from 'react-redux'
+
+import { makeStore } from '@/app/store'
 import { useFollowUserMutation, useUnfollowUserMutation } from '@/entities/users/api'
 import { showToastAlert } from '@/shared/lib'
 import { act, renderHook } from '@testing-library/react'
@@ -24,6 +28,13 @@ const followUser = vi.fn()
 const unfollowUser = vi.fn()
 
 const resolvedMutation = () => ({ unwrap: vi.fn().mockResolvedValue(undefined) })
+const createWrapper = () => {
+  const store = makeStore()
+
+  return {
+    wrapper: ({ children }: PropsWithChildren) => <Provider store={store}>{children}</Provider>,
+  }
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -39,7 +50,8 @@ beforeEach(() => {
 
 describe('useFeedActions', () => {
   it('unfollows and then allows following the same user again', async () => {
-    const { result } = renderHook(() => useFeedActions())
+    const { wrapper } = createWrapper()
+    const { result } = renderHook(() => useFeedActions(), { wrapper })
 
     expect(result.current.isFollowing(7)).toBe(true)
 
@@ -60,7 +72,8 @@ describe('useFeedActions', () => {
 
   it('keeps following state unchanged when unfollow fails', async () => {
     unfollowUser.mockReturnValue({ unwrap: vi.fn().mockRejectedValue(new Error('failed')) })
-    const { result } = renderHook(() => useFeedActions())
+    const { wrapper } = createWrapper()
+    const { result } = renderHook(() => useFeedActions(), { wrapper })
 
     await act(async () => {
       await result.current.toggleFollow(7)
@@ -82,7 +95,8 @@ describe('useFeedActions', () => {
       value: { writeText },
     })
 
-    const { result } = renderHook(() => useFeedActions())
+    const { wrapper } = createWrapper()
+    const { result } = renderHook(() => useFeedActions(), { wrapper })
 
     await act(async () => {
       await result.current.copyPostLink(4, 12)
@@ -90,5 +104,25 @@ describe('useFeedActions', () => {
 
     expect(writeText).toHaveBeenCalledWith('http://localhost:3000/profile/4?postId=12')
     expect(showToastAlertMock).toHaveBeenCalledWith({ message: 'Link copied', type: 'success' })
+  })
+
+  it('keeps unfollow state after Feed is opened again', async () => {
+    const { wrapper } = createWrapper()
+    const firstFeed = renderHook(() => useFeedActions(), { wrapper })
+
+    await act(async () => {
+      await firstFeed.result.current.toggleFollow(7)
+    })
+
+    firstFeed.unmount()
+
+    const reopenedFeed = renderHook(() => useFeedActions(), { wrapper })
+
+    expect(reopenedFeed.result.current.isFollowing(7)).toBe(false)
+
+    const { wrapper: reloadedAppWrapper } = createWrapper()
+    const reloadedFeed = renderHook(() => useFeedActions(), { wrapper: reloadedAppWrapper })
+
+    expect(reloadedFeed.result.current.isFollowing(7)).toBe(true)
   })
 })
