@@ -12,6 +12,7 @@ import '@testing-library/jest-dom'
 import { Feed } from './Feed'
 
 vi.mock('@/entities/posts/api', () => ({
+  FOLLOWERS_FEED_QUERY_ARGS: { pageSize: 10 },
   useGetFollowersFeedInfiniteQuery: vi.fn(),
 }))
 
