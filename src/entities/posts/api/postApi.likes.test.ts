@@ -5,8 +5,8 @@ import { LikeStatus } from '@/shared/types'
 import { configureStore } from '@reduxjs/toolkit'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { POST_LIKES_QUERY_ARG, postApi } from './postApi'
-import { PaginatedPosts, PostLikesResponse, PostViewModel } from './posts.types'
+import { postApi } from './postApi'
+import { PaginatedPosts, PostViewModel } from './posts.types'
 
 const createTestStore = () =>
   configureStore({
@@ -53,28 +53,6 @@ const createPost = (overrides: Partial<PostViewModel> = {}): PostViewModel => ({
   ...overrides,
 })
 
-const createPostLikes = (): PostLikesResponse => ({
-  pageSize: POST_LIKES_QUERY_ARG.pageSize,
-  totalCount: 2,
-  items: [
-    {
-      id: 20,
-      userId: 20,
-      userName: 'other-user',
-      createdAt: '2026-06-09T00:00:00.000Z',
-      avatars: [{ url: '/other-avatar.png', width: 45, height: 45, fileSize: 10 }],
-      isFollowing: false,
-      isFollowedBy: false,
-    },
-  ],
-})
-
-const currentUser = {
-  userId: 30,
-  userName: 'current-user',
-  avatarUrl: '/current-avatar.png',
-}
-
 afterEach(() => {
   vi.unstubAllGlobals()
 })
@@ -90,8 +68,8 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     await store.dispatch(
       postApi.endpoints.updateLikeStatus.initiate({
         postId: 1,
-        ownerId: 10,
-        currentUser,
+        userId: 10,
+        currentUserAvatar: '/current-avatar.png',
         data: { likeStatus: LikeStatus.LIKE },
       })
     )
@@ -128,8 +106,8 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     await store.dispatch(
       postApi.endpoints.updateLikeStatus.initiate({
         postId: 1,
-        ownerId: 10,
-        currentUser,
+        userId: 10,
+        currentUserAvatar: '/current-avatar.png',
         data: { likeStatus: LikeStatus.LIKE },
       })
     )
@@ -144,49 +122,6 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     expect(updatedPost?.likesCount).toBe(3)
     expect(updatedPost?.avatarWhoLikes).toEqual(['/current-avatar.png', '/oldest.png'])
     expect(untouchedPost?.likesCount).toBe(5)
-  })
-
-  it('updates post likes without duplicating the current user', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(asNoContentResponse())
-    const store = createTestStore()
-    const existingLikes = createPostLikes()
-
-    existingLikes.totalCount = 3
-    existingLikes.items.unshift({
-      id: currentUser.userId,
-      userId: currentUser.userId,
-      userName: currentUser.userName,
-      createdAt: '2026-06-08T00:00:00.000Z',
-      avatars: [{ url: currentUser.avatarUrl, width: 45, height: 45, fileSize: 10 }],
-      isFollowing: false,
-      isFollowedBy: false,
-    })
-
-    vi.stubGlobal('fetch', fetchMock as typeof fetch)
-    await store.dispatch(
-      postApi.util.upsertQueryData(
-        'getPostLikes',
-        { postId: 1, ...POST_LIKES_QUERY_ARG },
-        existingLikes
-      )
-    )
-
-    await store.dispatch(
-      postApi.endpoints.updateLikeStatus.initiate({
-        postId: 1,
-        ownerId: 10,
-        currentUser,
-        data: { likeStatus: LikeStatus.LIKE },
-      })
-    )
-
-    const likes = postApi.endpoints.getPostLikes.select({ postId: 1, ...POST_LIKES_QUERY_ARG })(
-      store.getState()
-    ).data
-
-    expect(likes?.totalCount).toBe(3)
-    expect(likes?.items.filter(item => item.userId === currentUser.userId)).toHaveLength(1)
-    expect(likes?.items[0]?.userId).toBe(currentUser.userId)
   })
 
   it('optimistically removes a like from post details', async () => {
@@ -209,8 +144,8 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     await store.dispatch(
       postApi.endpoints.updateLikeStatus.initiate({
         postId: 1,
-        ownerId: 10,
-        currentUser,
+        userId: 10,
+        currentUserAvatar: '/current-avatar.png',
         data: { likeStatus: LikeStatus.NONE },
       })
     )
@@ -232,8 +167,8 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     await store.dispatch(
       postApi.endpoints.updateLikeStatus.initiate({
         postId: 1,
-        ownerId: 10,
-        currentUser,
+        userId: 10,
+        currentUserAvatar: '/current-avatar.png',
         data: { likeStatus: LikeStatus.LIKE },
       })
     )

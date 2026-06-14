@@ -3,13 +3,13 @@ import React from 'react'
 
 import { Carousel } from '@/shared/composites'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { PostViewModel } from '@/shared/types'
+import { PostModalData } from '@/shared/types'
 import Image from 'next/image'
 
 import s from '../EditMode.module.scss'
 
 interface EditImageSectionProps {
-  postData: PostViewModel
+  postData: PostModalData
 }
 
 export const EditModeImageSection: React.FC<EditImageSectionProps> = ({ postData }) => {

@@ -1,5 +1,6 @@
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
 import { CommentFormData, PostModalData } from '@/shared/types'
 import {

@@ -63,8 +63,6 @@ export const ViewMode = ({
     console.log('handleFollow')
   }
 
-  // ViewModePostHeader и ViewModeCommentsSection используют поле avatar,
-  // в PostViewModel оно называется avatarOwner
   const postDataForChildren = {
     avatar: postData.avatar,
     userName: postData.userName,

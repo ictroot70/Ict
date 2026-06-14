@@ -166,7 +166,7 @@ export const PostModal = ({
       <ViewMode
         onClose={handleCloseModal}
         postData={postData}
-        postId={resolvedPostId ?? Number(postData.postId)}
+        postId={resolvedPostId ?? postData.id}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}

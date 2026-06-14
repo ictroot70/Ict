@@ -99,22 +99,20 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   if (isAuthenticatedUi) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
-
   const postModalData: PostModalData = postData
     ? mapPostToModalData(postData)
     : {
+        id: 0,
         images: [],
         userName: '',
         avatar: '',
         description: '',
         createdAt: new Date().toISOString(),
-        postId: '',
         ownerId: undefined,
         likesCount: 0,
         isLiked: false,
         avatarWhoLikes: [],
       }
-
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',

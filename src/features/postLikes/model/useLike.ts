@@ -54,12 +54,8 @@ export const useLike = (postId: number, ownerId: number) => {
 
       updateLikeStatus({
         postId,
-        ownerId,
-        currentUser: {
-          userId: user.userId,
-          userName: 'name' in user ? user.name : '',
-          avatarUrl: currentUserAvatarUrl,
-        },
+        userId: ownerId,
+        currentUserAvatar: currentUserAvatarUrl,
         data: {
           likeStatus: isLiked ? LikeStatus.NONE : LikeStatus.LIKE,
         },

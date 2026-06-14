@@ -88,15 +88,13 @@ export interface DescriptionFormData {
 export interface CommentFormData {
   comment: string
 }
-<<<<<<< SCRUM-288-Comments-Viewer-and-Likes-System-UC-4
-
 export interface PostModalData {
+  id: number
   images: UserImage[]
   userName: string
   avatar: string
   description: string
   createdAt: string
-  postId: string
   ownerId?: number
   likesCount: number
   isLiked: boolean
@@ -109,11 +107,9 @@ export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
   avatar: post.avatarOwner,
   description: post.description || '',
   createdAt: post.createdAt,
-  postId: post.id.toString(),
+  id: post.id,
   ownerId: post.ownerId,
   likesCount: post.likesCount,
   isLiked: post.isLiked,
   avatarWhoLikes: post.avatarWhoLikes ?? [],
 })
-=======
->>>>>>> SCRUM-282-S-9-Comments-likes-following
