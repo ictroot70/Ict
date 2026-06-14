@@ -91,16 +91,11 @@
   padding: 0 24px;
 }
 
-.comment {
+ .comment {
   display: flex;
   gap: 12px;
   padding: 0;
   align-items: flex-start;
-}
-
-.commentBlock {
-  display: flex;
-  flex-direction: column;
 }
 
 .commentBody {
@@ -111,12 +106,74 @@
 .commentMeta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-top: 2px;
+  flex-wrap: wrap;
 }
 
 .commentTimestamp {
   color: #8e8e8e;
+  font-size: 12px;
+}
+
+.commentLikeButton {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;   
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.answersToggleContainer {
+  display: flex;
+  align-items: center;
+  margin-left: 44px;
+  margin-bottom: 15px;
+  margin-top: 11px;
+  gap: 8px;  
+}
+.answersLine {
+  width: 24px;
+  height: 1px;
+  background-color: var(--color-dark-100, #333);
+  flex-shrink: 0;
+}
+
+.viewRepliesButton {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+  color: #8e8e8e;
+  font-size: 12px;
+  line-height: 1;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+}
+ 
+
+.commentText {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.commentTimestamp {
+  color: #8e8e8e;
+  font-size: 12px;
 }
 
 .mention {
@@ -124,28 +181,22 @@
   font-weight: 600;
 }
 
-.commentLikeWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  margin-left: auto;
-}
-
-.commentLikeButton {
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
+.likeButton {
   padding: 0;
   min-width: 0;
   min-height: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.likeCount {
-  color: var(--color-light-900);
-  font-size: 10px;
-  line-height: 1;
+.answersDivider {
+  height: 1px;
+  background-color: var(--color-dark-100, #333);
+  margin: 12px 0;
+  margin-left: 44px;
 }
 
 .replies {
@@ -196,7 +247,6 @@
 }
 
 .viewRepliesButton {
-  margin-left: 44px;
   margin-bottom: 4px;
   font-weight: 600;
 }
@@ -242,7 +292,6 @@
   min-width: 0;
   min-height: 0;
   &:hover svg {
-    //filter: drop-shadow(0 0 1px var(--color-light-100));
     scale: 1.1;
   }
 }

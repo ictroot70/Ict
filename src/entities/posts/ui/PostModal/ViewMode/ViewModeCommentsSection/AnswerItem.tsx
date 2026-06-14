@@ -85,13 +85,14 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
       <div className={s.comment}>
         <Avatar size={32} image={getCommentAvatarUrl(answer.from)} alt={authorName} />
         <div className={s.commentBody}>
-          <Typography variant={'regular_14'} color={'light'}>
+          <Typography variant={'regular_14'} color={'light'} className={s.commentText}>
             <strong>{authorName}</strong> <CommentContentText content={answer.content} />
           </Typography>
           <CommentMetaActions
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
             onAnswer={handleToggleReply}
+            likeCount={answer.likeCount}
           />
         </div>
         <CommentLikeButton

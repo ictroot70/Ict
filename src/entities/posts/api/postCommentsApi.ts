@@ -20,7 +20,6 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { showToastAlert } from '@/shared/lib'
 import { AnswersViewModel, CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 import { UserBase } from '@/shared/types/user/models'
 import { InfiniteData } from '@reduxjs/toolkit/query'
@@ -29,10 +28,7 @@ const commentsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: builder => ({
     getPostComments: builder.infiniteQuery<PaginatedCommentsResponse, GetCommentsParams, number>({
-      infiniteQueryOptions: {
-        initialPageParam: 1,
-        getNextPageParam: getCommentsNextPageParam,
-      },
+      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam: getCommentsNextPageParam },
       query: ({ pageParam, queryArg }) => ({
         url: API_ROUTES.POSTS.COMMENTS(queryArg.postId),
         params: {
@@ -51,10 +47,7 @@ const commentsApi = baseApi.injectEndpoints({
       GetCommentAnswersParams,
       number
     >({
-      infiniteQueryOptions: {
-        initialPageParam: 1,
-        getNextPageParam: getAnswersNextPageParam,
-      },
+      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam: getAnswersNextPageParam },
       query: ({ pageParam, queryArg }) => ({
         url: API_ROUTES.POSTS.COMMENT_ANSWERS(queryArg.postId, queryArg.commentId),
         params: {
@@ -82,12 +75,8 @@ const commentsApi = baseApi.injectEndpoints({
       }),
       async onQueryStarted({ postId, commentId, data }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getPostComments',
-            { postId },
-            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-              patchCommentLikeInPages(draft, commentId, data.likeStatus)
-            }
+          commentsApi.util.updateQueryData('getPostComments', { postId }, draft =>
+            patchCommentLikeInPages(draft, commentId, data.likeStatus)
           )
         )
 
@@ -95,7 +84,6 @@ const commentsApi = baseApi.injectEndpoints({
           await queryFulfilled
         } catch {
           patchResult.undo()
-          showToastAlert({ message: 'Failed to update like', type: 'error' })
         }
       },
     }),
@@ -111,12 +99,8 @@ const commentsApi = baseApi.injectEndpoints({
       }),
       async onQueryStarted({ postId, commentId, answerId, data }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getCommentAnswers',
-            { postId, commentId },
-            (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-              patchAnswerLikeInPages(draft, answerId, data.likeStatus)
-            }
+          commentsApi.util.updateQueryData('getCommentAnswers', { postId, commentId }, draft =>
+            patchAnswerLikeInPages(draft, answerId, data.likeStatus)
           )
         )
 
@@ -124,7 +108,6 @@ const commentsApi = baseApi.injectEndpoints({
           await queryFulfilled
         } catch {
           patchResult.undo()
-          showToastAlert({ message: 'Failed to update like', type: 'error' })
         }
       },
     }),
@@ -150,14 +133,11 @@ const commentsApi = baseApi.injectEndpoints({
           answerCount: 0,
           from: optimisticFrom ?? { id: 0, userName: 'You', avatars: [] },
         }
-
         const patchResult = dispatch(
           commentsApi.util.updateQueryData(
             'getPostComments',
             { postId, pageSize: COMMENTS_PAGE_SIZE },
-            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-              prependCommentToPages(draft, optimisticComment)
-            }
+            draft => prependCommentToPages(draft, optimisticComment)
           )
         )
 
@@ -168,14 +148,11 @@ const commentsApi = baseApi.injectEndpoints({
             commentsApi.util.updateQueryData(
               'getPostComments',
               { postId, pageSize: COMMENTS_PAGE_SIZE },
-              (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-                replaceCommentInPages(draft, tempId, createdComment)
-              }
+              draft => replaceCommentInPages(draft, tempId, createdComment)
             )
           )
         } catch {
           patchResult.undo()
-          showToastAlert({ message: 'Failed to publish comment', type: 'error' })
         }
       },
     }),
@@ -193,7 +170,7 @@ const commentsApi = baseApi.injectEndpoints({
         { postId, commentId, body, optimisticFrom },
         { dispatch, queryFulfilled, getState }
       ) {
-        const answersArgs = { postId, commentId, pageSize: COMMENTS_PAGE_SIZE }
+        const args = { postId, commentId, pageSize: COMMENTS_PAGE_SIZE }
         const tempId = createOptimisticId()
         const optimisticAnswer: AnswersViewModel = {
           id: tempId,
@@ -204,51 +181,44 @@ const commentsApi = baseApi.injectEndpoints({
           isLiked: false,
           from: optimisticFrom ?? { id: 0, userName: 'You', avatars: [] },
         }
-
-        const cacheEntry = commentsApi.endpoints.getCommentAnswers.select(answersArgs)(getState())
-        const hasCache = Boolean(cacheEntry.data?.pages?.length)
+        const hasCache = Boolean(
+          commentsApi.endpoints.getCommentAnswers.select(args)(getState()).data?.pages?.length
+        )
 
         let undoAnswer: (() => void) | undefined
 
         if (hasCache) {
           const patchResult = dispatch(
-            commentsApi.util.updateQueryData(
-              'getCommentAnswers',
-              answersArgs,
-              (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-                prependAnswerToPages(draft, optimisticAnswer)
-              }
+            commentsApi.util.updateQueryData('getCommentAnswers', args, draft =>
+              prependAnswerToPages(draft, optimisticAnswer)
             )
           )
 
           undoAnswer = () => patchResult.undo()
         } else {
           dispatch(
-            commentsApi.util.upsertQueryData('getCommentAnswers', answersArgs, {
-              pages: [
-                {
-                  items: [optimisticAnswer],
-                  pageSize: COMMENTS_PAGE_SIZE,
-                  totalCount: 1,
-                },
-              ],
+            commentsApi.util.upsertQueryData('getCommentAnswers', args, {
+              pages: [{ items: [optimisticAnswer], pageSize: COMMENTS_PAGE_SIZE, totalCount: 1 }],
               pageParams: [1],
-            } as unknown as InfiniteData<PaginatedAnswersResponse, number>)
+            } as InfiniteData<PaginatedAnswersResponse, number>)
           )
-          undoAnswer = () => {
+          undoAnswer = () =>
             dispatch(
-              commentsApi.util.invalidateTags([{ type: 'Comments', id: `${postId}-${commentId}` }])
+              commentsApi.util.updateQueryData('getCommentAnswers', args, draft => {
+                if (draft) {
+                  draft.pages = draft.pages.map(p => ({
+                    ...p,
+                    items: p.items.filter(i => i.id !== tempId),
+                    totalCount: Math.max(0, p.totalCount - 1),
+                  }))
+                }
+              })
             )
-          }
         }
 
-        const countPatchResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getPostComments',
-            { postId, pageSize: COMMENTS_PAGE_SIZE },
-            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-              incrementCommentAnswerCount(draft, commentId)
-            }
+        const countPatch = dispatch(
+          commentsApi.util.updateQueryData('getPostComments', args, draft =>
+            incrementCommentAnswerCount(draft, commentId)
           )
         )
 
@@ -257,32 +227,21 @@ const commentsApi = baseApi.injectEndpoints({
 
           if (hasCache) {
             dispatch(
-              commentsApi.util.updateQueryData(
-                'getCommentAnswers',
-                answersArgs,
-                (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-                  replaceAnswerInPages(draft, tempId, createdAnswer)
-                }
+              commentsApi.util.updateQueryData('getCommentAnswers', args, draft =>
+                replaceAnswerInPages(draft, tempId, createdAnswer)
               )
             )
           } else {
             dispatch(
-              commentsApi.util.upsertQueryData('getCommentAnswers', answersArgs, {
-                pages: [
-                  {
-                    items: [createdAnswer],
-                    pageSize: COMMENTS_PAGE_SIZE,
-                    totalCount: 1,
-                  },
-                ],
+              commentsApi.util.upsertQueryData('getCommentAnswers', args, {
+                pages: [{ items: [createdAnswer], pageSize: COMMENTS_PAGE_SIZE, totalCount: 1 }],
                 pageParams: [1],
-              } as unknown as InfiniteData<PaginatedAnswersResponse, number>)
+              } as InfiniteData<PaginatedAnswersResponse, number>)
             )
           }
         } catch {
           undoAnswer?.()
-          countPatchResult.undo()
-          showToastAlert({ message: 'Failed to publish answer', type: 'error' })
+          countPatch.undo()
         }
       },
     }),

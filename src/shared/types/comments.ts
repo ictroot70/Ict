@@ -5,15 +5,19 @@ import { UserBase } from './user/models'
 export const COMMENT_CONTENT_MIN = 1
 export const COMMENT_CONTENT_MAX = 300
 
+const hasActualText = (val: string) => {
+  const cleaned = val.replace(/@\S+\s*/g, '').trim()
+
+  return cleaned.length >= COMMENT_CONTENT_MIN
+}
+
 export const commentContentSchema = z
   .string()
   .trim()
-  .min(COMMENT_CONTENT_MIN, 'Comment must be at least 1 character')
   .max(COMMENT_CONTENT_MAX, 'Comment must be at most 300 characters')
-
-export const createCommentSchema = z.object({
-  content: commentContentSchema,
-})
+  .refine(hasActualText, {
+    message: 'Comment must contain text, not just mentions',
+  })
 
 export const commentFormSchema = z.object({
   comment: commentContentSchema,
@@ -58,7 +62,6 @@ export const getCommentAuthorName = (from: CommentAuthor): string =>
 export const getCommentAvatarUrl = (from: CommentAuthor): string | undefined =>
   from.avatars?.[0]?.url
 
-/** Prefix for replying to an answer (flat thread — API has no nested answers). */
 export const buildReplyMentionPrefix = (userName: string): string => `@${userName} `
 
 export const ensureReplyMention = (content: string, replyToUserName: string): string => {

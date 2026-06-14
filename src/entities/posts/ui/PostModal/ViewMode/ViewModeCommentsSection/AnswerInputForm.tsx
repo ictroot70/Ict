@@ -18,6 +18,14 @@ interface AnswerInputFormProps {
   className?: string
 }
 
+const isEffectivelyEmpty = (value: string | undefined) => {
+  if (!value) {
+    return true
+  }
+
+  return value.replace(/@\S+\s*/g, '').trim().length === 0
+}
+
 export const AnswerInputForm: React.FC<AnswerInputFormProps> = ({
   control,
   handleSubmit,
@@ -26,6 +34,9 @@ export const AnswerInputForm: React.FC<AnswerInputFormProps> = ({
   isSubmitting,
   className,
 }) => {
+  const answerValue = watch('answer')
+  const isDisabled = isEffectivelyEmpty(answerValue) || isSubmitting
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={className ?? s.replyInputForm}>
       <ControlledInput
@@ -36,12 +47,7 @@ export const AnswerInputForm: React.FC<AnswerInputFormProps> = ({
         className={s.input}
         maxLength={COMMENT_CONTENT_MAX}
       />
-      <Button
-        variant={'text'}
-        type={'submit'}
-        className={s.publishButton}
-        disabled={!watch('answer')?.trim() || isSubmitting}
-      >
+      <Button variant={'text'} type={'submit'} className={s.publishButton} disabled={isDisabled}>
         Publish
       </Button>
     </form>

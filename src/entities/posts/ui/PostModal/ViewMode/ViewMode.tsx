@@ -59,14 +59,11 @@ export const ViewMode = ({
   isPostLikeLoading,
   onTogglePostLike,
 }: ViewModeProps) => {
-  const handleFollow = () => {
-    console.log('handleFollow')
-  }
+  const handleFollow = () => {}
 
   const postDataForChildren = {
-    avatar: postData.avatar,
+    avatar: postData.avatar ?? '',
     userName: postData.userName,
-    description: postData.description ?? '',
   }
 
   return (

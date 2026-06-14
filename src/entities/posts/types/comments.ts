@@ -15,7 +15,6 @@ export {
   buildReplyMentionPrefix,
   commentContentSchema,
   commentFormSchema,
-  createCommentSchema,
   ensureReplyMention,
   getCommentAuthorName,
   getCommentAvatarUrl,

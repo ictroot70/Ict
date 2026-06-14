@@ -132,16 +132,19 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           alt={getCommentAuthorName(comment.from)}
         />
         <div className={s.commentBody}>
-          <Typography variant={'regular_14'} color={'light'}>
+          <Typography variant={'regular_14'} color={'light'} className={s.commentText}>
             <strong>{getCommentAuthorName(comment.from)}</strong>{' '}
             <CommentContentText content={comment.content} />
           </Typography>
+          {/* В MetaActions передаем только likeCount для отображения текста */}
           <CommentMetaActions
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
             onAnswer={handleToggleReply}
+            likeCount={comment.likeCount}
           />
         </div>
+        {/* Отдельная кнопка лайка справа */}
         <CommentLikeButton
           isLiked={comment.isLiked}
           likeCount={comment.likeCount}
@@ -159,13 +162,14 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           isSubmitting={isCreatingAnswer}
         />
       )}
-
       {hasAnswers && (
-        <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
-          {showAnswers ? `Hide Answers (${answerCount})` : `View Answers (${answerCount})`}
-        </Button>
+        <div className={s.answersToggleContainer}>
+          <div className={s.answersLine} />
+          <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
+            {showAnswers ? `Hide Answers (${answerCount})` : `View Answers (${answerCount})`}
+          </Button>
+        </div>
       )}
-
       {showAnswers && (
         <div className={s.replies}>
           {isAnswersLoading && answers.length === 0 && (

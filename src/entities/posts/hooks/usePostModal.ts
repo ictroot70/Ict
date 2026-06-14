@@ -99,6 +99,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   if (isAuthenticatedUi) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
+
   const postModalData: PostModalData = postData
     ? mapPostToModalData(postData)
     : {
@@ -113,6 +114,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         isLiked: false,
         avatarWhoLikes: [],
       }
+
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -120,11 +122,19 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }).format(new Date(postData?.createdAt ?? new Date().toISOString()))
 
   useEffect(() => {
-    setLocalPostData(basePostData)
-  }, [resolvedPostId])
+    if (basePostData) {
+      setLocalPostData(prev => {
+        if (!prev || prev.id !== basePostData.id) {
+          return basePostData
+        }
+
+        return prev
+      })
+    }
+  }, [basePostData])
 
   useEffect(() => {
-    if (postDataFromQuery && localPostData && localPostData.id === postDataFromQuery.id) {
+    if (postDataFromQuery && localPostData?.id === postDataFromQuery.id) {
       setLocalPostData(prev => {
         if (!prev) {
           return prev
@@ -138,7 +148,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         }
       })
     }
-  }, [postDataFromQuery])
+  }, [postDataFromQuery, localPostData?.id])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -221,7 +231,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       if (!window.isSecureContext || !navigator.clipboard?.writeText) {
         throw new Error('Clipboard API unavailable')
       }
-
       await navigator.clipboard.writeText(url)
       showToastAlert({ message: postModalTextByLanguage[uiLanguage].copySuccess, type: 'success' })
     } catch {

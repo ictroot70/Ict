@@ -11,6 +11,7 @@ interface CommentMetaActionsProps {
   isAuthenticated: boolean
   onAnswer?: () => void
   showAnswerButton?: boolean
+  likeCount?: number
 }
 
 export const CommentMetaActions: React.FC<CommentMetaActionsProps> = ({
@@ -18,12 +19,20 @@ export const CommentMetaActions: React.FC<CommentMetaActionsProps> = ({
   isAuthenticated,
   onAnswer,
   showAnswerButton = true,
+  likeCount = 0,
 }) => {
   return (
     <div className={s.commentMeta}>
       <Typography variant={'small_text'} className={s.commentTimestamp}>
         {timeAgo}
       </Typography>
+
+      {likeCount > 0 && (
+        <Typography variant={'small_text'} className={s.commentTimestamp}>
+          Like: {likeCount}
+        </Typography>
+      )}
+
       {isAuthenticated && showAnswerButton && onAnswer && (
         <Button variant={'text'} className={s.replyButton} onClick={onAnswer}>
           Answer

@@ -10,9 +10,8 @@ import {
 } from '../api/postCommentsApi'
 
 export const useCommentLikeToggle = (postId: number) => {
-  const [updateCommentLike, { isLoading: isCommentLikeLoading }] =
-    useUpdateCommentLikeStatusMutation()
-  const [updateAnswerLike, { isLoading: isAnswerLikeLoading }] = useUpdateAnswerLikeStatusMutation()
+  const [updateCommentLike] = useUpdateCommentLikeStatusMutation()
+  const [updateAnswerLike] = useUpdateAnswerLikeStatusMutation()
 
   const toggleCommentLike = useCallback(
     (commentId: number, isLiked: boolean) => {
@@ -40,7 +39,5 @@ export const useCommentLikeToggle = (postId: number) => {
   return {
     toggleCommentLike,
     toggleAnswerLike,
-    isCommentLikeLoading,
-    isAnswerLikeLoading,
   }
 }
