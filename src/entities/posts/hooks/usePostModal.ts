@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -71,7 +71,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   })
 
   const resolvedPostId = postId
-
   const {
     data: postDataFromQuery,
     isError: isPostError,
@@ -84,8 +83,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
   const postData = localPostData
   const hasPostData = Boolean(postData)
-  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
-  const uiText = postModalTextByLanguage[uiLanguage]
 
   const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
   const { data: myProfile } = useGetMyProfileQuery(undefined, { skip: !isAuthenticatedUi })
@@ -122,11 +119,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(postModalData.createdAt))
-
-  useEffect(() => {
-    resetDescription({ description: postModalData.description })
-  }, [postModalData.description, resetDescription])
+  }).format(new Date(postData?.createdAt ?? new Date().toISOString()))
 
   useEffect(() => {
     setLocalPostData(basePostData)
@@ -206,7 +199,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
         optimisticFrom: currentUser,
       }).unwrap()
     } catch {
-      showToastAlert({ message: uiText.commentError, type: 'error' })
+      showToastAlert({ message: postModalTextByLanguage[uiLanguage].commentError, type: 'error' })
     }
   }
 
@@ -215,22 +208,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   const handleCancelEdit = () => {
-    resetDescription({ description: postModalData.description })
+    resetDescription({ description: postData?.description ?? '' })
     setIsEditingDescription(false)
   }
 
   const applyLocalDescription = (description: string) => {
-    setLocalPostData(prev => {
-      if (!prev) {
-        return prev
-      }
-
-      return {
-        ...prev,
-        description,
-        updatedAt: new Date().toISOString(),
-      }
-    })
+    resetDescription({ description })
   }
 
   const handleCopyLink = async () => {
@@ -242,9 +225,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       }
 
       await navigator.clipboard.writeText(url)
-      showToastAlert({ message: uiText.copySuccess, type: 'success' })
+      showToastAlert({ message: postModalTextByLanguage[uiLanguage].copySuccess, type: 'success' })
     } catch {
-      showToastAlert({ message: uiText.copyError, type: 'error' })
+      showToastAlert({ message: postModalTextByLanguage[uiLanguage].copyError, type: 'error' })
     }
   }
 
@@ -264,9 +247,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     isAuthenticated: isAuthenticatedUi,
     isOwnProfile,
     hasPostData,
-    isPostLoading,
+    isPostLoading: Boolean(open && resolvedPostId && !hasPostData && isPostFetching),
     isPostError,
-    uiText,
+    uiText: postModalTextByLanguage[uiLanguage],
     formattedCreatedAt,
     handlePublish,
     handleEditPost,

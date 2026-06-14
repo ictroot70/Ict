@@ -1,7 +1,5 @@
-import React from 'react'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
 import { CommentFormData, PostModalData } from '@/shared/types'
 import {
@@ -39,7 +37,7 @@ const formatLikesCount = (count: number): string => {
   return `${count.toLocaleString()} likes`
 }
 
-export const ViewModePostFooter: React.FC<PostFooterProps> = ({
+export const ViewModePostFooter = ({
   variant,
   postData,
   formattedCreatedAt,
@@ -52,7 +50,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
   isPostLikeLoading,
   commentMaxLength,
   onTogglePostLike,
-}) => {
+}: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
   const { likesCount, isLiked, avatarWhoLikes } = postData

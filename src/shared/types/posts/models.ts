@@ -71,8 +71,8 @@ export interface PublicationsFollowersWithPaginationViewModel {
 export type PostVariant = 'public' | 'myPost' | 'userPost'
 
 export interface PostModalHandlers {
-  onEditPost?: (postId: string, description: string) => boolean | Promise<boolean>
-  onDeletePost?: (postId: string) => void
+  onEditPost?: (postId: number, description: string) => boolean | Promise<boolean>
+  onDeletePost?: (postId: number) => void
   onClose: () => void
 }
 
@@ -88,6 +88,7 @@ export interface DescriptionFormData {
 export interface CommentFormData {
   comment: string
 }
+<<<<<<< SCRUM-288-Comments-Viewer-and-Likes-System-UC-4
 
 export interface PostModalData {
   images: UserImage[]
@@ -114,3 +115,5 @@ export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
   isLiked: post.isLiked,
   avatarWhoLikes: post.avatarWhoLikes ?? [],
 })
+=======
+>>>>>>> SCRUM-282-S-9-Comments-likes-following

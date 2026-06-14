@@ -63,13 +63,21 @@ export const ViewMode = ({
     console.log('handleFollow')
   }
 
+  // ViewModePostHeader и ViewModeCommentsSection используют поле avatar,
+  // в PostViewModel оно называется avatarOwner
+  const postDataForChildren = {
+    avatar: postData.avatar,
+    userName: postData.userName,
+    description: postData.description ?? '',
+  }
+
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
       <ViewModePhotoSection postData={postData} />
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postData}
+          postData={postDataForChildren}
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}

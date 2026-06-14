@@ -1,10 +1,12 @@
 import {
   CreatePostInputDto,
+  GetPostLikesParams,
   GetPostsByUserParams,
   GetPostsParams,
   PaginatedPosts,
   PaginatedResponse,
   PostImageViewModel,
+  PostLikesResponse,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
@@ -209,6 +211,13 @@ export const postApi = baseApi.injectEndpoints({
           : [{ type: 'Post', id: 'LIST' }],
     }),
 
+    getPostLikes: builder.query<PostLikesResponse, GetPostLikesParams>({
+      query: ({ postId, pageSize = 3, pageNumber = 1, cursor = 0 }) => ({
+        url: API_ROUTES.POSTS.POST_LIKES(postId),
+        params: { pageSize, pageNumber, cursor },
+      }),
+    }),
+
     updateLikeStatus: builder.mutation<
       PostViewModel,
       {
@@ -268,5 +277,6 @@ export const {
   useGetInfinitePostsByUserInfiniteQuery: useGetPostsByUserInfiniteQuery,
   useLazyGetPostsByUserQuery,
   useGetPostsQuery,
+  useGetPostLikesQuery,
   useUpdateLikeStatusMutation,
 } = postApi
