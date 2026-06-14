@@ -11,12 +11,15 @@ import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
+import { PostModalAuthState, RenderPostLikeAction } from './postModalLikeAction.types'
 
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
   postData?: PostViewModel
   postId?: number
+  authState?: PostModalAuthState
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const PostModal = ({
@@ -27,6 +30,8 @@ export const PostModal = ({
   isEditing,
   postData: initialPostData,
   postId,
+  authState,
+  renderPostLikeAction,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
@@ -55,7 +60,7 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
-  } = usePostModal(open, initialPostData, postId)
+  } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
     description: newDescription,
@@ -174,6 +179,7 @@ export const PostModal = ({
         isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
+        renderPostLikeAction={renderPostLikeAction}
       />
     )
   }

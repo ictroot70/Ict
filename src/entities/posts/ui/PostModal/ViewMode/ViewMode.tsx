@@ -5,6 +5,7 @@ import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../postModalLikeAction.types'
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
@@ -27,6 +28,7 @@ interface ViewModeProps {
   isAuthLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const ViewMode = ({
@@ -42,6 +44,7 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  renderPostLikeAction,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
@@ -79,6 +82,7 @@ export const ViewMode = ({
           isLiked={postData.isLiked}
           likesCount={postData.likesCount}
           avatarWhoLikes={postData.avatarWhoLikes}
+          renderPostLikeAction={renderPostLikeAction}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}

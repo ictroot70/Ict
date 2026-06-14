@@ -7,7 +7,7 @@ import {
   useGetPostByIdQuery,
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
+import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { showToastAlert } from '@/shared/lib'
 import { PostVariant, CommentFormData, DescriptionFormData, PostViewModel } from '@/shared/types'
 
@@ -30,7 +30,12 @@ const postModalTextByLanguage = {
   },
 } as const
 
-export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
+export const usePostModal = (
+  open: boolean,
+  initialPostData?: PostViewModel,
+  postId?: number,
+  authState?: PostModalAuthState
+) => {
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
@@ -56,7 +61,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   })
 
   const resolvedPostId = postId
-  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const user = authState?.user
+  const isAuthUiLoading = authState?.isAuthUiLoading ?? false
+  const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
 
   const {
     data: postDataFromQuery,

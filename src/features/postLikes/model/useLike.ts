@@ -2,8 +2,13 @@ import { useCallback, useSyncExternalStore } from 'react'
 
 import { useUpdateLikeStatusMutation } from '@/entities/posts/api/postApi'
 import { useGetPublicProfileQuery } from '@/entities/profile/api'
-import { useAuth } from '@/features/posts/utils/useAuth'
+import { showToastAlert } from '@/shared/lib'
 import { LikeStatus } from '@/shared/types'
+
+export type CurrentPostLikeUser = {
+  userId: number
+  userName: string
+}
 
 const lockedPostIds = new Set<number>()
 const lockListeners = new Set<() => void>()
@@ -30,10 +35,12 @@ const unlockPostLike = (postId: number) => {
   emitPostLikeLockChange()
 }
 
-export const useLike = (postId: number, ownerId: number) => {
-  const { user } = useAuth()
+export const useLike = (postId: number, ownerId: number, currentUser?: CurrentPostLikeUser) => {
   const { data: currentUserProfile, isLoading: isCurrentUserProfileLoading } =
-    useGetPublicProfileQuery({ profileId: user?.userId ?? 0 }, { skip: !user?.userId })
+    useGetPublicProfileQuery(
+      { profileId: currentUser?.userId ?? 0 },
+      { skip: !currentUser?.userId }
+    )
   const [updateLikeStatus, { isLoading }] = useUpdateLikeStatusMutation()
   const isPostLocked = useSyncExternalStore(
     subscribeToPostLikeLocks,
@@ -46,7 +53,7 @@ export const useLike = (postId: number, ownerId: number) => {
 
   const toggleLike = useCallback(
     (isLiked: boolean) => {
-      if (!user?.userId || lockedPostIds.has(postId) || isCurrentUserProfileLoading) {
+      if (!currentUser?.userId || lockedPostIds.has(postId) || isCurrentUserProfileLoading) {
         return
       }
 
@@ -56,8 +63,8 @@ export const useLike = (postId: number, ownerId: number) => {
         postId,
         ownerId,
         currentUser: {
-          userId: user.userId,
-          userName: 'name' in user ? user.name : '',
+          userId: currentUser.userId,
+          userName: currentUser.userName,
           avatarUrl: currentUserAvatarUrl,
         },
         data: {
@@ -65,13 +72,25 @@ export const useLike = (postId: number, ownerId: number) => {
         },
       })
         .unwrap()
-        .catch(() => undefined)
+        .catch(() => {
+          showToastAlert({ message: 'Failed to update like', type: 'error' })
+        })
         .finally(() => {
           unlockPostLike(postId)
         })
     },
-    [currentUserAvatarUrl, isCurrentUserProfileLoading, ownerId, postId, user, updateLikeStatus]
+    [
+      currentUser,
+      currentUserAvatarUrl,
+      isCurrentUserProfileLoading,
+      ownerId,
+      postId,
+      updateLikeStatus,
+    ]
   )
 
-  return { toggleLike, isLikeLoading: isLoading || isPostLocked || isCurrentUserProfileLoading }
+  return {
+    toggleLike,
+    isLikeLoading: !currentUser?.userId || isLoading || isPostLocked || isCurrentUserProfileLoading,
+  }
 }

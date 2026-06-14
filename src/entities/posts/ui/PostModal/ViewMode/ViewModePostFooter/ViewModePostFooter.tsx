@@ -1,12 +1,20 @@
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { ControlledInput } from '@/features/formControls'
-import { LikeButton } from '@/features/postLikes/ui/LikeButton'
 import { Avatar, Skeleton } from '@/shared/composites'
 import { CommentFormData } from '@/shared/types'
-import { Button, Typography, BookmarkOutline, PaperPlane, Separator } from '@/shared/ui'
+import {
+  Button,
+  Typography,
+  BookmarkOutline,
+  HeartOutline,
+  PaperPlane,
+  Separator,
+} from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
+
+import { RenderPostLikeAction } from '../../postModalLikeAction.types'
 
 interface PostFooterProps {
   variant: 'public' | 'myPost' | 'userPost'
@@ -15,6 +23,7 @@ interface PostFooterProps {
   isLiked: boolean
   likesCount: number
   avatarWhoLikes: string[]
+  renderPostLikeAction?: RenderPostLikeAction
   formattedCreatedAt: string
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
@@ -30,6 +39,7 @@ export const ViewModePostFooter = ({
   isLiked,
   likesCount,
   avatarWhoLikes,
+  renderPostLikeAction,
   formattedCreatedAt,
   commentControl,
   handleCommentSubmit,
@@ -59,12 +69,18 @@ export const ViewModePostFooter = ({
             </>
           ) : (
             <>
-              <LikeButton
-                postId={postId}
-                ownerId={ownerId}
-                isLiked={isLiked}
-                className={s.postButton}
-              />
+              {renderPostLikeAction ? (
+                renderPostLikeAction({
+                  postId,
+                  ownerId,
+                  isLiked,
+                  className: s.postButton,
+                })
+              ) : (
+                <Button variant={'text'} className={s.postButton}>
+                  <HeartOutline color={'white'} />
+                </Button>
+              )}
               <Button variant={'text'} className={s.postButton}>
                 <PaperPlane color={'white'} />
               </Button>
