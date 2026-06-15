@@ -17,8 +17,8 @@ export const LikeBtn = ({ isLiked, onClick, className, disabled }: LikeBtnProps)
       aria-label={isLiked ? 'Unlike post' : 'Like post'}
       disabled={disabled}
     >
-      {isLiked && <Heart color={`var(--color-danger-500)`} className={className} />}
-      {!isLiked && <HeartOutline color={`var(--color-light-100)`} className={className} />}
+      {isLiked && <Heart color={`var(--color-danger-500)`} />}
+      {!isLiked && <HeartOutline color={`var(--color-light-100)`} />}
     </Button>
   )
 }
