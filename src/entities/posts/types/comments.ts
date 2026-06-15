@@ -10,7 +10,6 @@ export type {
 
 export {
   COMMENT_CONTENT_MAX,
-  COMMENT_CONTENT_MIN,
   answerFormSchema,
   buildReplyMentionPrefix,
   commentContentSchema,

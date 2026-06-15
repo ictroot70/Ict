@@ -198,6 +198,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
     const content = data.comment.trim()
 
+    const cleaned = content.replace(/@\S+\s*/g, '').trim()
+
+    if (cleaned.length === 0) {
+      return
+    }
+
     resetComment()
 
     try {
