@@ -9,11 +9,6 @@ import Link from 'next/link'
 
 import s from './PostCard.module.scss'
 
-// Optional UC-5 feed like preview. Uncomment the LikeButton/Typography imports
-// and the postStats block below if the team approves likes directly on post cards.
-// import { LikeButton } from '@/features/postLikes/ui/LikeButton'
-// import { Typography } from '@/shared/ui'
-
 interface PostCardProps {
   post: PostViewModel
 }
@@ -35,19 +30,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           className={s.postImage}
         />
       </Link>
-      {/* Optional UC-5 feed like preview. Keep disabled unless the team approves this UI.
-        <div className={s.postStats}>
-          <LikeButton
-            postId={post.id}
-            ownerId={post.ownerId}
-            isLiked={post.isLiked}
-            className={s.likeButton}
-          />
-          <Typography variant={'regular_14'} color={'light'}>
-            {post.likesCount}
-          </Typography>
-        </div>
-      */}
     </div>
   )
 }

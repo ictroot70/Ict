@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import {
-  POST_LIKES_QUERY_ARG,
-  getAvatarWhoLikes,
-  useGetPostByIdQuery,
-  useGetPostLikesQuery,
-} from '@/entities/posts/api/postApi'
+import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-import { PostVariant, CommentFormData, DescriptionFormData, PostViewModel } from '@/shared/types'
+import {
+  mapPostToModalData,
+  PostModalData,
+  PostVariant,
+  CommentFormData,
+  DescriptionFormData,
+  PostViewModel,
+} from '@/shared/types'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -56,53 +58,22 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   })
 
   const resolvedPostId = postId
-  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
   const {
     data: postDataFromQuery,
     isError: isPostError,
     isFetching: isPostFetching,
   } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || isAuthUiLoading,
-    refetchOnMountOrArgChange: true,
+    skip: !open || !resolvedPostId || !!initialPostData,
   })
-  const { data: postLikesData } = useGetPostLikesQuery(
-    { postId: resolvedPostId as number, ...POST_LIKES_QUERY_ARG },
-    {
-      skip: !open || !resolvedPostId || isAuthUiLoading || !isAuthenticatedUi,
-      refetchOnMountOrArgChange: true,
-    }
-  )
-  const isSameInitialPost = Boolean(
-    initialPostData && resolvedPostId && initialPostData.id === resolvedPostId
-  )
-  const basePostData = postDataFromQuery ?? initialPostData
-  const shouldPreferInitialOptimisticFields = Boolean(isPostFetching && isSameInitialPost)
-  const fallbackAvatarWhoLikes =
-    isAuthenticatedUi && isSameInitialPost
-      ? initialPostData?.avatarWhoLikes
-      : basePostData?.avatarWhoLikes
-  const postData = basePostData
-    ? {
-        ...basePostData,
-        isLiked: shouldPreferInitialOptimisticFields
-          ? (initialPostData?.isLiked ?? basePostData.isLiked)
-          : basePostData.isLiked,
-        likesCount:
-          postLikesData?.totalCount ??
-          (shouldPreferInitialOptimisticFields
-            ? (initialPostData?.likesCount ?? basePostData.likesCount)
-            : basePostData.likesCount),
-        avatarWhoLikes: postLikesData
-          ? getAvatarWhoLikes(postLikesData)
-          : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
-      }
-    : undefined
+  const basePostData = initialPostData ?? postDataFromQuery
+  const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
+  const postData = localPostData
   const hasPostData = Boolean(postData)
-
-  // Показываем лоадер только если нет вообще никаких данных (ни из кэша, ни переданных)
-  const isPostLoading = Boolean(open && resolvedPostId && !hasPostData && isPostFetching)
+  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
+
+  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
 
   const isOwnProfile = Boolean(
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
@@ -113,16 +84,31 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   if (isAuthenticatedUi) {
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
+  const postModalData: PostModalData = postData
+    ? mapPostToModalData(postData)
+    : {
+        images: [],
+        userName: '',
+        avatar: '',
+        description: '',
+        createdAt: new Date().toISOString(),
+        postId: '',
+        ownerId: undefined,
+      }
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(postData?.createdAt ?? new Date().toISOString()))
+  }).format(new Date(postModalData.createdAt))
 
   useEffect(() => {
-    resetDescription({ description: postData?.description ?? '' })
-  }, [postData?.description, resetDescription])
+    resetDescription({ description: postModalData.description })
+  }, [postModalData.description, resetDescription])
+
+  useEffect(() => {
+    setLocalPostData(basePostData)
+  }, [basePostData, resolvedPostId])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -147,12 +133,22 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   const handleCancelEdit = () => {
-    resetDescription({ description: postData?.description ?? '' })
+    resetDescription({ description: postModalData.description })
     setIsEditingDescription(false)
   }
 
   const applyLocalDescription = (description: string) => {
-    resetDescription({ description })
+    setLocalPostData(prev => {
+      if (!prev) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        description,
+        updatedAt: new Date().toISOString(),
+      }
+    })
   }
 
   const handleCopyLink = async () => {
@@ -181,7 +177,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleDescriptionSubmit,
     watchDescription,
     errors,
-    postData,
+    postData: postModalData,
     variant,
     isAuthLoading: isAuthUiLoading,
     isAuthenticated: isAuthenticatedUi,

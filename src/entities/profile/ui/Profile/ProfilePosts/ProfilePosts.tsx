@@ -152,7 +152,7 @@ export const ProfilePosts: React.FC<Props> = ({
             onClose={handleClosePost}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
             onDeletePost={isOwnProfile ? handleDeletePost : undefined}
-            isEditing={editingPostId === currentPostIdNumber}
+            isEditing={editingPostId === String(currentPostIdNumber)}
             postId={currentPostIdNumber ?? undefined}
             postData={modalPostData}
           />

@@ -2,13 +2,13 @@ import React from 'react'
 
 import { ControlledTextarea } from '@/features/formControls/textarea/ui'
 import { Avatar } from '@/shared/composites'
-import { PostViewModel } from '@/shared/types'
+import { PostModalData } from '@/shared/types'
 import { Button, Typography } from '@/shared/ui'
 
 import s from '../EditMode.module.scss'
 
 interface DescriptionFormProps {
-  postData: PostViewModel
+  postData: PostModalData
   control: any
   handleSubmit: any
   errors: any
@@ -34,7 +34,7 @@ export const EditModeDescriptionForm: React.FC<DescriptionFormProps> = ({
   return (
     <div className={s.editFormContainer}>
       <div className={s.userInfo}>
-        <Avatar size={36} image={postData.avatarOwner} />
+        <Avatar size={36} image={postData.avatar} />
         <Typography variant={'h3'} color={'light'}>
           {postData.userName}
         </Typography>

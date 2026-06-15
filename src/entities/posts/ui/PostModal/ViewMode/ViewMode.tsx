@@ -1,6 +1,6 @@
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentFormData, PostVariant, PostViewModel } from '@/shared/types'
+import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
@@ -12,7 +12,7 @@ import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
   onClose: () => void
-  postData: PostViewModel
+  postData: PostModalData
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
@@ -45,21 +45,13 @@ export const ViewMode = ({
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
-  // ViewModePostHeader и ViewModeCommentsSection используют поле avatar,
-  // в PostViewModel оно называется avatarOwner
-  const postDataForChildren = {
-    avatar: postData.avatarOwner,
-    userName: postData.userName,
-    description: postData.description ?? '',
-  }
-
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
       <ViewModePhotoSection postData={postData} />
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postDataForChildren}
+          postData={postData}
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
@@ -68,17 +60,12 @@ export const ViewMode = ({
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postDataForChildren} comments={comments} />
+        <ViewModeCommentsSection postData={postData} comments={comments} />
 
         <Separator />
 
         <ViewModePostFooter
           variant={variant}
-          postId={postData.id}
-          ownerId={postData.ownerId}
-          isLiked={postData.isLiked}
-          likesCount={postData.likesCount}
-          avatarWhoLikes={postData.avatarWhoLikes}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}

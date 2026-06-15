@@ -88,8 +88,8 @@ export interface PublicationsFollowersWithPaginationViewModel {
 export type PostVariant = 'public' | 'myPost' | 'userPost'
 
 export interface PostModalHandlers {
-  onEditPost?: (postId: number, description: string) => boolean | Promise<boolean>
-  onDeletePost?: (postId: number) => void
+  onEditPost?: (postId: string, description: string) => boolean | Promise<boolean>
+  onDeletePost?: (postId: string) => void
   onClose: () => void
 }
 
@@ -105,3 +105,23 @@ export interface DescriptionFormData {
 export interface CommentFormData {
   comment: string
 }
+
+export interface PostModalData {
+  images: UserImage[]
+  userName: string
+  avatar: string
+  description: string
+  createdAt: string
+  postId: string
+  ownerId?: number
+}
+
+export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
+  images: post.images,
+  userName: post.userName,
+  avatar: post.avatarOwner,
+  description: post.description || '',
+  createdAt: post.createdAt,
+  postId: post.id.toString(),
+  ownerId: post.ownerId,
+})
