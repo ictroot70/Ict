@@ -88,6 +88,10 @@ export const AccountManagement = () => {
   const accountType: AccountTypeValue = hasActiveSubscription ? 'business' : selectedAccountType
 
   const handleAccountTypeChange = (type: AccountTypeValue) => {
+    if (isPaymentLocked) {
+      return
+    }
+
     if (hasActiveSubscription && type === 'personal') {
       return
     }
@@ -96,6 +100,10 @@ export const AccountManagement = () => {
   }
 
   const handlePlanValueChange = (planValue: SubscriptionPlanValue) => {
+    if (isPaymentLocked) {
+      return
+    }
+
     if (!pricingPlans?.data?.length) {
       return
     }
@@ -181,7 +189,11 @@ export const AccountManagement = () => {
     <>
       <div className={styles.accountManagementPage}>
         {view === 'personal' && (
-          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
+          <PersonalView
+            accountType={accountType}
+            onAccountTypeChange={handleAccountTypeChange}
+            disabled={isPaymentLocked}
+          />
         )}
 
         {view === 'business-no-subscription' && (
@@ -213,7 +225,7 @@ export const AccountManagement = () => {
         open={modal === 'confirm'}
         onClose={closeConfirmModal}
         onConfirm={() => void confirmPayment()}
-        isSubmitting={isPaymentLocked}
+        isPaymentCreating={isPaymentLocked}
       />
 
       <PaymentProcessingModal open={isProcessingModalVisible} />

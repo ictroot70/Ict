@@ -6,6 +6,8 @@
       "autoRenewText": "Auto-renewal will be enabled with this payment. You can disable it anytime in your profile settings",
       "agree": "I agree",
       "sending": "Sending...",
+      "paymentCreationStarted": "Payment creation has started. Please wait while we redirect you to checkout.",
+      "paymentCreationInProgress": "Creating payment",
       "ok": "OK",
       "successTitle": "Success",
       "successText": "Payment was successful!",

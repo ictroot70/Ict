@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   useCreateSubscriptionMutation,
@@ -25,6 +25,8 @@ export function useAccountManagement() {
 
   const [createSubscription, { isLoading: isSubscribing }] = useCreateSubscriptionMutation()
 
+  const isPaymentPreparingRef = useRef(false)
+  const [isPaymentPreparing, setIsPaymentPreparing] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<PricingDetailsViewModel | null>(null)
 
   const fetchSubscriptions = useCallback(async () => {
@@ -37,7 +39,7 @@ export function useAccountManagement() {
     fetchSubscriptions,
   })
 
-  const isPaymentLocked = isSubscribing || isPolling
+  const isPaymentLocked = isPaymentPreparing || isSubscribing || isPolling
 
   useEffect(() => {
     if (pricingPlans?.data?.length) {
@@ -63,9 +65,12 @@ export function useAccountManagement() {
 
   const handlePay = useCallback(
     async (paymentType: PaymentType) => {
-      if (!selectedPlan || isPaymentLocked) {
+      if (!selectedPlan || isPaymentLocked || isPaymentPreparingRef.current) {
         return
       }
+
+      isPaymentPreparingRef.current = true
+      setIsPaymentPreparing(true)
 
       try {
         const returnUrl = `${window.location.origin}${pathname}`
@@ -85,6 +90,9 @@ export function useAccountManagement() {
         paymentPending.set()
         window.location.href = result.url
       } catch (error) {
+        isPaymentPreparingRef.current = false
+        setIsPaymentPreparing(false)
+
         showToastAlert({
           message: getPaymentErrorMessage(error),
           type: 'error',

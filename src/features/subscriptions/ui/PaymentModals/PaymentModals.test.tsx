@@ -20,7 +20,8 @@ vi.mock('next-intl', () => ({
         backToPayment: 'Back to payment',
         autoRenewTitle: 'Auto renew',
         autoRenewText: 'Auto renew text',
-        sending: 'Sending',
+        paymentCreationStarted: 'Payment creation has started.',
+        paymentCreationInProgress: 'Creating payment',
         successTitle: 'Success',
         successText: 'Success text',
         errorTitle: 'Error',
@@ -30,9 +31,35 @@ vi.mock('next-intl', () => ({
 }))
 
 vi.mock('@/shared/ui', () => ({
-  Modal: ({ open, children }: { children: React.ReactNode; open: boolean }) =>
-    open ? <div>{children}</div> : null,
-  Typography: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+  Modal: ({
+    open,
+    children,
+    onClose,
+  }: {
+    children: React.ReactNode
+    onClose: () => void
+    open: boolean
+  }) =>
+    open
+      ? React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'button',
+            {
+              'aria-label': 'Close',
+              onClick: onClose,
+              type: 'button',
+            },
+            'close'
+          ),
+          children
+        )
+      : null,
+
+  Typography: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('span', null, children),
+
   Button: ({
     children,
     disabled,
@@ -41,11 +68,8 @@ vi.mock('@/shared/ui', () => ({
     children: React.ReactNode
     disabled?: boolean
     onClick?: () => void
-  }) => (
-    <button type={'button'} disabled={disabled} onClick={onClick}>
-      {children}
-    </button>
-  ),
+  }) => React.createElement('button', { type: 'button', disabled, onClick }, children),
+
   CheckboxRadix: ({
     checked,
     label,
@@ -54,17 +78,18 @@ vi.mock('@/shared/ui', () => ({
     checked: boolean
     label: string
     onCheckedChange: (value: boolean) => void
-  }) => (
-    <label>
-      <input
-        aria-label={label}
-        checked={checked}
-        type={'checkbox'}
-        onChange={e => onCheckedChange(e.target.checked)}
-      />
-      {label}
-    </label>
-  ),
+  }) =>
+    React.createElement(
+      'label',
+      null,
+      React.createElement('input', {
+        'aria-label': label,
+        checked,
+        type: 'checkbox',
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => onCheckedChange(e.target.checked),
+      }),
+      label
+    ),
 }))
 
 describe('PaymentModals (T6)', () => {
@@ -72,7 +97,12 @@ describe('PaymentModals (T6)', () => {
     const onConfirm = vi.fn()
 
     render(
-      <PaymentConfirmationModal open onClose={vi.fn()} onConfirm={onConfirm} isSubmitting={false} />
+      React.createElement(PaymentConfirmationModal, {
+        open: true,
+        onClose: vi.fn(),
+        onConfirm,
+        isPaymentCreating: false,
+      })
     )
 
     const okButton = screen.getByRole('button', { name: 'OK' }) as HTMLButtonElement
@@ -83,10 +113,37 @@ describe('PaymentModals (T6)', () => {
     expect(okButton.disabled).toBe(false)
   })
 
+  it('Confirm modal: shows payment creation state and blocks close while submitting', () => {
+    const onClose = vi.fn()
+
+    render(
+      React.createElement(PaymentConfirmationModal, {
+        open: true,
+        onClose,
+        onConfirm: vi.fn(),
+        isPaymentCreating: true,
+      })
+    )
+
+    expect(screen.getByText('Payment creation has started.')).not.toBeNull()
+    expect(screen.getByLabelText('Creating payment')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'Creating payment...' })).toBeNull()
+    expect(screen.queryByLabelText('I agree')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onClose).not.toHaveBeenCalled()
+  })
+
   it('Success modal: clicking OK closes the modal', () => {
     const onClose = vi.fn()
 
-    render(<PaymentSuccessModal open onClose={onClose} />)
+    render(
+      React.createElement(PaymentSuccessModal, {
+        open: true,
+        onClose,
+      })
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'OK' }))
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -95,14 +152,24 @@ describe('PaymentModals (T6)', () => {
   it('Error modal: "Back to payment" triggers callback', () => {
     const onBackToPayment = vi.fn()
 
-    render(<PaymentFailureModal open onClose={vi.fn()} onBackToPayment={onBackToPayment} />)
+    render(
+      React.createElement(PaymentFailureModal, {
+        open: true,
+        onClose: vi.fn(),
+        onBackToPayment,
+      })
+    )
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to payment' }))
     expect(onBackToPayment).toHaveBeenCalledTimes(1)
   })
 
   it('Processing modal: is shown while payment confirmation is pending', () => {
-    render(<PaymentProcessingModal open />)
+    render(
+      React.createElement(PaymentProcessingModal, {
+        open: true,
+      })
+    )
 
     expect(screen.getByText('Please wait while we confirm your payment.')).not.toBeNull()
     expect(screen.getByLabelText('Processing payment')).not.toBeNull()

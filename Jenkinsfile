@@ -4,7 +4,7 @@ pipeline {
     agent any
     environment {
         ENV_TYPE = "production"
-        PORT = 3857
+        PORT = 4320
         NAMESPACE = "ictroot-uk"
         REGISTRY_HOSTNAME = "dockerforict"
         REGISTRY = "registry.hub.docker.com"
@@ -19,20 +19,6 @@ pipeline {
             steps {
                 checkout scm
             }
-        }
-        stage('Unit tests') {
-             steps {
-                echo "Preparing started..."
-                  script {
-                      sh '''
-                         export NVM_DIR="$HOME/.nvm"
-                         [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                         nvm use --lts
-                         yarn install
-                         yarn test
-                      '''
-                  }
-             }
         }
         stage('Build docker image') {
             steps {

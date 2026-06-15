@@ -221,8 +221,8 @@
           "title": "Stripe/PayPal account management and payment history",
           "status": "planned",
           "sourceFiles": [
-            "src/features/profile/settings/ui/AccountManagement.tsx",
-            "src/features/profile/settings/ui/Payments.tsx"
+            "src/features/subscriptions/ui/AccountManagement/AccountManagement.tsx",
+            "src/features/subscriptions/ui/Payments/Payments.tsx"
           ],
           "contractTests": []
         }

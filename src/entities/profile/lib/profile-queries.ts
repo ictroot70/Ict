@@ -1,38 +1,37 @@
 import { API_ROUTES } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
+import { logger } from '@/shared/lib/logger'
+import { safeSsrFetchJson, toSsrFetchException } from '@/shared/lib/ssr/safeSsrFetch'
 
 import { PublicProfileData } from '../api'
 
-type HttpStatusError = Error & {
-  status?: number
-}
+const PROFILE_SSR_REVALIDATE_SECONDS = 60
 
-const createHttpStatusError = (message: string, status?: number): HttpStatusError => {
-  const error = new Error(message) as HttpStatusError
-
-  if (typeof status === 'number') {
-    error.status = status
-  }
-
-  return error
-}
-
-const REQUEST_OPTIONS = { cache: 'no-store' as const }
+const REQUEST_OPTIONS = {
+  next: {
+    revalidate: PROFILE_SSR_REVALIDATE_SECONDS,
+  },
+} as const
 
 async function fetchProfileData(userId: number): Promise<PublicProfileData> {
-  let response: Response
+  const url = buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId))
+  const result = await safeSsrFetchJson<PublicProfileData>(url, REQUEST_OPTIONS)
 
-  try {
-    response = await fetch(buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId)), REQUEST_OPTIONS)
-  } catch {
-    throw createHttpStatusError('Failed to fetch profile data')
+  if (!result.ok) {
+    logger.error('[fetchProfileData] request failed', {
+      bodyPreview: result.error.bodyPreview,
+      causeCode: result.error.causeCode,
+      kind: result.error.kind,
+      message: result.error.message,
+      status: result.error.status,
+      url: result.error.url,
+      userId,
+    })
+
+    throw toSsrFetchException(result.error)
   }
 
-  if (!response.ok) {
-    throw createHttpStatusError('Failed to fetch profile data', response.status)
-  }
-
-  return response.json()
+  return result.data
 }
 
 export { fetchProfileData }

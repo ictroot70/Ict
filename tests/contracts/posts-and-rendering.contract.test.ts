@@ -141,10 +141,10 @@ describe('SSR-UC1/UC2 PROFILE', () => {
   it('keeps profile page server data contract', () => {
     const source = readSource('src/app/profile/[id]/page.tsx')
 
-    expect(source).toContain('const pageSize = 8')
+    expect(source).toContain('const PAGE_SIZE = 8')
     expect(source).toContain('fetchProfileData(userId)')
-    expect(source).toContain('fetchUserPosts(userId, pageSize, profileDataServer.userName)')
-    expect(source).toContain('fetchPostByIdForSSR(postId)')
+    expect(source).toContain('fetchUserPosts(userId, PAGE_SIZE, profileDataServer.userName)')
+    expect(source).toContain('fetchPostByIdForSSR(initialPostId)')
   })
 
   it('keeps route helper for opening a specific post on profile page', () => {
