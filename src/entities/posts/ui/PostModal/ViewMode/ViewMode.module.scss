@@ -84,23 +84,46 @@
 .comments {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 15px; 
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding: 0 24px;
-}
+  margin-top: 19px;
+ }
 
- .comment {
+.comment {
   display: flex;
   gap: 12px;
   padding: 0;
-  align-items: flex-start;
+  align-items: center;
+}
+
+.commentBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentBlock:last-child {
+  margin-bottom: 28px;   
 }
 
 .commentBody {
   flex: 1;
   min-width: 0;
+}
+
+.commentText {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.commentForm {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px 12px;
+  min-height: 59px;
 }
 
 .commentMeta {
@@ -116,25 +139,32 @@
   font-size: 12px;
 }
 
+.mention {
+  color: #0095f6;
+  font-weight: 600;
+}
+
 .commentLikeButton {
   padding: 0;
   min-width: 0;
   min-height: 0;
   width: 16px;
   height: 16px;
-  margin-left: auto;   
+  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+
 .answersToggleContainer {
   display: flex;
   align-items: center;
   margin-left: 44px;
   margin-bottom: 15px;
   margin-top: 11px;
-  gap: 8px;  
+  gap: 8px;
 }
+
 .answersLine {
   width: 24px;
   height: 1px;
@@ -155,56 +185,13 @@
   display: inline-flex;
   align-items: center;
 }
- 
-
-.commentText {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-.commentMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 2px;
-  flex-wrap: wrap;
-}
-
-.commentTimestamp {
-  color: #8e8e8e;
-  font-size: 12px;
-}
-
-.mention {
-  color: #0095f6;
-  font-weight: 600;
-}
-
-.likeButton {
-  padding: 0;
-  min-width: 0;
-  min-height: 0;
-  width: 16px;
-  height: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.answersDivider {
-  height: 1px;
-  background-color: var(--color-dark-100, #333);
-  margin: 12px 0;
-  margin-left: 44px;
-}
 
 .replies {
   display: flex;
   flex-direction: column;
   margin-left: 32px;
   padding-left: 12px;
-  gap: 14px;
+  gap: 15px;  
 }
 
 .answerBlock {
@@ -218,6 +205,7 @@
   margin-left: 44px;
   margin-bottom: 4px;
   gap: 8px;
+ 
 }
 
 .nestedReplyInputForm {
@@ -230,7 +218,6 @@
 }
 
 .replyButton,
-.viewRepliesButton,
 .loadMoreButton,
 .commentActionButton {
   padding: 0;
@@ -244,11 +231,6 @@
 .commentActionButton {
   width: 16px;
   height: 16px;
-}
-
-.viewRepliesButton {
-  margin-bottom: 4px;
-  font-weight: 600;
 }
 
 .publishButton {
@@ -270,6 +252,7 @@
   flex-direction: column;
   padding: 12px 24px;
   min-height: 83px;
+  border-top: 1px solid #4C4C4C;
 }
 
 .likeSendSave {
@@ -383,3 +366,49 @@
     height: 50%;
   }
 }
+
+
+
+.commentForm {
+  padding: 0 24px 17px;
+   margin-top: 12px;
+ }
+
+.inputForm {
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  border: none;
+  background: transparent;
+  color: var(--color-light-100);
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.publishButton {
+  color: #0095f6;
+  font-family: Inter;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0px;
+  text-align: center;
+
+  &:disabled {
+    color: #0095f680;
+  }
+}
+
+.separator {
+  margin-bottom: 17px;
+}
+

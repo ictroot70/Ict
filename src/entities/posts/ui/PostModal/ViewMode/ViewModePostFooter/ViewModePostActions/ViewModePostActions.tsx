@@ -1,8 +1,5 @@
-import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
-
-import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
-import { CommentFormData, PostModalData } from '@/shared/types'
+import { PostModalData } from '@/shared/types'
 import {
   Button,
   Typography,
@@ -10,23 +7,16 @@ import {
   HeartFilled,
   HeartOutline,
   PaperPlane,
-  Separator,
 } from '@/shared/ui'
 
-import s from '../ViewMode.module.scss'
+import s from '../../ViewMode.module.scss'
 
-interface PostFooterProps {
+interface ViewModePostActionsProps {
   variant: 'public' | 'myPost' | 'userPost'
   postData: Pick<PostModalData, 'likesCount' | 'isLiked' | 'avatarWhoLikes'>
   formattedCreatedAt: string
-  commentControl: Control<CommentFormData>
-  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
-  watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
   isAuthLoading: boolean
-  isPublishingComment: boolean
   isPostLikeLoading: boolean
-  commentMaxLength: number
   onTogglePostLike: () => void
 }
 
@@ -38,20 +28,14 @@ const formatLikesCount = (count: number): string => {
   return `${count.toLocaleString()} "Like"`
 }
 
-export const ViewModePostFooter = ({
+export const ViewModePostActions = ({
   variant,
   postData,
   formattedCreatedAt,
-  commentControl,
-  handleCommentSubmit,
-  watchComment,
-  handlePublish,
   isAuthLoading,
-  isPublishingComment,
   isPostLikeLoading,
-  commentMaxLength,
   onTogglePostLike,
-}: PostFooterProps) => {
+}: ViewModePostActionsProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
   const { likesCount, isLiked, avatarWhoLikes } = postData
@@ -119,40 +103,6 @@ export const ViewModePostFooter = ({
       <Typography variant={'small_text'} className={s.timestamp}>
         {formattedCreatedAt}
       </Typography>
-
-      {shouldShowAuthSkeleton ? (
-        <>
-          <Separator className={s.separator} />
-          <div className={s.inputForm} aria-hidden>
-            <Skeleton className={s.inputSkeleton} />
-            <Skeleton className={s.publishSkeleton} />
-          </div>
-        </>
-      ) : (
-        shouldShowAuthActions && (
-          <>
-            <Separator className={s.separator} />
-            <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-              <ControlledInput
-                name={'comment'}
-                control={commentControl}
-                inputType={'text'}
-                placeholder={'Add a Comment...'}
-                className={s.input}
-                maxLength={commentMaxLength}
-              />
-              <Button
-                variant={'text'}
-                type={'submit'}
-                className={s.publishButton}
-                disabled={!watchComment('comment')?.trim() || isPublishingComment}
-              >
-                Publish
-              </Button>
-            </form>
-          </>
-        )
-      )}
     </div>
   )
 }

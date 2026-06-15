@@ -8,7 +8,8 @@ import s from './ViewMode.module.scss'
 
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
-import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
+import { ViewModeCommentForm } from './ViewModePostFooter/ViewModeCommentForm/ViewModeCommentForm'
+import { ViewModePostActions } from './ViewModePostFooter/ViewModePostActions/ViewModePostActions'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
@@ -80,7 +81,6 @@ export const ViewMode = ({
           onCopyLink={onCopyLink}
           isAuthLoading={isAuthLoading}
         />
-
         <ViewModeCommentsSection
           postData={postData}
           postId={postId}
@@ -90,21 +90,26 @@ export const ViewMode = ({
           enabled={commentsEnabled}
         />
 
-        <Separator />
-
-        <ViewModePostFooter
+        <ViewModePostActions
           variant={variant}
           postData={postData}
           formattedCreatedAt={formattedCreatedAt}
+          isAuthLoading={isAuthLoading}
+          isPostLikeLoading={isPostLikeLoading}
+          onTogglePostLike={onTogglePostLike}
+        />
+
+        <Separator />
+
+        <ViewModeCommentForm
+          variant={variant}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
           isPublishingComment={isPublishingComment}
-          isPostLikeLoading={isPostLikeLoading}
           commentMaxLength={commentMaxLength}
-          onTogglePostLike={onTogglePostLike}
         />
       </div>
     </div>
