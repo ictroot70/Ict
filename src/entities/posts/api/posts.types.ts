@@ -49,36 +49,6 @@ export type UpdateLikeStatusDto = {
   likeStatus: 'NONE' | 'LIKE' | 'DISLIKE'
 }
 
-export type PostLikeUserViewModel = {
-  id: number
-  userId: number
-  userName: string
-  createdAt: string
-  avatars: Array<{
-    url: string
-    width: number
-    height: number
-    fileSize: number
-    createdAt?: string
-  }>
-  isFollowing: boolean
-  isFollowedBy: boolean
-}
-
-export type PostLikesResponse = {
-  pageSize: number
-  totalCount: number
-  notReadCount?: number
-  items: PostLikeUserViewModel[]
-}
-
-export type GetPostLikesParams = {
-  postId: number
-  pageSize?: number
-  pageNumber?: number
-  cursor?: number
-}
-
 export type PaginatedResponse<T> = {
   items: T[]
   totalCount: number

@@ -1,20 +1,22 @@
+import React from 'react'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { ControlledInput } from '@/features/formControls'
-import { LikeButton } from '@/features/postLikes/ui/LikeButton'
-import { Avatar, Skeleton } from '@/shared/composites'
+import { Skeleton } from '@/shared/composites'
 import { CommentFormData } from '@/shared/types'
-import { Button, Typography, BookmarkOutline, PaperPlane, Separator } from '@/shared/ui'
+import {
+  Button,
+  Typography,
+  BookmarkOutline,
+  HeartOutline,
+  PaperPlane,
+  Separator,
+} from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
 interface PostFooterProps {
   variant: 'public' | 'myPost' | 'userPost'
-  postId: number
-  ownerId: number
-  isLiked: boolean
-  likesCount: number
-  avatarWhoLikes: string[]
   formattedCreatedAt: string
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
@@ -25,13 +27,8 @@ interface PostFooterProps {
   commentMaxLength: number
 }
 
-export const ViewModePostFooter = ({
+export const ViewModePostFooter: React.FC<PostFooterProps> = ({
   variant,
-  postId,
-  ownerId,
-  isLiked,
-  likesCount,
-  avatarWhoLikes,
   formattedCreatedAt,
   commentControl,
   handleCommentSubmit,
@@ -40,10 +37,9 @@ export const ViewModePostFooter = ({
   isAuthLoading,
   isCreateCommentLoading,
   commentMaxLength,
-}: PostFooterProps) => {
+}) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
-  const visibleLikeAvatars = avatarWhoLikes.filter(Boolean).slice(0, 3)
 
   const commentText = watchComment('comment') ?? ''
   const trimmedCommentText = commentText.trim()
@@ -68,12 +64,9 @@ export const ViewModePostFooter = ({
             </>
           ) : (
             <>
-              <LikeButton
-                postId={postId}
-                ownerId={ownerId}
-                isLiked={isLiked}
-                className={s.postButton}
-              />
+              <Button variant={'text'} className={s.postButton}>
+                <HeartOutline color={'white'} />
+              </Button>
               <Button variant={'text'} className={s.postButton}>
                 <PaperPlane color={'white'} />
               </Button>
@@ -86,20 +79,13 @@ export const ViewModePostFooter = ({
       )}
 
       <div className={s.likesRow}>
-        {visibleLikeAvatars.length > 0 && (
-          <div className={s.likesAvatars}>
-            {visibleLikeAvatars.map((url, index) => (
-              <Avatar
-                key={`${url}-${index}`}
-                size={24}
-                image={url}
-                className={`${s.likeAvatar} ${s[`likeAvatar${index + 1}`]}`}
-              />
-            ))}
-          </div>
-        )}
+        <div className={s.likesAvatars}>
+          <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
+          <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
+          <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
+        </div>
         <Typography variant={'regular_14'} color={'light'}>
-          {likesCount} <strong>Likes</strong>
+          2,243 <strong>Likes</strong>
         </Typography>
       </div>
 
