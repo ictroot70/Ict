@@ -9,6 +9,7 @@ import {
   selectUnfollowedUserIds,
 } from '@/entities/users/model'
 import { useAppDispatch, useAppSelector } from '@/lib/hooks'
+import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 
@@ -22,6 +23,7 @@ const copyText = async (text: string) => {
 
 export const useFeedActions = () => {
   const dispatch = useAppDispatch()
+  const { authUserIdHint } = useAuthSessionHintContext()
   const unfollowedUserIds = useAppSelector(selectUnfollowedUserIds)
   const [pendingUserIds, setPendingUserIds] = useState<Set<number>>(() => new Set())
   const [followUser] = useFollowUserMutation()
@@ -39,7 +41,7 @@ export const useFeedActions = () => {
 
   const toggleFollow = useCallback(
     async (userId: number) => {
-      if (pendingUserIds.has(userId)) {
+      if (!authUserIdHint || pendingUserIds.has(userId)) {
         return
       }
 
@@ -49,10 +51,10 @@ export const useFeedActions = () => {
 
       try {
         if (shouldUnfollow) {
-          await unfollowUser(userId).unwrap()
+          await unfollowUser({ currentUserId: authUserIdHint, selectedUserId: userId }).unwrap()
           dispatch(markUserUnfollowed(userId))
         } else {
-          await followUser({ selectedUserId: userId }).unwrap()
+          await followUser({ currentUserId: authUserIdHint, selectedUserId: userId }).unwrap()
           dispatch(markUserFollowed(userId))
         }
       } catch {
@@ -70,7 +72,7 @@ export const useFeedActions = () => {
         })
       }
     },
-    [dispatch, followUser, pendingUserIds, unfollowUser, unfollowedUserIds]
+    [authUserIdHint, dispatch, followUser, pendingUserIds, unfollowUser, unfollowedUserIds]
   )
 
   const copyPostLink = useCallback(async (ownerId: number, postId: number) => {

@@ -5,6 +5,7 @@ import { Provider } from 'react-redux'
 
 import { makeStore } from '@/app/store'
 import { useFollowUserMutation, useUnfollowUserMutation } from '@/entities/users/api'
+import { useAuthSessionHintContext } from '@/shared/auth'
 import { showToastAlert } from '@/shared/lib'
 import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -16,12 +17,18 @@ vi.mock('@/entities/users/api', () => ({
   useUnfollowUserMutation: vi.fn(),
 }))
 
+vi.mock('@/shared/auth', async importOriginal => ({
+  ...(await importOriginal<typeof import('@/shared/auth')>()),
+  useAuthSessionHintContext: vi.fn(),
+}))
+
 vi.mock('@/shared/lib', () => ({
   showToastAlert: vi.fn(),
 }))
 
 const useFollowUserMutationMock = vi.mocked(useFollowUserMutation)
 const useUnfollowUserMutationMock = vi.mocked(useUnfollowUserMutation)
+const useAuthSessionHintContextMock = vi.mocked(useAuthSessionHintContext)
 const showToastAlertMock = vi.mocked(showToastAlert)
 
 const followUser = vi.fn()
@@ -38,6 +45,10 @@ const createWrapper = () => {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  useAuthSessionHintContextMock.mockReturnValue({
+    authUserIdHint: 1,
+    hasAuthHint: true,
+  })
   followUser.mockReturnValue(resolvedMutation())
   unfollowUser.mockReturnValue(resolvedMutation())
   useFollowUserMutationMock.mockReturnValue([followUser, {}] as unknown as ReturnType<
@@ -59,14 +70,14 @@ describe('useFeedActions', () => {
       await result.current.toggleFollow(7)
     })
 
-    expect(unfollowUser).toHaveBeenCalledWith(7)
+    expect(unfollowUser).toHaveBeenCalledWith({ currentUserId: 1, selectedUserId: 7 })
     expect(result.current.isFollowing(7)).toBe(false)
 
     await act(async () => {
       await result.current.toggleFollow(7)
     })
 
-    expect(followUser).toHaveBeenCalledWith({ selectedUserId: 7 })
+    expect(followUser).toHaveBeenCalledWith({ currentUserId: 1, selectedUserId: 7 })
     expect(result.current.isFollowing(7)).toBe(true)
   })
 
