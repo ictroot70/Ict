@@ -2,22 +2,18 @@ import { z } from 'zod'
 
 import { UserBase } from './user/models'
 
-export const COMMENT_CONTENT_MIN = 1
 export const COMMENT_CONTENT_MAX = 300
 
 const hasActualText = (val: string) => {
   const cleaned = val.replace(/@\S+\s*/g, '').trim()
 
-  return cleaned.length >= COMMENT_CONTENT_MIN
+  return cleaned.length > 0
 }
 
 export const commentContentSchema = z
   .string()
   .trim()
   .max(COMMENT_CONTENT_MAX, 'Comment must be at most 300 characters')
-  .refine(hasActualText, {
-    message: 'Comment must contain text, not just mentions',
-  })
 
 export const commentFormSchema = z.object({
   comment: commentContentSchema,

@@ -43,9 +43,10 @@ export const AnswerInputForm: React.FC<AnswerInputFormProps> = ({
         name={'answer'}
         control={control}
         inputType={'text'}
-        placeholder={'Write an answer...'}
+        placeholder={'Add a Reply...'}
         className={s.input}
-        maxLength={COMMENT_CONTENT_MAX}
+        maxLength={300}
+        autoFocus
       />
       <Button variant={'text'} type={'submit'} className={s.publishButton} disabled={isDisabled}>
         Publish

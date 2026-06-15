@@ -67,13 +67,17 @@ export const ViewModePostActions = ({
                 aria-label={isLiked ? 'Unlike post' : 'Like post'}
                 aria-pressed={isLiked}
               >
-                {isLiked ? <HeartFilled color={'#ED4956'} /> : <HeartOutline color={'white'} />}
+                {isLiked ? (
+                  <HeartFilled color={'var(--color-danger-500)'} />
+                ) : (
+                  <HeartOutline color={'var(--color-light-100)'} />
+                )}
               </Button>
               <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
-                <PaperPlane color={'white'} />
+                <PaperPlane color={'var(--color-light-100)'} />
               </Button>
               <Button variant={'text'} className={s.postButton} aria-label={'Save post'}>
-                <BookmarkOutline color={'white'} />
+                <BookmarkOutline color={'var(--color-light-100)'} />
               </Button>
             </>
           )}

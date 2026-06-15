@@ -6,8 +6,6 @@ import { Button, HeartFilled, HeartOutline } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
-const LIKE_ACTIVE_COLOR = '#ED4956'
-
 interface CommentLikeButtonProps {
   isLiked: boolean
   likeCount: number
@@ -33,9 +31,9 @@ export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
       aria-pressed={isLiked}
     >
       {isLiked ? (
-        <HeartFilled size={16} color={LIKE_ACTIVE_COLOR} />
+        <HeartFilled size={16} color={'var(--color-danger-500)'} />
       ) : (
-        <HeartOutline size={16} color={'white'} />
+        <HeartOutline size={16} color={'var(--color-light-100)'} />
       )}
     </Button>
   )
