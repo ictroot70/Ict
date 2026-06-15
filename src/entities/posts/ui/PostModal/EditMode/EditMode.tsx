@@ -1,6 +1,8 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { PostViewModel, DescriptionFormData } from '@/shared/types'
+import { DescriptionFormData } from '@/shared/types'
 
 import s from './EditMode.module.scss'
 

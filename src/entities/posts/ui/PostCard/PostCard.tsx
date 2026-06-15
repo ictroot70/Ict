@@ -1,9 +1,10 @@
 'use client'
 
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
 
 import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 import Link from 'next/link'
 

@@ -1,10 +1,11 @@
 'use client'
 
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
 
 import { Carousel } from '@/shared/composites'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { PostViewModel } from '@/shared/types'
 import Image from 'next/image'
 
 import s from '../ViewMode.module.scss'

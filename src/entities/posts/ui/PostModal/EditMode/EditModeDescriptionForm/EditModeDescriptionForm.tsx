@@ -1,8 +1,9 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
 
 import { ControlledTextarea } from '@/features/formControls/textarea/ui'
 import { Avatar } from '@/shared/composites'
-import { PostViewModel } from '@/shared/types'
 import { Button, Typography } from '@/shared/ui'
 
 import s from '../EditMode.module.scss'

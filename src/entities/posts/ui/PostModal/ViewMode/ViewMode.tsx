@@ -1,6 +1,8 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentFormData, PostVariant, PostViewModel } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'

@@ -1,11 +1,12 @@
 'use client'
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
 
 import { useImageDropzone } from '@/features/posts/hooks'
 import { useCreatePostFlow } from '@/features/posts/model'
 import { CropStep } from '@/features/posts/ui/steps/CropStep/CropStep'
 import { FilterStep } from '@/features/posts/ui/steps/FilterStep'
-import { PostViewModel } from '@/shared/types'
 import { Button, Modal, Typography } from '@/shared/ui'
 import { clsx } from 'clsx'
 

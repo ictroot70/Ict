@@ -1,3 +1,5 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -9,7 +11,7 @@ import {
 } from '@/entities/posts/api/postApi'
 import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { showToastAlert } from '@/shared/lib'
-import { PostVariant, CommentFormData, DescriptionFormData, PostViewModel } from '@/shared/types'
+import { PostVariant, CommentFormData, DescriptionFormData } from '@/shared/types'
 
 type UiLanguage = 'en' | 'rus'
 
