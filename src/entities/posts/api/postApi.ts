@@ -19,6 +19,8 @@ import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
+import { FOLLOWERS_FEED_QUERY_ARGS } from './posts.constants'
+
 const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
 const DEFAULT_AVATAR = '/default-avatar.svg'
 const POST_LIKE_AVATARS_LIMIT = 3
@@ -31,12 +33,14 @@ export const POST_LIKES_QUERY_ARG = {
 
 type CurrentLikeUser = {
   avatarUrl?: string
+  avatarUrls?: string[]
   userId: number
   userName: string
 }
 
 type PostLikePatch = {
   avatarUrl: string
+  avatarUrls: string[]
   delta: number
   isLike: boolean
 }
@@ -54,27 +58,25 @@ const sortPostLikeUsersByRecent = (items: PostLikesResponse['items']) =>
 export const getAvatarWhoLikes = (likes: PostLikesResponse) =>
   sortPostLikeUsersByRecent(likes.items).slice(0, POST_LIKE_AVATARS_LIMIT).map(getAvatarUrl)
 
-const getUpdatedLikeAvatarUrls = (avatarUrls: string[], { avatarUrl, isLike }: PostLikePatch) => {
+const getUpdatedLikeAvatarUrls = (
+  avatarUrls: string[],
+  { avatarUrl, avatarUrls: currentUserAvatarUrls, isLike }: PostLikePatch
+) => {
+  const currentUserAvatarUrlSet = new Set(currentUserAvatarUrls)
+  const avatarUrlsWithoutCurrentUser = avatarUrls.filter(url => !currentUserAvatarUrlSet.has(url))
+
   if (isLike) {
-    return [avatarUrl, ...avatarUrls.filter(url => url !== avatarUrl)].slice(
-      0,
-      POST_LIKE_AVATARS_LIMIT
-    )
+    return [avatarUrl, ...avatarUrlsWithoutCurrentUser].slice(0, POST_LIKE_AVATARS_LIMIT)
   }
 
-  const nextAvatarUrls = [...avatarUrls]
-  const avatarIndex = nextAvatarUrls.findIndex(url => url === avatarUrl)
-
-  if (avatarIndex >= 0) {
-    nextAvatarUrls.splice(avatarIndex, 1)
-  }
-
-  return nextAvatarUrls
+  return avatarUrlsWithoutCurrentUser
 }
 
 const applyPostLikePatch = (post: PostViewModel, patch: PostLikePatch) => {
+  const shouldUpdateCount = post.isLiked !== patch.isLike
+
   post.isLiked = patch.isLike
-  post.likesCount = Math.max(0, post.likesCount + patch.delta)
+  post.likesCount = shouldUpdateCount ? Math.max(0, post.likesCount + patch.delta) : post.likesCount
   post.avatarWhoLikes = getUpdatedLikeAvatarUrls(post.avatarWhoLikes, patch)
 }
 
@@ -414,7 +416,8 @@ export const postApi = baseApi.injectEndpoints({
         const isLike = data.likeStatus === 'LIKE'
         const delta = isLike ? 1 : -1
         const avatarUrl = currentUser.avatarUrl || DEFAULT_AVATAR
-        const likePatch = { avatarUrl, delta, isLike }
+        const avatarUrls = Array.from(new Set([avatarUrl, ...(currentUser.avatarUrls ?? [])]))
+        const likePatch = { avatarUrl, avatarUrls, delta, isLike }
         const patches: Array<{ undo: () => void }> = []
 
         patches.push(
@@ -488,6 +491,19 @@ export const postApi = baseApi.injectEndpoints({
             )
           )
         }
+
+        // Keep the followers feed in sync with the shared like contract.
+        patches.push(
+          dispatch(
+            postApi.util.updateQueryData(
+              'getFollowersFeed',
+              FOLLOWERS_FEED_QUERY_ARGS,
+              (draft: InfiniteData<FollowersFeedResponse, FollowersFeedPageParams>) => {
+                applyPostLikePatchToPages(draft.pages, postId, likePatch)
+              }
+            )
+          )
+        )
 
         try {
           await queryFulfilled

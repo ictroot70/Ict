@@ -4,6 +4,7 @@ import React from 'react'
 
 import { type PostViewModel, useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
 import { useFeedActions } from '@/features/feed/model'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -18,6 +19,10 @@ vi.mock('@/entities/posts/api', () => ({
 
 vi.mock('@/features/feed/model', () => ({
   useFeedActions: vi.fn(),
+}))
+
+vi.mock('@/features/posts/utils/useAuthUiState', () => ({
+  useAuthUiState: vi.fn(),
 }))
 
 vi.mock('@/shared/composites', () => ({
@@ -46,12 +51,14 @@ vi.mock('./FeedEmptyState', () => ({
 
 vi.mock('./FeedPost', () => ({
   FeedPost: ({
+    currentUser,
     isFollowing,
     isFollowPending,
     onCopyLink,
     onToggleFollow,
     post,
   }: {
+    currentUser?: { userId: number; userName: string }
     isFollowing: boolean
     isFollowPending: boolean
     onCopyLink: () => void
@@ -65,6 +72,11 @@ vi.mock('./FeedPost', () => ({
       React.createElement('span', { 'data-testid': `following-${post.id}` }, String(isFollowing)),
       React.createElement('span', { 'data-testid': `pending-${post.id}` }, String(isFollowPending)),
       React.createElement(
+        'span',
+        { 'data-testid': `current-user-${post.id}` },
+        currentUser?.userName
+      ),
+      React.createElement(
         'button',
         { onClick: onToggleFollow, type: 'button' },
         `Toggle ${post.id}`
@@ -75,6 +87,7 @@ vi.mock('./FeedPost', () => ({
 
 const useFollowersFeedMock = vi.mocked(useGetFollowersFeedInfiniteQuery)
 const useFeedActionsMock = vi.mocked(useFeedActions)
+const useAuthUiStateMock = vi.mocked(useAuthUiState)
 
 const fetchNextPage = vi.fn()
 const toggleFollow = vi.fn()
@@ -131,6 +144,17 @@ beforeEach(() => {
     toggleFollow,
   })
   useFollowersFeedMock.mockReturnValue(createQueryResult())
+  useAuthUiStateMock.mockReturnValue({
+    isAuthUiLoading: false,
+    isAuthenticatedUi: true,
+    status: 'authenticated',
+    user: {
+      email: 'current@example.com',
+      isBlocked: false,
+      name: 'current-user',
+      userId: 30,
+    },
+  })
 })
 
 describe('Feed', () => {
@@ -196,6 +220,7 @@ describe('Feed', () => {
 
     expect(screen.getByTestId('following-1')).toHaveTextContent('false')
     expect(screen.getByTestId('pending-2')).toHaveTextContent('true')
+    expect(screen.getByTestId('current-user-1')).toHaveTextContent('current-user')
 
     fireEvent.click(screen.getByText('Toggle 1'))
     fireEvent.click(screen.getByText('Copy 2'))

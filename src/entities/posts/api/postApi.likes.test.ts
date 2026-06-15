@@ -199,9 +199,9 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
         'getPostById',
         1,
         createPost({
-          avatarWhoLikes: ['/current-avatar.png', '/other-avatar.png'],
+          avatarWhoLikes: ['/current-avatar.png', '/other-avatar.png', '/current-avatar.png'],
           isLiked: true,
-          likesCount: 2,
+          likesCount: 3,
         })
       )
     )
@@ -218,8 +218,41 @@ describe('postApi updateLikeStatus optimistic cache updates', () => {
     const post = postApi.endpoints.getPostById.select(1)(store.getState()).data
 
     expect(post?.isLiked).toBe(false)
-    expect(post?.likesCount).toBe(1)
+    expect(post?.likesCount).toBe(2)
     expect(post?.avatarWhoLikes).toEqual(['/other-avatar.png'])
+  })
+
+  it('replaces existing current user avatar variants in post details', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(asNoContentResponse())
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+    await store.dispatch(
+      postApi.util.upsertQueryData(
+        'getPostById',
+        1,
+        createPost({
+          avatarWhoLikes: ['/current-avatar-192.png', '/other-avatar.png'],
+          isLiked: false,
+        })
+      )
+    )
+
+    await store.dispatch(
+      postApi.endpoints.updateLikeStatus.initiate({
+        postId: 1,
+        ownerId: 10,
+        currentUser: {
+          ...currentUser,
+          avatarUrls: ['/current-avatar.png', '/current-avatar-192.png'],
+        },
+        data: { likeStatus: LikeStatus.LIKE },
+      })
+    )
+
+    const post = postApi.endpoints.getPostById.select(1)(store.getState()).data
+
+    expect(post?.avatarWhoLikes).toEqual(['/current-avatar.png', '/other-avatar.png'])
   })
 
   it('rolls back optimistic post details when the like request fails', async () => {

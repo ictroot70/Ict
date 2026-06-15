@@ -50,6 +50,7 @@ export const useLike = (postId: number, ownerId: number, currentUser?: CurrentPo
   const currentUserAvatarUrl =
     currentUserProfile?.avatars.find(avatar => avatar.width === 45)?.url ??
     currentUserProfile?.avatars[0]?.url
+  const currentUserAvatarUrls = currentUserProfile?.avatars.map(avatar => avatar.url)
 
   const toggleLike = useCallback(
     (isLiked: boolean) => {
@@ -66,6 +67,7 @@ export const useLike = (postId: number, ownerId: number, currentUser?: CurrentPo
           userId: currentUser.userId,
           userName: currentUser.userName,
           avatarUrl: currentUserAvatarUrl,
+          avatarUrls: currentUserAvatarUrls,
         },
         data: {
           likeStatus: isLiked ? LikeStatus.NONE : LikeStatus.LIKE,
@@ -82,6 +84,7 @@ export const useLike = (postId: number, ownerId: number, currentUser?: CurrentPo
     [
       currentUser,
       currentUserAvatarUrl,
+      currentUserAvatarUrls,
       isCurrentUserProfileLoading,
       ownerId,
       postId,

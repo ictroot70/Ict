@@ -1,6 +1,7 @@
 'use client'
 
 import { FOLLOWERS_FEED_QUERY_ARGS, useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { InfiniteScrollTrigger, Loading, LinearProgress } from '@/shared/composites'
 
 import s from './Feed.module.scss'
@@ -11,6 +12,7 @@ import { FeedPost } from './FeedPost'
 
 export function Feed() {
   const { copyPostLink, isFollowing, isFollowPending, toggleFollow } = useFeedActions()
+  const { user } = useAuthUiState()
   const { data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useGetFollowersFeedInfiniteQuery(FOLLOWERS_FEED_QUERY_ARGS)
 
@@ -49,6 +51,7 @@ export function Feed() {
             isFollowPending={isFollowPending(post.ownerId)}
             onToggleFollow={() => toggleFollow(post.ownerId)}
             onCopyLink={() => copyPostLink(post.ownerId, post.id)}
+            currentUser={user ? { userId: user.userId, userName: user.name } : undefined}
           />
         ))}
       </div>
