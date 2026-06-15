@@ -106,7 +106,7 @@ export const ViewModePostFooter = ({
           </div>
         )}
         <Typography variant={'regular_14'} color={'light'}>
-          {likesCount} <strong>Likes</strong>
+          {likesCount} <strong>&#34;Like&#34;</strong>
         </Typography>
       </div>
 
