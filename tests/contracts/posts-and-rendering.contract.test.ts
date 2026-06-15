@@ -143,7 +143,7 @@ describe('SSR-UC1/UC2 PROFILE', () => {
 
     expect(source).toContain('const pageSize = 8')
     expect(source).toContain('fetchProfileData(userId)')
-    expect(source).toContain('fetchUserPosts(userId, pageSize)')
+    expect(source).toContain('fetchUserPosts(userId, pageSize, profileDataServer.userName)')
     expect(source).toContain('fetchPostByIdForSSR(postId)')
   })
 
