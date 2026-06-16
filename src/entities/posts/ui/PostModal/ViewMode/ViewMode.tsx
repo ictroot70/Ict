@@ -1,15 +1,10 @@
-import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
-
-import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
-import { UserBase } from '@/shared/types/user/models'
-import { Separator } from '@/shared/ui'
+import { PostModalData, PostVariant } from '@/shared/types'
 
 import s from './ViewMode.module.scss'
 
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
-import { ViewModeCommentForm } from './ViewModePostFooter/ViewModeCommentForm/ViewModeCommentForm'
-import { ViewModePostActions } from './ViewModePostFooter/ViewModePostActions/ViewModePostActions'
+import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
@@ -21,21 +16,11 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  commentControl: Control<CommentFormData>
-  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
-  watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
-  currentUserId?: number
-  currentUser?: UserBase
-  isPublishingComment: boolean
-  commentMaxLength: number
   commentsEnabled: boolean
-  isPostLikeLoading: boolean
-  onTogglePostLike: () => void
 }
 
 export const ViewMode = ({
@@ -45,27 +30,13 @@ export const ViewMode = ({
   handleEditPost,
   handleDeletePost,
   onCopyLink,
-  commentControl,
-  handleCommentSubmit,
-  watchComment,
-  handlePublish,
   formattedCreatedAt,
   isAuthLoading,
   isAuthenticated,
-  currentUserId,
-  currentUser,
-  isPublishingComment,
-  commentMaxLength,
+  isOwnProfile,
   commentsEnabled,
-  isPostLikeLoading,
-  onTogglePostLike,
 }: ViewModeProps) => {
-  const handleFollow = () => {}
-
-  const postDataForChildren = {
-    avatar: postData.avatar ?? '',
-    userName: postData.userName,
-  }
+  const handleFollow = () => { }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -73,7 +44,7 @@ export const ViewMode = ({
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postDataForChildren}
+          postData={postData}
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
@@ -81,35 +52,19 @@ export const ViewMode = ({
           onCopyLink={onCopyLink}
           isAuthLoading={isAuthLoading}
         />
+
         <ViewModeCommentsSection
           postData={postData}
           postId={postId}
           isAuthenticated={isAuthenticated}
-          currentUserId={currentUserId}
-          currentUser={currentUser}
           enabled={commentsEnabled}
         />
 
-        <ViewModePostActions
+        <ViewModePostFooter
           variant={variant}
           postData={postData}
           formattedCreatedAt={formattedCreatedAt}
           isAuthLoading={isAuthLoading}
-          isPostLikeLoading={isPostLikeLoading}
-          onTogglePostLike={onTogglePostLike}
-        />
-
-        <Separator />
-
-        <ViewModeCommentForm
-          variant={variant}
-          commentControl={commentControl}
-          handleCommentSubmit={handleCommentSubmit}
-          watchComment={watchComment}
-          handlePublish={handlePublish}
-          isAuthLoading={isAuthLoading}
-          isPublishingComment={isPublishingComment}
-          commentMaxLength={commentMaxLength}
         />
       </div>
     </div>

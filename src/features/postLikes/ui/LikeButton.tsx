@@ -4,13 +4,12 @@ import { useLike } from '../model/useLike'
 
 interface LikeButtonProps {
   postId: number
-  ownerId: number
   isLiked: boolean
   className?: string
 }
 
-export const LikeButton = ({ postId, ownerId, isLiked, className }: LikeButtonProps) => {
-  const { toggleLike, isLikeLoading } = useLike(postId, ownerId)
+export const LikeButton = ({ postId, isLiked, className }: LikeButtonProps) => {
+  const { toggleLike, isLikeLoading } = useLike(postId)
 
   return (
     <LikeBtn

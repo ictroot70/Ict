@@ -1,6 +1,4 @@
 import { PaginatedPosts, PaginatedResponse, PostViewModel } from '@/entities/posts/api/posts.types'
-import { patchPostLikeFields } from '@/entities/posts/lib/comment-likes'
-import { LikeStatus } from '@/shared/types'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 export const isValidUserId = (userId: number): boolean => Number.isInteger(userId) && userId > 0
@@ -99,22 +97,6 @@ export const patchPostDescriptionInUserFeed = (
     if (post) {
       post.description = description
       post.updatedAt = new Date().toISOString()
-      break
-    }
-  }
-}
-
-export const patchPostLikeInUserFeed = (
-  draft: InfiniteData<PaginatedPosts, null | number>,
-  postId: number,
-  likeStatus: LikeStatus,
-  currentUserAvatar?: string
-): void => {
-  for (const page of draft.pages) {
-    const post = page.items.find(item => item.id === postId)
-
-    if (post) {
-      patchPostLikeFields(post, likeStatus, currentUserAvatar)
       break
     }
   }

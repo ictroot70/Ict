@@ -4,7 +4,7 @@ import { ReactElement, useCallback, useLayoutEffect, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { usePostModal } from '@/entities/posts/hooks'
-import { PostModalHandlers } from '@/shared/types/posts/models'
+import { PostModalHandlers } from '@/shared/types'
 import { Close, Modal, Typography } from '@/shared/ui'
 
 import s from './PostModal.module.scss'
@@ -32,9 +32,6 @@ export const PostModal = ({
   const {
     isEditingDescription,
     setIsEditingDescription,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
     descriptionControl,
     handleDescriptionSubmit,
     watchDescription,
@@ -49,18 +46,10 @@ export const PostModal = ({
     isPostError,
     uiText,
     formattedCreatedAt,
-    handlePublish,
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
-    isPublishingComment,
-    currentUserId,
-    currentUser,
-    resolvedPostId,
-    commentMaxLength,
-    handleTogglePostLike,
-    isPostLikeLoading,
   } = usePostModal(open, initialPostData, postId)
 
   const handleSaveDescription = async ({
@@ -70,10 +59,10 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData?.id) {
+    if (trimmed && onEditPost && postData.id) {
       const updated = await onEditPost(postData.id, trimmed)
 
-      if (!updated) {
+      if (updated === false) {
         return
       }
 
@@ -83,7 +72,7 @@ export const PostModal = ({
   }
 
   const handleDeletePostAction = () => {
-    if (onDeletePost && postData?.id) {
+    if (onDeletePost && postData.id) {
       onDeletePost(postData.id)
     }
   }
@@ -140,7 +129,7 @@ export const PostModal = ({
       )
     }
 
-    if (!hasPostData || !postData) {
+    if (!hasPostData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
@@ -166,27 +155,17 @@ export const PostModal = ({
       <ViewMode
         onClose={handleCloseModal}
         postData={postData}
-        postId={resolvedPostId ?? postData.id}
+        postId={postData.id}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
         isEditing={isEditing}
-        commentControl={commentControl}
-        handleCommentSubmit={handleCommentSubmit}
-        watchComment={watchComment}
-        handlePublish={handlePublish}
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
-        currentUserId={currentUserId}
-        currentUser={currentUser}
-        isPublishingComment={isPublishingComment}
-        commentMaxLength={commentMaxLength}
         commentsEnabled={open && hasPostData}
-        isPostLikeLoading={isPostLikeLoading}
-        onTogglePostLike={handleTogglePostLike}
       />
     )
   }

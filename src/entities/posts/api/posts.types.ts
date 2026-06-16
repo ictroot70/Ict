@@ -1,4 +1,4 @@
-import { LikeStatus } from '@/shared/types'
+import { LikeStatus } from '@/shared/types/base'
 import { AnswersViewModel, CommentsViewModel } from '@/shared/types/comments'
 
 export type PostImageViewModel = {
@@ -52,36 +52,6 @@ export type UpdateLikeStatusDto = {
   likeStatus: LikeStatus
 }
 
-export type PostLikeUserViewModel = {
-  id: number
-  userId: number
-  userName: string
-  createdAt: string
-  avatars: Array<{
-    url: string
-    width: number
-    height: number
-    fileSize: number
-    createdAt?: string
-  }>
-  isFollowing: boolean
-  isFollowedBy: boolean
-}
-
-export type PostLikesResponse = {
-  pageSize: number
-  totalCount: number
-  notReadCount?: number
-  items: PostLikeUserViewModel[]
-}
-
-export type GetPostLikesParams = {
-  postId: number
-  pageSize?: number
-  pageNumber?: number
-  cursor?: number
-}
-
 export type PaginatedResponse<T> = {
   items: T[]
   totalCount: number
@@ -123,4 +93,28 @@ export type FollowersFeedResponse = {
 export type FollowersFeedPageParams = {
   endCursorPostId: number
   pageNumber: number
+}
+
+// Типы для комментариев (SCRUM-288)
+export type GetCommentsParams = CommonPostParams & {
+  postId: number
+}
+
+export type GetCommentAnswersParams = CommonPostParams & {
+  postId: number
+  commentId: number
+}
+
+export type PaginatedCommentsResponse = {
+  pageSize: number
+  totalCount: number
+  notReadCount?: number
+  items: CommentsViewModel[]
+}
+
+export type PaginatedAnswersResponse = {
+  pageSize: number
+  totalCount: number
+  notReadCount?: number
+  items: AnswersViewModel[]
 }

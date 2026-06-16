@@ -1,23 +1,14 @@
 import { Avatar, Skeleton } from '@/shared/composites'
 import { PostModalData } from '@/shared/types'
-import {
-  Button,
-  Typography,
-  BookmarkOutline,
-  HeartFilled,
-  HeartOutline,
-  PaperPlane,
-} from '@/shared/ui'
+import { Button, Typography, BookmarkOutline, PaperPlane } from '@/shared/ui'
 
 import s from '../../ViewMode.module.scss'
 
 interface ViewModePostActionsProps {
   variant: 'public' | 'myPost' | 'userPost'
-  postData: Pick<PostModalData, 'likesCount' | 'isLiked' | 'avatarWhoLikes'>
+  postData: Pick<PostModalData, 'likesCount' | 'avatarWhoLikes'>
   formattedCreatedAt: string
   isAuthLoading: boolean
-  isPostLikeLoading: boolean
-  onTogglePostLike: () => void
 }
 
 const formatLikesCount = (count: number): string => {
@@ -33,12 +24,10 @@ export const ViewModePostActions = ({
   postData,
   formattedCreatedAt,
   isAuthLoading,
-  isPostLikeLoading,
-  onTogglePostLike,
 }: ViewModePostActionsProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
-  const { likesCount, isLiked, avatarWhoLikes } = postData
+  const { likesCount, avatarWhoLikes } = postData
   const visibleAvatars = avatarWhoLikes.slice(0, 3)
 
   return (
@@ -59,20 +48,6 @@ export const ViewModePostActions = ({
             </>
           ) : (
             <>
-              <Button
-                variant={'text'}
-                className={s.postButton}
-                onClick={onTogglePostLike}
-                disabled={isPostLikeLoading}
-                aria-label={isLiked ? 'Unlike post' : 'Like post'}
-                aria-pressed={isLiked}
-              >
-                {isLiked ? (
-                  <HeartFilled color={'var(--color-danger-500)'} />
-                ) : (
-                  <HeartOutline color={'var(--color-light-100)'} />
-                )}
-              </Button>
               <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
                 <PaperPlane color={'var(--color-light-100)'} />
               </Button>

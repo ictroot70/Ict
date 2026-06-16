@@ -1,7 +1,6 @@
 import { useCallback, useSyncExternalStore } from 'react'
 
 import { useUpdateLikeStatusMutation } from '@/entities/posts/api/postApi'
-import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useAuth } from '@/features/posts/utils/useAuth'
 import { LikeStatus } from '@/shared/types'
 
@@ -30,23 +29,18 @@ const unlockPostLike = (postId: number) => {
   emitPostLikeLockChange()
 }
 
-export const useLike = (postId: number, ownerId: number) => {
+export const useLike = (postId: number) => {
   const { user } = useAuth()
-  const { data: currentUserProfile, isLoading: isCurrentUserProfileLoading } =
-    useGetPublicProfileQuery({ profileId: user?.userId ?? 0 }, { skip: !user?.userId })
   const [updateLikeStatus, { isLoading }] = useUpdateLikeStatusMutation()
   const isPostLocked = useSyncExternalStore(
     subscribeToPostLikeLocks,
     () => lockedPostIds.has(postId),
     () => false
   )
-  const currentUserAvatarUrl =
-    currentUserProfile?.avatars.find(avatar => avatar.width === 45)?.url ??
-    currentUserProfile?.avatars[0]?.url
 
   const toggleLike = useCallback(
     (isLiked: boolean) => {
-      if (!user?.userId || lockedPostIds.has(postId) || isCurrentUserProfileLoading) {
+      if (!user?.userId || lockedPostIds.has(postId)) {
         return
       }
 
@@ -54,8 +48,6 @@ export const useLike = (postId: number, ownerId: number) => {
 
       updateLikeStatus({
         postId,
-        userId: ownerId,
-        currentUserAvatar: currentUserAvatarUrl,
         data: {
           likeStatus: isLiked ? LikeStatus.NONE : LikeStatus.LIKE,
         },
@@ -66,8 +58,8 @@ export const useLike = (postId: number, ownerId: number) => {
           unlockPostLike(postId)
         })
     },
-    [currentUserAvatarUrl, isCurrentUserProfileLoading, ownerId, postId, user, updateLikeStatus]
+    [postId, user, updateLikeStatus]
   )
 
-  return { toggleLike, isLikeLoading: isLoading || isPostLocked || isCurrentUserProfileLoading }
+  return { toggleLike, isLikeLoading: isLoading || isPostLocked }
 }

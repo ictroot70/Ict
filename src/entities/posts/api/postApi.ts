@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import {
   CreatePostInputDto,
   FollowersFeedParams,
@@ -8,37 +9,50 @@ import {
   PaginatedPosts,
   PaginatedResponse,
   PostImageViewModel,
-  PostLikesResponse,
   PostViewModel,
   UpdateLikeStatusDto,
   UpdatePostInputDto,
 } from '@/entities/posts/api/posts.types'
-import { patchPostLikeFields } from '@/entities/posts/lib/comment-likes'
-import {
-  getCreatePostInvalidationTags,
-  getPostMutationInvalidationTags,
-  getUserPostsNextPageParam,
-  isValidUserId,
-  mergeUserPostsCache,
-  patchPostDescriptionInUserFeed,
-  patchPostLikeInUserFeed,
-  prependPostToUserFeed,
-  removePostFromUserFeed,
-} from '@/entities/posts/lib/post-cache-patches'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { showToastAlert } from '@/shared/lib'
+import { InfiniteData } from '@reduxjs/toolkit/query'
+
+const isValidUserId = (userId: number) => Number.isInteger(userId) && userId > 0
 
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
     createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto; userId: number }>({
-      query: ({ body }) => ({
-        url: API_ROUTES.POSTS.BASE,
-        method: 'POST',
-        body: { ...body, description: body.description || undefined },
-      }),
-      invalidatesTags: (result, error, { userId }) =>
-        getCreatePostInvalidationTags(result?.ownerId ?? userId),
+      query: ({ body }) => {
+        if (body.childrenMetadata.length === 0) {
+          throw new Error('At least one image is required')
+        }
+
+        const validatedBody = {
+          ...body,
+          description: body.description || undefined,
+        }
+
+        return {
+          url: API_ROUTES.POSTS.BASE,
+          method: 'POST',
+          body: validatedBody,
+        }
+      },
+      invalidatesTags: (result, error, { userId }) => {
+        const targetUserId = result?.ownerId ?? userId
+
+        return [
+          'Posts',
+          'Profile',
+          { type: 'Post', id: 'LIST' },
+          ...(isValidUserId(targetUserId)
+            ? [
+                { type: 'UserPosts' as const, id: targetUserId },
+                { type: 'Post' as const, id: `USER-${targetUserId}` },
+              ]
+            : []),
+        ]
+      },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data: createdPost } = await queryFulfilled
@@ -47,11 +61,31 @@ export const postApi = baseApi.injectEndpoints({
             postApi.util.updateQueryData(
               'getInfinitePostsByUser',
               { userId: createdPost.ownerId },
-              draft => prependPostToUserFeed(draft, createdPost)
+              (draft: InfiniteData<PaginatedPosts, null | number>) => {
+                if (!draft.pages.length) {
+                  return
+                }
+
+                const firstPage = draft.pages[0]
+
+                if (firstPage.items.some(post => post.id === createdPost.id)) {
+                  return
+                }
+
+                firstPage.items.unshift(createdPost)
+
+                for (const page of draft.pages) {
+                  page.totalCount += 1
+                }
+
+                if (firstPage.items.length > firstPage.pageSize) {
+                  firstPage.items = firstPage.items.slice(0, firstPage.pageSize)
+                }
+              }
             )
           )
         } catch {
-          // handled by invalidation
+          // handled by invalidation/refetch
         }
       },
     }),
@@ -65,14 +99,24 @@ export const postApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { postId, userId }) =>
-        getPostMutationInvalidationTags(postId, userId),
+      invalidatesTags: (result, error, { postId, userId }) => [
+        'Posts',
+        'Profile',
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'LIST' },
+        ...(isValidUserId(userId)
+          ? [
+              { type: 'UserPosts' as const, id: userId },
+              { type: 'Post' as const, id: `USER-${userId}` },
+            ]
+          : []),
+      ],
       async onQueryStarted({ postId, body, userId }, { dispatch, queryFulfilled }) {
-        if (!isValidUserId(userId) || !body.description) {
+        if (!isValidUserId(userId)) {
           try {
             await queryFulfilled
           } catch {
-            // handled by invalidation
+            // handled by invalidation/refetch
           }
 
           return
@@ -80,14 +124,29 @@ export const postApi = baseApi.injectEndpoints({
 
         const postByIdPatchResult = dispatch(
           postApi.util.updateQueryData('getPostById', postId, draft => {
-            draft.description = body.description!
-            draft.updatedAt = new Date().toISOString()
+            if (body.description) {
+              draft.description = body.description
+              draft.updatedAt = new Date().toISOString()
+            }
           })
         )
 
         const patchResult = dispatch(
-          postApi.util.updateQueryData('getInfinitePostsByUser', { userId }, draft =>
-            patchPostDescriptionInUserFeed(draft, postId, body.description!)
+          postApi.util.updateQueryData(
+            'getInfinitePostsByUser',
+            { userId },
+            (draft: InfiniteData<PaginatedPosts, null | number>) => {
+              for (const page of draft.pages) {
+                const post = page.items.find(item => item.id === postId)
+
+                if (post && body.description) {
+                  post.description = body.description
+                  post.updatedAt = new Date().toISOString()
+
+                  break
+                }
+              }
+            }
           )
         )
 
@@ -105,22 +164,49 @@ export const postApi = baseApi.injectEndpoints({
         url: API_ROUTES.POSTS.BY_POST_ID(postId),
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, { postId, userId }) =>
-        getPostMutationInvalidationTags(postId, userId),
+      invalidatesTags: (result, error, { postId, userId }) => [
+        'Posts',
+        'Profile',
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'LIST' },
+        ...(isValidUserId(userId)
+          ? [
+              { type: 'UserPosts' as const, id: userId },
+              { type: 'Post' as const, id: `USER-${userId}` },
+            ]
+          : []),
+      ],
       async onQueryStarted({ postId, userId }, { dispatch, queryFulfilled }) {
         if (!isValidUserId(userId)) {
           try {
             await queryFulfilled
           } catch {
-            // handled by invalidation
+            // handled by invalidation/refetch
           }
 
           return
         }
 
         const patchResult = dispatch(
-          postApi.util.updateQueryData('getInfinitePostsByUser', { userId }, draft =>
-            removePostFromUserFeed(draft, postId)
+          postApi.util.updateQueryData(
+            'getInfinitePostsByUser',
+            { userId },
+            (draft: InfiniteData<PaginatedPosts, null | number>) => {
+              let removedCount = 0
+
+              for (const page of draft.pages) {
+                const before = page.items.length
+
+                page.items = page.items.filter(post => post.id !== postId)
+                removedCount += before - page.items.length
+              }
+
+              if (removedCount > 0) {
+                for (const page of draft.pages) {
+                  page.totalCount = Math.max(0, page.totalCount - removedCount)
+                }
+              }
+            }
           )
         )
 
@@ -169,7 +255,17 @@ export const postApi = baseApi.injectEndpoints({
               { type: 'Post', id: `USER-${userId}` },
             ],
       serializeQueryArgs: ({ endpointName, queryArgs }) => `${endpointName}-${queryArgs.userId}`,
-      merge: mergeUserPostsCache,
+      merge: (currentCache, newItems) => {
+        const existingIds = new Set(currentCache.items.map(item => item.id))
+        const newUniqueItems = newItems.items.filter(item => !existingIds.has(item.id))
+
+        currentCache.items.push(...newUniqueItems)
+        currentCache.items.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+        currentCache.pageSize = newItems.pageSize
+        currentCache.totalCount = newItems.totalCount
+      },
       forceRefetch: ({ currentArg, previousArg }) =>
         currentArg?.endCursorPostId !== previousArg?.endCursorPostId,
     }),
@@ -182,7 +278,17 @@ export const postApi = baseApi.injectEndpoints({
       keepUnusedDataFor: 300,
       infiniteQueryOptions: {
         initialPageParam: null,
-        getNextPageParam: ({ items }) => getUserPostsNextPageParam(items),
+        getNextPageParam: ({ items }) => {
+          const expectedPageSize = 8
+
+          if (!items || items.length < expectedPageSize) {
+            return null
+          }
+
+          const lastItem = items[items.length - 1]
+
+          return lastItem ? lastItem.id : null
+        },
       },
       query: ({ pageParam, queryArg }) => {
         const cursorId = pageParam === null ? 0 : pageParam
@@ -213,57 +319,16 @@ export const postApi = baseApi.injectEndpoints({
           : [{ type: 'Post', id: 'LIST' }],
     }),
 
-    getPostLikes: builder.query<PostLikesResponse, GetPostLikesParams>({
-      query: ({ postId, pageSize = 3, pageNumber = 1, cursor = 0 }) => ({
-        url: API_ROUTES.POSTS.POST_LIKES(postId),
-        params: { pageSize, pageNumber, cursor },
-      }),
-    }),
-
     updateLikeStatus: builder.mutation<
       PostViewModel,
-      {
-        postId: number
-        data: UpdateLikeStatusDto
-        userId?: number
-        currentUserAvatar?: string
-      }
+      { postId: number; data: UpdateLikeStatusDto }
     >({
       query: ({ postId, data }) => ({
         url: API_ROUTES.POSTS.LIKE_STATUS_POST(postId),
         method: 'PUT',
         body: data,
       }),
-      async onQueryStarted(
-        { postId, data, userId, currentUserAvatar },
-        { dispatch, queryFulfilled }
-      ) {
-        const postByIdPatchResult = dispatch(
-          postApi.util.updateQueryData('getPostById', postId, draft => {
-            patchPostLikeFields(draft, data.likeStatus, currentUserAvatar)
-          })
-        )
-
-        const userPostsPatchResult =
-          isValidUserId(userId ?? 0) &&
-          dispatch(
-            postApi.util.updateQueryData(
-              'getInfinitePostsByUser',
-              { userId: userId as number },
-              draft => patchPostLikeInUserFeed(draft, postId, data.likeStatus, currentUserAvatar)
-            )
-          )
-
-        try {
-          await queryFulfilled
-        } catch {
-          postByIdPatchResult.undo()
-          if (userPostsPatchResult) {
-            userPostsPatchResult.undo()
-          }
-          showToastAlert({ message: 'Failed to update like', type: 'error' })
-        }
-      },
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Post', id: postId }],
     }),
     getFollowersFeed: builder.infiniteQuery<
       FollowersFeedResponse,
@@ -312,7 +377,6 @@ export const {
   useGetInfinitePostsByUserInfiniteQuery: useGetPostsByUserInfiniteQuery,
   useLazyGetPostsByUserQuery,
   useGetPostsQuery,
-  useGetPostLikesQuery,
   useUpdateLikeStatusMutation,
   useGetFollowersFeedInfiniteQuery,
 } = postApi
