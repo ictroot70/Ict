@@ -54,6 +54,9 @@ export const PostModal = ({
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
+    handleFollow,
+    isFollowing,
+    isFollowPending,
     applyLocalDescription,
   } = usePostModal(open, initialPostData, postId)
 
@@ -67,7 +70,7 @@ export const PostModal = ({
     if (trimmed && onEditPost && postData.postId) {
       const updated = await onEditPost(postData.postId, trimmed)
 
-      if (updated === false) {
+      if (!updated) {
         return
       }
 
@@ -170,6 +173,9 @@ export const PostModal = ({
         watchComment={watchComment}
         handlePublish={handlePublish}
         onCopyLink={handleCopyLink}
+        onFollow={handleFollow}
+        isFollowing={isFollowing}
+        isFollowPending={isFollowPending}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}

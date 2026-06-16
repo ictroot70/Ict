@@ -8,6 +8,7 @@ export interface ActionsMenuItem {
   label: string
   icon: ReactNode
   onClick: () => void
+  disabled?: boolean
 }
 
 type Props = {
@@ -60,12 +61,13 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
 
       {isMenuOpen && (
         <div className={s.menu}>
-          {items.map(({ icon, label, onClick }) => {
+          {items.map(({ icon, label, onClick, disabled }) => {
             return (
               <Button
                 variant={'text'}
                 className={s.item}
                 onClick={() => handleItemClick({ onClick })}
+                disabled={disabled}
                 aria-label={'Edit Post'}
                 key={label}
               >

@@ -2,8 +2,13 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import {
+  useFollowUserMutation,
+  useGetUserByUserNameQuery,
+  useUnfollowUserMutation,
+} from '@/entities/users/api'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { showToastAlert } from '@/shared/lib'
+import { logger, showToastAlert } from '@/shared/lib'
 import {
   mapPostToModalData,
   PostModalData,
@@ -79,6 +84,14 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
+  const ownerUserName = postData?.userName
+  const shouldFetchOwnerProfile = Boolean(
+    open && isAuthenticatedUi && !isOwnProfile && ownerUserName
+  )
+  const { data: ownerProfile } = useGetUserByUserNameQuery(ownerUserName as string, {
+    skip: !shouldFetchOwnerProfile,
+  })
+
   let variant: PostVariant = 'public'
 
   if (isAuthenticatedUi) {
@@ -108,7 +121,14 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   useEffect(() => {
     setLocalPostData(basePostData)
+    setIsFollowing(false)
   }, [basePostData, resolvedPostId])
+
+  useEffect(() => {
+    if (ownerProfile) {
+      setIsFollowing(ownerProfile.isFollowing)
+    }
+  }, [ownerProfile])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -151,6 +171,30 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     })
   }
 
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [followUser, { isLoading: isFollowLoading }] = useFollowUserMutation()
+  const [unfollowUser, { isLoading: isUnfollowLoading }] = useUnfollowUserMutation()
+  const isFollowPending = isFollowLoading || isUnfollowLoading
+
+  const handleFollow = async () => {
+    const ownerId = postModalData.ownerId
+
+    if (!ownerId || isFollowPending) {
+      return
+    }
+    try {
+      if (isFollowing) {
+        await unfollowUser(ownerId).unwrap()
+        setIsFollowing(false)
+      } else {
+        await followUser({ selectedUserId: ownerId }).unwrap()
+        setIsFollowing(true)
+      }
+    } catch (error) {
+      logger.error('[post-modal] Follow toggle failed:', error)
+    }
+  }
+
   const handleCopyLink = async () => {
     const url = window.location.href
 
@@ -191,6 +235,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
+    handleFollow,
+    isFollowing,
+    isFollowPending,
     applyLocalDescription,
   }
 }

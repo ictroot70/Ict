@@ -2,13 +2,48 @@ import { GetPublicUsers } from '@/entities/users/model'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
 
-import { GetPublicPostsRequest, GetPublicPostsResponse } from './api.types'
+import {
+  FollowUserRequest,
+  GetPublicPostsRequest,
+  GetPublicPostsResponse,
+  SearchUsersRequest,
+  SearchUsersResponse,
+  UserByUserNameResponse,
+} from './api.types'
 
 export const publicUsersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
+    followUser: builder.mutation<void, FollowUserRequest>({
+      query: body => ({
+        url: API_ROUTES.USERS_FOLLOW.FOLLOWING,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Profile'],
+    }),
+    unfollowUser: builder.mutation<void, number>({
+      query: userId => ({
+        url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(userId),
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Profile'],
+    }),
+    // Authenticated lookup that returns the per-viewer follow status (isFollowing).
+    getUserByUserName: builder.query<UserByUserNameResponse, string>({
+      query: userName => ({
+        url: API_ROUTES.USERS_FOLLOW.BY_USERNAME(userName),
+      }),
+      providesTags: ['Profile'],
+    }),
     getPublicUsersCounter: builder.query<GetPublicUsers, void>({
       query: () => ({
         url: API_ROUTES.PUBLIC_USER.COUNT,
+      }),
+    }),
+    searchUsers: builder.query<SearchUsersResponse, SearchUsersRequest>({
+      query: params => ({
+        params,
+        url: API_ROUTES.USERS_FOLLOW.SEARCH,
       }),
     }),
     getPublicPosts: builder.query<GetPublicPostsResponse, GetPublicPostsRequest>({
@@ -20,4 +55,11 @@ export const publicUsersApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetPublicUsersCounterQuery, useGetPublicPostsQuery } = publicUsersApi
+export const {
+  useGetPublicUsersCounterQuery,
+  useGetPublicPostsQuery,
+  useSearchUsersQuery,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+  useGetUserByUserNameQuery,
+} = publicUsersApi
