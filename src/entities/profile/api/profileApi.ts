@@ -52,7 +52,7 @@ export const profileApi = baseApi.injectEndpoints({
           url: API_ROUTES.PUBLIC_USER.PROFILE(profileId),
         }
       },
-      providesTags: ['Profile'],
+      providesTags: (result, error, { profileId }) => [{ type: 'Profile', id: profileId }],
     }),
   }),
 })

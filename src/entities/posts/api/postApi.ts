@@ -1,6 +1,8 @@
 import {
   CreatePostInputDto,
-  GetPostLikesParams,
+  FollowersFeedParams,
+  FollowersFeedResponse,
+  FollowersFeedPageParams,
   GetPostsByUserParams,
   GetPostsParams,
   PaginatedPosts,
@@ -263,6 +265,39 @@ export const postApi = baseApi.injectEndpoints({
         }
       },
     }),
+    getFollowersFeed: builder.infiniteQuery<
+      FollowersFeedResponse,
+      FollowersFeedParams,
+      FollowersFeedPageParams
+    >({
+      infiniteQueryOptions: {
+        initialPageParam: {
+          endCursorPostId: 0,
+          pageNumber: 1,
+        },
+        getNextPageParam: lastPage => {
+          const { nextCursor, page, pagesCount } = lastPage
+
+          if (nextCursor === null || nextCursor === 0 || page >= pagesCount) {
+            return undefined
+          }
+
+          return {
+            endCursorPostId: nextCursor,
+            pageNumber: page + 1,
+          }
+        },
+      },
+      query: ({ queryArg, pageParam }) => ({
+        url: API_ROUTES.HOME.PUBLICATIONS_FOLLOWERS,
+        params: {
+          pageSize: queryArg.pageSize ?? 12,
+          pageNumber: pageParam.pageNumber,
+          endCursorPostId: pageParam.endCursorPostId,
+        },
+      }),
+      providesTags: ['FollowersFeed'],
+    }),
   }),
 })
 
@@ -279,4 +314,5 @@ export const {
   useGetPostsQuery,
   useGetPostLikesQuery,
   useUpdateLikeStatusMutation,
+  useGetFollowersFeedInfiniteQuery,
 } = postApi

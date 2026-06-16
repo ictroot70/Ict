@@ -33,5 +33,6 @@ export const ImageOutline = Icons.ImageOutline
 export const MoreHorizontal = Icons.MoreHorizontal
 export const Close = Icons.Close
 export const PersonAddOutline = Icons.PersonAddOutline
+export const PersonRemoveOutline = Icons.PersonRemoveOutline
 export const CopyOutline = Icons.CopyOutline
 export const Pin = Icons.Pin

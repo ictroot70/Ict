@@ -106,25 +106,21 @@ export type GetPostsParams = CommonPostParams & {
   pageNumber?: number
 }
 
-export type PaginatedCommentsResponse = {
-  pageSize: number
+export type FollowersFeedParams = {
+  pageSize?: number
+}
+
+export type FollowersFeedResponse = {
   totalCount: number
-  notReadCount?: number
-  items: CommentsViewModel[]
-}
-
-export type PaginatedAnswersResponse = {
+  pagesCount: number
+  page: number
   pageSize: number
-  totalCount: number
-  notReadCount?: number
-  items: AnswersViewModel[]
+  prevCursor: number
+  nextCursor: number | null
+  items: PostViewModel[]
 }
 
-export type GetCommentsParams = CommonPostParams & {
-  postId: number
-}
-
-export type GetCommentAnswersParams = CommonPostParams & {
-  postId: number
-  commentId: number
+export type FollowersFeedPageParams = {
+  endCursorPostId: number
+  pageNumber: number
 }
