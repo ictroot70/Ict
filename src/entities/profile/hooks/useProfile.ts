@@ -25,7 +25,7 @@ export const useProfile = (
 
   const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     profileQueryArgs,
-    { skip: !isInit }
+    { refetchOnMountOrArgChange: true, skip: !isInit }
   )
 
   const {

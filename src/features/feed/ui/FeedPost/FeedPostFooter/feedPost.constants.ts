@@ -1,0 +1,1 @@
+export const MOCK_COMMENTS_COUNT = 114
