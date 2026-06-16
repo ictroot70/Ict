@@ -2,9 +2,10 @@ import { PostModalData, PostVariant } from '@/shared/types'
 
 import s from './ViewMode.module.scss'
 
+
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
-import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
+// import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
@@ -15,11 +16,9 @@ interface ViewModeProps {
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
-  isEditing?: boolean
   formattedCreatedAt: string
   isAuthLoading: boolean
   isAuthenticated: boolean
-  isOwnProfile: boolean
   commentsEnabled: boolean
 }
 
@@ -33,7 +32,6 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isAuthenticated,
-  isOwnProfile,
   commentsEnabled,
 }: ViewModeProps) => {
   const handleFollow = () => { }
@@ -59,13 +57,12 @@ export const ViewMode = ({
           isAuthenticated={isAuthenticated}
           enabled={commentsEnabled}
         />
-
+{/* 
         <ViewModePostFooter
           variant={variant}
-          postData={postData}
           formattedCreatedAt={formattedCreatedAt}
           isAuthLoading={isAuthLoading}
-        />
+        /> */}
       </div>
     </div>
   )
