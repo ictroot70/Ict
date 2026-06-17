@@ -17,7 +17,7 @@ import s from '../ViewMode.module.scss'
 
 interface PostFooterProps {
   variant: PostVariant
-  postData: Pick<PostModalData, 'likesCount' | 'avatarWhoLikes'> 
+  postData: Pick<PostModalData, 'likesCount' | 'avatarWhoLikes'>
   formattedCreatedAt: string
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
@@ -26,7 +26,7 @@ interface PostFooterProps {
   isAuthLoading: boolean
 }
 
- const formatLikesCount = (count: number): string => {
+const formatLikesCount = (count: number): string => {
   if (count === 1) {
     return '1 like'
   }
@@ -82,7 +82,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         </div>
       )}
 
-       {likesCount > 0 && (
+      {likesCount > 0 && (
         <div className={s.likesRow}>
           {visibleAvatars.length > 0 && (
             <div className={s.likesAvatars}>
@@ -102,11 +102,11 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         </div>
       )}
 
-       <Typography variant={'small_text'} className={s.timestamp}>
+      <Typography variant={'small_text'} className={s.timestamp}>
         {formattedCreatedAt}
       </Typography>
 
-       {shouldShowAuthSkeleton ? (
+      {shouldShowAuthSkeleton ? (
         <>
           <Separator className={s.separator} />
           <div className={s.inputForm} aria-hidden>

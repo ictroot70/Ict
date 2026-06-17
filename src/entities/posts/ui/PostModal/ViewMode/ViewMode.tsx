@@ -49,7 +49,7 @@ export const ViewMode = ({
   isOwnProfile,
   commentsEnabled = true,
 }: ViewModeProps) => {
-  const handleFollow = () => { }
+  const handleFollow = () => {}
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
