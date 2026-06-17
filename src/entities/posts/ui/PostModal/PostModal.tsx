@@ -30,8 +30,12 @@ export const PostModal = ({
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
+    comments,
     isEditingDescription,
     setIsEditingDescription,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
     descriptionControl,
     handleDescriptionSubmit,
     watchDescription,
@@ -46,6 +50,7 @@ export const PostModal = ({
     isPostError,
     uiText,
     formattedCreatedAt,
+    handlePublish,
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
@@ -155,7 +160,6 @@ export const PostModal = ({
       <ViewMode
         onClose={handleCloseModal}
         postData={postData}
-        postId={postData.id}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
@@ -166,6 +170,11 @@ export const PostModal = ({
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
         commentsEnabled={open && hasPostData}
+        comments={comments}
+        commentControl={commentControl}
+        handleCommentSubmit={handleCommentSubmit}
+        watchComment={watchComment}
+        handlePublish={handlePublish}
       />
     )
   }

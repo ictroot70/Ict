@@ -8,6 +8,7 @@ import {
   mapPostToModalData,
   PostModalData,
   PostVariant,
+  CommentFormData,
   DescriptionFormData,
   PostViewModel,
 } from '@/shared/types'
@@ -32,8 +33,18 @@ const postModalTextByLanguage = {
 } as const
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
+  const [comments, setComments] = useState<string[]>([]) // <-- ДОБАВЛЕНО
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
+
+  const {
+    control: commentControl,
+    handleSubmit: handleCommentSubmit,
+    reset: resetComment,
+    watch: watchComment,
+  } = useForm<CommentFormData>({
+    defaultValues: { comment: '' },
+  })
 
   const {
     control: descriptionControl,
@@ -110,6 +121,16 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }, [])
 
+  const handlePublish = (data: CommentFormData) => {
+    const trimmed = data.comment.trim()
+
+    if (!trimmed) {
+      return
+    }
+    setComments(prev => [...prev, trimmed])
+    resetComment()
+  }
+
   const handleEditPost = () => {
     setIsEditingDescription(true)
   }
@@ -149,8 +170,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   return {
+    comments, // <-- ДОБАВЛЕНО
     isEditingDescription,
     setIsEditingDescription,
+    commentControl, // <-- ДОБАВЛЕНО
+    handleCommentSubmit, // <-- ДОБАВЛЕНО
+    watchComment, // <-- ДОБАВЛЕНО
     descriptionControl,
     handleDescriptionSubmit,
     watchDescription,
@@ -165,6 +190,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     isPostError,
     uiText,
     formattedCreatedAt,
+    handlePublish,
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,

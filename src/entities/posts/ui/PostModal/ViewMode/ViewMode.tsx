@@ -1,3 +1,5 @@
+'use client'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
@@ -18,7 +20,7 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[]
+  comments: string[] // Оставляем для совместимости, если нужно
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -27,6 +29,7 @@ interface ViewModeProps {
   isAuthLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
+  commentsEnabled?: boolean
 }
 
 export const ViewMode = ({
@@ -42,6 +45,9 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isAuthenticated,
+  isOwnProfile,
+  commentsEnabled = true,
 }: ViewModeProps) => {
   const handleFollow = () => { }
 
@@ -60,12 +66,18 @@ export const ViewMode = ({
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postData} comments={comments} />
+        <ViewModeCommentsSection
+          postData={postData}
+          postId={postData.id}
+          isAuthenticated={isAuthenticated}
+          enabled={commentsEnabled}
+        />
 
         <Separator />
 
         <ViewModePostFooter
           variant={variant}
+          postData={postData}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}
