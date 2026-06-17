@@ -95,7 +95,6 @@ export type FollowersFeedPageParams = {
   pageNumber: number
 }
 
-// Типы для комментариев (SCRUM-288)
 export type GetCommentsParams = CommonPostParams & {
   postId: number
 }
