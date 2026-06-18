@@ -5,13 +5,7 @@ import { safeSsrFetchJson, toSsrFetchException } from '@/shared/lib/ssr/safeSsrF
 
 import { PublicProfileData } from '../api'
 
-const PROFILE_SSR_REVALIDATE_SECONDS = 60
-
-const REQUEST_OPTIONS = {
-  next: {
-    revalidate: PROFILE_SSR_REVALIDATE_SECONDS,
-  },
-} as const
+const REQUEST_OPTIONS = { cache: 'no-store' as const }
 
 async function fetchProfileData(userId: number): Promise<PublicProfileData> {
   const url = buildApiUrl(API_ROUTES.PUBLIC_USER.PROFILE(userId))
