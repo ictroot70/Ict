@@ -17,6 +17,8 @@ interface CommentsSectionProps {
   postId: number
   isAuthenticated: boolean
   currentUserId?: number
+  currentUserName?: string
+  currentUserAvatar?: string
   enabled: boolean
 }
 
@@ -25,6 +27,8 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
   postId,
   isAuthenticated,
   currentUserId,
+  currentUserName,
+  currentUserAvatar,
   enabled,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
@@ -66,6 +70,8 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
               postId={postId}
               comment={comment}
               isAuthenticated={isAuthenticated}
+              currentUserName={currentUserName}
+              currentUserAvatar={currentUserAvatar}
             />
           ))}
 

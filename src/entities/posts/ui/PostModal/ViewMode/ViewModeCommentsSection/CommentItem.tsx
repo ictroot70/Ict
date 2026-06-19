@@ -1,14 +1,18 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
+import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
+import { ControlledInput } from '@/features/formControls'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
 import {
   CommentsViewModel,
   getCommentAuthorName,
   getCommentAvatarUrl,
+  ensureReplyMention,
 } from '@/shared/types/comments'
 import { Button, Typography } from '@/shared/ui'
 
@@ -19,16 +23,32 @@ import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'
 import { CommentMetaActions } from './CommentMetaActions'
 
+interface ReplyFormData {
+  content: string
+}
+
 interface CommentItemProps {
   postId: number
   comment: CommentsViewModel
   isAuthenticated: boolean
+  currentUserName?: string
+  currentUserAvatar?: string
 }
 
-export const CommentItem: React.FC<CommentItemProps> = ({ postId, comment, isAuthenticated }) => {
+export const CommentItem: React.FC<CommentItemProps> = ({
+  postId,
+  comment,
+  isAuthenticated,
+  currentUserName,
+  currentUserAvatar,
+}) => {
   const [showAnswers, setShowAnswers] = useState(false)
+  const [isReplying, setIsReplying] = useState(false)
+
   const timeAgo = useTimeAgo(comment.createdAt)
   const { toggleCommentLike } = useCommentLikeToggle(postId)
+  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
+
   const {
     answers,
     loadMore,
@@ -36,17 +56,49 @@ export const CommentItem: React.FC<CommentItemProps> = ({ postId, comment, isAut
     isLoading: isAnswersLoading,
   } = useCommentAnswers(postId, comment.id, showAnswers)
 
+  const replyForm = useForm<ReplyFormData>({
+    defaultValues: { content: '' },
+  })
+
   const answerCount = comment.answerCount
   const hasAnswers = answerCount > 0 || answers.length > 0
   const authorName = getCommentAuthorName(comment.from)
 
-  const handleToggleAnswers = () => {
-    setShowAnswers(prev => !prev)
+  const handleToggleAnswers = () => setShowAnswers(prev => !prev)
+  const handleToggleLike = () => toggleCommentLike(comment.id, comment.isLiked)
+
+  const handleStartReply = () => setIsReplying(true)
+
+  const handleCancelReply = () => {
+    setIsReplying(false)
+    replyForm.reset()
   }
 
-  const handleToggleLike = () => {
-    toggleCommentLike(comment.id, comment.isLiked)
-  }
+  const handleSubmitReply = replyForm.handleSubmit(async data => {
+    if (!data.content.trim()) {
+      return
+    }
+
+    try {
+      const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
+
+      await createAnswer({
+        postId,
+        commentId: comment.id,
+        content: contentWithMention,
+        authorName: currentUserName,
+        authorAvatar: currentUserAvatar,
+      }).unwrap()
+
+      handleCancelReply()
+
+      if (!showAnswers) {
+        setShowAnswers(true)
+      }
+    } catch (error) {
+      console.error('Failed to send reply:', error)
+    }
+  })
 
   return (
     <div className={s.commentBlock}>
@@ -60,6 +112,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({ postId, comment, isAut
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
             likeCount={comment.likeCount}
+            showAnswerButton={!isReplying}
+            onAnswer={handleStartReply}
           />
         </div>
         <CommentLikeButton
@@ -70,19 +124,52 @@ export const CommentItem: React.FC<CommentItemProps> = ({ postId, comment, isAut
         />
       </div>
 
+      {isReplying && (
+        <form onSubmit={handleSubmitReply} className={s.replyContainer}>
+          <div className={s.inputWrapper}>
+            <ControlledInput
+              name={'content'}
+              control={replyForm.control}
+              inputType={'text'}
+              placeholder={`Ответ @${authorName}...`}
+              className={s.inlineInput}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className={s.replyActions}>
+            <Button
+              variant={'text'}
+              onClick={handleCancelReply}
+              type={'button'}
+              disabled={isSubmitting}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant={'primary'}
+              type={'submit'}
+              disabled={!replyForm.watch('content')?.trim() || isSubmitting}
+            >
+              Ответить
+            </Button>
+          </div>
+        </form>
+      )}
+
       {hasAnswers && (
         <div className={s.answersToggleContainer}>
           <div className={s.answersLine} />
           <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
-            {showAnswers ? `Hide Answers (${answerCount})` : `View Answers (${answerCount})`}
+            {showAnswers ? `Скрыть ответы (${answerCount})` : `Посмотреть ответы (${answerCount})`}
           </Button>
         </div>
       )}
+
       {showAnswers && (
         <div className={s.replies}>
           {isAnswersLoading && answers.length === 0 && (
             <Typography variant={'small_text'} className={s.commentTimestamp}>
-              Loading answers...
+              Загрузка ответов...
             </Typography>
           )}
           {answers.map(answer => (
@@ -91,6 +178,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({ postId, comment, isAut
               postId={postId}
               answer={answer}
               isAuthenticated={isAuthenticated}
+              currentUserName={currentUserName}
+              currentUserAvatar={currentUserAvatar}
             />
           ))}
           <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />

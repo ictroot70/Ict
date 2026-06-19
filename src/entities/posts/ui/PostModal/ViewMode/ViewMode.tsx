@@ -20,7 +20,7 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[] // Оставляем для совместимости, если нужно
+  comments: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>

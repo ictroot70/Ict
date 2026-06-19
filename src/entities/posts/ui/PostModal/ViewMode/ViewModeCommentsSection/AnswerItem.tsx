@@ -1,16 +1,20 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
+import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentLikeToggle } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
+import { ControlledInput } from '@/features/formControls'
 import { Avatar } from '@/shared/composites'
 import {
   AnswersViewModel,
   getCommentAuthorName,
   getCommentAvatarUrl,
+  ensureReplyMention,
 } from '@/shared/types/comments'
-import { Typography } from '@/shared/ui'
+import { Button, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
@@ -18,16 +22,65 @@ import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'
 import { CommentMetaActions } from './CommentMetaActions'
 
+interface ReplyFormData {
+  content: string
+}
+
 interface AnswerItemProps {
   postId: number
   answer: AnswersViewModel
   isAuthenticated: boolean
+  currentUserName?: string
+  currentUserAvatar?: string
 }
 
-export const AnswerItem: React.FC<AnswerItemProps> = ({ postId, answer, isAuthenticated }) => {
+export const AnswerItem: React.FC<AnswerItemProps> = ({
+  postId,
+  answer,
+  isAuthenticated,
+  currentUserName,
+  currentUserAvatar,
+}) => {
+  const [isReplying, setIsReplying] = useState(false)
+
   const timeAgo = useTimeAgo(answer.createdAt)
   const { toggleAnswerLike } = useCommentLikeToggle(postId)
   const authorName = getCommentAuthorName(answer.from)
+
+  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
+
+  const replyForm = useForm<ReplyFormData>({
+    defaultValues: { content: '' },
+  })
+
+  const handleStartReply = () => setIsReplying(true)
+
+  const handleCancelReply = () => {
+    setIsReplying(false)
+    replyForm.reset()
+  }
+
+  const handleSubmitReply = replyForm.handleSubmit(async data => {
+    if (!data.content.trim()) {
+      return
+    }
+
+    try {
+      const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
+
+      await createAnswer({
+        postId,
+        commentId: answer.commentId,
+        content: contentWithMention,
+        authorName: currentUserName,
+        authorAvatar: currentUserAvatar,
+      }).unwrap()
+
+      handleCancelReply()
+    } catch (error) {
+      console.error('Failed to send reply to answer:', error)
+    }
+  })
 
   return (
     <div className={s.answerBlock}>
@@ -41,7 +94,8 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({ postId, answer, isAuthen
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
             likeCount={answer.likeCount}
-            showAnswerButton={false}
+            showAnswerButton={!isReplying}
+            onAnswer={handleStartReply}
           />
         </div>
         <CommentLikeButton
@@ -51,6 +105,38 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({ postId, answer, isAuthen
           onToggle={() => toggleAnswerLike(answer.commentId, answer.id, answer.isLiked)}
         />
       </div>
+
+      {isReplying && (
+        <form onSubmit={handleSubmitReply} className={s.replyContainer}>
+          <div className={s.inputWrapper}>
+            <ControlledInput
+              name={'content'}
+              control={replyForm.control}
+              inputType={'text'}
+              placeholder={`Ответ @${authorName}...`}
+              className={s.inlineInput}
+              disabled={isSubmitting}
+            />
+          </div>
+          <div className={s.replyActions}>
+            <Button
+              variant={'text'}
+              onClick={handleCancelReply}
+              type={'button'}
+              disabled={isSubmitting}
+            >
+              Отмена
+            </Button>
+            <Button
+              variant={'primary'}
+              type={'submit'}
+              disabled={!replyForm.watch('content')?.trim() || isSubmitting}
+            >
+              Ответить
+            </Button>
+          </div>
+        </form>
+      )}
     </div>
   )
 }

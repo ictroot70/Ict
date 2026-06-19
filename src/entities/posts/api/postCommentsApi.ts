@@ -14,10 +14,75 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
+import { AnswersViewModel } from '@/shared/types/comments'
+import { InfiniteData } from '@reduxjs/toolkit/query'
+
+type CreateCommentAnswerInput = {
+  postId: number
+  commentId: number
+  content: string
+  authorName?: string
+  authorAvatar?: string
+}
 
 export const commentsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: builder => ({
+    createCommentAnswer: builder.mutation<void, CreateCommentAnswerInput>({
+      query: ({ postId, commentId, content }) => ({
+        url: API_ROUTES.POSTS.COMMENT_ANSWERS(postId, commentId),
+        method: 'POST',
+        body: { content },
+      }),
+
+      async onQueryStarted(
+        { postId, commentId, content, authorName = 'You', authorAvatar },
+        { dispatch, queryFulfilled }
+      ) {
+        const optimisticAnswer: Partial<AnswersViewModel> = {
+          id: Date.now(),
+          content,
+          createdAt: new Date().toISOString(),
+          likeCount: 0,
+          isLiked: false,
+          from: {
+            firstName: authorName,
+            lastName: '',
+            avatar: authorAvatar || '',
+          } as any,
+        }
+
+        const patchResult = dispatch(
+          commentsApi.util.updateQueryData(
+            'getCommentAnswers',
+            { postId, commentId },
+            (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
+              // В InfiniteData данные находятся в массиве pages
+              if (draft.pages.length > 0) {
+                const firstPage = draft.pages[0]
+
+                firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
+                // Увеличиваем счетчик на всех страницах для консистентности
+                draft.pages.forEach(page => {
+                  page.totalCount += 1
+                })
+              }
+            }
+          )
+        )
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
+
+      invalidatesTags: (result, error, { postId, commentId }) => [
+        { type: 'Comments', id: `${postId}-${commentId}` },
+      ],
+    }),
+
     getPostComments: builder.infiniteQuery<PaginatedCommentsResponse, GetCommentsParams, number>({
       infiniteQueryOptions: { initialPageParam: 1, getNextPageParam: getCommentsNextPageParam },
       query: ({ pageParam, queryArg }) => ({
@@ -105,7 +170,9 @@ export const commentsApi = baseApi.injectEndpoints({
   }),
 })
 
+// Явный экспорт всех хуков
 export const {
+  useCreateCommentAnswerMutation,
   useGetPostCommentsInfiniteQuery,
   useGetCommentAnswersInfiniteQuery,
   useUpdateCommentLikeStatusMutation,
