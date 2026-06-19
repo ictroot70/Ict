@@ -1,3 +1,18 @@
+.pageContainer {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.pageTitle {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-light-100);
+}
+
 .container {
   width: 100%;
 }
@@ -28,7 +43,6 @@
   align-items: center;
   flex: 1;
   min-width: 0;
-  /*padding: 12px;*/
   text-decoration: none;
   color: var(--color-light-100);
   cursor: pointer;
@@ -94,6 +108,47 @@
   justify-content: center;
   color: var(--color-light-900);
   text-align: center;
-
   margin-top: 84px;
+}
+
+.loadingMore {
+  padding: 16px;
+  text-align: center;
+  color: var(--color-light-900);
+  font-size: 14px;
+}
+
+.loadingInitial {
+  margin-top: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--color-light-900);
+  font-size: 14px;
+}
+
+.errorMessage {
+  margin-top: 16px;
+  padding: 16px;
+  text-align: center;
+  color: var(--color-danger-500);
+  font-size: 14px;
+  border-radius: 8px;
+  background-color: var(--color-danger-100);
+}
+
+.emptySearch {
+  margin-top: 16px;
+  padding: 24px;
+  text-align: center;
+  color: var(--color-light-900);
+  font-size: 14px;
+}
+
+.paginationInfo {
+  margin-top: 12px;
+  padding: 12px;
+  text-align: center;
+  color: var(--color-light-700);
+  font-size: 13px;
+  border-top: 1px solid var(--color-dark-300);
 }

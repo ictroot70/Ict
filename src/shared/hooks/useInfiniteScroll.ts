@@ -16,9 +16,13 @@ export const useInfiniteScroll = ({
   const observerRef = React.useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
+    if (!hasNextPage) {
+      return
+    }
+
     const observer = new IntersectionObserver(
       entries => {
-        if (entries.length > 0 && entries[0].isIntersecting && hasNextPage) {
+        if (entries.length > 0 && entries[0].isIntersecting) {
           onLoadMore()
         }
       },

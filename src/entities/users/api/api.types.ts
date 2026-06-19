@@ -7,6 +7,8 @@ export type GetPublicPostsResponse = {
 
 export type SearchUsersRequest = {
   search: string
+  pageSize?: number
+  cursor?: number
 }
 
 export type FollowUserRequest = {
@@ -31,6 +33,11 @@ export type UserByUserNameResponse = {
 export type SearchUsersResponse = {
   items: SearchUserItem[]
   totalCount: number
+  pagesCount: number
+  page: number
+  pageSize: number
+  prevCursor: number
+  nextCursor: number
 }
 
 export type SearchUserItem = {
