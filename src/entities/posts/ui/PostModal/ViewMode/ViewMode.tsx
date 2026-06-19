@@ -1,7 +1,6 @@
-import type { CommentThreadItem } from '@/entities/posts/hooks/usePostModal'
-
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { CommentThreadItem } from '@/entities/posts/types/comments'
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 

@@ -1,7 +1,6 @@
-import type { CommentThreadItem } from '@/entities/posts/hooks/usePostModal'
-
 import React from 'react'
 
+import { CommentThreadItem } from '@/entities/posts/types/comments'
 import { Avatar } from '@/shared/composites'
 import { Button, HeartOutline, Separator, Typography } from '@/shared/ui'
 
