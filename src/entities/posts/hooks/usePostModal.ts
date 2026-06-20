@@ -121,13 +121,16 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   useEffect(() => {
     setLocalPostData(basePostData)
-    setIsFollowing(false)
+    setBaseIsFollowing(false)
+    setOptimisticIsFollowing(null)
   }, [basePostData, resolvedPostId])
 
   useEffect(() => {
     if (ownerProfile) {
-      setIsFollowing(ownerProfile.isFollowing)
+      setBaseIsFollowing(ownerProfile.isFollowing)
     }
+    // Reset optimistic state when owner profile changes
+    setOptimisticIsFollowing(null)
   }, [ownerProfile])
 
   useEffect(() => {
@@ -171,10 +174,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     })
   }
 
-  const [isFollowing, setIsFollowing] = useState(false)
+  const [baseIsFollowing, setBaseIsFollowing] = useState(false)
+  const [optimisticIsFollowing, setOptimisticIsFollowing] = useState<boolean | null>(null)
   const [followUser, { isLoading: isFollowLoading }] = useFollowUserMutation()
   const [unfollowUser, { isLoading: isUnfollowLoading }] = useUnfollowUserMutation()
   const isFollowPending = isFollowLoading || isUnfollowLoading
+  const displayedIsFollowing = optimisticIsFollowing ?? baseIsFollowing
 
   const handleFollow = async () => {
     const ownerId = postModalData.ownerId
@@ -183,14 +188,18 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
       return
     }
     try {
-      if (isFollowing) {
+      if (displayedIsFollowing) {
+        // unfollow
+        setOptimisticIsFollowing(false)
         await unfollowUser(ownerId).unwrap()
-        setIsFollowing(false)
       } else {
+        // follow
+        setOptimisticIsFollowing(true)
         await followUser({ selectedUserId: ownerId }).unwrap()
-        setIsFollowing(true)
       }
     } catch (error) {
+      // rollback optimistic update
+      setOptimisticIsFollowing(null)
       logger.error('[post-modal] Follow toggle failed:', error)
     }
   }
@@ -236,7 +245,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     handleFollow,
-    isFollowing,
+    isFollowing: displayedIsFollowing,
     isFollowPending,
     applyLocalDescription,
   }
