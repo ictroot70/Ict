@@ -58,7 +58,7 @@ export const ViewMode = ({
   currentUserAvatar,
   renderPostLikeAction,
 }: ViewModeProps) => {
-  const handleFollow = () => { }
+  const handleFollow = () => {}
 
   const postDataForChildren = {
     avatar: postData.avatarOwner,
