@@ -79,9 +79,9 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       return
     }
 
-    try {
-      const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
+    const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
 
+    try {
       await createAnswer({
         postId,
         commentId: comment.id,
@@ -95,8 +95,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       if (!showAnswers) {
         setShowAnswers(true)
       }
-    } catch (error) {
-      console.error('Failed to send reply:', error)
+    } catch {
+      // Error is handled by optimistic update rollback in RTK Query
     }
   })
 
@@ -131,7 +131,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               name={'content'}
               control={replyForm.control}
               inputType={'text'}
-              placeholder={`Ответ @${authorName}...`}
+              placeholder={`Reply to @${authorName}...`}
               className={s.inlineInput}
               disabled={isSubmitting}
               autoFocus
@@ -144,14 +144,14 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               type={'button'}
               disabled={isSubmitting}
             >
-              Отмена
+              Cancel
             </Button>
             <Button
               variant={'primary'}
               type={'submit'}
               disabled={!replyForm.watch('content')?.trim() || isSubmitting}
             >
-              Ответить
+              Reply
             </Button>
           </div>
         </form>
@@ -161,7 +161,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         <div className={s.answersToggleContainer}>
           <div className={s.answersLine} />
           <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
-            {showAnswers ? `Скрыть ответы (${answerCount})` : `Посмотреть ответы (${answerCount})`}
+            {showAnswers ? `Hide replies (${answerCount})` : `View replies (${answerCount})`}
           </Button>
         </div>
       )}
@@ -170,7 +170,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         <div className={s.replies}>
           {isAnswersLoading && answers.length === 0 && (
             <Typography variant={'small_text'} className={s.commentTimestamp}>
-              Загрузка ответов...
+              Loading replies...
             </Typography>
           )}
           {answers.map(answer => (

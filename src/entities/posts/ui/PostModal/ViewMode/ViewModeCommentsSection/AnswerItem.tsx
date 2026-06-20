@@ -65,9 +65,9 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
       return
     }
 
-    try {
-      const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
+    const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
 
+    try {
       await createAnswer({
         postId,
         commentId: answer.commentId,
@@ -77,8 +77,8 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
       }).unwrap()
 
       handleCancelReply()
-    } catch (error) {
-      console.error('Failed to send reply to answer:', error)
+    } catch {
+      // Error is handled by optimistic update rollback in RTK Query
     }
   })
 
@@ -113,7 +113,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
               name={'content'}
               control={replyForm.control}
               inputType={'text'}
-              placeholder={`Ответ @${authorName}...`}
+              placeholder={`Reply to @${authorName}...`}
               className={s.inlineInput}
               disabled={isSubmitting}
               autoFocus
@@ -126,14 +126,14 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
               type={'button'}
               disabled={isSubmitting}
             >
-              Отмена
+              Cancel
             </Button>
             <Button
               variant={'primary'}
               type={'submit'}
               disabled={!replyForm.watch('content')?.trim() || isSubmitting}
             >
-              Ответить
+              Reply
             </Button>
           </div>
         </form>

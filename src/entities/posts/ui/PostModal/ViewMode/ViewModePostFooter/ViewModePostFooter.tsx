@@ -1,6 +1,9 @@
+'use client'
+
 import React from 'react'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { formatLikesCount } from '@/entities/posts/lib/format-likes'
 import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
 import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
@@ -24,14 +27,6 @@ interface PostFooterProps {
   watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   isAuthLoading: boolean
-}
-
-const formatLikesCount = (count: number): string => {
-  if (count === 1) {
-    return '1 like'
-  }
-
-  return `${count.toLocaleString()} Likes`
 }
 
 export const ViewModePostFooter: React.FC<PostFooterProps> = ({
@@ -108,7 +103,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
 
       {shouldShowAuthSkeleton ? (
         <>
-          <Separator className={s.separator} />
+          <Separator className={s.fullWidthSeparator} />
           <div className={s.inputForm} aria-hidden>
             <Skeleton className={s.inputSkeleton} />
             <Skeleton className={s.publishSkeleton} />
@@ -117,7 +112,7 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
       ) : (
         shouldShowAuthActions && (
           <>
-            <Separator className={s.separator} />
+            <Separator className={s.fullWidthSeparator} />
             <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
               <ControlledInput
                 name={'comment'}

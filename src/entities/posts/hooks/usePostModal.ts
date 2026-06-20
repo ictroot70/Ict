@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import { useMeQuery } from '@/features/auth'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import {
@@ -33,7 +34,7 @@ const postModalTextByLanguage = {
 } as const
 
 export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
-  const [comments, setComments] = useState<string[]>([]) // <-- ДОБАВЛЕНО
+  const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
@@ -67,6 +68,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     skip: !open || !resolvedPostId || !!initialPostData,
   })
 
+  const { isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+
+  const { data: me } = useMeQuery(undefined, {
+    skip: !open || !isAuthenticatedUi,
+  })
+
   const basePostData = initialPostData ?? postDataFromQuery
   const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
   const postData = localPostData
@@ -74,9 +81,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
 
-  const { isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
-
-  const isOwnProfile = Boolean(isAuthenticatedUi && postData?.ownerId)
+  const isOwnProfile = Boolean(
+    isAuthenticatedUi && postData?.ownerId && me?.userId && postData.ownerId === me.userId
+  )
 
   let variant: PostVariant = 'public'
 
@@ -170,12 +177,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   return {
-    comments, // <-- ДОБАВЛЕНО
+    comments,
     isEditingDescription,
     setIsEditingDescription,
-    commentControl, // <-- ДОБАВЛЕНО
-    handleCommentSubmit, // <-- ДОБАВЛЕНО
-    watchComment, // <-- ДОБАВЛЕНО
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
     descriptionControl,
     handleDescriptionSubmit,
     watchDescription,
@@ -195,5 +202,9 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    resolvedPostId,
+    currentUserId: me?.userId,
+    currentUserName: me?.name ?? '',
+    currentUserAvatar: '',
   }
 }
