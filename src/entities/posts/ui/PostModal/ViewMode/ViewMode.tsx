@@ -23,7 +23,7 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[]
+  comments?: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -31,7 +31,7 @@ interface ViewModeProps {
   formattedCreatedAt: string
   isAuthLoading: boolean
   isAuthenticated: boolean
-  isOwnProfile: boolean
+  isOwnProfile?: boolean
   commentsEnabled?: boolean
   currentUserId?: number
   currentUserName?: string
@@ -45,7 +45,6 @@ export const ViewMode = ({
   handleEditPost,
   handleDeletePost,
   onCopyLink,
-  comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
@@ -53,19 +52,19 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isAuthenticated,
-  isOwnProfile,
   commentsEnabled = true,
   currentUserId,
   currentUserName,
   currentUserAvatar,
   renderPostLikeAction,
 }: ViewModeProps) => {
-  const handleFollow = () => {}
+  const handleFollow = () => { }
 
   const postDataForChildren = {
     avatar: postData.avatarOwner,
     userName: postData.userName,
     description: postData.description ?? '',
+    createdAt: postData.createdAt,
   }
 
   return (

@@ -1,12 +1,12 @@
 'use client'
 
 import type { PaginatedPosts, PostViewModel } from '@/entities/posts/api'
-import type {
+import type { PostOpenSource } from '@/shared/constant'
+
+import {
   PostModalAuthState,
   RenderPostLikeAction,
 } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
-import type { PostOpenSource } from '@/shared/constant'
-
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'

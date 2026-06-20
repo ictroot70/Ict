@@ -1,7 +1,7 @@
 import { UserImage } from '@/entities/users/api/api.types'
-import { UserBase } from '../user/models'
 
 import { LikeStatus } from '../base/enums'
+import { UserBase } from '../user/models'
 
 export interface PostImageViewModel {
   url: string

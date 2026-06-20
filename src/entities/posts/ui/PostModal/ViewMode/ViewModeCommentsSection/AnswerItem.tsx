@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React from 'react'
 
 import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentLikeToggle } from '@/entities/posts/hooks'
+import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { ControlledInput } from '@/features/formControls'
 import { Avatar } from '@/shared/composites'
 import {
   AnswersViewModel,
@@ -14,17 +13,14 @@ import {
   getCommentAvatarUrl,
   ensureReplyMention,
 } from '@/shared/types/comments'
-import { Button, Typography } from '@/shared/ui'
+import { Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
 import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'
 import { CommentMetaActions } from './CommentMetaActions'
-
-interface ReplyFormData {
-  content: string
-}
+import { ReplyForm } from './ReplyForm'
 
 interface AnswerItemProps {
   postId: number
@@ -41,46 +37,25 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
   currentUserName,
   currentUserAvatar,
 }) => {
-  const [isReplying, setIsReplying] = useState(false)
-
   const timeAgo = useTimeAgo(answer.createdAt)
   const { toggleAnswerLike } = useCommentLikeToggle(postId)
+  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
+  const { isReplying, replyForm, handleStartReply, handleCancelReply, handleSubmitReply } =
+    useReplyForm()
+
   const authorName = getCommentAuthorName(answer.from)
 
-  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
+  const onSubmitReply = async (content: string) => {
+    const contentWithMention = ensureReplyMention(content, authorName)
 
-  const replyForm = useForm<ReplyFormData>({
-    defaultValues: { content: '' },
-  })
-
-  const handleStartReply = () => setIsReplying(true)
-
-  const handleCancelReply = () => {
-    setIsReplying(false)
-    replyForm.reset()
+    await createAnswer({
+      postId,
+      commentId: answer.commentId,
+      content: contentWithMention,
+      authorName: currentUserName,
+      authorAvatar: currentUserAvatar,
+    }).unwrap()
   }
-
-  const handleSubmitReply = replyForm.handleSubmit(async data => {
-    if (!data.content.trim()) {
-      return
-    }
-
-    const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
-
-    try {
-      await createAnswer({
-        postId,
-        commentId: answer.commentId,
-        content: contentWithMention,
-        authorName: currentUserName,
-        authorAvatar: currentUserAvatar,
-      }).unwrap()
-
-      handleCancelReply()
-    } catch {
-      // Error is handled by optimistic update rollback in RTK Query
-    }
-  })
 
   return (
     <div className={s.answerBlock}>
@@ -107,36 +82,13 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
       </div>
 
       {isReplying && (
-        <form onSubmit={handleSubmitReply} className={s.replyContainer}>
-          <div className={s.inputWrapper}>
-            <ControlledInput
-              name={'content'}
-              control={replyForm.control}
-              inputType={'text'}
-              placeholder={`Reply to @${authorName}...`}
-              className={s.inlineInput}
-              disabled={isSubmitting}
-              autoFocus
-            />
-          </div>
-          <div className={s.replyActions}>
-            <Button
-              variant={'text'}
-              onClick={handleCancelReply}
-              type={'button'}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant={'primary'}
-              type={'submit'}
-              disabled={!replyForm.watch('content')?.trim() || isSubmitting}
-            >
-              Reply
-            </Button>
-          </div>
-        </form>
+        <ReplyForm
+          replyForm={replyForm}
+          isSubmitting={isSubmitting}
+          authorName={authorName}
+          onSubmit={handleSubmitReply(onSubmitReply)}
+          onCancel={handleCancelReply}
+        />
       )}
     </div>
   )

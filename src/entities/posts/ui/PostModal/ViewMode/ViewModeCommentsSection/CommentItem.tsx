@@ -1,12 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
 
 import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
+import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { ControlledInput } from '@/features/formControls'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
 import {
   CommentsViewModel,
@@ -22,10 +21,7 @@ import { AnswerItem } from './AnswerItem'
 import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'
 import { CommentMetaActions } from './CommentMetaActions'
-
-interface ReplyFormData {
-  content: string
-}
+import { ReplyForm } from './ReplyForm'
 
 interface CommentItemProps {
   postId: number
@@ -43,22 +39,18 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   currentUserAvatar,
 }) => {
   const [showAnswers, setShowAnswers] = useState(false)
-  const [isReplying, setIsReplying] = useState(false)
 
   const timeAgo = useTimeAgo(comment.createdAt)
   const { toggleCommentLike } = useCommentLikeToggle(postId)
   const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
-
   const {
     answers,
     loadMore,
     hasNextPage,
     isLoading: isAnswersLoading,
   } = useCommentAnswers(postId, comment.id, showAnswers)
-
-  const replyForm = useForm<ReplyFormData>({
-    defaultValues: { content: '' },
-  })
+  const { isReplying, replyForm, handleStartReply, handleCancelReply, handleSubmitReply } =
+    useReplyForm()
 
   const answerCount = comment.answerCount
   const hasAnswers = answerCount > 0 || answers.length > 0
@@ -67,38 +59,20 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const handleToggleAnswers = () => setShowAnswers(prev => !prev)
   const handleToggleLike = () => toggleCommentLike(comment.id, comment.isLiked)
 
-  const handleStartReply = () => setIsReplying(true)
+  const onSubmitReply = async (content: string) => {
+    const contentWithMention = ensureReplyMention(content, authorName)
 
-  const handleCancelReply = () => {
-    setIsReplying(false)
-    replyForm.reset()
+    await createAnswer({
+      postId,
+      commentId: comment.id,
+      content: contentWithMention,
+      authorName: currentUserName,
+      authorAvatar: currentUserAvatar,
+    }).unwrap()
+    if (!showAnswers) {
+      setShowAnswers(true)
+    }
   }
-
-  const handleSubmitReply = replyForm.handleSubmit(async data => {
-    if (!data.content.trim()) {
-      return
-    }
-
-    const contentWithMention = ensureReplyMention(data.content.trim(), authorName)
-
-    try {
-      await createAnswer({
-        postId,
-        commentId: comment.id,
-        content: contentWithMention,
-        authorName: currentUserName,
-        authorAvatar: currentUserAvatar,
-      }).unwrap()
-
-      handleCancelReply()
-
-      if (!showAnswers) {
-        setShowAnswers(true)
-      }
-    } catch {
-      // Error is handled by optimistic update rollback in RTK Query
-    }
-  })
 
   return (
     <div className={s.commentBlock}>
@@ -125,43 +99,20 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       </div>
 
       {isReplying && (
-        <form onSubmit={handleSubmitReply} className={s.replyContainer}>
-          <div className={s.inputWrapper}>
-            <ControlledInput
-              name={'content'}
-              control={replyForm.control}
-              inputType={'text'}
-              placeholder={`Reply to @${authorName}...`}
-              className={s.inlineInput}
-              disabled={isSubmitting}
-              autoFocus
-            />
-          </div>
-          <div className={s.replyActions}>
-            <Button
-              variant={'text'}
-              onClick={handleCancelReply}
-              type={'button'}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant={'primary'}
-              type={'submit'}
-              disabled={!replyForm.watch('content')?.trim() || isSubmitting}
-            >
-              Reply
-            </Button>
-          </div>
-        </form>
+        <ReplyForm
+          replyForm={replyForm}
+          isSubmitting={isSubmitting}
+          authorName={authorName}
+          onSubmit={handleSubmitReply(onSubmitReply)}
+          onCancel={handleCancelReply}
+        />
       )}
 
       {hasAnswers && (
         <div className={s.answersToggleContainer}>
           <div className={s.answersLine} />
           <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
-            {showAnswers ? `Hide replies (${answerCount})` : `View replies (${answerCount})`}
+            {showAnswers ? `Hide Answers (${answerCount})` : `View Answers (${answerCount})`}
           </Button>
         </div>
       )}
@@ -170,7 +121,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         <div className={s.replies}>
           {isAnswersLoading && answers.length === 0 && (
             <Typography variant={'small_text'} className={s.commentTimestamp}>
-              Loading replies...
+              Loading Answers...
             </Typography>
           )}
           {answers.map(answer => (

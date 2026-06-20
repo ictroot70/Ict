@@ -9,15 +9,11 @@ import {
   useGetPostByIdQuery,
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
-import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
+import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { showToastAlert } from '@/shared/lib'
-import {
-  CommentFormData,
-  DescriptionFormData,
-  mapPostToModalData,
-  PostModalData,
-  PostVariant,
-} from '@/shared/types'
+import { CommentFormData, DescriptionFormData, PostVariant } from '@/shared/types'
+
+import { PostModalAuthState } from '../ui/PostModal/postModalLikeAction.types'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -72,6 +68,11 @@ export const usePostModal = (
   const user = authState?.user
   const isAuthUiLoading = authState?.isAuthUiLoading ?? false
   const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
+
+  const { data: currentUserProfile } = useGetPublicProfileQuery(
+    { profileId: user?.userId ?? 0 },
+    { skip: !user?.userId }
+  )
 
   const {
     data: postDataFromQuery,
@@ -132,21 +133,6 @@ export const usePostModal = (
     variant = isOwnProfile ? 'myPost' : 'userPost'
   }
 
-  const postModalData: PostModalData = postData
-    ? mapPostToModalData(postData)
-    : {
-        id: 0,
-        images: [],
-        userName: '',
-        avatar: '',
-        description: '',
-        createdAt: new Date().toISOString(),
-        ownerId: undefined,
-        likesCount: 0,
-        isLiked: false,
-        avatarWhoLikes: [],
-      }
-
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -203,6 +189,11 @@ export const usePostModal = (
     }
   }
 
+  const currentUserAvatar =
+    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
+    currentUserProfile?.avatars[0]?.url ??
+    ''
+
   return {
     comments,
     isEditingDescription,
@@ -232,6 +223,6 @@ export const usePostModal = (
     resolvedPostId,
     currentUserId: user?.userId,
     currentUserName: user?.userName ?? '',
-    currentUserAvatar: user?.avatarUrl ?? '',
+    currentUserAvatar,
   }
 }

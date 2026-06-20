@@ -137,7 +137,7 @@ export const ViewModePostFooter = ({
                 name={'comment'}
                 control={commentControl}
                 inputType={'text'}
-                placeholder={'Add a Comment'}
+                placeholder={'Add a Comment...'}
                 className={s.input}
               />
               <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>

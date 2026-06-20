@@ -60,6 +60,9 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    currentUserId,
+    currentUserName,
+    currentUserAvatar,
   } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
@@ -173,13 +176,14 @@ export const PostModal = ({
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isAuthenticated={isAuthenticated}
-        isOwnProfile={isOwnProfile}
         commentsEnabled={open && hasPostData}
-        comments={comments}
         commentControl={commentControl}
         handleCommentSubmit={handleCommentSubmit}
         watchComment={watchComment}
         handlePublish={handlePublish}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        currentUserAvatar={currentUserAvatar}
         renderPostLikeAction={renderPostLikeAction}
       />
     )

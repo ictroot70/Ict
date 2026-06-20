@@ -5,7 +5,6 @@ import React from 'react'
 import { usePostComments } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
-import { PostModalData } from '@/shared/types'
 import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
@@ -13,7 +12,12 @@ import s from '../ViewMode.module.scss'
 import { CommentItem } from './CommentItem'
 
 interface CommentsSectionProps {
-  postData: PostModalData
+  postData: {
+    avatar: string
+    userName: string
+    description: string
+    createdAt: string
+  }
   postId: number
   isAuthenticated: boolean
   currentUserId?: number
@@ -53,13 +57,13 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
 
         {isLoading && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Loading comments...
+            Loading Answers...
           </Typography>
         )}
 
         {isError && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Failed to load comments
+            Failed to load Answers
           </Typography>
         )}
 
@@ -80,7 +84,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
             <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
             {!isFetchingNextPage && totalCount > comments.length && (
               <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
-                Load more comments
+                Load more Answers
               </Button>
             )}
           </>
