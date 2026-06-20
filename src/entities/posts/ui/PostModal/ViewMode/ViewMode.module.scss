@@ -1,1126 +1,9 @@
-// .modalOverlay {
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   background-color: rgba(0, 0, 0, 0.6);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   z-index: 1000;
-//   width: 100%;
-//   height: 100%;
-// }
-
-// .viewMode {
-//   display: grid;
-//   grid-template-columns: 490px 480px;
-//   height: 574px;
-//   background: var(--color-dark-300);
-//   width: 972px;
-//   border: 1px solid var(--color-dark-100);
-//   border-radius: 0;
-//   overflow: hidden;
-//   position: relative;
-//   z-index: 1001;
-// }
-
-// .photoContainer {
-//   display: flex;
-//   align-items: center;
-//   position: relative;
-//   background: rgba(0, 0, 0, 0.6);
-//   height: 100%;
-// }
-
-// .image {
-//   object-fit: cover;
-//   object-position: center;
-// }
-
-// .postSideBar {
-//   display: flex;
-//   flex-direction: column;
-//   min-height: 0;
-//   overflow: hidden;
-//   height: 100%;
-// }
-
-// .postHeader {
-//   display: flex;
-//   flex-direction: row;
-//   justify-content: space-between;
-//   align-items: center;
-//   padding: 12px 24px;
-// }
-
-// .username {
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-// }
-
-// .actionsSkeleton {
-//   width: 24px;
-//   height: 24px;
-//   border-radius: 4px;
-//   flex-shrink: 0;
-// }
-
-// .descriptionSection {
-//   padding: 0 24px;
-//   margin-bottom: 17px;
-// }
-
-// .description {
-//   word-break: break-word;
-// }
-
-// .descriptionTimestamp {
-//   color: var(--color-light-900);
-// }
-
-// .comments {
-//   display: flex;
-//   flex-direction: column;
-//   gap: 15px;
-//   flex: 1;
-//   min-height: 0;
-//   overflow-y: auto;
-//   padding: 0 24px;
-//   margin-top: 19px;
-// }
-
-// .comment {
-//   display: flex;
-//   gap: 12px;
-//   padding: 0;
-//   align-items: center;
-// }
-
-// .commentBlock {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .commentBlock:last-child {
-//   margin-bottom: 28px;
-// }
-
-// .commentBody {
-//   flex: 1;
-//   min-width: 0;
-// }
-
-// .commentText {
-//   word-break: break-word;
-//   overflow-wrap: break-word;
-//   hyphens: auto;
-// }
-
-// .commentMeta {
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-//   margin-top: 2px;
-//   flex-wrap: wrap;
-// }
-
-// .commentTimestamp {
-//   color: var(--color-light-900);
-//   font-size: 12px;
-// }
-
-// .mention {
-//   color: var(--color-primary-500);
-//   font-weight: 600;
-// }
-
-// .commentLikeButton {
-//   padding: 0;
-//   min-width: 0;
-//   min-height: 0;
-//   width: 16px;
-//   height: 16px;
-//   margin-left: auto;
-//   display: inline-flex;
-//   align-items: center;
-//   justify-content: center;
-// }
-
-// .answersToggleContainer {
-//   display: flex;
-//   align-items: center;
-//   margin-left: 44px;
-//   margin-bottom: 15px;
-//   margin-top: 11px;
-//   gap: 8px;
-// }
-
-// .answersLine {
-//   width: 24px;
-//   height: 1px;
-//   background-color: var(--color-dark-300);
-//   flex-shrink: 0;
-// }
-
-// .viewRepliesButton {
-//   margin: 0;
-//   padding: 0;
-//   font-weight: 600;
-//   color: var(--color-light-900);
-//   font-size: 12px;
-//   line-height: 1;
-//   min-width: 0;
-//   min-height: 0;
-//   height: auto;
-//   display: inline-flex;
-//   align-items: center;
-// }
-
-// .replies {
-//   display: flex;
-//   flex-direction: column;
-//   margin-left: 32px;
-//   padding-left: 12px;
-//   gap: 15px;
-// }
-
-// .answerBlock {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .replyInputForm {
-//   display: flex;
-//   align-items: center;
-//   margin-left: 44px;
-//   margin-bottom: 4px;
-//   gap: 8px;
-// }
-
-// .nestedReplyInputForm {
-//   display: flex;
-//   align-items: center;
-//   margin-left: 44px;
-//   margin-top: 4px;
-//   margin-bottom: 4px;
-//   gap: 8px;
-// }
-
-// .replyButton,
-// .loadMoreButton,
-// .commentActionButton {
-//   padding: 0;
-//   min-width: 0;
-//   min-height: 0;
-//   height: auto;
-//   color: var(--color-light-900);
-//   font-size: 12px;
-// }
-
-// .commentActionButton {
-//   width: 16px;
-//   height: 16px;
-// }
-
-// .publishButton {
-//   color: var(--color-primary-500);
-//   font-family: Inter;
-//   font-weight: 600;
-//   font-size: 16px;
-//   line-height: 24px;
-//   letter-spacing: 0px;
-//   text-align: center;
-
-//   &:disabled {
-//     color: var(--color-primary-500);
-//     opacity: 0.5;
-//   }
-// }
-
-// .loadMoreButton {
-//   align-self: flex-start;
-//   margin-top: 4px;
-// }
-
-// .footer {
-//   display: flex;
-//   flex-direction: column;
-//   padding: 12px 24px 0 24px;
-//   min-height: 83px;
-//   border-top: 1px solid var(--color-dark-100)
-// }
-
-// .likeSendSave {
-//   display: flex;
-//   align-items: center;
-//   gap: 24px;
-//   margin-bottom: 19px;
-// }
-
-// .likeSendSave> :last-child {
-//   margin-left: auto;
-// }
-
-// .postButton {
-//   align-items: flex-start;
-//   justify-content: flex-start;
-//   padding: 0;
-//   width: 24px;
-//   height: 24px;
-//   min-width: 0;
-//   min-height: 0;
-
-//   &:hover svg {
-//     scale: 1.1;
-//   }
-// }
-
-// .postButtonSkeleton {
-//   width: 24px;
-//   height: 24px;
-//   border-radius: 4px;
-// }
-
-// .likesRow {
-//   display: flex;
-//   gap: 8px;
-//   margin-bottom: 5px;
-// }
-
-// .likesAvatars {
-//   display: flex;
-//   position: relative;
-//   isolation: isolate;
-// }
-
-// .likeAvatar {
-//   position: relative;
-//   width: 24px;
-//   height: 24px;
-//   flex-shrink: 0;
-//   border-radius: 50%;
-//   border: 1px solid var(--color-dark-300);
-//   background: var(--color-dark-700);
-// }
-
-// .likeAvatarOverlap {
-//   margin-left: -8px;
-// }
-
-// .timestamp {
-//   color: var(--color-light-900);
-//   padding-bottom: 7px;
-// }
-
-// .commentForm {
-//   padding: 12px 24px;
-// }
-
-// .inputForm {
-//   display: flex;
-//   align-items: center;
-//   width: 100%;
-// }
-
-// .inputSkeleton {
-//   flex: 1;
-//   height: 36px;
-//   width: 331px;
-//   border-radius: 4px;
-// }
-
-// .publishSkeleton {
-//   margin-left: 5px;
-//   width: 100px;
-//   height: 36px;
-//   border-radius: 4px;
-// }
-
-// .input {
-//   flex: 1;
-//   padding: 0;
-//   border: none;
-//   background: transparent;
-//   color: var(--color-light-100);
-//   font-family: Inter;
-//   font-weight: 400;
-//   font-size: 14px;
-//   line-height: 24px;
-//   letter-spacing: 0%;
-
-//   &:focus {
-//     outline: none;
-//   }
-// }
-
-// .separator {
-//   width: 100%;
-//   margin: 0;
-// }
-
-// @media (max-width: 968px) {
-//   .viewMode {
-//     width: 95vw;
-//     height: 95vh;
-//     grid-template-columns: 1fr;
-//     grid-template-rows: 1fr 1fr;
-//   }
-
-//   .photoContainer {
-//     height: 50%;
-//   }
-
-//   .postSideBar {
-//     height: 50%;
-//   }
-// }
-
-// .replyFormContainer {
-//   margin-left: 44px;
-//   margin-top: 8px;
-//   padding: 8px;
-//   background-color: var(--color-dark-500); // Или другой подходящий цвет фона
-//   border-radius: 4px;
-//   border: 1px solid var(--color-dark-300);
-// }
-
-// .replyTextarea {
-//   width: 100%;
-//   min-height: 60px;
-//   padding: 8px;
-//   border: 1px solid transparent;
-//   border-radius: 4px;
-//   background-color: var(--color-dark-700);
-//   color: var(--color-light-100);
-//   resize: vertical;
-//   font-family: inherit;
-//   font-size: 14px;
-
-//   &:focus {
-//     outline: none;
-//     border-color: var(--color-accent-500);
-//   }
-
-//   &::placeholder {
-//     color: var(--color-light-900);
-//   }
-// }
-
-// .replyActions {
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 8px;
-//   margin-top: 8px;
-// }
-
-// // ... существующие стили
-
-// // Контейнер формы ответа
-// .replyContainer {
-//   margin-left: 44px; // Отступ под аватаркой
-//   margin-top: 8px;
-//   margin-bottom: 12px;
-//   padding: 8px 12px;
-//   background-color: var(--color-dark-500);
-//   border-radius: 8px;
-//   border: 1px solid var(--color-dark-100);
-//   animation: fadeIn 0.2s ease-in-out;
-// }
-
-// @keyframes fadeIn {
-//   from {
-//     opacity: 0;
-//     transform: translateY(-5px);
-//   }
-
-//   to {
-//     opacity: 1;
-//     transform: translateY(0);
-//   }
-// }
-
-// .replyInputWrapper {
-//   position: relative;
-//   width: 100%;
-// }
-
-// .replyInput {
-//   width: 100%;
-//   padding: 8px 0;
-//   border: none;
-//   background: transparent;
-//   color: var(--color-light-100);
-//   font-family: inherit;
-//   font-size: 14px;
-//   line-height: 1.5;
-
-//   &:focus {
-//     outline: none;
-//   }
-
-//   &::placeholder {
-//     color: var(--color-light-900);
-//   }
-// }
-
-// .charLimitError {
-//   position: absolute;
-//   right: 0;
-//   bottom: -18px;
-//   font-size: 10px;
-// }
-
-// .replyActions {
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 8px;
-//   margin-top: 8px;
-// }
-
-// .cancelButton {
-//   color: var(--color-light-900);
-//   font-size: 12px;
-
-//   &:hover {
-//     color: var(--color-light-100);
-//   }
-// }
-
-// .submitButton {
-//   font-size: 12px;
-//   padding: 4px 12px;
-//   height: auto;
-// }
-
-// // --- Layout & Modal ---
-// .modalOverlay {
-//   position: fixed;
-//   inset: 0;
-//   background-color: rgba(0, 0, 0, 0.6);
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   z-index: 1000;
-// }
-
-// .viewMode {
-//   display: grid;
-//   grid-template-columns: 490px 480px;
-//   width: 972px;
-//   height: 574px;
-//   background: var(--color-dark-300);
-//   border: 1px solid var(--color-dark-100);
-//   overflow: hidden;
-//   position: relative;
-//   z-index: 1001;
-// }
-
-// .photoContainer {
-//   position: relative;
-//   background: rgba(0, 0, 0, 0.6);
-//   height: 100%;
-
-//   .image {
-//     object-fit: cover;
-//     object-position: center;
-//   }
-// }
-
-// .postSideBar {
-//   display: flex;
-//   flex-direction: column;
-//   height: 100%;
-//   min-height: 0;
-//   overflow: hidden;
-// }
-
-// // --- Header & Description ---
-// .postHeader {
-//   display: flex;
-//   justify-content: space-between;
-//   align-items: center;
-//   padding: 12px 24px;
-//   flex-shrink: 0;
-// }
-
-// .descriptionSection {
-//   padding: 0 24px;
-//   margin-bottom: 12px;
-//   flex-shrink: 0;
-
-//   .description {
-//     word-break: break-word;
-//     line-height: 1.4;
-//   }
-
-//   .descriptionTimestamp {
-//     color: var(--color-light-900);
-//     font-size: 12px;
-//     margin-top: 4px;
-//     display: block;
-//   }
-// }
-
-// // --- Comments List ---
-// .comments {
-//   flex: 1;
-//   min-height: 0;
-//   overflow-y: auto;
-//   padding: 0 24px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 16px;
-
-//   // Custom scrollbar for webkit
-//   &::-webkit-scrollbar {
-//     width: 6px;
-//   }
-
-//   &::-webkit-scrollbar-track {
-//     background: transparent;
-//   }
-
-//   &::-webkit-scrollbar-thumb {
-//     background-color: var(--color-dark-100);
-//     border-radius: 3px;
-//   }
-// }
-
-// .commentBlock {
-//   display: flex;
-//   flex-direction: column;
-// }
-
-// .comment {
-//   display: flex;
-//   gap: 12px;
-//   align-items: flex-start; // Важно для многострочного текста
-
-//   .commentBody {
-//     flex: 1;
-//     min-width: 0;
-
-//     .commentText {
-//       word-break: break-word;
-//       overflow-wrap: break-word;
-//       line-height: 1.4;
-
-//       strong {
-//         margin-right: 6px;
-//       }
-//     }
-
-//     .commentMeta {
-//       display: flex;
-//       align-items: center;
-//       gap: 8px;
-//       margin-top: 4px;
-//       flex-wrap: wrap;
-
-//       .commentTimestamp {
-//         color: var(--color-light-900);
-//         font-size: 12px;
-//       }
-
-//       .replyButton {
-//         color: var(--color-light-900);
-//         font-size: 12px;
-//         padding: 0;
-//         height: auto;
-//         min-width: 0;
-
-//         &:hover {
-//           color: var(--color-light-100);
-//         }
-//       }
-//     }
-//   }
-
-//   .commentLikeButton {
-//     padding: 0;
-//     min-width: 16px;
-//     min-height: 16px;
-//     margin-left: auto;
-//     flex-shrink: 0;
-//     display: inline-flex;
-//     align-items: center;
-//     justify-content: center;
-//   }
-// }
-
-// // --- Answers / Replies ---
-// .answersToggleContainer {
-//   display: flex;
-//   align-items: center;
-//   margin-left: 44px; // Отступ под аватарку
-//   margin-top: 8px;
-//   margin-bottom: 8px;
-//   gap: 8px;
-
-//   .answersLine {
-//     width: 20px;
-//     height: 1px;
-//     background-color: var(--color-dark-100);
-//   }
-
-//   .viewRepliesButton {
-//     color: var(--color-light-900);
-//     font-size: 12px;
-//     font-weight: 600;
-//     padding: 0;
-//     height: auto;
-//     min-width: 0;
-
-//     &:hover {
-//       color: var(--color-light-100);
-//     }
-//   }
-// }
-
-// .replies {
-//   display: flex;
-//   flex-direction: column;
-//   margin-left: 44px; // Отступ под аватарку родителя
-//   padding-left: 0; // Убираем линию дерева как на макете
-//   gap: 12px;
-//   margin-top: 4px;
-// }
-
-// .answerBlock {
-//   .comment {
-//     // Немного уменьшаем аватарку или отступы для ответов если нужно,
-//     // но на макете они выглядят так же.
-//   }
-// }
-
-// // --- Reply Form (Inline) ---
-// .replyContainer {
-//   margin-left: 44px;
-//   margin-top: 8px;
-//   margin-bottom: 12px;
-//   padding: 8px 12px;
-//   background-color: var(--color-dark-500);
-//   border-radius: 8px;
-//   border: 1px solid var(--color-dark-100);
-//   animation: fadeIn 0.2s ease-in-out;
-// }
-
-// @keyframes fadeIn {
-//   from {
-//     opacity: 0;
-//     transform: translateY(-4px);
-//   }
-
-//   to {
-//     opacity: 1;
-//     transform: translateY(0);
-//   }
-// }
-
-// .replyInputWrapper {
-//   position: relative;
-
-//   .replyInput {
-//     width: 100%;
-//     padding: 6px 0;
-//     border: none;
-//     background: transparent;
-//     color: var(--color-light-100);
-//     font-family: inherit;
-//     font-size: 14px;
-//     line-height: 1.4;
-
-//     &:focus {
-//       outline: none;
-//     }
-
-//     &::placeholder {
-//       color: var(--color-light-900);
-//     }
-//   }
-
-//   .charLimitError {
-//     position: absolute;
-//     right: 0;
-//     bottom: -16px;
-//     font-size: 10px;
-//     color: var(--color-danger-500);
-//   }
-// }
-
-// .replyActions {
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 8px;
-//   margin-top: 8px;
-
-//   .cancelButton {
-//     color: var(--color-light-900);
-//     font-size: 12px;
-//     padding: 0;
-//     height: auto;
-
-//     &:hover {
-//       color: var(--color-light-100);
-//     }
-//   }
-
-//   .submitButton {
-//     font-size: 12px;
-//     padding: 4px 12px;
-//     height: auto;
-//   }
-// }
-
-// // --- Footer ---
-// .footer {
-//   display: flex;
-//   flex-direction: column;
-//   padding: 12px 24px;
-//   border-top: 1px solid var(--color-dark-100);
-//   flex-shrink: 0;
-//   background: var(--color-dark-300);
-// }
-
-// .likeSendSave {
-//   display: flex;
-//   align-items: center;
-//   gap: 16px;
-//   margin-bottom: 12px;
-
-//   .postButton {
-//     padding: 0;
-//     width: 24px;
-//     height: 24px;
-//     min-width: 0;
-//     min-height: 0;
-
-//     &:hover svg {
-//       transform: scale(1.1);
-//     }
-//   }
-// }
-
-// .likesRow {
-//   display: flex;
-//   align-items: center;
-//   gap: 8px;
-//   margin-bottom: 6px;
-
-//   .likesAvatars {
-//     display: flex;
-//     isolation: isolate;
-
-//     .likeAvatarOverlap {
-//       margin-left: -8px;
-//     }
-//   }
-// }
-
-// .timestamp {
-//   color: var(--color-light-900);
-//   font-size: 12px;
-//   text-transform: uppercase;
-//   margin-bottom: 12px;
-// }
-
-// .separator {
-//   width: 100%;
-//   margin: 0 0 12px 0;
-// }
-
-// .inputForm {
-//   display: flex;
-//   align-items: center;
-//   width: 100%;
-
-//   .input {
-//     flex: 1;
-//     padding: 0;
-//     border: none;
-//     background: transparent;
-//     color: var(--color-light-100);
-//     font-family: inherit;
-//     font-size: 14px;
-//     line-height: 24px;
-
-//     &:focus {
-//       outline: none;
-//     }
-
-//     &::placeholder {
-//       color: var(--color-light-900);
-//     }
-//   }
-
-//   .publishButton {
-//     color: var(--color-primary-500);
-//     font-weight: 600;
-//     font-size: 14px;
-//     padding: 0;
-//     height: auto;
-//     min-width: 0;
-
-//     &:disabled {
-//       opacity: 0.5;
-//       cursor: default;
-//     }
-//   }
-// }
-
-// // --- Utilities ---
-// .mention {
-//   color: var(--color-primary-500);
-//   font-weight: 600;
-// }
-
-// .loadMoreButton {
-//   align-self: flex-start;
-//   color: var(--color-light-900);
-//   font-size: 12px;
-//   padding: 0;
-//   height: auto;
-//   margin-top: 4px;
-
-//   &:hover {
-//     color: var(--color-light-100);
-//   }
-// }
-
-// // --- Responsive ---
-// @media (max-width: 968px) {
-//   .viewMode {
-//     width: 95vw;
-//     height: 90vh;
-//     grid-template-columns: 1fr;
-//     grid-template-rows: 1fr 1fr;
-//   }
-
-//   .photoContainer {
-//     height: 100%;
-//   }
-
-//   .postSideBar {
-//     height: 100%;
-//   }
-// }
-
-// // ... существующие стили
-
-// // Контейнер inline-формы ответа (использует ту же логику, что и .inputForm в футере)
-// .replyContainer {
-//   margin-left: 44px; // Отступ под аватарку
-//   margin-top: 8px;
-//   margin-bottom: 12px;
-//   padding: 8px 0; // Убираем боковые паддинги, как в основном инпуте
-//   background-color: transparent; // Прозрачный фон, как в футере
-//   border: none;
-//   animation: fadeIn 0.2s ease-in-out;
-
-//   .inputWrapper {
-//     display: flex;
-//     align-items: center;
-//     width: 100%;
-//     margin-bottom: 8px;
-
-//     .inlineInput {
-//       // Наследуем стили от .input в футере
-//       flex: 1;
-//       padding: 0;
-//       border: none;
-//       background: transparent;
-//       color: var(--color-light-100);
-//       font-family: Inter, sans-serif;
-//       font-weight: 400;
-//       font-size: 14px;
-//       line-height: 24px;
-
-//       &:focus {
-//         outline: none;
-//       }
-
-//       &::placeholder {
-//         color: var(--color-light-900);
-//       }
-
-//       &:disabled {
-//         opacity: 0.5;
-//       }
-//     }
-//   }
-// }
-
-// @keyframes fadeIn {
-//   from {
-//     opacity: 0;
-//     transform: translateY(-4px);
-//   }
-
-//   to {
-//     opacity: 1;
-//     transform: translateY(0);
-//   }
-// }
-
-// .replyActions {
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 8px;
-
-//   .cancelButton {
-//     color: var(--color-light-900);
-//     font-size: 12px;
-//     padding: 0;
-//     height: auto;
-//     min-width: 0;
-
-//     &:hover:not(:disabled) {
-//       color: var(--color-light-100);
-//     }
-
-//     &:disabled {
-//       opacity: 0.5;
-//     }
-//   }
-
-//   .submitButton {
-//     color: var(--color-primary-500);
-//     font-weight: 600;
-//     font-size: 14px;
-//     padding: 0;
-//     height: auto;
-//     min-width: 0;
-
-//     &:disabled {
-//       opacity: 0.5;
-//       cursor: default;
-//     }
-//   }
-// }
-
-// .replies {
-//   display: flex;
-//   flex-direction: column;
-//   margin-left: 44px;
-//   padding-left: 0;
-//   gap: 12px;
-//   margin-top: 4px;
-// }
-
-// .answerBlock {
-//   .comment {
-//     align-items: flex-start;
-//   }
-// }
-
-// .replyContainer {
-//   margin-left: 44px;
-//   margin-top: 8px;
-//   margin-bottom: 12px;
-
-//   background-color: transparent;
-//   border: none;
-//   padding: 0;
-
-//   animation: fadeIn 0.2s ease-in-out;
-
-//   .inputWrapper {
-//     display: flex;
-//     align-items: center;
-//     width: 100%;
-//     margin-bottom: 8px;
-
-//     .inlineInput {
-//       flex: 1;
-//       padding: 0;
-//       border: none;
-//       background: transparent;
-//       color: var(--color-light-100);
-//       font-family: Inter, sans-serif;
-//       font-weight: 400;
-//       font-size: 14px;
-//       line-height: 24px;
-
-//       &:focus {
-//         outline: none;
-//       }
-
-//       &::placeholder {
-//         color: var(--color-light-900);
-//       }
-//     }
-//   }
-// }
-
-// @keyframes fadeIn {
-//   from {
-//     opacity: 0;
-//     transform: translateY(-4px);
-//   }
-
-//   to {
-//     opacity: 1;
-//     transform: translateY(0);
-//   }
-// }
-
-// .replyActions {
-//   display: flex;
-//   justify-content: flex-end;
-//   gap: 8px;
-
-//   .cancelButton {
-//     color: var(--color-primary-500);
-//     font-weight: 600;
-//     font-size: 14px;
-//     padding: 0;
-//     height: auto;
-//     min-width: 0;
-//     background: transparent;
-
-//     &:hover:not(:disabled) {
-//       opacity: 0.8;
-//     }
-//   }
-
-//   .submitButton {
-//     background-color: #0095f6;
-//     color: white;
-//     font-weight: 600;
-//     font-size: 14px;
-//     padding: 5px 16px;
-//     height: auto;
-//     border-radius: 4px;
-//     min-width: 80px;
-
-//     &:disabled {
-//       background-color: rgba(0, 149, 246, 0.3);
-//       cursor: default;
-//     }
-//   }
-// }
-
-// .replies {
-//   display: flex;
-//   flex-direction: column;
-//   margin-left: 44px;
-//   padding-left: 0;
-//   gap: 12px;
-//   margin-top: 4px;
-// }
-
-// .answerBlock {
-//   .comment {
-//     align-items: flex-start;
-//   }
-// }
-
 .modalOverlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
@@ -1133,9 +16,9 @@
 .viewMode {
   display: grid;
   grid-template-columns: 490px 480px;
-  width: 972px;
   height: 574px;
   background: var(--color-dark-300);
+  width: 972px;
   border: 1px solid var(--color-dark-100);
   border-radius: 0;
   overflow: hidden;
@@ -1144,30 +27,32 @@
 }
 
 .photoContainer {
+  display: flex;
+  align-items: center;
   position: relative;
   background: rgba(0, 0, 0, 0.6);
   height: 100%;
+}
 
-  .image {
-    object-fit: cover;
-    object-position: center;
-  }
+.image {
+  object-fit: cover;
+  object-position: center;
 }
 
 .postSideBar {
   display: flex;
   flex-direction: column;
-  height: 100%;
   min-height: 0;
   overflow: hidden;
+  height: 100%;
 }
 
 .postHeader {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   padding: 12px 24px;
-  flex-shrink: 0;
 }
 
 .username {
@@ -1176,39 +61,28 @@
   gap: 8px;
 }
 
-.actionsSkeleton {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  flex-shrink: 0;
-}
-
 .descriptionSection {
   padding: 0 24px;
-  margin-bottom: 12px;
-  flex-shrink: 0;
+  margin-bottom: 17px;
+}
 
-  .description {
-    word-break: break-word;
-    line-height: 1.4;
-  }
+.description {
+  word-break: break-word;
+}
 
-  .descriptionTimestamp {
-    color: var(--color-light-900);
-    font-size: 12px;
-    margin-top: 4px;
-    display: block;
-  }
+.descriptionTimestamp {
+  color: var(--color-light-900);
 }
 
 .comments {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   padding: 0 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  margin-top: 19px;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -1229,94 +103,92 @@
   flex-direction: column;
 }
 
+.commentBlock:last-child {
+  margin-bottom: 28px;
+}
+
 .comment {
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  padding: 0;
+  align-items: center;
+}
 
-  .commentBody {
-    flex: 1;
-    min-width: 0;
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
 
-    .commentText {
-      word-break: break-word;
-      overflow-wrap: break-word;
-      line-height: 1.4;
-      hyphens: auto;
+.commentText {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.4;
 
-      strong {
-        margin-right: 6px;
-      }
-    }
-
-    .commentMeta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-      flex-wrap: wrap;
-
-      .commentTimestamp {
-        color: var(--color-light-900);
-        font-size: 12px;
-      }
-
-      .replyButton {
-        color: var(--color-light-900);
-        font-size: 12px;
-        padding: 0;
-        height: auto;
-        min-width: 0;
-
-        &:hover {
-          color: var(--color-light-100);
-        }
-      }
-    }
+  strong {
+    margin-right: 6px;
   }
+}
 
-  .commentLikeButton {
-    padding: 0;
-    min-width: 16px;
-    min-height: 16px;
-    margin-left: auto;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.commentTimestamp {
+  color: var(--color-light-900);
+  font-size: 12px;
 }
 
 .mention {
   color: var(--color-primary-500);
   font-weight: 600;
 }
+
+.commentLikeButton {
+  padding: 0;
+  min-width: 16px;
+  min-height: 16px;
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .answersToggleContainer {
   display: flex;
   align-items: center;
   margin-left: 44px;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 15px;
+  margin-top: 11px;
   gap: 8px;
+}
 
-  .answersLine {
-    width: 20px;
-    height: 1px;
-    background-color: var(--color-dark-100);
-  }
+.answersLine {
+  width: 24px;
+  height: 1px;
+  background-color: var(--color-dark-300);
+  flex-shrink: 0;
+}
 
-  .viewRepliesButton {
-    color: var(--color-light-900);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 0;
-    height: auto;
-    min-width: 0;
-
-    &:hover {
-      color: var(--color-light-100);
-    }
-  }
+.viewRepliesButton {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+  color: var(--color-light-900);
+  font-size: 12px;
+  line-height: 1;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .replies {
@@ -1329,10 +201,10 @@
 }
 
 .answerBlock {
-  .comment {
-    align-items: flex-start;
-  }
+  display: flex;
+  flex-direction: column;
 }
+
 .replyContainer {
   margin-left: 44px;
   margin-top: 8px;
@@ -1341,77 +213,6 @@
   border: none;
   padding: 0;
   animation: fadeIn 0.2s ease-in-out;
-
-  .inputWrapper {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 8px;
-
-    .inlineInput {
-      flex: 1;
-      padding: 0;
-      border: none;
-      background: transparent;
-      color: var(--color-light-100);
-      font-family: Inter, sans-serif;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 24px;
-
-      &:focus {
-        outline: none;
-      }
-
-      &::placeholder {
-        color: var(--color-light-900);
-      }
-
-      &:disabled {
-        opacity: 0.5;
-      }
-    }
-  }
-
-  .replyActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-
-    .cancelButton {
-      color: var(--color-primary-500);
-      font-weight: 600;
-      font-size: 14px;
-      padding: 0;
-      height: auto;
-      min-width: 0;
-      background: transparent;
-
-      &:hover:not(:disabled) {
-        opacity: 0.8;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-      }
-    }
-
-    .submitButton {
-      background-color: #0095f6;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      padding: 5px 16px;
-      height: auto;
-      border-radius: 4px;
-      min-width: 80px;
-
-      &:disabled {
-        background-color: rgba(0, 149, 246, 0.3);
-        cursor: default;
-      }
-    }
-  }
 }
 
 @keyframes fadeIn {
@@ -1425,114 +226,105 @@
     transform: translateY(0);
   }
 }
+
+.replyInputWrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.inlineInput {
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-light-100);
+  font-family: Inter, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::placeholder {
+    color: var(--color-light-900);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.replyActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancelButton {
+  color: var(--color-primary-500);
+  font-weight: 600;
+  font-size: 14px;
+  padding: 0;
+  height: auto;
+  min-width: 0;
+  background: transparent;
+
+  &:hover:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.submitButton {
+  background-color: #0095f6;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 5px 16px;
+  height: auto;
+  border-radius: 4px;
+  min-width: 80px;
+
+  &:disabled {
+    background-color: rgba(0, 149, 246, 0.3);
+    cursor: default;
+  }
+}
+
 .footer {
   display: flex;
   flex-direction: column;
-  padding: 12px 24px;
-  border-top: 1px solid var(--color-dark-100);
-  flex-shrink: 0;
-  background: var(--color-dark-300);
+  padding: 12px 24px 0 24px;
   min-height: 83px;
+  border-top: 1px solid var(--color-dark-100);
 }
 
 .likeSendSave {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-
-  .postButton {
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    min-width: 0;
-    min-height: 0;
-
-    &:hover svg {
-      transform: scale(1.1);
-    }
-  }
+  gap: 24px;
+  justify-content: center;
+  margin-bottom: 19px;
 }
 
-.likesRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-
-  .likesAvatars {
-    display: flex;
-    isolation: isolate;
-
-    .likeAvatarOverlap {
-      margin-left: -8px;
-    }
-  }
-}
-
-.timestamp {
-  color: var(--color-light-900);
-  font-size: 12px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.separator {
-  width: 100%;
-  margin: 0 0 12px 0;
-}
-
-.inputForm {
-  display: flex;
-  align-items: center;
-  width: 100%;
-
-  .input {
-    flex: 1;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--color-light-100);
-    font-family: Inter, sans-serif;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 24px;
-
-    &:focus {
-      outline: none;
-    }
-
-    &::placeholder {
-      color: var(--color-light-900);
-    }
-  }
-
-  .publishButton {
-    color: var(--color-primary-500);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 0;
-    height: auto;
-    min-width: 0;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-  }
-}
-
-
-.loadMoreButton {
-  align-self: flex-start;
-  color: var(--color-light-900);
-  font-size: 12px;
+.postButton {
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: 0;
-  height: auto;
-  margin-top: 4px;
+  width: 24px;
+  height: 24px;
+  min-width: 0;
+  min-height: 0;
 
-  &:hover {
-    color: var(--color-light-100);
+  &:hover svg {
+    scale: 1.1;
   }
 }
 
@@ -1540,6 +332,48 @@
   width: 24px;
   height: 24px;
   border-radius: 4px;
+}
+
+.likesRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.likesAvatars {
+  display: flex;
+  position: relative;
+  isolation: isolate;
+}
+
+.likeAvatar {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-dark-300);
+  background: var(--color-dark-700);
+}
+
+.likeAvatarOverlap {
+  margin-left: -8px;
+}
+
+.timestamp {
+  color: var(--color-light-900);
+  padding-bottom: 7px;
+}
+
+.separator {
+  width: 100%;
+  margin: 0;
+}
+
+.inputForm {
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .inputSkeleton {
@@ -1556,19 +390,72 @@
   border-radius: 4px;
 }
 
+.input {
+  flex: 1;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-light-100);
+  font-family: Inter;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0%;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.publishButton {
+  color: var(--color-primary-500);
+  font-family: Inter;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0px;
+  text-align: center;
+
+  &:disabled {
+    color: var(--color-primary-500);
+    opacity: 0.5;
+  }
+}
+
+.replyButton,
+.loadMoreButton,
+.commentActionButton {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  height: auto;
+  color: var(--color-light-900);
+  font-size: 12px;
+}
+
+.commentActionButton {
+  width: 16px;
+  height: 16px;
+}
+
+.loadMoreButton {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
 @media (max-width: 968px) {
   .viewMode {
     width: 95vw;
-    height: 90vh;
+    height: 95vh;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr;
   }
 
   .photoContainer {
-    height: 100%;
+    height: 50%;
   }
 
   .postSideBar {
-    height: 100%;
+    height: 50%;
   }
 }

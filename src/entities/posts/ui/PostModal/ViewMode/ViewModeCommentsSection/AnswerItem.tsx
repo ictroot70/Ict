@@ -116,6 +116,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
               placeholder={`Ответ @${authorName}...`}
               className={s.inlineInput}
               disabled={isSubmitting}
+              autoFocus
             />
           </div>
           <div className={s.replyActions}>

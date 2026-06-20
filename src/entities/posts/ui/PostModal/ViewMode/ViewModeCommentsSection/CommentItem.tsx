@@ -134,6 +134,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
               placeholder={`Ответ @${authorName}...`}
               className={s.inlineInput}
               disabled={isSubmitting}
+              autoFocus
             />
           </div>
           <div className={s.replyActions}>

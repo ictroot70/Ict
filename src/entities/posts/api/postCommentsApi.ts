@@ -52,17 +52,15 @@ export const commentsApi = baseApi.injectEndpoints({
           } as any,
         }
 
-        const patchResult = dispatch(
+        const patchAnswersResult = dispatch(
           commentsApi.util.updateQueryData(
             'getCommentAnswers',
             { postId, commentId },
             (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-              // В InfiniteData данные находятся в массиве pages
               if (draft.pages.length > 0) {
                 const firstPage = draft.pages[0]
 
                 firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
-                // Увеличиваем счетчик на всех страницах для консистентности
                 draft.pages.forEach(page => {
                   page.totalCount += 1
                 })
@@ -71,15 +69,34 @@ export const commentsApi = baseApi.injectEndpoints({
           )
         )
 
+        const patchCommentsResult = dispatch(
+          commentsApi.util.updateQueryData(
+            'getPostComments',
+            { postId },
+            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
+              for (const page of draft.pages) {
+                const comment = page.items.find(item => item.id === commentId)
+
+                if (comment) {
+                  comment.answerCount += 1
+                  break
+                }
+              }
+            }
+          )
+        )
+
         try {
           await queryFulfilled
         } catch {
-          patchResult.undo()
+          patchAnswersResult.undo()
+          patchCommentsResult.undo()
         }
       },
 
       invalidatesTags: (result, error, { postId, commentId }) => [
         { type: 'Comments', id: `${postId}-${commentId}` },
+        { type: 'Comments', id: postId },
       ],
     }),
 
@@ -170,7 +187,6 @@ export const commentsApi = baseApi.injectEndpoints({
   }),
 })
 
-// Явный экспорт всех хуков
 export const {
   useCreateCommentAnswerMutation,
   useGetPostCommentsInfiniteQuery,
