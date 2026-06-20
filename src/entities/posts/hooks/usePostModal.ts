@@ -1,17 +1,22 @@
-import { useState, useEffect } from 'react'
+import type { PostViewModel } from '@/entities/posts/api'
+
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import { useMeQuery } from '@/features/auth'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
+import {
+  POST_LIKES_QUERY_ARG,
+  getAvatarWhoLikes,
+  useGetPostByIdQuery,
+  useGetPostLikesQuery,
+} from '@/entities/posts/api/postApi'
+import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { showToastAlert } from '@/shared/lib'
 import {
+  CommentFormData,
+  DescriptionFormData,
   mapPostToModalData,
   PostModalData,
   PostVariant,
-  CommentFormData,
-  DescriptionFormData,
-  PostViewModel,
 } from '@/shared/types'
 
 type UiLanguage = 'en' | 'rus'
@@ -33,7 +38,12 @@ const postModalTextByLanguage = {
   },
 } as const
 
-export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
+export const usePostModal = (
+  open: boolean,
+  initialPostData?: PostViewModel,
+  postId?: number,
+  authState?: PostModalAuthState
+) => {
   const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
@@ -59,30 +69,61 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   })
 
   const resolvedPostId = postId
+  const user = authState?.user
+  const isAuthUiLoading = authState?.isAuthUiLoading ?? false
+  const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
 
   const {
     data: postDataFromQuery,
     isError: isPostError,
     isFetching: isPostFetching,
   } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || !!initialPostData,
+    skip: !open || !resolvedPostId || isAuthUiLoading,
+    refetchOnMountOrArgChange: true,
   })
 
-  const { isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const { data: postLikesData } = useGetPostLikesQuery(
+    { postId: resolvedPostId as number, ...POST_LIKES_QUERY_ARG },
+    {
+      skip: !open || !resolvedPostId || isAuthUiLoading || !isAuthenticatedUi,
+      refetchOnMountOrArgChange: true,
+    }
+  )
 
-  const { data: me } = useMeQuery(undefined, {
-    skip: !open || !isAuthenticatedUi,
-  })
+  const isSameInitialPost = Boolean(
+    initialPostData && resolvedPostId && initialPostData.id === resolvedPostId
+  )
+  const basePostData = postDataFromQuery ?? initialPostData
+  const shouldPreferInitialOptimisticFields = Boolean(isPostFetching && isSameInitialPost)
+  const fallbackAvatarWhoLikes =
+    isAuthenticatedUi && isSameInitialPost
+      ? initialPostData?.avatarWhoLikes
+      : basePostData?.avatarWhoLikes
 
-  const basePostData = initialPostData ?? postDataFromQuery
-  const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
-  const postData = localPostData
+  const postData = basePostData
+    ? {
+        ...basePostData,
+        isLiked: shouldPreferInitialOptimisticFields
+          ? (initialPostData?.isLiked ?? basePostData.isLiked)
+          : basePostData.isLiked,
+        likesCount:
+          postLikesData?.totalCount ??
+          (shouldPreferInitialOptimisticFields
+            ? (initialPostData?.likesCount ?? basePostData.likesCount)
+            : basePostData.likesCount),
+        avatarWhoLikes: postLikesData
+          ? getAvatarWhoLikes(postLikesData)
+          : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
+      }
+    : undefined
+
   const hasPostData = Boolean(postData)
-  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
+
+  const isPostLoading = Boolean(open && resolvedPostId && !hasPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
 
   const isOwnProfile = Boolean(
-    isAuthenticatedUi && postData?.ownerId && me?.userId && postData.ownerId === me.userId
+    isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
   let variant: PostVariant = 'public'
@@ -110,15 +151,11 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(postModalData.createdAt))
+  }).format(new Date(postData?.createdAt ?? new Date().toISOString()))
 
   useEffect(() => {
-    resetDescription({ description: postModalData.description })
-  }, [postModalData.description, resetDescription])
-
-  useEffect(() => {
-    setLocalPostData(basePostData)
-  }, [basePostData, resolvedPostId])
+    resetDescription({ description: postData?.description ?? '' })
+  }, [postData?.description, resetDescription])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -143,22 +180,12 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   const handleCancelEdit = () => {
-    resetDescription({ description: postModalData.description })
+    resetDescription({ description: postData?.description ?? '' })
     setIsEditingDescription(false)
   }
 
   const applyLocalDescription = (description: string) => {
-    setLocalPostData(prev => {
-      if (!prev) {
-        return prev
-      }
-
-      return {
-        ...prev,
-        description,
-        updatedAt: new Date().toISOString(),
-      }
-    })
+    resetDescription({ description })
   }
 
   const handleCopyLink = async () => {
@@ -187,7 +214,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleDescriptionSubmit,
     watchDescription,
     errors,
-    postData: postModalData,
+    postData,
     variant,
     isAuthLoading: isAuthUiLoading,
     isAuthenticated: isAuthenticatedUi,
@@ -203,8 +230,8 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCopyLink,
     applyLocalDescription,
     resolvedPostId,
-    currentUserId: me?.userId,
-    currentUserName: me?.name ?? '',
-    currentUserAvatar: '',
+    currentUserId: user?.userId,
+    currentUserName: user?.userName ?? '',
+    currentUserAvatar: user?.avatarUrl ?? '',
   }
 }

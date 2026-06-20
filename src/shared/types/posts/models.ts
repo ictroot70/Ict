@@ -1,4 +1,5 @@
 import { UserImage } from '@/entities/users/api/api.types'
+import { UserBase } from '../user/models'
 
 import { LikeStatus } from '../base/enums'
 
@@ -51,21 +52,26 @@ export interface PostViewModel {
   avatarWhoLikes: string[]
 }
 
-export type {
-  AnswersViewModel,
-  BaseComment,
-  CommentsViewModel,
-  CreateCommentDto,
-} from '../comments'
+export interface BaseComment {
+  id: number
+  from: UserBase
+  content: string
+  createdAt: string
+  likeCount: number
+  isLiked: boolean
+}
 
-export interface PublicationsFollowersWithPaginationViewModel {
-  totalCount: number
-  pagesCount: number
-  page: number
-  pageSize: number
-  prevCursor: number
-  nextCursor: number
-  items: PostViewModel[]
+export interface CommentsViewModel extends BaseComment {
+  postId: number
+  answerCount: number
+}
+
+export interface AnswersViewModel extends BaseComment {
+  commentId: number
+}
+
+export interface CreateCommentDto {
+  content: string
 }
 
 export type PostVariant = 'public' | 'myPost' | 'userPost'
@@ -88,6 +94,7 @@ export interface DescriptionFormData {
 export interface CommentFormData {
   comment: string
 }
+
 export interface PostModalData {
   id: number
   images: UserImage[]

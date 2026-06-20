@@ -6,7 +6,7 @@ import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 import { formatLikesCount } from '@/entities/posts/lib/format-likes'
 import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
-import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
 import {
   Button,
   Typography,
@@ -18,9 +18,16 @@ import {
 
 import s from '../ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../../postModalLikeAction.types'
+
 interface PostFooterProps {
   variant: PostVariant
-  postData: Pick<PostModalData, 'likesCount' | 'avatarWhoLikes'>
+  postId: number
+  ownerId: number
+  isLiked: boolean
+  likesCount: number
+  avatarWhoLikes: string[]
+  renderPostLikeAction?: RenderPostLikeAction
   formattedCreatedAt: string
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
@@ -29,21 +36,24 @@ interface PostFooterProps {
   isAuthLoading: boolean
 }
 
-export const ViewModePostFooter: React.FC<PostFooterProps> = ({
+export const ViewModePostFooter = ({
   variant,
-  postData,
+  postId,
+  ownerId,
+  isLiked,
+  likesCount,
+  avatarWhoLikes,
+  renderPostLikeAction,
   formattedCreatedAt,
   commentControl,
   handleCommentSubmit,
   watchComment,
   handlePublish,
   isAuthLoading,
-}) => {
+}: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
-
-  const { likesCount, avatarWhoLikes } = postData
-  const visibleAvatars = avatarWhoLikes?.slice(0, 3) || []
+  const visibleAvatars = avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
 
   return (
     <div className={s.footer}>
@@ -63,9 +73,18 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
             </>
           ) : (
             <>
-              <Button variant={'text'} className={s.postButton} aria-label={'Like post'}>
-                <HeartOutline color={'white'} />
-              </Button>
+              {renderPostLikeAction ? (
+                renderPostLikeAction({
+                  postId,
+                  ownerId,
+                  isLiked,
+                  className: s.postButton,
+                })
+              ) : (
+                <Button variant={'text'} className={s.postButton} aria-label={'Like post'}>
+                  <HeartOutline color={'white'} />
+                </Button>
+              )}
               <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
                 <PaperPlane color={'white'} />
               </Button>

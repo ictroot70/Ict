@@ -1,12 +1,15 @@
 'use client'
 
+import type { PostViewModel } from '@/entities/posts/api'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../postModalLikeAction.types'
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
@@ -14,7 +17,7 @@ import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
   onClose: () => void
-  postData: PostModalData
+  postData: PostViewModel
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
@@ -30,6 +33,10 @@ interface ViewModeProps {
   isAuthenticated: boolean
   isOwnProfile: boolean
   commentsEnabled?: boolean
+  currentUserId?: number
+  currentUserName?: string
+  currentUserAvatar?: string
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const ViewMode = ({
@@ -48,8 +55,18 @@ export const ViewMode = ({
   isAuthenticated,
   isOwnProfile,
   commentsEnabled = true,
+  currentUserId,
+  currentUserName,
+  currentUserAvatar,
+  renderPostLikeAction,
 }: ViewModeProps) => {
   const handleFollow = () => {}
+
+  const postDataForChildren = {
+    avatar: postData.avatarOwner,
+    userName: postData.userName,
+    description: postData.description ?? '',
+  }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -57,7 +74,7 @@ export const ViewMode = ({
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postData}
+          postData={postDataForChildren}
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
@@ -67,9 +84,12 @@ export const ViewMode = ({
         />
 
         <ViewModeCommentsSection
-          postData={postData}
+          postData={postDataForChildren}
           postId={postData.id}
           isAuthenticated={isAuthenticated}
+          currentUserId={currentUserId}
+          currentUserName={currentUserName}
+          currentUserAvatar={currentUserAvatar}
           enabled={commentsEnabled}
         />
 
@@ -77,7 +97,12 @@ export const ViewMode = ({
 
         <ViewModePostFooter
           variant={variant}
-          postData={postData}
+          postId={postData.id}
+          ownerId={postData.ownerId}
+          isLiked={postData.isLiked}
+          likesCount={postData.likesCount}
+          avatarWhoLikes={postData.avatarWhoLikes}
+          renderPostLikeAction={renderPostLikeAction}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}

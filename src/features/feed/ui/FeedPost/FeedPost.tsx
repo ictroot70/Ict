@@ -1,5 +1,7 @@
 'use client'
 
+import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
+
 import { PostViewModel } from '@/entities/posts/api'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar, Carousel } from '@/shared/composites'
@@ -13,6 +15,7 @@ import { FeedPostActions } from './FeedPostActions'
 import { FeedPostFooter } from './FeedPostFooter'
 
 type Props = {
+  currentUser?: CurrentPostLikeUser
   isFollowing: boolean
   isFollowPending: boolean
   onCopyLink: () => void
@@ -21,6 +24,7 @@ type Props = {
 }
 
 export function FeedPost({
+  currentUser,
   isFollowing,
   isFollowPending,
   onCopyLink,
@@ -56,7 +60,7 @@ export function FeedPost({
         <Carousel slides={images} />
       </div>
 
-      <FeedPostFooter post={post} />
+      <FeedPostFooter post={post} currentUser={currentUser} />
     </article>
   )
 }

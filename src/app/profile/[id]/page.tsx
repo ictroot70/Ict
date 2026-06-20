@@ -3,9 +3,9 @@ import type { PostOpenSource } from '@/shared/constant'
 
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
-import { Profile } from '@/entities/profile/ui'
 import { logger } from '@/shared/lib/logger'
 import { getSsrFetchErrorStatus } from '@/shared/lib/ssr/safeSsrFetch'
+import { ProfileWithPostLikes } from '@/widgets/ProfileWithPostLikes'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -99,7 +99,7 @@ export default async function ProfilePage({ params, searchParams }: Readonly<Pro
     initialPostResult.status === 'fulfilled' ? initialPostResult.value : null
 
   return (
-    <Profile
+    <ProfileWithPostLikes
       profileDataServer={profileDataServer}
       postsDataServer={postsData}
       initialPostIdServer={initialPostId}
