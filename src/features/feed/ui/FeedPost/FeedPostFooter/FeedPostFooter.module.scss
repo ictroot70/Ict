@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .actionButton {
@@ -16,11 +17,14 @@
   min-width: 1.5rem;
   min-height: 1.5rem;
   padding: 0;
-  margin-bottom: 1rem;
   color: var(--color-light-100);
   cursor: pointer;
   background: transparent;
   border: 0;
+
+  &:hover:not(:disabled) svg {
+    scale: 1.1;
+  }
 }
 
 .saveButton {

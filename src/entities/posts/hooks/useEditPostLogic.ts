@@ -4,9 +4,9 @@ import { useUpdatePostMutation } from '@/entities/posts/api/postApi'
 
 export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }) => {
   const [updatePost] = useUpdatePostMutation()
-  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editingPostId, setEditingPostId] = useState<number | null>(null)
 
-  const handleEditPost = async (postId: string, newDescription: string) => {
+  const handleEditPost = async (postId: number, newDescription: string) => {
     if (options?.enabled === false) {
       return false
     }
@@ -19,7 +19,7 @@ export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }
       setEditingPostId(postId)
 
       await updatePost({
-        postId: parseInt(postId),
+        postId: parseInt(String(postId)),
         body: updateData,
         userId: userId,
       }).unwrap()

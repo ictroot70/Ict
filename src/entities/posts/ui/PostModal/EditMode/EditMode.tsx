@@ -1,6 +1,8 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React, { useState, useEffect, useCallback } from 'react'
 
-import { PostModalData, DescriptionFormData } from '@/shared/types'
+import { DescriptionFormData } from '@/shared/types'
 
 import s from './EditMode.module.scss'
 
@@ -15,7 +17,7 @@ interface EditModeProps {
   handleCancelEdit: () => void
   errors: any
   watchDescription: (field: string) => string
-  postData: PostModalData
+  postData: PostViewModel
   onClose: () => void
   isEditing?: boolean
 }
