@@ -14,7 +14,7 @@ export const buildGoogleAuthUrl = (origin: string) => {
 
 export const buildGitHubAuthUrl = (apiBaseUrl: string, origin: string) => {
   const redirectUrl = `${origin}/`
-  const params = new URLSearchParams({ redirectUrl })
+  const params = new URLSearchParams({ redirect_url: redirectUrl })
 
   return `${apiBaseUrl}${API_ROUTES.AUTH.GITHUB_LOGIN}?${params.toString()}`
 }
