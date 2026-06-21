@@ -51,6 +51,23 @@ vi.mock('@/shared/ui', () => ({
   Typography: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
 }))
 
+vi.mock('@/features/postLikes/ui/LikeButton', () => ({
+  LikeButton: ({
+    currentUser,
+    isLiked,
+  }: {
+    currentUser?: { userId: number; userName: string }
+    isLiked: boolean
+  }) => (
+    <button
+      type={'button'}
+      aria-label={isLiked ? 'Unlike post' : 'Like post'}
+      aria-pressed={isLiked}
+      data-current-user-id={currentUser?.userId}
+    />
+  ),
+}))
+
 const post: PostViewModel = {
   id: 1,
   ownerId: 7,
@@ -103,11 +120,15 @@ describe('FeedPostFooter', () => {
   })
 
   it('renders like data from PostViewModel', () => {
-    render(<FeedPostFooter post={post} />)
+    render(<FeedPostFooter post={post} currentUser={{ userId: 30, userName: 'current-user' }} />)
 
-    expect(screen.getByRole('button', { name: 'Like post' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Unlike post' })).toHaveAttribute(
       'aria-pressed',
       'true'
+    )
+    expect(screen.getByRole('button', { name: 'Unlike post' })).toHaveAttribute(
+      'data-current-user-id',
+      '30'
     )
     expect(
       screen.getByText((_, element) => element?.textContent === '2\u00a0243')
@@ -150,5 +171,34 @@ describe('FeedPostFooter', () => {
     expect(handlePublishMock).toHaveBeenCalledWith({
       comment: 'new comment',
     })
+  })
+
+  it('renders duplicate like avatar URLs only once', () => {
+    render(
+      <FeedPostFooter
+        post={{
+          ...post,
+          avatarWhoLikes: ['/liked-1.svg', '/liked-1.svg', '/liked-2.svg'],
+        }}
+      />
+    )
+
+    expect(screen.getAllByAltText('/liked-1.svg')).toHaveLength(1)
+    expect(screen.getByAltText('/liked-2.svg')).toBeInTheDocument()
+  })
+
+  it('does not render like avatars when the like count is zero', () => {
+    render(
+      <FeedPostFooter
+        post={{
+          ...post,
+          avatarWhoLikes: ['/liked-1.svg'],
+          likesCount: 0,
+        }}
+      />
+    )
+
+    expect(screen.queryByAltText('/liked-1.svg')).not.toBeInTheDocument()
+    expect(screen.getByText((_, element) => element?.textContent === '0')).toBeInTheDocument()
   })
 })

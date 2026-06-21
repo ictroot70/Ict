@@ -1,8 +1,9 @@
+import type { PostImageViewModel, UploadedImageViewModel } from '@/entities/posts/api'
+
 import { useState, useCallback, useRef } from 'react'
 
 import { UploadedFile } from '@/features/posts/model/types'
 import { clearFilterProcessingMetrics } from '@/features/posts/model/upload-performance.runtime'
-import { UploadedImageViewModel, PostImageViewModel } from '@/shared/types'
 
 import { toUploadUserMessage, type UploadErrorActionHint } from './useBackgroundUpload.error-mapper'
 import {
@@ -176,7 +177,6 @@ export const useBackgroundUpload = ({
 
       for (let idx = 0; idx < blobs.length; idx++) {
         const blob = blobs[idx]
-        const fileIndex = idx + 1
 
         if (blob.size > MAX_FILE_SIZE_BYTES) {
           setState(prev => ({
@@ -184,7 +184,7 @@ export const useBackgroundUpload = ({
             status: 'error',
             uploadStage: 'idle',
             errorActionHint: 'back',
-            error: `Файл [${fileIndex}] превышает 10MB.`,
+            error: `Файл [${idx + 1}] превышает 10MB.`,
           }))
 
           return
@@ -196,7 +196,7 @@ export const useBackgroundUpload = ({
             status: 'error',
             uploadStage: 'idle',
             errorActionHint: 'back',
-            error: `Файл [${fileIndex}] имеет неподдерживаемый формат.`,
+            error: `Файл [${idx + 1}] имеет неподдерживаемый формат.`,
           }))
 
           return
