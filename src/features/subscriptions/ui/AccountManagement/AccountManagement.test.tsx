@@ -1,6 +1,5 @@
+/* eslint-disable max-lines */
 /* @vitest-environment jsdom */
-
-import type { PaymentsWithPaginationViewModel } from '@/shared/types'
 
 import React from 'react'
 

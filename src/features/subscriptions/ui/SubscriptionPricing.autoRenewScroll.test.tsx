@@ -184,6 +184,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
     expect(tailRow).not.toBeNull()
 
     const scrollIntoView = vi.fn()
+
     ;(tailRow as HTMLElement).scrollIntoView = scrollIntoView
 
     rerender(React.createElement(SubscriptionPricing, { plans }))
