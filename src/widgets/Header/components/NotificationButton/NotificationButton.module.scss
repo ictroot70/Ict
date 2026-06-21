@@ -15,6 +15,16 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-700);
+  }
+}
+
+.loadingState {
+  padding: 8px 16px;
+  text-align: center;
+  color: var(--color-light-900);
 }
 
 .menuHeader {
@@ -67,6 +77,9 @@
   transition: background-color 0.2s ease;
   border-bottom: none;
 
+  &.unread {
+  }
+
   &:hover {
     background-color: var(--color-dark-500);
   }
@@ -83,6 +96,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+
+  .titleText {
+    font-weight: 600;
+  }
 }
 
 .newLabel {
@@ -91,7 +108,7 @@
   font-style: normal;
   font-size: 12px;
   line-height: 16px;
-  letter-spacing: 0%;
+  letter-spacing: 0;
   color: var(--color-primary-500);
   border-radius: 4px;
 }

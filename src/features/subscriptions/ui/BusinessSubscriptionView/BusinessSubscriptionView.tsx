@@ -49,6 +49,7 @@ export const BusinessSubscriptionView: React.FC<BusinessSubscriptionViewProps> =
             ]}
             selectedType={accountType}
             onTypeChange={onAccountTypeChange}
+            disabled={isPaymentLocked}
           />
         }
       />

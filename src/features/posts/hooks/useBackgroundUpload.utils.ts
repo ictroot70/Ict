@@ -1,3 +1,4 @@
+import { logger } from '@/shared/lib'
 import { UploadedImageViewModel, PostImageViewModel } from '@/shared/types'
 
 export const BACKGROUND_UPLOAD_CHUNK_SIZE = 5
@@ -35,7 +36,7 @@ export async function uploadWithRetry(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        console.log(`🔄 Retry attempt ${attempt}/${maxRetries} (token refresh)...`)
+        logger.info(`🔄 Retry attempt ${attempt}/${maxRetries} (token refresh)...`)
         await new Promise(resolve => setTimeout(resolve, 300))
       }
 
@@ -52,7 +53,7 @@ export async function uploadWithRetry(
         (error as { status?: unknown }).status === 401 &&
         attempt < maxRetries
       ) {
-        console.log('⚠️ Token expired, will retry after refresh...')
+        logger.info('⚠️ Token expired, will retry after refresh...')
         continue
       }
 

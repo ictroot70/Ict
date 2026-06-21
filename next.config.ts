@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
         pathname: '/trainee-instagram-api/**',
       },
     ],
+    unoptimized: true,
   },
   async rewrites() {
     if (isProduction || !isProxyMode) {

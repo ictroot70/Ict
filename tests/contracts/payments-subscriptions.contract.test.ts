@@ -68,12 +68,22 @@ describe('PAYMENTS-UC1-PAID-ACCOUNT-PURCHASE', () => {
     expect(messagesSource).toContain(
       'Auto-renewal will be enabled with this payment. You can disable it anytime in your profile settings'
     )
+    expect(messagesSource).toContain(
+      'Payment creation has started. Please wait while we redirect you to checkout.'
+    )
+    expect(messagesSource).toContain('Creating payment')
     expect(messagesSource).toContain('Payment was successful!')
     expect(messagesSource).toContain('Transaction failed, please try again')
 
+    expect(confirmModalSource).toContain('isPaymentCreating?: boolean')
+    expect(confirmModalSource).toContain('if (isPaymentCreating) {')
+    expect(confirmModalSource).toContain('renderPaymentCreationState')
+    expect(confirmModalSource).toContain('renderConfirmationActions')
+    expect(confirmModalSource).toContain("aria-label={t('paymentCreationInProgress')}")
+    expect(confirmModalSource).toContain("t('paymentCreationStarted')")
     expect(confirmModalSource).toContain("label={t('agree')}")
     expect(confirmModalSource).toContain('onCheckedChange={value => setIsAgreed(value === true)}')
-    expect(confirmModalSource).toContain('disabled={!isAgreed || isSubmitting}')
+    expect(confirmModalSource).toContain('disabled={!isAgreed}')
 
     expect(successModalSource).toContain("modalTitle={t('successTitle')}")
     expect(failureModalSource).toContain("modalTitle={t('errorTitle')}")

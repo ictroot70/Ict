@@ -36,7 +36,7 @@ export const useInfiniteScroll = ({
         observer.unobserve(currentRef)
       }
     }
-  }, [onLoadMore, hasNextPage])
+  }, [onLoadMore, hasNextPage, rootMargin, threshold])
 
   return { observerRef }
 }

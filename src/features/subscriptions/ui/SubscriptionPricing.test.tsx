@@ -189,4 +189,24 @@ describe('SubscriptionPricing', () => {
 
     expect(toggleAutoRenewal).toHaveBeenCalledTimes(1)
   })
+
+  it('disables auto-renewal while payment is locked', () => {
+    const toggleAutoRenewal = vi.fn()
+
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        toggleAutoRenewal,
+      })
+    )
+
+    render(React.createElement(SubscriptionPricing, { plans, isPaymentLocked: true }))
+
+    const autoRenewalCheckbox = screen.getByLabelText('Auto-Renewal') as HTMLInputElement
+
+    expect(autoRenewalCheckbox.disabled).toBe(true)
+
+    fireEvent.click(autoRenewalCheckbox)
+
+    expect(toggleAutoRenewal).not.toHaveBeenCalled()
+  })
 })

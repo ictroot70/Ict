@@ -65,17 +65,10 @@ export const AccountManagement = () => {
 
   const isPaymentDisabled = !selectedPlan || isPaymentLocked
 
-  const {
-    modal,
-    backToPayment,
-    openConfirmModal,
-    closeConfirmModal,
-    clearPaymentModalState,
-    closePaymentResultModal,
-  } = usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
+  const { modal, backToPayment, openConfirmModal, closeConfirmModal, closePaymentResultModal } =
+    usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
 
   const confirmPayment = async () => {
-    clearPaymentModalState()
     resetPaymentResult()
 
     await handlePay(PaymentType.STRIPE)
@@ -85,6 +78,10 @@ export const AccountManagement = () => {
   const accountType: AccountTypeValue = hasActiveSubscription ? 'business' : selectedAccountType
 
   const handleAccountTypeChange = (type: AccountTypeValue) => {
+    if (isPaymentLocked) {
+      return
+    }
+
     if (hasActiveSubscription && type === 'personal') {
       return
     }
@@ -93,6 +90,10 @@ export const AccountManagement = () => {
   }
 
   const handlePlanValueChange = (planValue: SubscriptionPlanValue) => {
+    if (isPaymentLocked) {
+      return
+    }
+
     if (!pricingPlans?.data?.length) {
       return
     }
@@ -170,15 +171,24 @@ export const AccountManagement = () => {
     }
   }, [])
 
-  if (isLoading && flowStatus !== 'polling') {
-    return <Loading />
+  if (isLoading) {
+    return (
+      <>
+        <Loading />
+        <PaymentProcessingModal open={isProcessingModalVisible} />
+      </>
+    )
   }
 
   return (
     <>
       <div className={styles.accountManagementPage}>
         {view === 'personal' && (
-          <PersonalView accountType={accountType} onAccountTypeChange={handleAccountTypeChange} />
+          <PersonalView
+            accountType={accountType}
+            onAccountTypeChange={handleAccountTypeChange}
+            disabled={isPaymentLocked}
+          />
         )}
 
         {(view === 'business-no-subscription' || view === 'business-active-subscription') && (
@@ -199,7 +209,7 @@ export const AccountManagement = () => {
         open={modal === 'confirm'}
         onClose={closeConfirmModal}
         onConfirm={() => void confirmPayment()}
-        isSubmitting={isPaymentLocked}
+        isPaymentCreating={isPaymentLocked}
       />
 
       <PaymentProcessingModal open={isProcessingModalVisible} />

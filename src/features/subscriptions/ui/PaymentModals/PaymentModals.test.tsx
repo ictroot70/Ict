@@ -20,7 +20,8 @@ vi.mock('next-intl', () => ({
         backToPayment: 'Back to payment',
         autoRenewTitle: 'Auto renew',
         autoRenewText: 'Auto renew text',
-        sending: 'Sending',
+        paymentCreationStarted: 'Payment creation has started.',
+        paymentCreationInProgress: 'Creating payment',
         successTitle: 'Success',
         successText: 'Success text',
         errorTitle: 'Error',
@@ -30,8 +31,31 @@ vi.mock('next-intl', () => ({
 }))
 
 vi.mock('@/shared/ui', () => ({
-  Modal: ({ open, children }: { children: React.ReactNode; open: boolean }) =>
-    open ? React.createElement('div', null, children) : null,
+  Modal: ({
+    open,
+    children,
+    onClose,
+  }: {
+    children: React.ReactNode
+    onClose: () => void
+    open: boolean
+  }) =>
+    open
+      ? React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'button',
+            {
+              'aria-label': 'Close',
+              onClick: onClose,
+              type: 'button',
+            },
+            'close'
+          ),
+          children
+        )
+      : null,
 
   Typography: ({ children }: { children: React.ReactNode }) =>
     React.createElement('span', null, children),
@@ -77,7 +101,7 @@ describe('PaymentModals (T6)', () => {
         open: true,
         onClose: vi.fn(),
         onConfirm,
-        isSubmitting: false,
+        isPaymentCreating: false,
       })
     )
 
@@ -87,6 +111,28 @@ describe('PaymentModals (T6)', () => {
 
     fireEvent.click(screen.getByLabelText('I agree'))
     expect(okButton.disabled).toBe(false)
+  })
+
+  it('Confirm modal: shows payment creation state and blocks close while submitting', () => {
+    const onClose = vi.fn()
+
+    render(
+      React.createElement(PaymentConfirmationModal, {
+        open: true,
+        onClose,
+        onConfirm: vi.fn(),
+        isPaymentCreating: true,
+      })
+    )
+
+    expect(screen.getByText('Payment creation has started.')).not.toBeNull()
+    expect(screen.getByLabelText('Creating payment')).not.toBeNull()
+    expect(screen.queryByRole('button', { name: 'Creating payment...' })).toBeNull()
+    expect(screen.queryByLabelText('I agree')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+
+    expect(onClose).not.toHaveBeenCalled()
   })
 
   it('Success modal: clicking OK closes the modal', () => {

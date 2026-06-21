@@ -47,10 +47,16 @@ vi.mock('@/features/subscriptions/hooks', async importOriginal => {
 })
 
 vi.mock('@/features/subscriptions/ui/PersonalView/PersonalView', () => ({
-  PersonalView: ({ onAccountTypeChange }: { onAccountTypeChange: (type: 'business') => void }) =>
+  PersonalView: ({
+    disabled,
+    onAccountTypeChange,
+  }: {
+    disabled?: boolean
+    onAccountTypeChange: (type: 'business') => void
+  }) =>
     React.createElement(
       'div',
-      { 'data-testid': 'personal-view' },
+      { 'data-disabled': String(Boolean(disabled)), 'data-testid': 'personal-view' },
       React.createElement(
         'button',
         {
@@ -282,6 +288,31 @@ describe('AccountManagement', () => {
     const button = screen.getByRole('button', { name: 'STRIPE' }) as HTMLButtonElement
 
     expect(button.disabled).toBe(true)
+  })
+
+  it('passes payment lock to personal account type view', () => {
+    mocks.accountState.isPaymentLocked = true
+
+    render(React.createElement(AccountManagement))
+
+    expect(screen.getByTestId('personal-view').getAttribute('data-disabled')).toBe('true')
+  })
+
+  it('ignores plan changes while payment is locked', () => {
+    mocks.accountState.isPaymentLocked = true
+    mocks.accountState.subscriptionQueue = [
+      {
+        subscriptionId: 'sub-1',
+        endDateOfSubscription: '2026-05-01T00:00:00.000Z',
+        autoRenewal: true,
+      },
+    ]
+
+    render(React.createElement(AccountManagement))
+
+    fireEvent.click(screen.getByText('select month'))
+
+    expect(mocks.handlePlanChange).not.toHaveBeenCalled()
   })
 
   it('opens success modal when paymentResultStatus is success', async () => {

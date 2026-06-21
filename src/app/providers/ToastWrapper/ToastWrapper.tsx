@@ -1,3 +1,5 @@
+'use client'
+
 import { Bounce, ToastContainer } from 'react-toastify/unstyled'
 
 import 'react-toastify/dist/ReactToastify.css'

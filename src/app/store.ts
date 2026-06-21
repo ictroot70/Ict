@@ -1,5 +1,6 @@
 import { useDispatch, useSelector, useStore } from 'react-redux'
 
+import { notificationsReducer } from '@/features/notifications/model/notificationsSlice'
 import { editProfileFormListenerMiddleware } from '@/features/profile/edit-profile/model/editProfileForm.listeners'
 import { editProfileFormReducer } from '@/features/profile/edit-profile/model/editProfileForm.slice'
 import { baseApi } from '@/shared/api/base-api'
@@ -14,6 +15,7 @@ export const makeStore = () => {
     reducer: combineSlices(...apiSlices, {
       auth: authReducer,
       editProfileForm: editProfileFormReducer,
+      notifications: notificationsReducer,
     }),
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
