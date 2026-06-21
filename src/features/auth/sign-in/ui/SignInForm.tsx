@@ -2,7 +2,7 @@
 
 import { ReactElement } from 'react'
 
-import { useSignIn } from '@/features/auth'
+import { buildGitHubAuthUrl, buildGoogleAuthUrl, useSignIn } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
 import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { Loading, OAuthIcons } from '@/shared/composites'
@@ -11,8 +11,6 @@ import { Button, Card, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
 import s from './SignInForm.module.scss'
-
-import { buildGoogleAuthUrl, buildGitHubAuthUrl } from '../lib'
 
 type SignInFormProps = {
   router: { replace: (url: string) => void }
