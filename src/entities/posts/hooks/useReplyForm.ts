@@ -1,9 +1,7 @@
-import { useState } from 'react'
+import { BaseSyntheticEvent, useState } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 
-interface ReplyFormData {
-  content: string
-}
+import { ReplyFormData } from '@/shared/types/comments'
 
 interface UseReplyFormReturn {
   isReplying: boolean
@@ -12,7 +10,7 @@ interface UseReplyFormReturn {
   handleCancelReply: () => void
   handleSubmitReply: (
     onSubmit: (content: string) => Promise<void>
-  ) => (e?: React.BaseSyntheticEvent) => Promise<void>
+  ) => (e?: BaseSyntheticEvent) => Promise<void>
 }
 
 export const useReplyForm = (): UseReplyFormReturn => {

@@ -57,13 +57,13 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
 
         {isLoading && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Loading Answers...
+            Loading comments...
           </Typography>
         )}
 
         {isError && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Failed to load Answers
+            Failed to load comments
           </Typography>
         )}
 
@@ -84,7 +84,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
             <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
             {!isFetchingNextPage && totalCount > comments.length && (
               <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
-                Load more Answers
+                Load more comments
               </Button>
             )}
           </>

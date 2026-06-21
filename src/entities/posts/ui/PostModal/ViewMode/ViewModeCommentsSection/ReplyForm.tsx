@@ -1,26 +1,23 @@
 'use client'
 
-import React from 'react'
+import type { BaseSyntheticEvent, FC } from 'react'
 import { UseFormReturn } from 'react-hook-form'
 
 import { ControlledInput } from '@/features/formControls'
+import { ReplyFormData } from '@/shared/types/comments'
 import { Button } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
-
-interface ReplyFormData {
-  content: string
-}
 
 interface ReplyFormProps {
   replyForm: UseFormReturn<ReplyFormData>
   isSubmitting: boolean
   authorName: string
-  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>
+  onSubmit: (e?: BaseSyntheticEvent) => Promise<void>
   onCancel: () => void
 }
 
-export const ReplyForm: React.FC<ReplyFormProps> = ({
+export const ReplyForm: FC<ReplyFormProps> = ({
   replyForm,
   isSubmitting,
   authorName,

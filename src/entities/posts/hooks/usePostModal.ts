@@ -40,7 +40,6 @@ export const usePostModal = (
   postId?: number,
   authState?: PostModalAuthState
 ) => {
-  const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
 
@@ -151,13 +150,7 @@ export const usePostModal = (
     }
   }, [])
 
-  const handlePublish = (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
-
-    if (!trimmed) {
-      return
-    }
-    setComments(prev => [...prev, trimmed])
+  const handlePublish = (_data: CommentFormData) => {
     resetComment()
   }
 
@@ -195,7 +188,6 @@ export const usePostModal = (
     ''
 
   return {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,

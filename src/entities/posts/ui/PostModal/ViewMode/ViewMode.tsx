@@ -16,14 +16,11 @@ import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
-  onClose: () => void
   postData: PostViewModel
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
-  isEditing?: boolean
-  comments?: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -31,7 +28,6 @@ interface ViewModeProps {
   formattedCreatedAt: string
   isAuthLoading: boolean
   isAuthenticated: boolean
-  isOwnProfile?: boolean
   commentsEnabled?: boolean
   currentUserId?: number
   currentUserName?: string

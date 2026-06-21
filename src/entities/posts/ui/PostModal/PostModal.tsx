@@ -35,7 +35,6 @@ export const PostModal = ({
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,
@@ -49,7 +48,6 @@ export const PostModal = ({
     variant,
     isAuthLoading,
     isAuthenticated,
-    isOwnProfile,
     hasPostData,
     isPostLoading,
     isPostError,
@@ -166,12 +164,10 @@ export const PostModal = ({
       />
     ) : (
       <ViewMode
-        onClose={handleCloseModal}
         postData={postData}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
-        isEditing={isEditing}
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}

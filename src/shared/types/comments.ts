@@ -52,6 +52,10 @@ export type CommentAuthor = UserBase & {
   username?: string
 }
 
+export interface ReplyFormData {
+  content: string
+}
+
 export const getCommentAuthorName = (from: CommentAuthor): string =>
   from.userName || from.username || 'User'
 
