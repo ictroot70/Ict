@@ -69,7 +69,6 @@ describe('commentsApi updateCommentLikeStatus', () => {
 
     vi.stubGlobal('fetch', fetchMock as typeof fetch)
 
-    // Setup initial cache
     await store.dispatch(
       commentsApi.util.upsertQueryData(
         'getPostComments',
@@ -134,5 +133,107 @@ describe('commentsApi updateAnswerLikeStatus', () => {
 
     expect(request.url).toContain(API_ROUTES.POSTS.LIKE_STATUS_ANSWER(1, 10, 20))
     expect(request.method).toBe('PUT')
+  })
+
+  it('rolls back optimistic like update on error', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(asErrorResponse())
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    await store.dispatch(
+      commentsApi.util.upsertQueryData(
+        'getCommentAnswers',
+        { postId: 1, commentId: 10 },
+        {
+          pages: [
+            {
+              items: [
+                {
+                  id: 20,
+                  isLiked: false,
+                  likeCount: 5,
+                  content: 'test answer',
+                  createdAt: '2026-06-10',
+                  from: { id: 1, userName: 'user', avatars: [] },
+                  commentId: 10,
+                },
+              ],
+              pageSize: 12,
+              totalCount: 1,
+            },
+          ],
+          pageParams: [1],
+        }
+      )
+    )
+
+    await store.dispatch(
+      commentsApi.endpoints.updateAnswerLikeStatus.initiate({
+        postId: 1,
+        commentId: 10,
+        answerId: 20,
+        data: { likeStatus: LikeStatus.LIKE },
+      })
+    )
+
+    const cache = commentsApi.endpoints.getCommentAnswers.select({ postId: 1, commentId: 10 })(
+      store.getState()
+    ).data
+    const answer = cache?.pages[0]?.items.find(item => item.id === 20)
+
+    expect(answer?.isLiked).toBe(false)
+    expect(answer?.likeCount).toBe(5)
+  })
+
+  it('rolls back optimistic unlike update on error', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(asErrorResponse())
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    await store.dispatch(
+      commentsApi.util.upsertQueryData(
+        'getCommentAnswers',
+        { postId: 1, commentId: 10 },
+        {
+          pages: [
+            {
+              items: [
+                {
+                  id: 20,
+                  isLiked: true,
+                  likeCount: 10,
+                  content: 'test answer',
+                  createdAt: '2026-06-10',
+                  from: { id: 1, userName: 'user', avatars: [] },
+                  commentId: 10,
+                },
+              ],
+              pageSize: 12,
+              totalCount: 1,
+            },
+          ],
+          pageParams: [1],
+        }
+      )
+    )
+
+    await store.dispatch(
+      commentsApi.endpoints.updateAnswerLikeStatus.initiate({
+        postId: 1,
+        commentId: 10,
+        answerId: 20,
+        data: { likeStatus: LikeStatus.NONE },
+      })
+    )
+
+    const cache = commentsApi.endpoints.getCommentAnswers.select({ postId: 1, commentId: 10 })(
+      store.getState()
+    ).data
+    const answer = cache?.pages[0]?.items.find(item => item.id === 20)
+
+    expect(answer?.isLiked).toBe(true)
+    expect(answer?.likeCount).toBe(10)
   })
 })

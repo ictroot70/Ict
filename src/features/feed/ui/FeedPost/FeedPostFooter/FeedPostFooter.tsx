@@ -1,3 +1,5 @@
+'use client'
+
 import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
 
 import { PostViewModel } from '@/entities/posts/api'
@@ -15,8 +17,6 @@ import {
 import Link from 'next/link'
 
 import s from './FeedPostFooter.module.scss'
-
-import { MOCK_COMMENTS_COUNT } from './feedPost.constants'
 
 type Props = {
   currentUser?: CurrentPostLikeUser
@@ -98,9 +98,11 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         </Typography>
       </div>
 
-      <Typography variant={'bold_14'} className={s.comments}>
-        View All Comments ({MOCK_COMMENTS_COUNT})
-      </Typography>
+      <Link href={APP_ROUTES.PROFILE.WITH_POST(post.ownerId, post.id, 'home')}>
+        <Typography variant={'bold_14'} className={s.comments}>
+          View All Comments
+        </Typography>
+      </Link>
 
       <div className={s.commentForm}>
         <Input

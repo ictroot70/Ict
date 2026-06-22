@@ -11,12 +11,14 @@ interface CommentLikeButtonProps {
   likeCount: number
   isAuthenticated: boolean
   onToggle: () => void
+  disabled?: boolean
 }
 
 export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
   isLiked,
   isAuthenticated,
   onToggle,
+  disabled = false,
 }) => {
   if (!isAuthenticated) {
     return null
@@ -27,6 +29,7 @@ export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
       variant={'text'}
       className={s.commentLikeButton}
       onClick={onToggle}
+      disabled={disabled}
       aria-label={isLiked ? 'Unlike' : 'Like'}
       aria-pressed={isLiked}
     >

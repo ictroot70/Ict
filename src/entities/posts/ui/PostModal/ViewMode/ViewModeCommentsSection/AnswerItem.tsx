@@ -38,7 +38,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
   currentUserAvatar,
 }) => {
   const timeAgo = useTimeAgo(answer.createdAt)
-  const { toggleAnswerLike } = useCommentLikeToggle(postId)
+  const { toggleAnswerLike, isAnswerLocked } = useCommentLikeToggle(postId)
   const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
   const { isReplying, replyForm, handleStartReply, handleCancelReply, handleSubmitReply } =
     useReplyForm()
@@ -78,6 +78,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
           likeCount={answer.likeCount}
           isAuthenticated={isAuthenticated}
           onToggle={() => toggleAnswerLike(answer.commentId, answer.id, answer.isLiked)}
+          disabled={isAnswerLocked(answer.commentId, answer.id)}
         />
       </div>
 

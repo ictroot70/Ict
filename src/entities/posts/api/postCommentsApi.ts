@@ -14,7 +14,6 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { UserBase } from '@/shared/types'
 import { AnswersViewModel } from '@/shared/types/comments'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
@@ -24,10 +23,6 @@ type CreateCommentAnswerInput = {
   content: string
   authorName?: string
   authorAvatar?: string
-}
-
-interface OptimisticAnswer extends Omit<AnswersViewModel, 'from'> {
-  from: UserBase
 }
 
 export const commentsApi = baseApi.injectEndpoints({
@@ -44,7 +39,7 @@ export const commentsApi = baseApi.injectEndpoints({
         { postId, commentId, content, authorName = 'User', authorAvatar },
         { dispatch, queryFulfilled }
       ) {
-        const optimisticAnswer: OptimisticAnswer = {
+        const optimisticAnswer = {
           id: Date.now(),
           content,
           createdAt: new Date().toISOString(),
@@ -73,14 +68,16 @@ export const commentsApi = baseApi.injectEndpoints({
             'getCommentAnswers',
             { postId, commentId },
             (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-              if (draft.pages.length > 0) {
-                const firstPage = draft.pages[0]
-
-                firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
-                draft.pages.forEach(page => {
-                  page.totalCount += 1
-                })
+              if (!draft?.pages?.length) {
+                return
               }
+
+              const firstPage = draft.pages[0]
+
+              firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
+              draft.pages.forEach(page => {
+                page.totalCount += 1
+              })
             }
           )
         )
