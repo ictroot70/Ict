@@ -2,6 +2,7 @@ import type { PostViewModel } from '@/entities/posts/api'
 
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { CommentThreadItem } from '@/entities/posts/types/comments'
 import { CommentFormData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
@@ -21,15 +22,17 @@ interface ViewModeProps {
   handleDeletePost: () => void
   onCopyLink: () => void
   isEditing?: boolean
-  comments: string[]
+  comments: CommentThreadItem[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
   isAuthenticated: boolean
   isOwnProfile: boolean
+  commentMaxLength: number
   renderPostLikeAction?: RenderPostLikeAction
 }
 
@@ -46,6 +49,8 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isCreateCommentLoading,
+  commentMaxLength,
   renderPostLikeAction,
 }: ViewModeProps) => {
   const handleFollow = () => {}
@@ -91,6 +96,8 @@ export const ViewMode = ({
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
+          isCreateCommentLoading={isCreateCommentLoading}
+          commentMaxLength={commentMaxLength}
         />
       </div>
     </div>

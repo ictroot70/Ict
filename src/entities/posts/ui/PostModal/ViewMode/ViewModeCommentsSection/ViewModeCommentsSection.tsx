@@ -1,7 +1,8 @@
 import React from 'react'
 
+import { CommentThreadItem } from '@/entities/posts/types/comments'
 import { Avatar } from '@/shared/composites'
-import { Button, Typography, Separator, HeartOutline } from '@/shared/ui'
+import { Button, HeartOutline, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
@@ -11,10 +12,18 @@ interface CommentsSectionProps {
     userName: string
     description: string
   }
-  comments: string[]
+  comments: CommentThreadItem[]
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postData, comments }) => {
+  const formatCommentDate = (date: string) =>
+    new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(date))
+
   return (
     <>
       <Separator />
@@ -31,20 +40,24 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({ postDa
           </div>
         </div>
 
-        {comments.map((comment, index) => (
-          <div className={s.comment} key={index}>
-            <Avatar size={36} image={postData.avatar} />
-            <div>
-              <Typography variant={'regular_14'} color={'light'}>
-                <strong>UserName</strong> {comment}
-              </Typography>
-              <Typography variant={'small_text'} className={s.commentTimestamp}>
-                2 minutes ago
-              </Typography>
+        {comments.map(comment => (
+          <div className={s.commentThread} key={comment.id}>
+            <div className={s.comment}>
+              <Avatar size={36} image={comment.avatar || ''} />
+              <div className={s.commentContent}>
+                <Typography variant={'regular_14'} color={'light'}>
+                  <strong>{comment.userName}</strong> {comment.content}
+                </Typography>
+                <div className={s.commentMeta}>
+                  <Typography variant={'small_text'} className={s.commentTimestamp}>
+                    {formatCommentDate(comment.createdAt)}
+                  </Typography>
+                </div>
+              </div>
+              <Button variant={'text'} className={s.commentLikeButton}>
+                <HeartOutline size={16} color={'white'} />
+              </Button>
             </div>
-            <Button variant={'text'} className={s.commentLikeButton}>
-              <HeartOutline size={16} color={'white'} />
-            </Button>
           </div>
         ))}
       </div>

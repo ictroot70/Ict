@@ -11,7 +11,9 @@ import {
 } from '@/entities/posts/api/postApi'
 import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { showToastAlert } from '@/shared/lib'
-import { PostVariant, CommentFormData, DescriptionFormData } from '@/shared/types'
+import { PostVariant, DescriptionFormData } from '@/shared/types'
+
+import { usePostComments } from './usePostComments'
 
 type UiLanguage = 'en' | 'rus'
 
@@ -38,18 +40,8 @@ export const usePostModal = (
   postId?: number,
   authState?: PostModalAuthState
 ) => {
-  const [comments, setComments] = useState<string[]>([])
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
-
-  const {
-    control: commentControl,
-    handleSubmit: handleCommentSubmit,
-    reset: resetComment,
-    watch: watchComment,
-  } = useForm<CommentFormData>({
-    defaultValues: { comment: '' },
-  })
 
   const {
     control: descriptionControl,
@@ -141,15 +133,20 @@ export const usePostModal = (
     }
   }, [])
 
-  const handlePublish = (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
+  const commentsPostId = postData?.id ?? postId
 
-    if (!trimmed) {
-      return
-    }
-    setComments(prev => [...prev, trimmed])
-    resetComment()
-  }
+  const {
+    comments,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
+    handlePublish,
+    isCommentPublishing,
+    commentMaxLength,
+  } = usePostComments({
+    postId: commentsPostId,
+    enabled: open && !isAuthUiLoading,
+  })
 
   const handleEditPost = () => {
     setIsEditingDescription(true)
@@ -183,6 +180,8 @@ export const usePostModal = (
     comments,
     isEditingDescription,
     setIsEditingDescription,
+    isCreateCommentLoading: isCommentPublishing,
+    commentMaxLength,
     commentControl,
     handleCommentSubmit,
     watchComment,

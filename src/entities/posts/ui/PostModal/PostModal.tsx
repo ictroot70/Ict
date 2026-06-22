@@ -48,6 +48,8 @@ export const PostModal = ({
     postData,
     variant,
     isAuthLoading,
+    isCreateCommentLoading,
+    commentMaxLength,
     isAuthenticated,
     isOwnProfile,
     hasPostData,
@@ -177,6 +179,8 @@ export const PostModal = ({
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
+        isCreateCommentLoading={isCreateCommentLoading}
+        commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         isOwnProfile={isOwnProfile}
         renderPostLikeAction={renderPostLikeAction}
