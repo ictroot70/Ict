@@ -47,7 +47,6 @@ export const useCommentLikeToggle = (postId: number) => {
           commentId,
           data: { likeStatus: getNextLikeStatus(isLiked) },
         }).unwrap()
-      } catch (_error) {
       } finally {
         setLockedItems(prev => {
           const next = new Set(prev)
@@ -78,7 +77,6 @@ export const useCommentLikeToggle = (postId: number) => {
           answerId,
           data: { likeStatus: getNextLikeStatus(isLiked) },
         }).unwrap()
-      } catch (_error) {
       } finally {
         setLockedItems(prev => {
           const next = new Set(prev)

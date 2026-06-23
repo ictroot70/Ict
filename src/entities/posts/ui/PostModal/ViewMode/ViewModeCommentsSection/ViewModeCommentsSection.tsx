@@ -37,7 +37,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
   const { comments, loadMore, hasNextPage, isLoading, isFetchingNextPage, isError, totalCount } =
-    usePostComments(postId, enabled, currentUserId)
+    usePostComments({ postId, enabled, currentUserId })
 
   return (
     <>

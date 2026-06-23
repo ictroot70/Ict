@@ -3,17 +3,12 @@
 import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
 
 import { PostViewModel } from '@/entities/posts/api'
+import { usePostComments } from '@/entities/posts/hooks'
+import { ControlledInput } from '@/features/formControls'
 import { LikeButton } from '@/features/postLikes/ui/LikeButton'
 import { Avatar } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
-import {
-  BookmarkOutline,
-  Button,
-  Input,
-  MessageCircleOutline,
-  PaperPlane,
-  Typography,
-} from '@/shared/ui'
+import { BookmarkOutline, Button, MessageCircleOutline, PaperPlane, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
 import s from './FeedPostFooter.module.scss'
@@ -27,6 +22,23 @@ const getUniqueAvatarUrls = (avatarUrls: string[]) =>
   Array.from(new Set(avatarUrls.filter(Boolean)))
 
 export function FeedPostFooter({ currentUser, post }: Props) {
+  const {
+    totalCount,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
+    handlePublish,
+    isCommentPublishing,
+    commentMaxLength,
+  } = usePostComments({
+    postId: post.id,
+  })
+
+  const commentText = watchComment('comment') ?? ''
+  const trimmedCommentText = commentText.trim()
+  const isCommentInvalid =
+    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
+
   const visibleLikeAvatars =
     post.likesCount > 0 ? getUniqueAvatarUrls(post.avatarWhoLikes).slice(0, 3) : []
 
@@ -98,21 +110,24 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         </Typography>
       </div>
 
-      <Link href={APP_ROUTES.PROFILE.WITH_POST(post.ownerId, post.id, 'home')}>
-        <Typography variant={'bold_14'} className={s.comments}>
-          View All Comments
-        </Typography>
-      </Link>
+      <Typography variant={'bold_14'} className={s.comments}>
+        View All Comments ({totalCount})
+      </Typography>
 
-      <div className={s.commentForm}>
-        <Input
+      <form className={s.commentForm} onSubmit={handleCommentSubmit(handlePublish)}>
+        <ControlledInput
           name={'comment'}
+          control={commentControl}
           inputType={'text'}
           placeholder={'Add a Comment'}
           className={s.input}
+          maxLength={commentMaxLength}
         />
-        <Button variant={'text'}>Publish</Button>
-      </div>
+
+        <Button variant={'text'} type={'submit'} disabled={isCommentInvalid || isCommentPublishing}>
+          Publish
+        </Button>
+      </form>
     </footer>
   )
 }

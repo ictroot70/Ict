@@ -34,6 +34,8 @@ interface PostFooterProps {
   watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
+  commentMaxLength: number
 }
 
 export const ViewModePostFooter = ({
@@ -50,10 +52,17 @@ export const ViewModePostFooter = ({
   watchComment,
   handlePublish,
   isAuthLoading,
+  isCreateCommentLoading,
+  commentMaxLength,
 }: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
   const visibleAvatars = avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
+
+  const commentText = watchComment('comment') ?? ''
+  const trimmedCommentText = commentText.trim()
+  const isCommentInvalid =
+    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
 
   return (
     <div className={s.footer}>
@@ -139,8 +148,13 @@ export const ViewModePostFooter = ({
                 inputType={'text'}
                 placeholder={'Add a Comment...'}
                 className={s.input}
+                maxLength={commentMaxLength}
               />
-              <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
+              <Button
+                variant={'text'}
+                type={'submit'}
+                disabled={isCommentInvalid || isCreateCommentLoading}
+              >
                 Publish
               </Button>
             </form>

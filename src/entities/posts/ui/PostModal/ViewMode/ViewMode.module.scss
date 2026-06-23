@@ -486,3 +486,18 @@
     height: 50%;
   }
 }
+
+.commentThread {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentContent {
+  flex: 1;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

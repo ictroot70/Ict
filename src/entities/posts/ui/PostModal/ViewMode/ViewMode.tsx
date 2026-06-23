@@ -27,11 +27,13 @@ interface ViewModeProps {
   handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
   isAuthenticated: boolean
   commentsEnabled?: boolean
   currentUserId?: number
   currentUserName?: string
   currentUserAvatar?: string
+  commentMaxLength: number
   renderPostLikeAction?: RenderPostLikeAction
 }
 
@@ -47,11 +49,13 @@ export const ViewMode = ({
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isCreateCommentLoading,
   isAuthenticated,
   commentsEnabled = true,
   currentUserId,
   currentUserName,
   currentUserAvatar,
+  commentMaxLength,
   renderPostLikeAction,
 }: ViewModeProps) => {
   const handleFollow = () => {}
@@ -104,6 +108,8 @@ export const ViewMode = ({
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
+          isCreateCommentLoading={isCreateCommentLoading}
+          commentMaxLength={commentMaxLength}
         />
       </div>
     </div>

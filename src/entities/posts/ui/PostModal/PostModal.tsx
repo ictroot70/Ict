@@ -47,6 +47,8 @@ export const PostModal = ({
     postData,
     variant,
     isAuthLoading,
+    isCreateCommentLoading,
+    commentMaxLength,
     isAuthenticated,
     hasPostData,
     isPostLoading,
@@ -171,6 +173,8 @@ export const PostModal = ({
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
+        isCreateCommentLoading={isCreateCommentLoading}
+        commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         commentsEnabled={open && hasPostData}
         commentControl={commentControl}

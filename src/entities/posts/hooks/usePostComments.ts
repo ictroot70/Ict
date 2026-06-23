@@ -1,46 +1,128 @@
-'use client'
+import type { CommentFormData, CommentsViewModel } from '@/shared/types'
 
-import { useCallback, useMemo } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 
-import { PaginatedCommentsResponse } from '@/entities/posts/api/posts.types'
-import { COMMENTS_PAGE_SIZE } from '@/entities/posts/lib/comment-likes'
-import { sortComments } from '@/entities/posts/lib/sort-comments'
+import { useCreateCommentMutation } from '@/entities/posts/api'
+import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postCommentsApi'
+import { useGetPublicProfileQuery } from '@/entities/profile'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
+import { showToastAlert } from '@/shared/lib'
 
-import { useGetPostCommentsInfiniteQuery } from '../api/postCommentsApi'
-
-export const usePostComments = (
-  postId: number | undefined,
-  enabled = true,
+type UsePostCommentsParams = {
+  postId?: number
+  enabled?: boolean
   currentUserId?: number
-) => {
-  const skip = !enabled || !postId || postId <= 0
+}
 
-  const { data, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, isLoading, isError } =
-    useGetPostCommentsInfiniteQuery({ postId: postId ?? 0, pageSize: COMMENTS_PAGE_SIZE }, { skip })
+const COMMENT_MAX_LENGTH = 300
+const COMMENT_AVATAR_WIDTH = 45
+const FALLBACK_USER_NAME = 'UserName'
 
-  const comments = useMemo(
-    () =>
-      sortComments(
-        data?.pages.flatMap((page: PaginatedCommentsResponse) => page.items) ?? [],
-        currentUserId
-      ),
-    [currentUserId, data]
+export const usePostComments = ({
+  postId,
+  enabled = true,
+  currentUserId,
+}: UsePostCommentsParams) => {
+  const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
+  const { user } = useAuthUiState()
+  const { data: currentUserProfile, isLoading: isCurrentUserProfileLoading } =
+    useGetPublicProfileQuery({ profileId: user?.userId ?? 0 }, { skip: !enabled || !user?.userId })
+
+  const currentUserName = user?.name ?? currentUserProfile?.userName ?? FALLBACK_USER_NAME
+
+  const preferredAvatar = currentUserProfile?.avatars.find(
+    avatar => avatar.width === COMMENT_AVATAR_WIDTH
   )
 
-  const loadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage()
+  const currentUserAvatar = preferredAvatar?.url ?? currentUserProfile?.avatars[0]?.url
+
+  const resolvedPostId = postId ?? 0
+  const isValidPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
+
+  const {
+    control: commentControl,
+    handleSubmit: handleCommentSubmit,
+    reset: resetComment,
+    watch: watchComment,
+  } = useForm<CommentFormData>({
+    defaultValues: { comment: '' },
+  })
+
+  const {
+    data: commentsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
+  } = useGetPostCommentsInfiniteQuery(
+    {
+      postId: resolvedPostId,
+      pageSize: 12,
+      sortDirection: 'desc',
+    },
+    {
+      skip: !enabled || !isValidPostId,
     }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+  )
+
+  const comments: CommentsViewModel[] = commentsData?.pages.flatMap(page => page.items) ?? []
+
+  const handlePublish = async (data: CommentFormData) => {
+    const trimmed = data.comment.trim()
+    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
+
+    if (
+      !enabled ||
+      !user?.userId ||
+      !isCommentValid ||
+      !isValidPostId ||
+      isCreateCommentLoading ||
+      isCurrentUserProfileLoading
+    ) {
+      return
+    }
+
+    resetComment()
+
+    try {
+      await createComment({
+        postId: resolvedPostId,
+        body: { content: trimmed },
+      }).unwrap()
+    } catch {
+      showToastAlert({ message: 'Failed to publish comment', type: 'error' })
+    }
+  }
+
+  const loadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }
+
+  useEffect(() => {
+    resetComment()
+  }, [resolvedPostId, resetComment])
+
+  const totalCount = commentsData?.pages[0]?.totalCount ?? 0
+
+  const isCommentPublishing = isCreateCommentLoading || isCurrentUserProfileLoading
 
   return {
     comments,
-    loadMore,
+    totalCount,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
+    handlePublish,
+    isCommentPublishing,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
     hasNextPage: Boolean(hasNextPage),
-    isLoading,
-    isFetching,
     isFetchingNextPage,
-    isError,
-    totalCount: data?.pages[0]?.totalCount ?? 0,
+    loadMore,
+    commentMaxLength: COMMENT_MAX_LENGTH,
   }
 }

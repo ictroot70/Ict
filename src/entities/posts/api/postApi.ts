@@ -17,6 +17,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 import { FOLLOWERS_FEED_QUERY_ARGS } from './posts.constants'
@@ -94,6 +95,18 @@ const applyPostLikePatchToPages = (
       return
     }
   }
+}
+
+type GetPostCommentsParams = {
+  postId: number
+  pageSize?: number
+  pageNumber?: number
+  sortBy?: string
+  sortDirection?: 'asc' | 'desc'
+}
+
+type CommentsResponse = PaginatedResponse<CommentsViewModel> & {
+  notReadCount?: number
 }
 
 export const postApi = baseApi.injectEndpoints({
@@ -293,6 +306,31 @@ export const postApi = baseApi.injectEndpoints({
           patchResult.undo()
         }
       },
+    }),
+
+    getPostComments: builder.query<CommentsResponse, GetPostCommentsParams>({
+      query: ({ postId, pageSize = 12, pageNumber = 1, sortBy, sortDirection = 'desc' }) => ({
+        url: API_ROUTES.POSTS.COMMENTS(postId),
+        params: {
+          pageSize,
+          pageNumber,
+          sortDirection,
+          ...(sortBy ? { sortBy } : {}),
+        },
+      }),
+      providesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
+    }),
+
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.CREATE_COMMENT(postId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Comments', id: postId },
+        { type: 'Post', id: postId },
+      ],
     }),
 
     uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
@@ -554,6 +592,8 @@ export const {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useCreateCommentMutation,
+  useGetPostCommentsQuery,
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,
