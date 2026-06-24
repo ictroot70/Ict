@@ -60,7 +60,6 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
-    currentUserId,
     currentUserName,
     currentUserAvatar,
   } = usePostModal(open, initialPostData, postId, authState)
@@ -181,7 +180,6 @@ export const PostModal = ({
         handleCommentSubmit={handleCommentSubmit}
         watchComment={watchComment}
         handlePublish={handlePublish}
-        currentUserId={currentUserId}
         currentUserName={currentUserName}
         currentUserAvatar={currentUserAvatar}
         renderPostLikeAction={renderPostLikeAction}

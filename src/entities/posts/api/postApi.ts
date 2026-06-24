@@ -97,18 +97,6 @@ const applyPostLikePatchToPages = (
   }
 }
 
-type GetPostCommentsParams = {
-  postId: number
-  pageSize?: number
-  pageNumber?: number
-  sortBy?: string
-  sortDirection?: 'asc' | 'desc'
-}
-
-type CommentsResponse = PaginatedResponse<CommentsViewModel> & {
-  notReadCount?: number
-}
-
 export const postApi = baseApi.injectEndpoints({
   endpoints: builder => ({
     createPost: builder.mutation<PostViewModel, { body: CreatePostInputDto; userId: number }>({
@@ -306,19 +294,6 @@ export const postApi = baseApi.injectEndpoints({
           patchResult.undo()
         }
       },
-    }),
-
-    getPostComments: builder.query<CommentsResponse, GetPostCommentsParams>({
-      query: ({ postId, pageSize = 12, pageNumber = 1, sortBy, sortDirection = 'desc' }) => ({
-        url: API_ROUTES.POSTS.COMMENTS(postId),
-        params: {
-          pageSize,
-          pageNumber,
-          sortDirection,
-          ...(sortBy ? { sortBy } : {}),
-        },
-      }),
-      providesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
     }),
 
     createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
@@ -593,7 +568,6 @@ export const {
   useUpdatePostMutation,
   useDeletePostMutation,
   useCreateCommentMutation,
-  useGetPostCommentsQuery,
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,

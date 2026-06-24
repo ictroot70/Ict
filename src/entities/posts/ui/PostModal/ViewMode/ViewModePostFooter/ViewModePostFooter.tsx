@@ -59,11 +59,6 @@ export const ViewModePostFooter = ({
   const shouldShowAuthSkeleton = isAuthLoading
   const visibleAvatars = avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
 
-  const commentText = watchComment('comment') ?? ''
-  const trimmedCommentText = commentText.trim()
-  const isCommentInvalid =
-    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
-
   return (
     <div className={s.footer}>
       {(shouldShowAuthActions || shouldShowAuthSkeleton) && (
@@ -153,7 +148,7 @@ export const ViewModePostFooter = ({
               <Button
                 variant={'text'}
                 type={'submit'}
-                disabled={isCommentInvalid || isCreateCommentLoading}
+                disabled={!watchComment('comment')?.trim() || isCreateCommentLoading}
               >
                 Publish
               </Button>

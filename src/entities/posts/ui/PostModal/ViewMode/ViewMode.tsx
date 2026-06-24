@@ -30,7 +30,6 @@ interface ViewModeProps {
   isCreateCommentLoading: boolean
   isAuthenticated: boolean
   commentsEnabled?: boolean
-  currentUserId?: number
   currentUserName?: string
   currentUserAvatar?: string
   commentMaxLength: number
@@ -52,7 +51,6 @@ export const ViewMode = ({
   isCreateCommentLoading,
   isAuthenticated,
   commentsEnabled = true,
-  currentUserId,
   currentUserName,
   currentUserAvatar,
   commentMaxLength,
@@ -86,7 +84,6 @@ export const ViewMode = ({
           postData={postDataForChildren}
           postId={postData.id}
           isAuthenticated={isAuthenticated}
-          currentUserId={currentUserId}
           currentUserName={currentUserName}
           currentUserAvatar={currentUserAvatar}
           enabled={commentsEnabled}

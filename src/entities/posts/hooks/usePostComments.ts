@@ -5,37 +5,19 @@ import { useForm } from 'react-hook-form'
 
 import { useCreateCommentMutation } from '@/entities/posts/api'
 import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postCommentsApi'
-import { useGetPublicProfileQuery } from '@/entities/profile'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 
 type UsePostCommentsParams = {
   postId?: number
   enabled?: boolean
-  currentUserId?: number
 }
 
 const COMMENT_MAX_LENGTH = 300
-const COMMENT_AVATAR_WIDTH = 45
-const FALLBACK_USER_NAME = 'UserName'
 
-export const usePostComments = ({
-  postId,
-  enabled = true,
-  currentUserId,
-}: UsePostCommentsParams) => {
+export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParams) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
   const { user } = useAuthUiState()
-  const { data: currentUserProfile, isLoading: isCurrentUserProfileLoading } =
-    useGetPublicProfileQuery({ profileId: user?.userId ?? 0 }, { skip: !enabled || !user?.userId })
-
-  const currentUserName = user?.name ?? currentUserProfile?.userName ?? FALLBACK_USER_NAME
-
-  const preferredAvatar = currentUserProfile?.avatars.find(
-    avatar => avatar.width === COMMENT_AVATAR_WIDTH
-  )
-
-  const currentUserAvatar = preferredAvatar?.url ?? currentUserProfile?.avatars[0]?.url
 
   const resolvedPostId = postId ?? 0
   const isValidPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
@@ -73,14 +55,7 @@ export const usePostComments = ({
     const trimmed = data.comment.trim()
     const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
 
-    if (
-      !enabled ||
-      !user?.userId ||
-      !isCommentValid ||
-      !isValidPostId ||
-      isCreateCommentLoading ||
-      isCurrentUserProfileLoading
-    ) {
+    if (!enabled || !user?.userId || !isCommentValid || !isValidPostId || isCreateCommentLoading) {
       return
     }
 
@@ -108,8 +83,6 @@ export const usePostComments = ({
 
   const totalCount = commentsData?.pages[0]?.totalCount ?? 0
 
-  const isCommentPublishing = isCreateCommentLoading || isCurrentUserProfileLoading
-
   return {
     comments,
     totalCount,
@@ -117,7 +90,7 @@ export const usePostComments = ({
     handleCommentSubmit,
     watchComment,
     handlePublish,
-    isCommentPublishing,
+    isCommentPublishing: isCreateCommentLoading,
     isLoading: isCommentsLoading,
     isError: isCommentsError,
     hasNextPage: Boolean(hasNextPage),
