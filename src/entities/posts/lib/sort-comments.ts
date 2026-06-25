@@ -17,9 +17,3 @@ export const sortComments = (
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   })
 }
-
-export const sortAnswers = (answers: AnswersViewModel[]): AnswersViewModel[] => {
-  return [...answers].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-  )
-}

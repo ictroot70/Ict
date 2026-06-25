@@ -1,4 +1,4 @@
-import type { CommentFormData, CommentsViewModel } from '@/shared/types'
+import type { CommentsViewModel } from '@/shared/types/comments'
 
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -7,6 +7,7 @@ import { useCreateCommentMutation } from '@/entities/posts/api'
 import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postCommentsApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
+import { CommentFormData } from '@/shared/types'
 
 type UsePostCommentsParams = {
   postId?: number

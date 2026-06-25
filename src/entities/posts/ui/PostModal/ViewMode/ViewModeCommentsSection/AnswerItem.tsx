@@ -75,7 +75,6 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
         </div>
         <CommentLikeButton
           isLiked={answer.isLiked}
-          likeCount={answer.likeCount}
           isAuthenticated={isAuthenticated}
           onToggle={() => toggleAnswerLike(answer.commentId, answer.id, answer.isLiked)}
           disabled={isAnswerLocked(answer.commentId, answer.id)}

@@ -4,12 +4,16 @@ import { useCallback, useEffect, useMemo } from 'react'
 
 import { PaginatedAnswersResponse } from '@/entities/posts/api/posts.types'
 import { COMMENTS_PAGE_SIZE } from '@/entities/posts/lib/comment-likes'
-import { sortAnswers } from '@/entities/posts/lib/sort-comments'
 
 import { useGetCommentAnswersInfiniteQuery } from '../api/postCommentsApi'
 
 export const useCommentAnswers = (postId: number, commentId: number, enabled = false) => {
-  const queryArg = { postId, commentId, pageSize: COMMENTS_PAGE_SIZE }
+  const queryArg = {
+    postId,
+    commentId,
+    pageSize: COMMENTS_PAGE_SIZE,
+    sortDirection: 'asc' as const,
+  }
 
   const {
     data,
@@ -40,7 +44,7 @@ export const useCommentAnswers = (postId: number, commentId: number, enabled = f
   }, [data?.pages?.length, enabled, isFetching, refetch])
 
   const answers = useMemo(
-    () => sortAnswers(data?.pages.flatMap((page: PaginatedAnswersResponse) => page.items) ?? []),
+    () => data?.pages.flatMap((page: PaginatedAnswersResponse) => page.items) ?? [],
     [data]
   )
 

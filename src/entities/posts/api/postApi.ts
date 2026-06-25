@@ -17,7 +17,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { CommentsViewModel, CreateCommentDto } from '@/shared/types'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 import { FOLLOWERS_FEED_QUERY_ARGS } from './posts.constants'

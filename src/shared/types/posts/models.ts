@@ -1,7 +1,6 @@
 import { UserImage } from '@/entities/users/api/api.types'
 
 import { LikeStatus } from '../base/enums'
-import { UserBase } from '../user/models'
 
 export interface PostImageViewModel {
   url: string
@@ -50,28 +49,6 @@ export interface PostViewModel {
   likesCount: number
   isLiked: boolean
   avatarWhoLikes: string[]
-}
-
-export interface BaseComment {
-  id: number
-  from: UserBase
-  content: string
-  createdAt: string
-  likeCount: number
-  isLiked: boolean
-}
-
-export interface CommentsViewModel extends BaseComment {
-  postId: number
-  answerCount: number
-}
-
-export interface AnswersViewModel extends BaseComment {
-  commentId: number
-}
-
-export interface CreateCommentDto {
-  content: string
 }
 
 export type PostVariant = 'public' | 'myPost' | 'userPost'

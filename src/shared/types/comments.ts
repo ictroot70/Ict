@@ -4,12 +4,6 @@ import { UserBase } from './user/models'
 
 export const COMMENT_CONTENT_MAX = 300
 
-const hasActualText = (val: string) => {
-  const cleaned = val.replace(/@\S+\s*/g, '').trim()
-
-  return cleaned.length > 0
-}
-
 export const commentContentSchema = z
   .string()
   .trim()

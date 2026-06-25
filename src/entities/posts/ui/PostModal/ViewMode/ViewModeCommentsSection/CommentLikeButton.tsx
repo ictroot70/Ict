@@ -8,7 +8,6 @@ import s from '../ViewMode.module.scss'
 
 interface CommentLikeButtonProps {
   isLiked: boolean
-  likeCount: number
   isAuthenticated: boolean
   onToggle: () => void
   disabled?: boolean

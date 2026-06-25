@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 
 import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
 import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
@@ -8,7 +8,6 @@ import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
 import {
-  AnswersViewModel,
   CommentsViewModel,
   getCommentAuthorName,
   getCommentAvatarUrl,
@@ -40,7 +39,6 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   currentUserAvatar,
 }) => {
   const [showAnswers, setShowAnswers] = useState(false)
-  const [optimisticAnswers, setOptimisticAnswers] = useState<AnswersViewModel[]>([])
 
   const timeAgo = useTimeAgo(comment.createdAt)
   const { toggleCommentLike, isCommentLocked } = useCommentLikeToggle(postId)
@@ -55,49 +53,15 @@ export const CommentItem: React.FC<CommentItemProps> = ({
     useReplyForm()
 
   const answerCount = comment.answerCount
-  const displayedAnswers = [
-    ...optimisticAnswers.filter(opt => !answers.some(a => a.content === opt.content)),
-    ...answers,
-  ]
+  const displayedAnswers = answers
   const hasAnswers = answerCount > 0 || displayedAnswers.length > 0
   const authorName = getCommentAuthorName(comment.from)
 
   const handleToggleAnswers = () => setShowAnswers(prev => !prev)
   const handleToggleLike = () => toggleCommentLike(comment.id, comment.isLiked)
 
-  const removeOptimisticAnswer = useCallback((tempId: number) => {
-    setOptimisticAnswers(prev => prev.filter(a => a.id !== tempId))
-  }, [])
-
   const onSubmitReply = async (content: string) => {
     const contentWithMention = ensureReplyMention(content, authorName)
-    const tempId = Date.now()
-
-    const optimisticAnswer: AnswersViewModel = {
-      id: tempId,
-      content: contentWithMention,
-      createdAt: new Date().toISOString(),
-      likeCount: 0,
-      isLiked: false,
-      commentId: comment.id,
-      from: {
-        id: tempId,
-        userName: currentUserName || 'User',
-        avatars: currentUserAvatar
-          ? [
-              {
-                url: currentUserAvatar,
-                width: 36,
-                height: 36,
-                fileSize: 0,
-                createdAt: new Date().toISOString(),
-              },
-            ]
-          : [],
-      },
-    }
-
-    setOptimisticAnswers(prev => [optimisticAnswer, ...prev])
 
     if (!showAnswers) {
       setShowAnswers(true)
@@ -111,8 +75,8 @@ export const CommentItem: React.FC<CommentItemProps> = ({
         authorName: currentUserName,
         authorAvatar: currentUserAvatar,
       }).unwrap()
-    } catch {
-      removeOptimisticAnswer(tempId)
+    } catch (error) {
+      console.error('Failed to create answer:', error)
     }
   }
 
@@ -127,14 +91,13 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           <CommentMetaActions
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
-            likeCount={comment.likeCount}
             showAnswerButton={!isReplying}
+            likeCount={comment.likeCount}
             onAnswer={handleStartReply}
           />
         </div>
         <CommentLikeButton
           isLiked={comment.isLiked}
-          likeCount={comment.likeCount}
           isAuthenticated={isAuthenticated}
           onToggle={handleToggleLike}
           disabled={isCommentLocked(comment.id)}
