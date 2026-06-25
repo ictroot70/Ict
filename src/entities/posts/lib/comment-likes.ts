@@ -12,6 +12,9 @@ type LikeableItem = {
 
 export const COMMENTS_PAGE_SIZE = 12
 
+export const getNextLikeStatus = (isLiked: boolean): LikeStatus =>
+  isLiked ? LikeStatus.NONE : LikeStatus.LIKE
+
 export const patchLikeFields = (item: LikeableItem, likeStatus: LikeStatus): void => {
   if (likeStatus === LikeStatus.LIKE && !item.isLiked) {
     item.isLiked = true
