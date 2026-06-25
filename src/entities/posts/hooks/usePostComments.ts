@@ -9,6 +9,8 @@ import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
 import { CommentFormData } from '@/shared/types'
 
+import { COMMENTS_PAGE_SIZE } from '../lib'
+
 type UsePostCommentsParams = {
   postId?: number
   enabled?: boolean
@@ -42,7 +44,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
   } = useGetPostCommentsInfiniteQuery(
     {
       postId: resolvedPostId,
-      pageSize: 12,
+      pageSize: COMMENTS_PAGE_SIZE,
       sortDirection: 'desc',
     },
     {

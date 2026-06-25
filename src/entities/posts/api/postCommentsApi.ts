@@ -7,8 +7,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import {
   COMMENTS_PAGE_SIZE,
-  getAnswersNextPageParam,
-  getCommentsNextPageParam,
+  getNextPageParam,
   patchAnswerLikeInPages,
   patchCommentLikeInPages,
 } from '@/entities/posts/lib/comment-likes'
@@ -114,7 +113,7 @@ export const commentsApi = baseApi.injectEndpoints({
     }),
 
     getPostComments: builder.infiniteQuery<PaginatedCommentsResponse, GetCommentsParams, number>({
-      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam: getCommentsNextPageParam },
+      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam },
       query: ({ pageParam, queryArg }) => ({
         url: API_ROUTES.POSTS.COMMENTS(queryArg.postId),
         params: {
@@ -133,7 +132,7 @@ export const commentsApi = baseApi.injectEndpoints({
       GetCommentAnswersParams,
       number
     >({
-      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam: getAnswersNextPageParam },
+      infiniteQueryOptions: { initialPageParam: 1, getNextPageParam },
       query: ({ pageParam, queryArg }) => ({
         url: API_ROUTES.POSTS.COMMENT_ANSWERS(queryArg.postId, queryArg.commentId),
         params: {

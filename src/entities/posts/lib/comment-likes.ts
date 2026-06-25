@@ -12,9 +12,6 @@ type LikeableItem = {
 
 export const COMMENTS_PAGE_SIZE = 12
 
-export const getNextLikeStatus = (isLiked: boolean): LikeStatus =>
-  isLiked ? LikeStatus.NONE : LikeStatus.LIKE
-
 export const patchLikeFields = (item: LikeableItem, likeStatus: LikeStatus): void => {
   if (likeStatus === LikeStatus.LIKE && !item.isLiked) {
     item.isLiked = true
@@ -61,22 +58,9 @@ export const patchAnswerLikeInPages = (
   }
 }
 
-export const getCommentsNextPageParam = (
-  lastPage: PaginatedCommentsResponse,
-  allPages: PaginatedCommentsResponse[]
-): number | undefined => {
-  const loadedCount = allPages.reduce((sum, page) => sum + page.items.length, 0)
-
-  if (loadedCount >= lastPage.totalCount) {
-    return undefined
-  }
-
-  return allPages.length + 1
-}
-
-export const getAnswersNextPageParam = (
-  lastPage: PaginatedAnswersResponse,
-  allPages: PaginatedAnswersResponse[]
+export const getNextPageParam = <T extends { items: any[]; totalCount: number }>(
+  lastPage: T,
+  allPages: T[]
 ): number | undefined => {
   const loadedCount = allPages.reduce((sum, page) => sum + page.items.length, 0)
 
