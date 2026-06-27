@@ -1,8 +1,12 @@
+'use client'
+
+import React from 'react'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { formatLikesCount } from '@/entities/posts/lib/format-likes'
 import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
-import { CommentFormData } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
 import {
   Button,
   Typography,
@@ -17,7 +21,7 @@ import s from '../ViewMode.module.scss'
 import { RenderPostLikeAction } from '../../postModalLikeAction.types'
 
 interface PostFooterProps {
-  variant: 'public' | 'myPost' | 'userPost'
+  variant: PostVariant
   postId: number
   ownerId: number
   isLiked: boolean
@@ -53,12 +57,7 @@ export const ViewModePostFooter = ({
 }: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
-  const visibleLikeAvatars = avatarWhoLikes.filter(Boolean).slice(0, 3)
-
-  const commentText = watchComment('comment') ?? ''
-  const trimmedCommentText = commentText.trim()
-  const isCommentInvalid =
-    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
+  const visibleAvatars = avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
 
   return (
     <div className={s.footer}>
@@ -86,14 +85,14 @@ export const ViewModePostFooter = ({
                   className: s.postButton,
                 })
               ) : (
-                <Button variant={'text'} className={s.postButton}>
+                <Button variant={'text'} className={s.postButton} aria-label={'Like post'}>
                   <HeartOutline color={'white'} />
                 </Button>
               )}
-              <Button variant={'text'} className={s.postButton}>
+              <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
                 <PaperPlane color={'white'} />
               </Button>
-              <Button variant={'text'} className={s.postButton}>
+              <Button variant={'text'} className={s.postButton} aria-label={'Save post'}>
                 <BookmarkOutline color={'white'} />
               </Button>
             </>
@@ -101,23 +100,25 @@ export const ViewModePostFooter = ({
         </div>
       )}
 
-      <div className={s.likesRow}>
-        {visibleLikeAvatars.length > 0 && (
-          <div className={s.likesAvatars}>
-            {visibleLikeAvatars.map((url, index) => (
-              <Avatar
-                key={`${url}-${index}`}
-                size={24}
-                image={url}
-                className={`${s.likeAvatar} ${s[`likeAvatar${index + 1}`]}`}
-              />
-            ))}
-          </div>
-        )}
-        <Typography variant={'regular_14'} color={'light'}>
-          {likesCount} <strong>&#34;Like&#34;</strong>
-        </Typography>
-      </div>
+      {likesCount > 0 && (
+        <div className={s.likesRow}>
+          {visibleAvatars.length > 0 && (
+            <div className={s.likesAvatars}>
+              {visibleAvatars.map((avatarUrl, index) => (
+                <Avatar
+                  key={`${avatarUrl}-${index}`}
+                  size={24}
+                  image={avatarUrl}
+                  className={index > 0 ? s.likeAvatarOverlap : undefined}
+                />
+              ))}
+            </div>
+          )}
+          <Typography variant={'regular_14'} color={'light'}>
+            <strong>{formatLikesCount(likesCount)}</strong>
+          </Typography>
+        </div>
+      )}
 
       <Typography variant={'small_text'} className={s.timestamp}>
         {formattedCreatedAt}
@@ -125,7 +126,7 @@ export const ViewModePostFooter = ({
 
       {shouldShowAuthSkeleton ? (
         <>
-          <Separator className={s.separator} />
+          <Separator className={s.fullWidthSeparator} />
           <div className={s.inputForm} aria-hidden>
             <Skeleton className={s.inputSkeleton} />
             <Skeleton className={s.publishSkeleton} />
@@ -134,20 +135,20 @@ export const ViewModePostFooter = ({
       ) : (
         shouldShowAuthActions && (
           <>
-            <Separator className={s.separator} />
+            <Separator className={s.fullWidthSeparator} />
             <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
               <ControlledInput
                 name={'comment'}
                 control={commentControl}
                 inputType={'text'}
-                placeholder={'Add a Comment'}
+                placeholder={'Add a Comment...'}
                 className={s.input}
                 maxLength={commentMaxLength}
               />
               <Button
                 variant={'text'}
                 type={'submit'}
-                disabled={isCommentInvalid || isCreateCommentLoading}
+                disabled={!watchComment('comment')?.trim() || isCreateCommentLoading}
               >
                 Publish
               </Button>

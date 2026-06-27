@@ -1,25 +1,54 @@
-import { UserBase } from '../user/models'
+import { UserImage } from '@/entities/users/api/api.types'
 
-export interface BaseComment {
+import { LikeStatus } from '../base/enums'
+
+export interface PostImageViewModel {
+  url: string
+  width: number
+  height: number
+  fileSize: number
+  createdAt?: string
+  uploadId: string
+}
+
+export interface UploadedImageViewModel {
+  images: PostImageViewModel[]
+}
+
+export interface ChildMetadataDto {
+  uploadId: string
+}
+
+export interface CreatePostInputDto {
+  description?: string
+  childrenMetadata: ChildMetadataDto[]
+}
+
+export interface UpdatePostInputDto {
+  description?: string
+}
+
+export interface UpdateLikeStatusDto {
+  likeStatus: LikeStatus
+}
+
+export interface PostViewModel {
   id: number
-  from: UserBase
-  content: string
+  userName: string
+  description?: string
+  location?: string
+  images: UserImage[]
   createdAt: string
-  likeCount: number
+  updatedAt: string
+  ownerId: number
+  avatarOwner: string
+  owner: {
+    firstName: string
+    lastName: string
+  }
+  likesCount: number
   isLiked: boolean
-}
-
-export interface CommentsViewModel extends BaseComment {
-  postId: number
-  answerCount: number
-}
-
-export interface AnswersViewModel extends BaseComment {
-  commentId: number
-}
-
-export interface CreateCommentDto {
-  content: string
+  avatarWhoLikes: string[]
 }
 
 export type PostVariant = 'public' | 'myPost' | 'userPost'
@@ -42,3 +71,29 @@ export interface DescriptionFormData {
 export interface CommentFormData {
   comment: string
 }
+
+export interface PostModalData {
+  id: number
+  images: UserImage[]
+  userName: string
+  avatar: string
+  description: string
+  createdAt: string
+  ownerId?: number
+  likesCount: number
+  isLiked: boolean
+  avatarWhoLikes: string[]
+}
+
+export const mapPostToModalData = (post: PostViewModel): PostModalData => ({
+  images: post.images,
+  userName: post.userName,
+  avatar: post.avatarOwner,
+  description: post.description || '',
+  createdAt: post.createdAt,
+  id: post.id,
+  ownerId: post.ownerId,
+  likesCount: post.likesCount,
+  isLiked: post.isLiked,
+  avatarWhoLikes: post.avatarWhoLikes ?? [],
+})

@@ -9,10 +9,11 @@ import {
   useGetPostByIdQuery,
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
-import { PostModalAuthState } from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
+import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { showToastAlert } from '@/shared/lib'
 import { PostVariant, DescriptionFormData } from '@/shared/types'
 
+import { PostModalAuthState } from '../ui/PostModal/postModalLikeAction.types'
 import { usePostComments } from './usePostComments'
 
 type UiLanguage = 'en' | 'rus'
@@ -59,6 +60,11 @@ export const usePostModal = (
   const isAuthUiLoading = authState?.isAuthUiLoading ?? false
   const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
 
+  const { data: currentUserProfile } = useGetPublicProfileQuery(
+    { profileId: user?.userId ?? 0 },
+    { skip: !user?.userId }
+  )
+
   const {
     data: postDataFromQuery,
     isError: isPostError,
@@ -67,6 +73,7 @@ export const usePostModal = (
     skip: !open || !resolvedPostId || isAuthUiLoading,
     refetchOnMountOrArgChange: true,
   })
+
   const { data: postLikesData } = useGetPostLikesQuery(
     { postId: resolvedPostId as number, ...POST_LIKES_QUERY_ARG },
     {
@@ -74,6 +81,7 @@ export const usePostModal = (
       refetchOnMountOrArgChange: true,
     }
   )
+
   const isSameInitialPost = Boolean(
     initialPostData && resolvedPostId && initialPostData.id === resolvedPostId
   )
@@ -83,6 +91,7 @@ export const usePostModal = (
     isAuthenticatedUi && isSameInitialPost
       ? initialPostData?.avatarWhoLikes
       : basePostData?.avatarWhoLikes
+
   const postData = basePostData
     ? {
         ...basePostData,
@@ -99,9 +108,9 @@ export const usePostModal = (
           : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
       }
     : undefined
+
   const hasPostData = Boolean(postData)
 
-  // Показываем лоадер только если нет вообще никаких данных (ни из кэша, ни переданных)
   const isPostLoading = Boolean(open && resolvedPostId && !hasPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
 
@@ -136,7 +145,6 @@ export const usePostModal = (
   const commentsPostId = postData?.id ?? postId
 
   const {
-    comments,
     commentControl,
     handleCommentSubmit,
     watchComment,
@@ -176,8 +184,12 @@ export const usePostModal = (
     }
   }
 
+  const currentUserAvatar =
+    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
+    currentUserProfile?.avatars[0]?.url ??
+    ''
+
   return {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     isCreateCommentLoading: isCommentPublishing,
@@ -204,5 +216,9 @@ export const usePostModal = (
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    resolvedPostId,
+    currentUserId: user?.userId,
+    currentUserName: user?.userName ?? '',
+    currentUserAvatar,
   }
 }

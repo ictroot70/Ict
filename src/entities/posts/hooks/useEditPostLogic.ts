@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useUpdatePostMutation } from '@/entities/posts/api/postApi'
+import { useUpdatePostMutation } from '@/entities/posts/api'
 
 export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }) => {
   const [updatePost] = useUpdatePostMutation()

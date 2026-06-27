@@ -1,7 +1,7 @@
-import type { PostViewModel } from '@/entities/posts/api'
-
 import React, { useState, useEffect, useCallback } from 'react'
+import { Control, FieldErrors, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { PostViewModel } from '@/entities/posts/api'
 import { DescriptionFormData } from '@/shared/types'
 
 import s from './EditMode.module.scss'
@@ -10,13 +10,14 @@ import { EditModeDescriptionForm } from './EditModeDescriptionForm/EditModeDescr
 import { EditModeHeader } from './EditModeHeader/EditModeHeader'
 import { EditModeImageSection } from './EditModeImageSection/EditModeImageSection'
 import { ExitConfirmationModal } from './ExitConfirmationModal/ExitConfirmationModal'
+
 interface EditModeProps {
-  descriptionControl: any
-  handleDescriptionSubmit: any
+  descriptionControl: Control<DescriptionFormData>
+  handleDescriptionSubmit: UseFormHandleSubmit<DescriptionFormData>
   handleSaveDescription: (data: DescriptionFormData) => void
   handleCancelEdit: () => void
-  errors: any
-  watchDescription: (field: string) => string
+  errors: FieldErrors<DescriptionFormData>
+  watchDescription: UseFormWatch<DescriptionFormData>
   postData: PostViewModel
   onClose: () => void
   isEditing?: boolean
@@ -99,7 +100,6 @@ export const EditMode = ({
               control={descriptionControl}
               handleSubmit={handleDescriptionSubmit}
               errors={errors}
-              watchDescription={watchDescription}
               characterCount={characterCount}
               maxCharacters={maxCharacters}
               shouldDisableSave={shouldDisableSave}

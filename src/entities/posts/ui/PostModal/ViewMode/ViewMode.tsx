@@ -1,8 +1,9 @@
+'use client'
+
 import type { PostViewModel } from '@/entities/posts/api'
 
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentThreadItem } from '@/entities/posts/types/comments'
 import { CommentFormData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
@@ -15,14 +16,11 @@ import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
-  onClose: () => void
   postData: PostViewModel
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
-  isEditing?: boolean
-  comments: CommentThreadItem[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -31,7 +29,9 @@ interface ViewModeProps {
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
   isAuthenticated: boolean
-  isOwnProfile: boolean
+  commentsEnabled?: boolean
+  currentUserName?: string
+  currentUserAvatar?: string
   commentMaxLength: number
   renderPostLikeAction?: RenderPostLikeAction
 }
@@ -42,7 +42,6 @@ export const ViewMode = ({
   handleEditPost,
   handleDeletePost,
   onCopyLink,
-  comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
@@ -50,17 +49,20 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isCreateCommentLoading,
+  isAuthenticated,
+  commentsEnabled = true,
+  currentUserName,
+  currentUserAvatar,
   commentMaxLength,
   renderPostLikeAction,
 }: ViewModeProps) => {
   const handleFollow = () => {}
 
-  // ViewModePostHeader и ViewModeCommentsSection используют поле avatar,
-  // в PostViewModel оно называется avatarOwner
   const postDataForChildren = {
     avatar: postData.avatarOwner,
     userName: postData.userName,
     description: postData.description ?? '',
+    createdAt: postData.createdAt,
   }
 
   return (
@@ -78,7 +80,14 @@ export const ViewMode = ({
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postDataForChildren} comments={comments} />
+        <ViewModeCommentsSection
+          postData={postDataForChildren}
+          postId={postData.id}
+          isAuthenticated={isAuthenticated}
+          currentUserName={currentUserName}
+          currentUserAvatar={currentUserAvatar}
+          enabled={commentsEnabled}
+        />
 
         <Separator />
 

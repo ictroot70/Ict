@@ -35,7 +35,6 @@ export const PostModal = ({
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,
@@ -51,7 +50,6 @@ export const PostModal = ({
     isCreateCommentLoading,
     commentMaxLength,
     isAuthenticated,
-    isOwnProfile,
     hasPostData,
     isPostLoading,
     isPostError,
@@ -62,6 +60,8 @@ export const PostModal = ({
     handleCancelEdit,
     handleCopyLink,
     applyLocalDescription,
+    currentUserName,
+    currentUserAvatar,
   } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
@@ -165,24 +165,23 @@ export const PostModal = ({
       />
     ) : (
       <ViewMode
-        onClose={handleCloseModal}
         postData={postData}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
-        isEditing={isEditing}
-        comments={comments}
-        commentControl={commentControl}
-        handleCommentSubmit={handleCommentSubmit}
-        watchComment={watchComment}
-        handlePublish={handlePublish}
         onCopyLink={handleCopyLink}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
-        isOwnProfile={isOwnProfile}
+        commentsEnabled={open && hasPostData}
+        commentControl={commentControl}
+        handleCommentSubmit={handleCommentSubmit}
+        watchComment={watchComment}
+        handlePublish={handlePublish}
+        currentUserName={currentUserName}
+        currentUserAvatar={currentUserAvatar}
         renderPostLikeAction={renderPostLikeAction}
       />
     )
