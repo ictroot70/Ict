@@ -1,23 +1,25 @@
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
+import { Control, FieldErrors, UseFormHandleSubmit } from 'react-hook-form'
 
 import { ControlledTextarea } from '@/features/formControls/textarea/ui'
 import { Avatar } from '@/shared/composites'
-import { PostModalData } from '@/shared/types'
+import { DescriptionFormData } from '@/shared/types'
 import { Button, Typography } from '@/shared/ui'
 
 import s from '../EditMode.module.scss'
 
 interface DescriptionFormProps {
-  postData: PostModalData
-  control: any
-  handleSubmit: any
-  errors: any
-  watchDescription: (field: string) => string
+  postData: PostViewModel
+  control: Control<DescriptionFormData>
+  handleSubmit: UseFormHandleSubmit<DescriptionFormData>
+  errors: FieldErrors<DescriptionFormData>
   characterCount: number
   maxCharacters: number
   shouldDisableSave: boolean
   isEditing: boolean
-  onSubmit: (data: { description: string }) => void
+  onSubmit: (data: DescriptionFormData) => void
 }
 
 export const EditModeDescriptionForm: React.FC<DescriptionFormProps> = ({
@@ -34,7 +36,7 @@ export const EditModeDescriptionForm: React.FC<DescriptionFormProps> = ({
   return (
     <div className={s.editFormContainer}>
       <div className={s.userInfo}>
-        <Avatar size={36} image={postData.avatar} />
+        <Avatar size={36} image={postData.avatarOwner} />
         <Typography variant={'h3'} color={'light'}>
           {postData.userName}
         </Typography>

@@ -67,8 +67,8 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
                 variant={'text'}
                 className={s.item}
                 onClick={() => handleItemClick({ onClick })}
+                aria-label={label}
                 disabled={disabled}
-                aria-label={'Edit Post'}
                 key={label}
               >
                 <span className={s.icon}>{icon}</span>

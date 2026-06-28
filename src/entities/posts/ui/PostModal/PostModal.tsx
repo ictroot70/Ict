@@ -11,12 +11,15 @@ import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
+import { PostModalAuthState, RenderPostLikeAction } from './postModalLikeAction.types'
 
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
   postData?: PostViewModel
   postId?: number
+  authState?: PostModalAuthState
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const PostModal = ({
@@ -27,10 +30,11 @@ export const PostModal = ({
   isEditing,
   postData: initialPostData,
   postId,
+  authState,
+  renderPostLikeAction,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
   const {
-    comments,
     isEditingDescription,
     setIsEditingDescription,
     commentControl,
@@ -43,8 +47,9 @@ export const PostModal = ({
     postData,
     variant,
     isAuthLoading,
+    isCreateCommentLoading,
+    commentMaxLength,
     isAuthenticated,
-    isOwnProfile,
     hasPostData,
     isPostLoading,
     isPostError,
@@ -58,7 +63,9 @@ export const PostModal = ({
     isFollowing,
     isFollowPending,
     applyLocalDescription,
-  } = usePostModal(open, initialPostData, postId)
+    currentUserName,
+    currentUserAvatar,
+  } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
     description: newDescription,
@@ -67,8 +74,8 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData.postId) {
-      const updated = await onEditPost(postData.postId, trimmed)
+    if (trimmed && onEditPost && postData?.id) {
+      const updated = await onEditPost(postData.id, trimmed)
 
       if (!updated) {
         return
@@ -80,8 +87,8 @@ export const PostModal = ({
   }
 
   const handleDeletePostAction = () => {
-    if (onDeletePost && postData.postId) {
-      onDeletePost(postData.postId)
+    if (onDeletePost && postData?.id) {
+      onDeletePost(postData.id)
     }
   }
 
@@ -137,7 +144,7 @@ export const PostModal = ({
       )
     }
 
-    if (!hasPostData) {
+    if (!hasPostData || !postData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
@@ -161,25 +168,27 @@ export const PostModal = ({
       />
     ) : (
       <ViewMode
-        onClose={handleCloseModal}
         postData={postData}
         variant={variant}
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
-        isEditing={isEditing}
-        comments={comments}
-        commentControl={commentControl}
-        handleCommentSubmit={handleCommentSubmit}
-        watchComment={watchComment}
-        handlePublish={handlePublish}
         onCopyLink={handleCopyLink}
         onFollow={handleFollow}
         isFollowing={isFollowing}
         isFollowPending={isFollowPending}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
+        isCreateCommentLoading={isCreateCommentLoading}
+        commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
-        isOwnProfile={isOwnProfile}
+        commentsEnabled={open && hasPostData}
+        commentControl={commentControl}
+        handleCommentSubmit={handleCommentSubmit}
+        watchComment={watchComment}
+        handlePublish={handlePublish}
+        currentUserName={currentUserName}
+        currentUserAvatar={currentUserAvatar}
+        renderPostLikeAction={renderPostLikeAction}
       />
     )
   }

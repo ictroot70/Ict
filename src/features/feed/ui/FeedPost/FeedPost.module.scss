@@ -1,0 +1,36 @@
+.post {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(100%, 490px);
+  padding-bottom: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time {
+  color: var(--color-light-900);
+}
+
+.separator {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--color-light-700);
+}
+
+.menu {
+  margin-left: auto;
+  z-index: 2;
+}
+
+.media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}

@@ -2,11 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react'
 
-import {
-  postApi,
-  useCreatePostMutation,
-  useDeleteImageMutation,
-} from '@/entities/posts/api/postApi'
+import { postApi, useCreatePostMutation, useDeleteImageMutation } from '@/entities/posts/api'
 import { useBackgroundUpload } from '@/features/posts/hooks/useBackgroundUpload'
 import { useCreatePost } from '@/features/posts/hooks/useCreatePost'
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'

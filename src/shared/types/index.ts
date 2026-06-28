@@ -1,4 +1,3 @@
-// index.ts
 export * from './base/enums'
 
 export * from './auth/dto'
