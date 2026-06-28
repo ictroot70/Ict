@@ -1,19 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
 import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
-import {
-  useFollowUserMutation,
-  useGetUserByUserNameQuery,
-  useUnfollowUserMutation,
-} from '@/entities/users/api'
+import { useGetUserByUserNameQuery } from '@/entities/users/api'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { useMeQuery } from '@/features/auth'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
-import { logger } from '@/shared/lib'
 import { useParams, useRouter } from 'next/navigation'
 
 export const useProfile = (
@@ -64,40 +58,24 @@ export const useProfile = (
     skip: !user || isViewerOwnProfile || !profile.userName,
   })
 
-  const [followUser, { isLoading: isFollowLoading }] = useFollowUserMutation()
-  const [unfollowUser, { isLoading: isUnfollowLoading }] = useUnfollowUserMutation()
-  const isFollowPending = isFollowLoading || isUnfollowLoading
+  const {
+    isFollowing,
+    followersCount,
+    followingCount,
+    isFollowPending,
+    handleFollow,
+    handleUnfollow,
+  } = useFollowUserState(profile.userName, profile.id)
 
-  // Локальное состояние для optimistic updates
-  const [optimisticFollowing, setOptimisticFollowing] = useState<boolean | null>(null)
-  const [optimisticFollowersCount, setOptimisticFollowersCount] = useState<number | null>(null)
-  const [optimisticFollowingCount, setOptimisticFollowingCount] = useState<number | null>(null)
-
-  // Сбрасываем optimistic состояние при изменении данных профиля
-  useEffect(() => {
-    if (followState) {
-      setOptimisticFollowing(null)
-      setOptimisticFollowersCount(null)
-      setOptimisticFollowingCount(null)
-    }
-  }, [followState])
-
-  // Используем optimistic состояние если оно установлено, иначе данные из API
-  const isFollowing =
-    optimisticFollowing !== null
-      ? optimisticFollowing
-      : (followState?.isFollowing ?? profile.isFollowing)
-
-  // Prefer the live authenticated counts; fall back to the SSR public-profile metadata
-  // (used for own profile and unauthenticated views, where followState is absent).
+  // Use the live authenticated counts; fall back to the SSR public-profile metadata
   const userMetadata = {
     followers:
-      optimisticFollowersCount !== null
-        ? optimisticFollowersCount
+      followersCount !== 0
+        ? followersCount
         : (followState?.followersCount ?? profile.userMetadata.followers),
     following:
-      optimisticFollowingCount !== null
-        ? optimisticFollowingCount
+      followingCount !== 0
+        ? followingCount
         : (followState?.followingCount ?? profile.userMetadata.following),
     publications: followState?.publicationsCount ?? profile.userMetadata.publications,
   }
@@ -118,72 +96,12 @@ export const useProfile = (
     router.push(APP_ROUTES.MESSENGER.DIALOGUE(profile.id))
   }
 
-  const handleFollow = async () => {
-    if (isFollowPending) {
-      return
-    }
-
-    // Optimistic update для целевого профиля
-    setOptimisticFollowing(true)
-    if (followState) {
-      setOptimisticFollowersCount(followState.followersCount + 1)
-      if (isOwnProfile) {
-        setOptimisticFollowingCount(followState.followingCount + 1)
-      }
-    } else if (profile.userMetadata) {
-      setOptimisticFollowersCount(profile.userMetadata.followers + 1)
-      if (isOwnProfile) {
-        setOptimisticFollowingCount(profile.userMetadata.following + 1)
-      }
-    }
-
-    try {
-      await followUser({ selectedUserId: profile.id }).unwrap()
-    } catch (error) {
-      // Откатываем optimistic update при ошибке
-      setOptimisticFollowing(null)
-      setOptimisticFollowersCount(null)
-      setOptimisticFollowingCount(null)
-      logger.error('[profile] Follow user failed:', error)
-    }
-  }
-
-  const handleUnfollow = async () => {
-    if (isFollowPending) {
-      return
-    }
-
-    // Optimistic update для целевого профиля
-    setOptimisticFollowing(false)
-    if (followState) {
-      setOptimisticFollowersCount(Math.max(0, followState.followersCount - 1))
-      if (isOwnProfile) {
-        setOptimisticFollowingCount(Math.max(0, followState.followingCount - 1))
-      }
-    } else if (profile.userMetadata) {
-      setOptimisticFollowersCount(Math.max(0, profile.userMetadata.followers - 1))
-      if (isOwnProfile) {
-        setOptimisticFollowingCount(Math.max(0, profile.userMetadata.following - 1))
-      }
-    }
-
-    try {
-      await unfollowUser(profile.id).unwrap()
-    } catch (error) {
-      // Откатываем optimistic update при ошибке
-      setOptimisticFollowing(null)
-      setOptimisticFollowersCount(null)
-      setOptimisticFollowingCount(null)
-      logger.error('[profile] Unfollow user failed:', error)
-    }
-  }
-
   const profileInfoActions = {
     onEditProfile: isOwnProfile ? handleEditProfile : undefined,
     onSendMessage: canInteractWithOtherProfile ? handleSendMessage : undefined,
     onFollow: canInteractWithOtherProfile && !isFollowing ? handleFollow : undefined,
     onUnfollow: canInteractWithOtherProfile && isFollowing ? handleUnfollow : undefined,
-    isFollowing: isFollowing ?? false, // Преобразуем null в false для TypeScript
+    isFollowing: isFollowing,
     isFollowPending,
     userMetadata,
   }

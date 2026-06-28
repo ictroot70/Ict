@@ -2,13 +2,9 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import {
-  useFollowUserMutation,
-  useGetUserByUserNameQuery,
-  useUnfollowUserMutation,
-} from '@/entities/users/api'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { logger, showToastAlert } from '@/shared/lib'
+import { showToastAlert } from '@/shared/lib'
 import {
   mapPostToModalData,
   PostModalData,
@@ -85,13 +81,6 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   )
 
   const ownerUserName = postData?.userName
-  const shouldFetchOwnerProfile = Boolean(
-    open && isAuthenticatedUi && !isOwnProfile && ownerUserName
-  )
-  const { data: ownerProfile } = useGetUserByUserNameQuery(ownerUserName as string, {
-    skip: !shouldFetchOwnerProfile,
-  })
-
   let variant: PostVariant = 'public'
 
   if (isAuthenticatedUi) {
@@ -121,17 +110,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
 
   useEffect(() => {
     setLocalPostData(basePostData)
-    setBaseIsFollowing(false)
-    setOptimisticIsFollowing(null)
   }, [basePostData, resolvedPostId])
-
-  useEffect(() => {
-    if (ownerProfile) {
-      setBaseIsFollowing(ownerProfile.isFollowing)
-    }
-    // Reset optimistic state when owner profile changes
-    setOptimisticIsFollowing(null)
-  }, [ownerProfile])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -174,34 +153,17 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     })
   }
 
-  const [baseIsFollowing, setBaseIsFollowing] = useState(false)
-  const [optimisticIsFollowing, setOptimisticIsFollowing] = useState<boolean | null>(null)
-  const [followUser, { isLoading: isFollowLoading }] = useFollowUserMutation()
-  const [unfollowUser, { isLoading: isUnfollowLoading }] = useUnfollowUserMutation()
-  const isFollowPending = isFollowLoading || isUnfollowLoading
-  const displayedIsFollowing = optimisticIsFollowing ?? baseIsFollowing
+  const {
+    isFollowing,
+    isFollowPending,
+    handleFollow: followOrUnfollow,
+  } = useFollowUserState(ownerUserName || '', postModalData.ownerId || 0)
 
   const handleFollow = async () => {
-    const ownerId = postModalData.ownerId
-
-    if (!ownerId || isFollowPending) {
+    if (isFollowPending) {
       return
     }
-    try {
-      if (displayedIsFollowing) {
-        // unfollow
-        setOptimisticIsFollowing(false)
-        await unfollowUser(ownerId).unwrap()
-      } else {
-        // follow
-        setOptimisticIsFollowing(true)
-        await followUser({ selectedUserId: ownerId }).unwrap()
-      }
-    } catch (error) {
-      // rollback optimistic update
-      setOptimisticIsFollowing(null)
-      logger.error('[post-modal] Follow toggle failed:', error)
-    }
+    await followOrUnfollow()
   }
 
   const handleCopyLink = async () => {
@@ -245,7 +207,7 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     handleCancelEdit,
     handleCopyLink,
     handleFollow,
-    isFollowing: displayedIsFollowing,
+    isFollowing: isFollowing,
     isFollowPending,
     applyLocalDescription,
   }
