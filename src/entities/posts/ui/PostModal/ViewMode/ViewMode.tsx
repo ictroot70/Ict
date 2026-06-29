@@ -24,8 +24,6 @@ interface ViewModeProps {
   onFollow: () => void
   isFollowing: boolean
   isFollowPending: boolean
-  isEditing?: boolean
-  comments: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -50,7 +48,6 @@ export const ViewMode = ({
   onFollow,
   isFollowing,
   isFollowPending,
-  comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
@@ -65,9 +62,6 @@ export const ViewMode = ({
   commentMaxLength,
   renderPostLikeAction,
 }: ViewModeProps) => {
-
-  const handleFollow = () => {}
-
   const postDataForChildren = {
     avatar: postData.avatarOwner,
     userName: postData.userName,

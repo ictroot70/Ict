@@ -1,15 +1,15 @@
 'use client'
 
 import {
-  useFollowUserMutation,
-  useUnfollowUserMutation,
+  useFollowProfileUserMutation,
+  useUnfollowProfileUserMutation,
   useGetUserByUserNameQuery,
-} from '@/entities/users/api'
+} from '@/entities/users/api/publicUsers.api'
 
 export const useFollowUserState = (userName: string, userId: number) => {
   const { data: followState } = useGetUserByUserNameQuery(userName, { skip: !userName })
-  const [followUser, { isLoading: isFollowingLoading }] = useFollowUserMutation()
-  const [unfollowUser, { isLoading: isUnfollowingLoading }] = useUnfollowUserMutation()
+  const [followUser, { isLoading: isFollowingLoading }] = useFollowProfileUserMutation()
+  const [unfollowUser, { isLoading: isUnfollowingLoading }] = useUnfollowProfileUserMutation()
 
   const handleFollow = async () => {
     await followUser({ selectedUserId: userId }).unwrap()

@@ -2,10 +2,7 @@ import type { PostViewModel } from '@/entities/posts/api'
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { showToastAlert } from '@/shared/lib'
+
 import {
   POST_LIKES_QUERY_ARG,
   getAvatarWhoLikes,
@@ -13,6 +10,7 @@ import {
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
 import { useGetPublicProfileQuery } from '@/entities/profile/api'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { showToastAlert } from '@/shared/lib'
 import { PostVariant, DescriptionFormData } from '@/shared/types'
 
@@ -177,7 +175,7 @@ export const usePostModal = (
     isFollowing,
     isFollowPending,
     handleFollow: followOrUnfollow,
-  } = useFollowUserState(ownerUserName || '', postModalData.ownerId || 0)
+  } = useFollowUserState(ownerUserName || '', postData?.ownerId ?? 0)
 
   const handleFollow = async () => {
     if (isFollowPending) {

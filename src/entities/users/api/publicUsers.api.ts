@@ -1,3 +1,5 @@
+import type { PublicProfileData } from '@/entities/profile/api'
+
 import { GetPublicUsers } from '@/entities/users/model'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
@@ -11,45 +13,62 @@ import {
   UserByUserNameResponse,
 } from './api.types'
 
+type BaseQueryState = {
+  baseApi?: {
+    queries?: Record<string, { data?: unknown }>
+  }
+}
+
+const updateBaseQueryData = baseApi.util.updateQueryData as any
+
 export const publicUsersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    followUser: builder.mutation<void, FollowUserRequest>({
+    followProfileUser: builder.mutation<void, FollowUserRequest>({
       query: body => ({
         url: API_ROUTES.USERS_FOLLOW.FOLLOWING,
         method: 'POST',
         body,
       }),
-      async onQueryStarted({ selectedUserId }, { dispatch, queryFulfilled, api }) {
-        const state = api.getState() as any
-        const meUser = state.baseApi?.queries?.me?.data as any
+      async onQueryStarted({ selectedUserId }, { dispatch, queryFulfilled, getState }) {
+        const state = getState() as BaseQueryState
+        const meUser = state.baseApi?.queries?.me?.data as { userId?: number } | undefined
         const currentUserId = meUser?.userId
 
         const targetProfileQuery = Object.entries(state.baseApi?.queries || {}).find(
-          ([key]) => key.includes('getPublicProfile') && key.includes(selectedUserId)
+          ([key]) => key.includes('getPublicProfile') && key.includes(String(selectedUserId))
         )
-        const targetUserName = targetProfileQuery?.[1]?.data?.userName
+        const targetProfileData = targetProfileQuery?.[1]?.data as PublicProfileData | undefined
+        const targetUserName = targetProfileData?.userName
 
         const patchTarget = (isFollowing: boolean, followersDelta: number) => {
           dispatch(
-            baseApi.util.updateQueryData(
+            updateBaseQueryData(
               'getPublicProfile',
               { profileId: selectedUserId },
-              draft => {
-                if (draft) {
-                  draft.isFollowing = isFollowing
-                  draft.userMetadata.followers += followersDelta
+              (draft: PublicProfileData | undefined) => {
+                if (!draft) {
+                  return
                 }
+
+                draft.isFollowing = isFollowing
+                draft.userMetadata.followers += followersDelta
               }
             )
           )
           if (targetUserName) {
             dispatch(
-              baseApi.util.updateQueryData('getUserByUserName', targetUserName, draft => {
-                if (draft) {
+              updateBaseQueryData(
+                'getUserByUserName',
+                targetUserName,
+                (draft: UserByUserNameResponse | undefined) => {
+                  if (!draft) {
+                    return
+                  }
+
                   draft.isFollowing = isFollowing
                   draft.followersCount += followersDelta
                 }
-              })
+              )
             )
           }
         }
@@ -57,13 +76,15 @@ export const publicUsersApi = baseApi.injectEndpoints({
         const patchMe = (followingDelta: number) => {
           if (currentUserId) {
             dispatch(
-              baseApi.util.updateQueryData(
+              updateBaseQueryData(
                 'getPublicProfile',
                 { profileId: currentUserId },
-                draft => {
-                  if (draft) {
-                    draft.userMetadata.following += followingDelta
+                (draft: PublicProfileData | undefined) => {
+                  if (!draft) {
+                    return
                   }
+
+                  draft.userMetadata.following += followingDelta
                 }
               )
             )
@@ -82,42 +103,51 @@ export const publicUsersApi = baseApi.injectEndpoints({
       },
       invalidatesTags: ['Profile'],
     }),
-    unfollowUser: builder.mutation<void, number>({
+    unfollowProfileUser: builder.mutation<void, number>({
       query: userId => ({
         url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(userId),
         method: 'DELETE',
       }),
-      async onQueryStarted(selectedUserId, { dispatch, queryFulfilled, api }) {
-        const state = api.getState() as any
-        const meUser = state.baseApi?.queries?.me?.data as any
+      async onQueryStarted(selectedUserId, { dispatch, queryFulfilled, getState }) {
+        const state = getState() as BaseQueryState
+        const meUser = state.baseApi?.queries?.me?.data as { userId?: number } | undefined
         const currentUserId = meUser?.userId
 
         const targetProfileQuery = Object.entries(state.baseApi?.queries || {}).find(
-          ([key]) => key.includes('getPublicProfile') && key.includes(selectedUserId)
+          ([key]) => key.includes('getPublicProfile') && key.includes(String(selectedUserId))
         )
-        const targetUserName = targetProfileQuery?.[1]?.data?.userName
+        const targetProfileData = targetProfileQuery?.[1]?.data as PublicProfileData | undefined
+        const targetUserName = targetProfileData?.userName
 
         const patchTarget = (isFollowing: boolean, followersDelta: number) => {
           dispatch(
-            baseApi.util.updateQueryData(
+            updateBaseQueryData(
               'getPublicProfile',
               { profileId: selectedUserId },
-              draft => {
-                if (draft) {
-                  draft.isFollowing = isFollowing
-                  draft.userMetadata.followers += followersDelta
+              (draft: PublicProfileData | undefined) => {
+                if (!draft) {
+                  return
                 }
+
+                draft.isFollowing = isFollowing
+                draft.userMetadata.followers += followersDelta
               }
             )
           )
           if (targetUserName) {
             dispatch(
-              baseApi.util.updateQueryData('getUserByUserName', targetUserName, draft => {
-                if (draft) {
+              updateBaseQueryData(
+                'getUserByUserName',
+                targetUserName,
+                (draft: UserByUserNameResponse | undefined) => {
+                  if (!draft) {
+                    return
+                  }
+
                   draft.isFollowing = isFollowing
                   draft.followersCount += followersDelta
                 }
-              })
+              )
             )
           }
         }
@@ -125,13 +155,15 @@ export const publicUsersApi = baseApi.injectEndpoints({
         const patchMe = (followingDelta: number) => {
           if (currentUserId) {
             dispatch(
-              baseApi.util.updateQueryData(
+              updateBaseQueryData(
                 'getPublicProfile',
                 { profileId: currentUserId },
-                draft => {
-                  if (draft) {
-                    draft.userMetadata.following += followingDelta
+                (draft: PublicProfileData | undefined) => {
+                  if (!draft) {
+                    return
                   }
+
+                  draft.userMetadata.following += followingDelta
                 }
               )
             )
@@ -181,7 +213,7 @@ export const {
   useGetPublicUsersCounterQuery,
   useGetPublicPostsQuery,
   useSearchUsersQuery,
-  useFollowUserMutation,
-  useUnfollowUserMutation,
+  useFollowProfileUserMutation,
+  useUnfollowProfileUserMutation,
   useGetUserByUserNameQuery,
 } = publicUsersApi
