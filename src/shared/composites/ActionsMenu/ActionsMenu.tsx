@@ -61,7 +61,7 @@ export const ActionsMenu: React.FC<Props> = ({ items }) => {
 
       {isMenuOpen && (
         <div className={s.menu}>
-          {items.map(({ disabled, icon, label, onClick }) => {
+          {items.map(({ icon, label, onClick, disabled }) => {
             return (
               <Button
                 variant={'text'}

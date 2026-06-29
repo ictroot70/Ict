@@ -3,10 +3,11 @@
 import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
+import { useGetUserByUserNameQuery } from '@/entities/users/api'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { useMeQuery } from '@/features/auth'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
-import { logger } from '@/shared/lib'
 import { useParams, useRouter } from 'next/navigation'
 
 export const useProfile = (
@@ -42,6 +43,43 @@ export const useProfile = (
 
   const profile = profileData || profileDataServer
 
+  const isAuthenticated = Boolean(user)
+  const isAuthResolving = hasAuthHint && !isAuthenticated && (isMeLoading || isMeUninitialized)
+  const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
+  const isOwnProfile = isAuthenticated && profile.id === (user?.userId ?? authUserIdHint)
+  const canInteractWithOtherProfile = !isOwnProfile
+  const authActionSkeletonVariant: 'single' | 'double' =
+    authUserIdHint === profile.id ? 'single' : 'double'
+
+  // The public profile endpoint is unauthenticated, so its `isFollowing` is always false.
+  // Fetch the real per-viewer follow status from the authenticated by-userName endpoint.
+  const isViewerOwnProfile = Boolean(user?.userId && profile.id === user.userId)
+  const { data: followState } = useGetUserByUserNameQuery(profile.userName, {
+    skip: !user || isViewerOwnProfile || !profile.userName,
+  })
+
+  const {
+    isFollowing,
+    followersCount,
+    followingCount,
+    isFollowPending,
+    handleFollow,
+    handleUnfollow,
+  } = useFollowUserState(profile.userName, profile.id)
+
+  // Use the live authenticated counts; fall back to the SSR public-profile metadata
+  const userMetadata = {
+    followers:
+      followersCount !== 0
+        ? followersCount
+        : (followState?.followersCount ?? profile.userMetadata.followers),
+    following:
+      followingCount !== 0
+        ? followingCount
+        : (followState?.followingCount ?? profile.userMetadata.following),
+    publications: followState?.publicationsCount ?? profile.userMetadata.publications,
+  }
+
   const posts = postsData?.pages?.flatMap(page => page.items || []) || postsDataServer?.items || []
 
   const loadMorePostsHandler = () => {
@@ -58,29 +96,14 @@ export const useProfile = (
     router.push(APP_ROUTES.MESSENGER.DIALOGUE(profile.id))
   }
 
-  const handleFollow = async () => {
-    // Follow flow is intentionally deferred to a separate task.
-    logger.info('[profile] Follow user:', profile.id)
-  }
-
-  const handleUnfollow = async () => {
-    // Unfollow flow is intentionally deferred to a separate task.
-    logger.info('[profile] Unfollow user:', profile.id)
-  }
-
-  const isAuthenticated = Boolean(user)
-  const isAuthResolving = hasAuthHint && !isAuthenticated && (isMeLoading || isMeUninitialized)
-  const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
-  const isOwnProfile = isAuthenticated && profile.id === (user?.userId ?? authUserIdHint)
-  const canInteractWithOtherProfile = isOwnProfile === false
-  const authActionSkeletonVariant: 'single' | 'double' =
-    authUserIdHint === profile.id ? 'single' : 'double'
-
   const profileInfoActions = {
     onEditProfile: isOwnProfile ? handleEditProfile : undefined,
     onSendMessage: canInteractWithOtherProfile ? handleSendMessage : undefined,
-    onFollow: canInteractWithOtherProfile && !profile.isFollowing ? handleFollow : undefined,
-    onUnfollow: canInteractWithOtherProfile && profile.isFollowing ? handleUnfollow : undefined,
+    onFollow: canInteractWithOtherProfile && !isFollowing ? handleFollow : undefined,
+    onUnfollow: canInteractWithOtherProfile && isFollowing ? handleUnfollow : undefined,
+    isFollowing: isFollowing,
+    isFollowPending,
+    userMetadata,
   }
 
   return {

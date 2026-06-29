@@ -9,6 +9,7 @@ import s from './ProfileActions.module.scss'
 interface Props {
   isOwnProfile: boolean
   isFollowing: boolean
+  isFollowPending?: boolean
   onFollow?: () => void
   onUnfollow?: () => void
   onEditProfile?: () => void
@@ -18,6 +19,7 @@ interface Props {
 export const ProfileActions: React.FC<Props> = ({
   isOwnProfile,
   isFollowing,
+  isFollowPending,
   onFollow,
   onUnfollow,
   onEditProfile,
@@ -40,6 +42,7 @@ export const ProfileActions: React.FC<Props> = ({
       <Button
         variant={followButtonVariant}
         onClick={handleFollowClick}
+        disabled={isFollowPending}
         className={isFollowing ? s.btnUnfollow : ''}
       >
         {followButtonText}

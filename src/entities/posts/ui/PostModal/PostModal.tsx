@@ -59,6 +59,9 @@ export const PostModal = ({
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
+    handleFollow,
+    isFollowing,
+    isFollowPending,
     applyLocalDescription,
     currentUserName,
     currentUserAvatar,
@@ -170,6 +173,9 @@ export const PostModal = ({
         handleEditPost={handleEditPost}
         handleDeletePost={handleDeletePostAction}
         onCopyLink={handleCopyLink}
+        onFollow={handleFollow}
+        isFollowing={isFollowing}
+        isFollowPending={isFollowPending}
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}

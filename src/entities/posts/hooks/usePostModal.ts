@@ -2,7 +2,10 @@ import type { PostViewModel } from '@/entities/posts/api'
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-
+import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
+import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
+import { showToastAlert } from '@/shared/lib'
 import {
   POST_LIKES_QUERY_ARG,
   getAvatarWhoLikes,
@@ -118,6 +121,7 @@ export const usePostModal = (
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
+  const ownerUserName = postData?.userName
   let variant: PostVariant = 'public'
 
   if (isAuthenticatedUi) {
@@ -169,6 +173,19 @@ export const usePostModal = (
     resetDescription({ description })
   }
 
+  const {
+    isFollowing,
+    isFollowPending,
+    handleFollow: followOrUnfollow,
+  } = useFollowUserState(ownerUserName || '', postModalData.ownerId || 0)
+
+  const handleFollow = async () => {
+    if (isFollowPending) {
+      return
+    }
+    await followOrUnfollow()
+  }
+
   const handleCopyLink = async () => {
     const url = window.location.href
 
@@ -215,6 +232,9 @@ export const usePostModal = (
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
+    handleFollow,
+    isFollowing: isFollowing,
+    isFollowPending,
     applyLocalDescription,
     resolvedPostId,
     currentUserId: user?.userId,

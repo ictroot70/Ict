@@ -103,6 +103,7 @@ export const API_ROUTES = {
     BY_USERNAME: (userName: string) => `/v1/users/${userName}`,
     FOLLOWERS_BY_USERNAME: (userName: string) => `/v1/users/${userName}/followers`,
     FOLLOWING_BY_USERNAME: (userName: string) => `/v1/users/${userName}/following`,
+    SEARCH: '/v1/users',
   },
 
   PROFILE: {

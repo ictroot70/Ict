@@ -21,6 +21,11 @@ interface ViewModeProps {
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
+  onFollow: () => void
+  isFollowing: boolean
+  isFollowPending: boolean
+  isEditing?: boolean
+  comments: string[]
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
@@ -42,6 +47,10 @@ export const ViewMode = ({
   handleEditPost,
   handleDeletePost,
   onCopyLink,
+  onFollow,
+  isFollowing,
+  isFollowPending,
+  comments,
   commentControl,
   handleCommentSubmit,
   watchComment,
@@ -56,6 +65,7 @@ export const ViewMode = ({
   commentMaxLength,
   renderPostLikeAction,
 }: ViewModeProps) => {
+
   const handleFollow = () => {}
 
   const postDataForChildren = {
@@ -75,7 +85,9 @@ export const ViewMode = ({
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
-          onFollow={handleFollow}
+          onFollow={onFollow}
+          isFollowing={isFollowing}
+          isFollowPending={isFollowPending}
           onCopyLink={onCopyLink}
           isAuthLoading={isAuthLoading}
         />
