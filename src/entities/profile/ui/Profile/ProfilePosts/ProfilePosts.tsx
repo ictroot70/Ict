@@ -7,6 +7,10 @@ import { useEditPostLogic } from '@/entities/posts/hooks/useEditPostLogic'
 import { PostCard } from '@/entities/posts/ui/PostCard/PostCard'
 import { DeletePostModal } from '@/entities/posts/ui/PostModal/DeletePostModal/DeletePostModal'
 import { PostModal } from '@/entities/posts/ui/PostModal/PostModal'
+import {
+  PostModalAuthState,
+  RenderPostLikeAction,
+} from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { APP_ROUTES, type PostOpenSource } from '@/shared/constant'
 import { Typography } from '@/shared/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -20,6 +24,8 @@ type Props = {
   initialPostIdServer?: null | number
   initialPostDataServer?: null | PostViewModel
   initialPostSourceServer?: PostOpenSource
+  postModalAuthState?: PostModalAuthState
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 const isPostSource = (value: string): value is PostOpenSource =>
@@ -74,6 +80,8 @@ export const ProfilePosts: React.FC<Props> = ({
   initialPostIdServer = null,
   initialPostDataServer = null,
   initialPostSourceServer = 'direct',
+  postModalAuthState,
+  renderPostLikeAction,
 }) => {
   const [modalUrlState, setModalUrlState] = useState<ModalUrlState>({
     postId: initialPostIdServer,
@@ -212,9 +220,11 @@ export const ProfilePosts: React.FC<Props> = ({
             onClose={handleClosePost}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
             onDeletePost={isOwnProfile ? handleDeletePost : undefined}
-            isEditing={editingPostId === String(currentPostIdNumber)}
+            isEditing={editingPostId === currentPostIdNumber}
             postId={currentPostIdNumber ?? undefined}
             postData={modalPostData}
+            authState={postModalAuthState}
+            renderPostLikeAction={renderPostLikeAction}
           />
 
           <DeletePostModal

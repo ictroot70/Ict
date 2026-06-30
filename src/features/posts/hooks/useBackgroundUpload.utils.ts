@@ -1,5 +1,6 @@
-import { logger } from '@/shared/lib/logger'
-import { UploadedImageViewModel, PostImageViewModel } from '@/shared/types'
+import type { PostImageViewModel, UploadedImageViewModel } from '@/entities/posts/api'
+
+import { logger } from '@/shared/lib'
 
 export const BACKGROUND_UPLOAD_CHUNK_SIZE = 5
 

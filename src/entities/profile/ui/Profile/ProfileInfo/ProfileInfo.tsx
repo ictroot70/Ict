@@ -15,6 +15,9 @@ type Props = {
   shouldShowAuthActionSkeleton: boolean
   authActionSkeletonVariant: 'double' | 'single'
   isOwnProfile: boolean
+  isFollowing?: boolean
+  isFollowPending?: boolean
+  userMetadata?: PublicProfileData['userMetadata']
   onFollow?: () => void
   onUnfollow?: () => void
   onEditProfile?: () => void
@@ -27,12 +30,17 @@ export function ProfileInfo({
   authActionSkeletonVariant,
   profile,
   isOwnProfile,
+  isFollowing: isFollowingProp,
+  isFollowPending,
+  userMetadata: userMetadataProp,
   onFollow,
   onUnfollow,
   onEditProfile,
   onSendMessage,
 }: Props) {
-  const { userName, avatars, userMetadata, isFollowing, aboutMe } = profile
+  const { userName, avatars, aboutMe } = profile
+  const isFollowing = isFollowingProp ?? profile.isFollowing
+  const userMetadata = userMetadataProp ?? profile.userMetadata
 
   return (
     <div className={s.info}>
@@ -44,6 +52,7 @@ export function ProfileInfo({
             <ProfileActions
               isFollowing={isFollowing}
               isOwnProfile={isOwnProfile}
+              isFollowPending={isFollowPending}
               onFollow={onFollow}
               onUnfollow={onUnfollow}
               onEditProfile={onEditProfile}

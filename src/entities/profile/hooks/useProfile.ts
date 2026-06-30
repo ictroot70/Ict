@@ -1,7 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 import { postApi, type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
 import {
   profileApi,
@@ -9,31 +7,24 @@ import {
   useGetPublicProfileQuery,
 } from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
+import { useMeQuery } from '@/features/auth'
 import { useAppSelector } from '@/lib/hooks'
-import { baseApi } from '@/shared/api/base-api'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
-import { logger } from '@/shared/lib'
-import { useParams, useRouter } from 'next/navigation'
-
-type MeQueryCacheEntry = {
-  data?: unknown
-  endpointName?: string
-  status?: 'fulfilled' | 'pending' | 'rejected' | 'uninitialized'
-}
+import { useRouter } from 'next/navigation'
 
 export const useProfile = (
   profileDataServer: PublicProfileData,
-  postsDataServer: PaginatedPosts
+  postsDataServer: PaginatedPosts,
+  resolvedUserId: number
 ) => {
-  // const [isHydrated, setIsHydrated] = useState(false)
-  const { id } = useParams<{ id: string }>()
-  const userId = Number(id)
+  const userId = resolvedUserId
   const router = useRouter()
   const profileQueryArgs = { profileId: userId }
   const postsQueryArgs = { userId }
 
-  const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated)
+  const { data: user, isLoading: isMeLoading, isUninitialized: isMeUninitialized } = useMeQuery()
   const profileDataFromCache = useAppSelector(
     profileApi.endpoints.getPublicProfile.select(profileQueryArgs)
   )?.data
@@ -42,16 +33,7 @@ export const useProfile = (
   )?.data
   const hasProfileDataInCache = Boolean(profileDataFromCache)
   const hasPostsDataInCache = Boolean(postsDataFromCache?.pages?.length)
-  const meQueryState = useAppSelector(state => {
-    const queries = Object.values(state[baseApi.reducerPath].queries) as MeQueryCacheEntry[]
-
-    return queries.find(query => query.endpointName === 'me')
-  })
   const { hasAuthHint, authUserIdHint } = useAuthSessionHintContext()
-
-  // useEffect(() => {
-  //   setIsHydrated(true)
-  // }, [])
 
   useInitializeProfile({
     userId,
@@ -80,6 +62,37 @@ export const useProfile = (
 
   const profile = profileData || profileDataFromCache || profileDataServer
 
+  const isAuthenticated = Boolean(user)
+  const isAuthResolving = hasAuthHint && !isAuthenticated && (isMeLoading || isMeUninitialized)
+  const shouldShowAuthActionSkeleton = !isAuthenticated && isAuthResolving
+  const isOwnProfile = isAuthenticated && profile.id === (user?.userId ?? authUserIdHint)
+  const canInteractWithOtherProfile = !isOwnProfile
+  const authActionSkeletonVariant: 'single' | 'double' =
+    authUserIdHint === profile.id ? 'single' : 'double'
+
+  // The public profile endpoint is unauthenticated, so its `isFollowing` is always false.
+  // Fetch the real per-viewer follow status from the authenticated by-userName endpoint.
+  const isViewerOwnProfile = Boolean(user?.userId && profile.id === user.userId)
+
+  const {
+    isFollowing,
+    followersCount,
+    followingCount,
+    publicationsCount,
+    isFollowPending,
+    handleFollow,
+    handleUnfollow,
+  } = useFollowUserState(profile.userName, profile.id, user?.userId, {
+    enabled: Boolean(user && !isViewerOwnProfile),
+  })
+
+  // Use the live authenticated counts; fall back to the SSR public-profile metadata
+  const userMetadata = {
+    followers: followersCount ?? profile.userMetadata.followers,
+    following: followingCount ?? profile.userMetadata.following,
+    publications: publicationsCount ?? profile.userMetadata.publications,
+  }
+
   const posts =
     postsData?.pages?.flatMap(page => page.items || []) ||
     postsDataFromCache?.pages?.flatMap(page => page.items || []) ||
@@ -100,39 +113,14 @@ export const useProfile = (
     router.push(APP_ROUTES.MESSENGER.DIALOGUE(profile.id))
   }
 
-  const handleFollow = async () => {
-    // TODO: implement follow logic
-    logger.info('[profile] Follow user:', profile.id)
-  }
-
-  const handleUnfollow = async () => {
-    // TODO: implement unfollow logic
-    logger.info('[profile] Unfollow user:', profile.id)
-  }
-
-  const meUserId =
-    meQueryState?.data &&
-    typeof meQueryState.data === 'object' &&
-    'userId' in meQueryState.data &&
-    typeof meQueryState.data.userId === 'number'
-      ? meQueryState.data.userId
-      : null
-
-  const isAuthenticatedUi = isAuthenticated
-  const isAuthResolving =
-    hasAuthHint &&
-    !isAuthenticatedUi &&
-    (!meQueryState || meQueryState.status === 'pending' || meQueryState.status === 'uninitialized')
-  const shouldShowAuthActionSkeleton = !isAuthenticatedUi && isAuthResolving
-  const isOwnProfile = isAuthenticatedUi && profile.id === (meUserId ?? authUserIdHint)
-  const authActionSkeletonVariant: 'single' | 'double' =
-    authUserIdHint === profile.id ? 'single' : 'double'
-
   const profileInfoActions = {
     onEditProfile: isOwnProfile ? handleEditProfile : undefined,
-    onSendMessage: !isOwnProfile ? handleSendMessage : undefined,
-    onFollow: !isOwnProfile && !profile.isFollowing ? handleFollow : undefined,
-    onUnfollow: !isOwnProfile && profile.isFollowing ? handleUnfollow : undefined,
+    onSendMessage: canInteractWithOtherProfile ? handleSendMessage : undefined,
+    onFollow: canInteractWithOtherProfile && !isFollowing ? handleFollow : undefined,
+    onUnfollow: canInteractWithOtherProfile && isFollowing ? handleUnfollow : undefined,
+    isFollowing: isFollowing,
+    isFollowPending,
+    userMetadata,
   }
 
   return {
@@ -142,7 +130,7 @@ export const useProfile = (
     isLoading,
     hasNextPage,
     isOwnProfile,
-    isAuthenticated: isAuthenticatedUi,
+    isAuthenticated,
     shouldShowAuthActionSkeleton,
     authActionSkeletonVariant,
     profileInfoActions,

@@ -6,10 +6,20 @@ type Props = {
   onEdit?: () => void
   onDelete?: () => void
   onFollow?: () => void
+  isFollowing?: boolean
+  isFollowPending?: boolean
   onCopyLink?: () => void
 }
 
-export default function PostActions({ variant, onEdit, onDelete, onFollow, onCopyLink }: Props) {
+export default function PostActions({
+  variant,
+  onEdit,
+  onDelete,
+  onFollow,
+  isFollowing,
+  isFollowPending,
+  onCopyLink,
+}: Props) {
   const myPostActions: ActionsMenuItem[] = [
     {
       label: 'Edit Post',
@@ -25,9 +35,10 @@ export default function PostActions({ variant, onEdit, onDelete, onFollow, onCop
 
   const userPostActions: ActionsMenuItem[] = [
     {
-      label: 'Follow',
+      label: isFollowing ? 'Unfollow' : 'Follow',
       icon: <PersonAddOutline />,
       onClick: () => onFollow?.(),
+      disabled: isFollowPending,
     },
     {
       label: 'Copy Link',

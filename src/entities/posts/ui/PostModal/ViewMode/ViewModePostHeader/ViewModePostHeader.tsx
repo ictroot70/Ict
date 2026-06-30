@@ -19,6 +19,8 @@ interface PostHeaderProps {
   onEdit: () => void
   onDelete: () => void
   onFollow: () => void
+  isFollowing: boolean
+  isFollowPending: boolean
   onCopyLink: () => void
   isAuthLoading: boolean
 }
@@ -29,6 +31,8 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
   onEdit,
   onDelete,
   onFollow,
+  isFollowing,
+  isFollowPending,
   onCopyLink,
   isAuthLoading,
 }) => {
@@ -39,7 +43,15 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
   } else if (variant === 'myPost') {
     actions = <PostActions variant={'myPost'} onEdit={onEdit} onDelete={onDelete} />
   } else if (variant === 'userPost') {
-    actions = <PostActions variant={'userPost'} onFollow={onFollow} onCopyLink={onCopyLink} />
+    actions = (
+      <PostActions
+        variant={'userPost'}
+        onFollow={onFollow}
+        isFollowing={isFollowing}
+        isFollowPending={isFollowPending}
+        onCopyLink={onCopyLink}
+      />
+    )
   }
 
   return (

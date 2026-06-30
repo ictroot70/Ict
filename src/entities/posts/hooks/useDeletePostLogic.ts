@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { useDeletePostMutation } from '@/entities/posts/api/postApi'
+import { useDeletePostMutation } from '@/entities/posts/api'
 
 type DeletePostLogicOptions = {
   enabled?: boolean
@@ -10,9 +10,9 @@ type DeletePostLogicOptions = {
 export const useDeletePostLogic = (userId: number, options?: DeletePostLogicOptions) => {
   const [deletePost, { isLoading: isDeleting }] = useDeletePostMutation()
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
 
-  const handleDeletePost = (postId: string) => {
+  const handleDeletePost = (postId: number) => {
     if (options?.enabled === false) {
       return
     }
@@ -26,7 +26,7 @@ export const useDeletePostLogic = (userId: number, options?: DeletePostLogicOpti
     }
 
     try {
-      const postIdNumber = parseInt(selectedPostId)
+      const postIdNumber = selectedPostId
 
       await deletePost({ postId: postIdNumber, userId }).unwrap()
 

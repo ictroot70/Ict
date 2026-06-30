@@ -1,32 +1,42 @@
+'use client'
+
+import type { PostViewModel } from '@/entities/posts/api'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../postModalLikeAction.types'
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
-  onClose: () => void
-  postData: PostModalData
+  postData: PostViewModel
   variant: PostVariant
   handleEditPost: () => void
   handleDeletePost: () => void
   onCopyLink: () => void
-  isEditing?: boolean
-  comments: string[]
+  onFollow: () => void
+  isFollowing: boolean
+  isFollowPending: boolean
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
   handlePublish: (data: CommentFormData) => void
   formattedCreatedAt: string
   isAuthLoading: boolean
+  isCreateCommentLoading: boolean
   isAuthenticated: boolean
-  isOwnProfile: boolean
+  commentsEnabled?: boolean
+  currentUserName?: string
+  currentUserAvatar?: string
+  commentMaxLength: number
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const ViewMode = ({
@@ -35,15 +45,29 @@ export const ViewMode = ({
   handleEditPost,
   handleDeletePost,
   onCopyLink,
-  comments,
+  onFollow,
+  isFollowing,
+  isFollowPending,
   commentControl,
   handleCommentSubmit,
   watchComment,
   handlePublish,
   formattedCreatedAt,
   isAuthLoading,
+  isCreateCommentLoading,
+  isAuthenticated,
+  commentsEnabled = true,
+  currentUserName,
+  currentUserAvatar,
+  commentMaxLength,
+  renderPostLikeAction,
 }: ViewModeProps) => {
-  const handleFollow = () => {}
+  const postDataForChildren = {
+    avatar: postData.avatarOwner,
+    userName: postData.userName,
+    description: postData.description ?? '',
+    createdAt: postData.createdAt,
+  }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -51,27 +75,44 @@ export const ViewMode = ({
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postData}
+          postData={postDataForChildren}
           variant={variant}
           onEdit={handleEditPost}
           onDelete={handleDeletePost}
-          onFollow={handleFollow}
+          onFollow={onFollow}
+          isFollowing={isFollowing}
+          isFollowPending={isFollowPending}
           onCopyLink={onCopyLink}
           isAuthLoading={isAuthLoading}
         />
 
-        <ViewModeCommentsSection postData={postData} comments={comments} />
+        <ViewModeCommentsSection
+          postData={postDataForChildren}
+          postId={postData.id}
+          isAuthenticated={isAuthenticated}
+          currentUserName={currentUserName}
+          currentUserAvatar={currentUserAvatar}
+          enabled={commentsEnabled}
+        />
 
         <Separator />
 
         <ViewModePostFooter
           variant={variant}
+          postId={postData.id}
+          ownerId={postData.ownerId}
+          isLiked={postData.isLiked}
+          likesCount={postData.likesCount}
+          avatarWhoLikes={postData.avatarWhoLikes}
+          renderPostLikeAction={renderPostLikeAction}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}
           handleCommentSubmit={handleCommentSubmit}
           watchComment={watchComment}
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
+          isCreateCommentLoading={isCreateCommentLoading}
+          commentMaxLength={commentMaxLength}
         />
       </div>
     </div>

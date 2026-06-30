@@ -1,16 +1,17 @@
 'use client'
 
+import type { PostViewModel } from '@/entities/posts/api'
+
 import React from 'react'
 
 import { Carousel } from '@/shared/composites'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { PostModalData } from '@/shared/types'
 import { SafeImage } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
 interface PhotoSectionProps {
-  postData: PostModalData
+  postData: PostViewModel
 }
 const DEFAULT_IMAGE = '/default-image.svg'
 
