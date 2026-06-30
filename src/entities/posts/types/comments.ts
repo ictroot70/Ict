@@ -2,6 +2,7 @@ export type {
   AnswersViewModel,
   BaseComment,
   CommentAuthor,
+  CommentFormData,
   CommentFormSchema,
   AnswerFormSchema,
   CommentsViewModel,

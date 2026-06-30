@@ -61,7 +61,7 @@ export const patchAnswerLikeInPages = (
   }
 }
 
-export const getNextPageParam = <T extends { items: any[]; totalCount: number }>(
+export const getNextPageParam = <T extends { items: unknown[]; totalCount: number }>(
   lastPage: T,
   allPages: T[]
 ): number | undefined => {

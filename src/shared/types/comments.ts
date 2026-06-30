@@ -19,6 +19,7 @@ export const answerFormSchema = z.object({
 
 export type CommentFormSchema = z.infer<typeof commentFormSchema>
 export type AnswerFormSchema = z.infer<typeof answerFormSchema>
+export type CommentFormData = CommentFormSchema
 
 export interface BaseComment {
   id: number

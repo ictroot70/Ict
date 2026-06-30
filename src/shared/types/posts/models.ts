@@ -68,10 +68,6 @@ export interface DescriptionFormData {
   description: string
 }
 
-export interface CommentFormData {
-  comment: string
-}
-
 export interface PostModalData {
   id: number
   images: UserImage[]
