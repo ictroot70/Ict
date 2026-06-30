@@ -2,8 +2,7 @@
 
 import React from 'react'
 
-import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
-import { useCommentLikeToggle } from '@/entities/posts/hooks'
+import { useCommentLikeToggle, useCreateCommentAnswerReply } from '@/entities/posts/hooks'
 import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar } from '@/shared/composites'
@@ -11,7 +10,6 @@ import {
   AnswersViewModel,
   getCommentAuthorName,
   getCommentAvatarUrl,
-  ensureReplyMention,
 } from '@/shared/types/comments'
 import { Typography } from '@/shared/ui'
 
@@ -39,23 +37,17 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
 }) => {
   const timeAgo = useTimeAgo(answer.createdAt)
   const { toggleAnswerLike, isAnswerLocked } = useCommentLikeToggle(postId)
-  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
   const { isReplying, replyForm, handleStartReply, handleCancelReply, handleSubmitReply } =
     useReplyForm()
 
   const authorName = getCommentAuthorName(answer.from)
-
-  const onSubmitReply = async (content: string) => {
-    const contentWithMention = ensureReplyMention(content, authorName)
-
-    await createAnswer({
-      postId,
-      commentId: answer.commentId,
-      content: contentWithMention,
-      authorName: currentUserName,
-      authorAvatar: currentUserAvatar,
-    }).unwrap()
-  }
+  const { submitReply, isSubmitting } = useCreateCommentAnswerReply({
+    postId,
+    commentId: answer.commentId,
+    replyToUserName: authorName,
+    currentUserName,
+    currentUserAvatar,
+  })
 
   return (
     <div className={s.answerBlock}>
@@ -86,7 +78,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
           replyForm={replyForm}
           isSubmitting={isSubmitting}
           authorName={authorName}
-          onSubmit={handleSubmitReply(onSubmitReply)}
+          onSubmit={handleSubmitReply(submitReply)}
           onCancel={handleCancelReply}
         />
       )}

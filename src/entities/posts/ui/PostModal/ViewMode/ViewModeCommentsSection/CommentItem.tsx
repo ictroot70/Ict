@@ -2,8 +2,11 @@
 
 import React, { useState } from 'react'
 
-import { useCreateCommentAnswerMutation } from '@/entities/posts/api/postCommentsApi'
-import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
+import {
+  useCommentAnswers,
+  useCommentLikeToggle,
+  useCreateCommentAnswerReply,
+} from '@/entities/posts/hooks'
 import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
@@ -11,7 +14,6 @@ import {
   CommentsViewModel,
   getCommentAuthorName,
   getCommentAvatarUrl,
-  ensureReplyMention,
 } from '@/shared/types/comments'
 import { Button, Typography } from '@/shared/ui'
 
@@ -42,7 +44,6 @@ export const CommentItem: React.FC<CommentItemProps> = ({
 
   const timeAgo = useTimeAgo(comment.createdAt)
   const { toggleCommentLike, isCommentLocked } = useCommentLikeToggle(postId)
-  const [createAnswer, { isLoading: isSubmitting }] = useCreateCommentAnswerMutation()
   const {
     answers,
     loadMore,
@@ -56,29 +57,21 @@ export const CommentItem: React.FC<CommentItemProps> = ({
   const displayedAnswers = answers
   const hasAnswers = answerCount > 0 || displayedAnswers.length > 0
   const authorName = getCommentAuthorName(comment.from)
+  const { submitReply, isSubmitting } = useCreateCommentAnswerReply({
+    postId,
+    commentId: comment.id,
+    replyToUserName: authorName,
+    currentUserName,
+    currentUserAvatar,
+    onBeforeSubmit: () => {
+      if (!showAnswers) {
+        setShowAnswers(true)
+      }
+    },
+  })
 
   const handleToggleAnswers = () => setShowAnswers(prev => !prev)
   const handleToggleLike = () => toggleCommentLike(comment.id, comment.isLiked)
-
-  const onSubmitReply = async (content: string) => {
-    const contentWithMention = ensureReplyMention(content, authorName)
-
-    if (!showAnswers) {
-      setShowAnswers(true)
-    }
-
-    try {
-      await createAnswer({
-        postId,
-        commentId: comment.id,
-        content: contentWithMention,
-        authorName: currentUserName,
-        authorAvatar: currentUserAvatar,
-      }).unwrap()
-    } catch (error) {
-      console.error('Failed to create answer:', error)
-    }
-  }
 
   return (
     <div className={s.commentBlock}>
@@ -109,7 +102,7 @@ export const CommentItem: React.FC<CommentItemProps> = ({
           replyForm={replyForm}
           isSubmitting={isSubmitting}
           authorName={authorName}
-          onSubmit={handleSubmitReply(onSubmitReply)}
+          onSubmit={handleSubmitReply(submitReply)}
           onCancel={handleCancelReply}
         />
       )}
