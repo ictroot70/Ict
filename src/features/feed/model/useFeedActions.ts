@@ -40,7 +40,7 @@ export const useFeedActions = () => {
   )
 
   const toggleFollow = useCallback(
-    async (userId: number) => {
+    async ({ userId, userName }: { userId: number; userName?: string }) => {
       if (!authUserIdHint || pendingUserIds.has(userId)) {
         return
       }
@@ -51,10 +51,18 @@ export const useFeedActions = () => {
 
       try {
         if (shouldUnfollow) {
-          await unfollowUser({ currentUserId: authUserIdHint, selectedUserId: userId }).unwrap()
+          await unfollowUser({
+            currentUserId: authUserIdHint,
+            selectedUserId: userId,
+            targetUserName: userName,
+          }).unwrap()
           dispatch(markUserUnfollowed(userId))
         } else {
-          await followUser({ currentUserId: authUserIdHint, selectedUserId: userId }).unwrap()
+          await followUser({
+            currentUserId: authUserIdHint,
+            selectedUserId: userId,
+            targetUserName: userName,
+          }).unwrap()
           dispatch(markUserFollowed(userId))
         }
       } catch {

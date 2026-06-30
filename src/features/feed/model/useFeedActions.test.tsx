@@ -67,17 +67,25 @@ describe('useFeedActions', () => {
     expect(result.current.isFollowing(7)).toBe(true)
 
     await act(async () => {
-      await result.current.toggleFollow(7)
+      await result.current.toggleFollow({ userId: 7, userName: 'john' })
     })
 
-    expect(unfollowUser).toHaveBeenCalledWith({ currentUserId: 1, selectedUserId: 7 })
+    expect(unfollowUser).toHaveBeenCalledWith({
+      currentUserId: 1,
+      selectedUserId: 7,
+      targetUserName: 'john',
+    })
     expect(result.current.isFollowing(7)).toBe(false)
 
     await act(async () => {
-      await result.current.toggleFollow(7)
+      await result.current.toggleFollow({ userId: 7, userName: 'john' })
     })
 
-    expect(followUser).toHaveBeenCalledWith({ currentUserId: 1, selectedUserId: 7 })
+    expect(followUser).toHaveBeenCalledWith({
+      currentUserId: 1,
+      selectedUserId: 7,
+      targetUserName: 'john',
+    })
     expect(result.current.isFollowing(7)).toBe(true)
   })
 
@@ -87,7 +95,7 @@ describe('useFeedActions', () => {
     const { result } = renderHook(() => useFeedActions(), { wrapper })
 
     await act(async () => {
-      await result.current.toggleFollow(7)
+      await result.current.toggleFollow({ userId: 7, userName: 'john' })
     })
 
     expect(result.current.isFollowing(7)).toBe(true)
@@ -122,7 +130,7 @@ describe('useFeedActions', () => {
     const firstFeed = renderHook(() => useFeedActions(), { wrapper })
 
     await act(async () => {
-      await firstFeed.result.current.toggleFollow(7)
+      await firstFeed.result.current.toggleFollow({ userId: 7, userName: 'john' })
     })
 
     firstFeed.unmount()
