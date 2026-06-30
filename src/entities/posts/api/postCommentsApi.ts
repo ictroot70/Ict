@@ -13,7 +13,7 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { AnswersViewModel } from '@/shared/types/comments'
+import { AnswersViewModel, CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 type CreateCommentAnswerInput = {
@@ -27,6 +27,18 @@ type CreateCommentAnswerInput = {
 export const commentsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: builder => ({
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.COMMENTS(postId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [
+        { type: 'Comments', id: postId },
+        { type: 'Post', id: postId },
+      ],
+    }),
+
     createCommentAnswer: builder.mutation<void, CreateCommentAnswerInput>({
       query: ({ postId, commentId, content }) => ({
         url: API_ROUTES.POSTS.COMMENT_ANSWERS(postId, commentId),
@@ -200,6 +212,7 @@ export const commentsApi = baseApi.injectEndpoints({
 })
 
 export const {
+  useCreateCommentMutation,
   useCreateCommentAnswerMutation,
   useGetPostCommentsInfiniteQuery,
   useGetCommentAnswersInfiniteQuery,

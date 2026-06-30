@@ -1,13 +1,17 @@
-import type { CommentsViewModel } from '@/shared/types/comments'
-
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useCreateCommentMutation } from '@/entities/posts/api'
-import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postCommentsApi'
+import {
+  useCreateCommentMutation,
+  useGetPostCommentsInfiniteQuery,
+} from '@/entities/posts/api/postCommentsApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-import { CommentFormData } from '@/shared/types'
+import {
+  COMMENT_CONTENT_MAX,
+  type CommentFormData,
+  type CommentsViewModel,
+} from '@/shared/types/comments'
 
 import { COMMENTS_PAGE_SIZE } from '../lib'
 
@@ -15,8 +19,6 @@ type UsePostCommentsParams = {
   postId?: number
   enabled?: boolean
 }
-
-const COMMENT_MAX_LENGTH = 300
 
 export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParams) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
@@ -56,7 +58,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
 
   const handlePublish = async (data: CommentFormData) => {
     const trimmed = data.comment.trim()
-    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
+    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_CONTENT_MAX
 
     if (!enabled || !user?.userId || !isCommentValid || !isValidPostId || isCreateCommentLoading) {
       return
@@ -99,6 +101,6 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
     loadMore,
-    commentMaxLength: COMMENT_MAX_LENGTH,
+    commentMaxLength: COMMENT_CONTENT_MAX,
   }
 }
