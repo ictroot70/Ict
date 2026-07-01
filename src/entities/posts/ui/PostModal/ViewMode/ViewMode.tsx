@@ -5,6 +5,7 @@ import type { PostViewModel } from '@/entities/posts/api'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
 import { CommentFormData, PostVariant } from '@/shared/types'
+import { CommentsViewModel } from '@/shared/types/comments'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
@@ -27,15 +28,22 @@ interface ViewModeProps {
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
+  handlePublish: (data: CommentFormData) => Promise<boolean>
   formattedCreatedAt: string
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
+  isReplyPublishing: boolean
   isAuthenticated: boolean
-  commentsEnabled?: boolean
-  currentUserName?: string
-  currentUserAvatar?: string
+  comments: CommentsViewModel[]
+  commentsTotalCount: number
+  loadMoreComments: () => void
+  hasNextCommentsPage: boolean
+  isFetchingNextCommentsPage: boolean
+  isCommentsLoading: boolean
+  isCommentsError: boolean
+  expandedAnswersCommentId: number | null
   commentMaxLength: number
+  handleStartReply: (target: { commentId: number; userName: string }) => void
   renderPostLikeAction?: RenderPostLikeAction
 }
 
@@ -55,11 +63,18 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isCreateCommentLoading,
+  isReplyPublishing,
   isAuthenticated,
-  commentsEnabled = true,
-  currentUserName,
-  currentUserAvatar,
+  comments,
+  commentsTotalCount,
+  loadMoreComments,
+  hasNextCommentsPage,
+  isFetchingNextCommentsPage,
+  isCommentsLoading,
+  isCommentsError,
+  expandedAnswersCommentId,
   commentMaxLength,
+  handleStartReply,
   renderPostLikeAction,
 }: ViewModeProps) => {
   const postDataForChildren = {
@@ -90,9 +105,15 @@ export const ViewMode = ({
           postData={postDataForChildren}
           postId={postData.id}
           isAuthenticated={isAuthenticated}
-          currentUserName={currentUserName}
-          currentUserAvatar={currentUserAvatar}
-          enabled={commentsEnabled}
+          comments={comments}
+          loadMore={loadMoreComments}
+          hasNextPage={hasNextCommentsPage}
+          isLoading={isCommentsLoading}
+          isFetchingNextPage={isFetchingNextCommentsPage}
+          isError={isCommentsError}
+          totalCount={commentsTotalCount}
+          expandedAnswersCommentId={expandedAnswersCommentId}
+          onAnswer={handleStartReply}
         />
 
         <Separator />
@@ -112,6 +133,7 @@ export const ViewMode = ({
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
           isCreateCommentLoading={isCreateCommentLoading}
+          isReplyPublishing={isReplyPublishing}
           commentMaxLength={commentMaxLength}
         />
       </div>

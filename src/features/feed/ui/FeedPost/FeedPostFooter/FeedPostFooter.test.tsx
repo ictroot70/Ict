@@ -13,7 +13,8 @@ import { FeedPostFooter } from './FeedPostFooter'
 
 const usePostCommentsMock = vi.hoisted(() => vi.fn())
 const useCommentLikeToggleMock = vi.hoisted(() => vi.fn())
-const handlePublishMock = vi.fn()
+const handlePublishMock = vi.fn(),
+  handleStartReplyMock = vi.fn()
 const loadMoreMock = vi.fn()
 const scrollToMock = vi.fn()
 const toggleCommentLikeMock = vi.fn()
@@ -26,7 +27,6 @@ vi.mock('@/entities/posts/hooks', () => ({
     isLoading: false,
   }),
   useCommentLikeToggle: useCommentLikeToggleMock,
-  useCreateCommentAnswerReply: () => ({ submitReply: vi.fn(), isSubmitting: false }),
   usePostComments: usePostCommentsMock,
 }))
 
@@ -168,6 +168,8 @@ const arrangeUsePostComments = ({
     handleCommentSubmit: createHandleCommentSubmit(),
     watchComment: vi.fn(() => comment),
     handlePublish: handlePublishMock,
+    handleStartReply: handleStartReplyMock,
+    replyTarget: null,
     isCommentPublishing,
     isCommentsLoading: false,
     isCommentsError: false,
@@ -240,7 +242,6 @@ describe('FeedPostFooter', () => {
     expect(screen.getByTestId('comments-progress')).toHaveAttribute('data-active', 'true')
 
     fireEvent.click(screen.getByText('Infinite comments trigger'))
-
     expect(loadMoreMock).toHaveBeenCalledTimes(1)
   })
 

@@ -28,6 +28,7 @@ const getUniqueAvatarUrls = (avatarUrls: string[]) =>
 export function FeedPostFooter({ currentUser, post }: Props) {
   const [areCommentsOpen, setAreCommentsOpen] = useState(false)
   const [shouldScrollCommentsToTop, setShouldScrollCommentsToTop] = useState(false)
+  const [expandedAnswersCommentId, setExpandedAnswersCommentId] = useState<number | null>(null)
   const commentsPanelRef = useRef<HTMLDivElement>(null)
   const commentFormRef = useRef<HTMLFormElement>(null)
   const {
@@ -42,6 +43,9 @@ export function FeedPostFooter({ currentUser, post }: Props) {
     handleCommentSubmit,
     watchComment,
     handlePublish,
+    handleStartReply,
+    replyTarget,
+    isReplyPublishing,
     isCommentPublishing,
     commentMaxLength,
   } = usePostComments({
@@ -70,6 +74,13 @@ export function FeedPostFooter({ currentUser, post }: Props) {
   }
 
   const handleSubmitComment = async (data: CommentFormData) => {
+    const activeReplyTarget = replyTarget
+
+    if (activeReplyTarget) {
+      setAreCommentsOpen(true)
+      setExpandedAnswersCommentId(activeReplyTarget.commentId)
+    }
+
     const isPublished = await handlePublish(data)
 
     if (!isPublished) {
@@ -77,7 +88,10 @@ export function FeedPostFooter({ currentUser, post }: Props) {
     }
 
     setAreCommentsOpen(true)
-    setShouldScrollCommentsToTop(true)
+
+    if (!activeReplyTarget) {
+      setShouldScrollCommentsToTop(true)
+    }
   }
 
   useEffect(() => {
@@ -204,7 +218,8 @@ export function FeedPostFooter({ currentUser, post }: Props) {
                 postId={post.id}
                 comment={comment}
                 isAuthenticated={Boolean(currentUser)}
-                currentUserName={currentUser?.userName}
+                shouldShowAnswers={expandedAnswersCommentId === comment.id}
+                onAnswer={handleStartReply}
               />
             ))}
 
@@ -212,21 +227,25 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         </div>
       )}
 
-      {isCommentPublishing && <LinearProgress active={isCommentPublishing} />}
+      {isCommentPublishing && !isReplyPublishing && <LinearProgress active={isCommentPublishing} />}
 
       <form
         ref={commentFormRef}
         className={s.commentForm}
         onSubmit={handleCommentSubmit(handleSubmitComment)}
       >
-        <ControlledInput
-          name={'comment'}
-          control={commentControl}
-          inputType={'text'}
-          placeholder={'Add a Comment'}
-          className={s.input}
-          maxLength={commentMaxLength}
-        />
+        <div className={s.commentInputWrapper}>
+          <ControlledInput
+            name={'comment'}
+            control={commentControl}
+            inputType={'text'}
+            placeholder={'Add a Comment'}
+            className={s.input}
+            maxLength={commentMaxLength}
+            disabled={isReplyPublishing}
+          />
+          {isReplyPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
+        </div>
 
         <Button variant={'text'} type={'submit'} disabled={isCommentInvalid || isCommentPublishing}>
           Publish

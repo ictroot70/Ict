@@ -48,7 +48,16 @@ export const PostModal = ({
     variant,
     isAuthLoading,
     isCreateCommentLoading,
+    isReplyPublishing,
     commentMaxLength,
+    comments,
+    commentsTotalCount,
+    loadMoreComments,
+    hasNextCommentsPage,
+    isFetchingNextCommentsPage,
+    isCommentsLoading,
+    isCommentsError,
+    expandedAnswersCommentId,
     isAuthenticated,
     hasPostData,
     isPostLoading,
@@ -56,6 +65,7 @@ export const PostModal = ({
     uiText,
     formattedCreatedAt,
     handlePublish,
+    handleStartReply,
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,
@@ -63,8 +73,6 @@ export const PostModal = ({
     isFollowing,
     isFollowPending,
     applyLocalDescription,
-    currentUserName,
-    currentUserAvatar,
   } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
@@ -179,15 +187,22 @@ export const PostModal = ({
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}
+        isReplyPublishing={isReplyPublishing}
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
-        commentsEnabled={open && hasPostData}
+        comments={comments}
+        commentsTotalCount={commentsTotalCount}
+        loadMoreComments={loadMoreComments}
+        hasNextCommentsPage={hasNextCommentsPage}
+        isFetchingNextCommentsPage={isFetchingNextCommentsPage}
+        isCommentsLoading={isCommentsLoading}
+        isCommentsError={isCommentsError}
+        expandedAnswersCommentId={expandedAnswersCommentId}
         commentControl={commentControl}
         handleCommentSubmit={handleCommentSubmit}
         watchComment={watchComment}
         handlePublish={handlePublish}
-        currentUserName={currentUserName}
-        currentUserAvatar={currentUserAvatar}
+        handleStartReply={handleStartReply}
         renderPostLikeAction={renderPostLikeAction}
       />
     )

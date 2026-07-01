@@ -2,8 +2,7 @@
 
 import React from 'react'
 
-import { useCommentLikeToggle, useCreateCommentAnswerReply } from '@/entities/posts/hooks'
-import { useReplyForm } from '@/entities/posts/hooks/useReplyForm'
+import { useCommentLikeToggle } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Avatar } from '@/shared/composites'
 import {
@@ -18,36 +17,24 @@ import s from '../ViewMode.module.scss'
 import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'
 import { CommentMetaActions } from './CommentMetaActions'
-import { ReplyForm } from './ReplyForm'
 
 interface AnswerItemProps {
   postId: number
   answer: AnswersViewModel
   isAuthenticated: boolean
-  currentUserName?: string
-  currentUserAvatar?: string
+  onAnswer: (target: { commentId: number; userName: string }) => void
 }
 
 export const AnswerItem: React.FC<AnswerItemProps> = ({
   postId,
   answer,
   isAuthenticated,
-  currentUserName,
-  currentUserAvatar,
+  onAnswer,
 }) => {
   const timeAgo = useTimeAgo(answer.createdAt)
   const { toggleAnswerLike, isAnswerLocked } = useCommentLikeToggle(postId)
-  const { isReplying, replyForm, handleStartReply, handleCancelReply, handleSubmitReply } =
-    useReplyForm()
-
   const authorName = getCommentAuthorName(answer.from)
-  const { submitReply, isSubmitting } = useCreateCommentAnswerReply({
-    postId,
-    commentId: answer.commentId,
-    replyToUserName: authorName,
-    currentUserName,
-    currentUserAvatar,
-  })
+  const handleAnswer = () => onAnswer({ commentId: answer.commentId, userName: authorName })
 
   return (
     <div className={s.answerBlock}>
@@ -61,8 +48,7 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
             timeAgo={timeAgo}
             isAuthenticated={isAuthenticated}
             likeCount={answer.likeCount}
-            showAnswerButton={!isReplying}
-            onAnswer={handleStartReply}
+            onAnswer={handleAnswer}
           />
         </div>
         <CommentLikeButton
@@ -72,16 +58,6 @@ export const AnswerItem: React.FC<AnswerItemProps> = ({
           disabled={isAnswerLocked(answer.commentId, answer.id)}
         />
       </div>
-
-      {isReplying && (
-        <ReplyForm
-          replyForm={replyForm}
-          isSubmitting={isSubmitting}
-          authorName={authorName}
-          onSubmit={handleSubmitReply(submitReply)}
-          onCancel={handleCancelReply}
-        />
-      )}
     </div>
   )
 }

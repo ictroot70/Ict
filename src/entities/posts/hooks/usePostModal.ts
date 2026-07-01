@@ -12,7 +12,7 @@ import {
 import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { showToastAlert } from '@/shared/lib'
-import { PostVariant, DescriptionFormData } from '@/shared/types'
+import { CommentFormData, DescriptionFormData, PostVariant } from '@/shared/types'
 
 import { PostModalAuthState } from '../ui/PostModal/postModalLikeAction.types'
 import { usePostComments } from './usePostComments'
@@ -44,6 +44,7 @@ export const usePostModal = (
 ) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
+  const [expandedAnswersCommentId, setExpandedAnswersCommentId] = useState<number | null>(null)
 
   const {
     control: descriptionControl,
@@ -144,19 +145,43 @@ export const usePostModal = (
     }
   }, [])
 
+  const currentUserAvatar =
+    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
+    currentUserProfile?.avatars[0]?.url ??
+    ''
+
   const commentsPostId = postData?.id ?? postId
 
   const {
+    comments,
+    totalCount: commentsTotalCount,
+    loadMore: loadMoreComments,
+    hasNextPage: hasNextCommentsPage,
+    isFetchingNextPage: isFetchingNextCommentsPage,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
     commentControl,
     handleCommentSubmit,
     watchComment,
     handlePublish,
+    handleStartReply,
+    replyTarget,
+    isReplyPublishing,
     isCommentPublishing,
     commentMaxLength,
   } = usePostComments({
     postId: commentsPostId,
     enabled: open && !isAuthUiLoading,
+    currentUserAvatar,
   })
+
+  const handlePublishComment = async (data: CommentFormData) => {
+    if (replyTarget) {
+      setExpandedAnswersCommentId(replyTarget.commentId)
+    }
+
+    return handlePublish(data)
+  }
 
   const handleEditPost = () => {
     setIsEditingDescription(true)
@@ -199,16 +224,20 @@ export const usePostModal = (
     }
   }
 
-  const currentUserAvatar =
-    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
-    currentUserProfile?.avatars[0]?.url ??
-    ''
-
   return {
     isEditingDescription,
     setIsEditingDescription,
     isCreateCommentLoading: isCommentPublishing,
+    isReplyPublishing,
     commentMaxLength,
+    comments,
+    commentsTotalCount,
+    loadMoreComments,
+    hasNextCommentsPage,
+    isFetchingNextCommentsPage,
+    isCommentsLoading,
+    isCommentsError,
+    expandedAnswersCommentId,
     commentControl,
     handleCommentSubmit,
     watchComment,
@@ -226,7 +255,8 @@ export const usePostModal = (
     isPostError,
     uiText,
     formattedCreatedAt,
-    handlePublish,
+    handlePublish: handlePublishComment,
+    handleStartReply,
     handleEditPost,
     handleCancelEdit,
     handleCopyLink,

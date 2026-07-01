@@ -2,9 +2,9 @@
 
 import React from 'react'
 
-import { usePostComments } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
+import { CommentsViewModel } from '@/shared/types/comments'
 import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
@@ -20,22 +20,32 @@ interface CommentsSectionProps {
   }
   postId: number
   isAuthenticated: boolean
-  currentUserName?: string
-  currentUserAvatar?: string
-  enabled: boolean
+  comments: CommentsViewModel[]
+  loadMore: () => void
+  hasNextPage: boolean
+  isLoading: boolean
+  isFetchingNextPage: boolean
+  isError: boolean
+  totalCount: number
+  expandedAnswersCommentId: number | null
+  onAnswer: (target: { commentId: number; userName: string }) => void
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
   postData,
   postId,
   isAuthenticated,
-  currentUserName,
-  currentUserAvatar,
-  enabled,
+  comments,
+  loadMore,
+  hasNextPage,
+  isLoading,
+  isFetchingNextPage,
+  isError,
+  totalCount,
+  expandedAnswersCommentId,
+  onAnswer,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
-  const { comments, loadMore, hasNextPage, isLoading, isFetchingNextPage, isError, totalCount } =
-    usePostComments({ postId, enabled })
 
   return (
     <>
@@ -72,8 +82,8 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
               postId={postId}
               comment={comment}
               isAuthenticated={isAuthenticated}
-              currentUserName={currentUserName}
-              currentUserAvatar={currentUserAvatar}
+              shouldShowAnswers={expandedAnswersCommentId === comment.id}
+              onAnswer={onAnswer}
             />
           ))}
 

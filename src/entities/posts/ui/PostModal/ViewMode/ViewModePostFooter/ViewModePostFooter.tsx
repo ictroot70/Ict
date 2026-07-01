@@ -32,9 +32,10 @@ interface PostFooterProps {
   commentControl: Control<CommentFormData>
   handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
   watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
+  handlePublish: (data: CommentFormData) => Promise<boolean>
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
+  isReplyPublishing: boolean
   commentMaxLength: number
 }
 
@@ -53,6 +54,7 @@ export const ViewModePostFooter = ({
   handlePublish,
   isAuthLoading,
   isCreateCommentLoading,
+  isReplyPublishing,
   commentMaxLength,
 }: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
@@ -137,14 +139,18 @@ export const ViewModePostFooter = ({
           <>
             <Separator className={s.fullWidthSeparator} />
             <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-              <ControlledInput
-                name={'comment'}
-                control={commentControl}
-                inputType={'text'}
-                placeholder={'Add a Comment...'}
-                className={s.input}
-                maxLength={commentMaxLength}
-              />
+              <div className={s.commentInputWrapper}>
+                <ControlledInput
+                  name={'comment'}
+                  control={commentControl}
+                  inputType={'text'}
+                  placeholder={'Add a Comment...'}
+                  className={s.input}
+                  maxLength={commentMaxLength}
+                  disabled={isReplyPublishing}
+                />
+                {isReplyPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
+              </div>
               <Button
                 variant={'text'}
                 type={'submit'}
