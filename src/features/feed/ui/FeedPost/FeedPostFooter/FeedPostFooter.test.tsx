@@ -4,7 +4,7 @@ import React from 'react'
 
 import { type PostViewModel } from '@/entities/posts/api'
 import { type CommentFormData } from '@/shared/types'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import '@testing-library/jest-dom'
@@ -12,10 +12,26 @@ import '@testing-library/jest-dom'
 import { FeedPostFooter } from './FeedPostFooter'
 
 const usePostCommentsMock = vi.hoisted(() => vi.fn())
+const useCommentLikeToggleMock = vi.hoisted(() => vi.fn())
 const handlePublishMock = vi.fn()
+const loadMoreMock = vi.fn()
+const scrollToMock = vi.fn()
+const toggleCommentLikeMock = vi.fn()
 
 vi.mock('@/entities/posts/hooks', () => ({
+  useCommentAnswers: () => ({
+    answers: [],
+    loadMore: vi.fn(),
+    hasNextPage: false,
+    isLoading: false,
+  }),
+  useCommentLikeToggle: useCommentLikeToggleMock,
+  useCreateCommentAnswerReply: () => ({ submitReply: vi.fn(), isSubmitting: false }),
   usePostComments: usePostCommentsMock,
+}))
+
+vi.mock('@/entities/users/hooks/useTimeAgo', () => ({
+  useTimeAgo: () => 'Just now',
 }))
 
 vi.mock('@/features/formControls', () => ({
@@ -30,7 +46,24 @@ vi.mock('@/features/formControls', () => ({
 }))
 
 vi.mock('@/shared/composites', () => ({
-  Avatar: ({ image }: { image: string }) => <img alt={image} src={image} />,
+  Avatar: ({ alt, image }: { alt?: string; image?: string }) => (
+    <img alt={alt ?? image} src={image} />
+  ),
+  InfiniteScrollTrigger: ({
+    hasNextPage,
+    onLoadMore,
+  }: {
+    hasNextPage: boolean
+    onLoadMore: () => void
+  }) =>
+    hasNextPage ? (
+      <button type={'button'} onClick={onLoadMore}>
+        Infinite comments trigger
+      </button>
+    ) : null,
+  LinearProgress: ({ active }: { active: boolean }) => (
+    <div data-testid={'comments-progress'} data-active={active} />
+  ),
 }))
 
 vi.mock('@/shared/ui', () => ({
@@ -45,6 +78,7 @@ vi.mock('@/shared/ui', () => ({
       {children}
     </button>
   ),
+  HeartFilled: () => null,
   HeartOutline: () => null,
   MessageCircleOutline: () => null,
   PaperPlane: () => null,
@@ -84,6 +118,21 @@ const post: PostViewModel = {
   avatarWhoLikes: ['/liked-1.svg', '/liked-2.svg'],
 }
 
+const comment = {
+  id: 10,
+  postId: post.id,
+  from: {
+    id: 30,
+    userName: 'comment-author',
+    avatars: [{ url: '/comment-author.svg', width: 48, height: 48, fileSize: 0 }],
+  },
+  content: 'Great shot',
+  createdAt: '2026-06-10T00:00:00.000Z',
+  likeCount: 1,
+  isLiked: false,
+  answerCount: 0,
+}
+
 const createHandleCommentSubmit = () =>
   vi.fn(
     (callback: (data: CommentFormData) => void) => (event: React.FormEvent<HTMLFormElement>) => {
@@ -94,14 +143,27 @@ const createHandleCommentSubmit = () =>
 
 const arrangeUsePostComments = ({
   comment = '',
+  comments = [],
+  hasNextPage = false,
+  isFetchingNextPage = false,
   isCommentPublishing = false,
+  totalCount = 2,
 }: {
   comment?: string
+  comments?: unknown[]
+  hasNextPage?: boolean
+  isFetchingNextPage?: boolean
   isCommentPublishing?: boolean
+  totalCount?: number
 } = {}) => {
   usePostCommentsMock.mockReturnValue({
-    comments: [],
-    totalCount: 2,
+    comments,
+    totalCount,
+    loadMore: loadMoreMock,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: false,
+    isError: false,
     commentControl: {},
     handleCommentSubmit: createHandleCommentSubmit(),
     watchComment: vi.fn(() => comment),
@@ -116,20 +178,22 @@ const arrangeUsePostComments = ({
 describe('FeedPostFooter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    Element.prototype.scrollTo = scrollToMock
+    handlePublishMock.mockResolvedValue(true)
     arrangeUsePostComments()
+    useCommentLikeToggleMock.mockReturnValue({
+      toggleCommentLike: toggleCommentLikeMock,
+      isCommentLocked: vi.fn(() => false),
+    })
   })
 
   it('renders like data from PostViewModel', () => {
     render(<FeedPostFooter post={post} currentUser={{ userId: 30, userName: 'current-user' }} />)
 
-    expect(screen.getByRole('button', { name: 'Unlike post' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    )
-    expect(screen.getByRole('button', { name: 'Unlike post' })).toHaveAttribute(
-      'data-current-user-id',
-      '30'
-    )
+    const likeButton = screen.getByRole('button', { name: 'Unlike post' })
+
+    expect(likeButton).toHaveAttribute('aria-pressed', 'true')
+    expect(likeButton).toHaveAttribute('data-current-user-id', '30')
     expect(
       screen.getByText((_, element) => element?.textContent === '2\u00a0243')
     ).toBeInTheDocument()
@@ -138,10 +202,46 @@ describe('FeedPostFooter', () => {
   })
 
   it('uses the post id and renders comments count from the hook', () => {
-    render(<FeedPostFooter post={post} />)
+    const { rerender } = render(<FeedPostFooter post={post} />)
 
     expect(usePostCommentsMock).toHaveBeenCalledWith({ postId: post.id })
     expect(screen.getByText('View All Comments (2)')).toBeInTheDocument()
+
+    arrangeUsePostComments({ totalCount: 0 })
+    rerender(<FeedPostFooter post={post} />)
+    expect(screen.queryByText('View All Comments (0)')).not.toBeInTheDocument()
+  })
+
+  it('opens comments in a scrollable comments region', () => {
+    arrangeUsePostComments({ comments: [comment] })
+
+    render(<FeedPostFooter post={post} currentUser={{ userId: 30, userName: 'current-user' }} />)
+
+    expect(screen.queryByText('Great shot')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Comment on post' }))
+
+    expect(screen.getByLabelText('Post comments')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Add a Comment')).toHaveFocus()
+    expect(screen.getByText('Great shot')).toBeInTheDocument()
+    expect(screen.getByText('comment-author')).toBeInTheDocument()
+  })
+
+  it('loads more comments through infinite scroll trigger', () => {
+    arrangeUsePostComments({
+      comments: [comment],
+      hasNextPage: true,
+      isFetchingNextPage: true,
+    })
+
+    render(<FeedPostFooter post={post} />)
+
+    fireEvent.click(screen.getByText('View All Comments (2)'))
+    expect(screen.getByTestId('comments-progress')).toHaveAttribute('data-active', 'true')
+
+    fireEvent.click(screen.getByText('Infinite comments trigger'))
+
+    expect(loadMoreMock).toHaveBeenCalledTimes(1)
   })
 
   it('disables Publish for an empty comment', () => {
@@ -159,10 +259,11 @@ describe('FeedPostFooter', () => {
     render(<FeedPostFooter post={post} />)
 
     expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled()
+    expect(screen.getByTestId('comments-progress')).toHaveAttribute('data-active', 'true')
   })
 
-  it('submits a valid comment', () => {
-    arrangeUsePostComments({ comment: 'new comment' })
+  it('submits a valid comment, opens comments, and scrolls to the top', async () => {
+    arrangeUsePostComments({ comment: 'new comment', comments: [comment] })
 
     render(<FeedPostFooter post={post} />)
 
@@ -171,24 +272,18 @@ describe('FeedPostFooter', () => {
     expect(handlePublishMock).toHaveBeenCalledWith({
       comment: 'new comment',
     })
+    await waitFor(() => expect(screen.getByLabelText('Post comments')).toBeInTheDocument())
+    await waitFor(() => expect(scrollToMock).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' }))
   })
 
-  it('renders duplicate like avatar URLs only once', () => {
-    render(
-      <FeedPostFooter
-        post={{
-          ...post,
-          avatarWhoLikes: ['/liked-1.svg', '/liked-1.svg', '/liked-2.svg'],
-        }}
-      />
+  it('renders unique like avatar URLs and hides them when likes count is zero', () => {
+    const { rerender } = render(
+      <FeedPostFooter post={{ ...post, avatarWhoLikes: ['/liked-1.svg', '/liked-1.svg'] }} />
     )
 
     expect(screen.getAllByAltText('/liked-1.svg')).toHaveLength(1)
-    expect(screen.getByAltText('/liked-2.svg')).toBeInTheDocument()
-  })
 
-  it('does not render like avatars when the like count is zero', () => {
-    render(
+    rerender(
       <FeedPostFooter
         post={{
           ...post,

@@ -61,7 +61,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_CONTENT_MAX
 
     if (!enabled || !user?.userId || !isCommentValid || !isValidPostId || isCreateCommentLoading) {
-      return
+      return false
     }
 
     resetComment()
@@ -71,8 +71,12 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
         postId: resolvedPostId,
         body: { content: trimmed },
       }).unwrap()
+
+      return true
     } catch {
       showToastAlert({ message: 'Failed to publish comment', type: 'error' })
+
+      return false
     }
   }
 

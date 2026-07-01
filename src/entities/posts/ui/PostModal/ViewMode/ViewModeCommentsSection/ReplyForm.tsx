@@ -46,7 +46,7 @@ export const ReplyForm: FC<ReplyFormProps> = ({
           type={'submit'}
           disabled={!replyForm.watch('content')?.trim() || isSubmitting}
         >
-          Reply
+          Answer
         </Button>
       </div>
     </form>

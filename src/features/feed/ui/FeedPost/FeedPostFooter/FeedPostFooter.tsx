@@ -1,12 +1,16 @@
 'use client'
 
 import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
+import type { CommentFormData } from '@/shared/types'
+
+import { useEffect, useRef, useState } from 'react'
 
 import { PostViewModel } from '@/entities/posts/api'
 import { usePostComments } from '@/entities/posts/hooks'
+import { CommentItem } from '@/entities/posts/ui/PostModal/ViewMode/ViewModeCommentsSection/CommentItem'
 import { ControlledInput } from '@/features/formControls'
 import { LikeButton } from '@/features/postLikes/ui/LikeButton'
-import { Avatar } from '@/shared/composites'
+import { Avatar, InfiniteScrollTrigger, LinearProgress } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
 import { BookmarkOutline, Button, MessageCircleOutline, PaperPlane, Typography } from '@/shared/ui'
 import Link from 'next/link'
@@ -22,8 +26,18 @@ const getUniqueAvatarUrls = (avatarUrls: string[]) =>
   Array.from(new Set(avatarUrls.filter(Boolean)))
 
 export function FeedPostFooter({ currentUser, post }: Props) {
+  const [areCommentsOpen, setAreCommentsOpen] = useState(false)
+  const [shouldScrollCommentsToTop, setShouldScrollCommentsToTop] = useState(false)
+  const commentsPanelRef = useRef<HTMLDivElement>(null)
+  const commentFormRef = useRef<HTMLFormElement>(null)
   const {
+    comments: postComments,
     totalCount,
+    loadMore,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
     commentControl,
     handleCommentSubmit,
     watchComment,
@@ -41,6 +55,44 @@ export function FeedPostFooter({ currentUser, post }: Props) {
 
   const visibleLikeAvatars =
     post.likesCount > 0 ? getUniqueAvatarUrls(post.avatarWhoLikes).slice(0, 3) : []
+  const hasComments = totalCount > 0
+
+  const handleOpenComments = () => {
+    commentFormRef.current?.querySelector('input')?.focus()
+
+    if (hasComments) {
+      setAreCommentsOpen(true)
+    }
+  }
+
+  const handleToggleComments = () => {
+    setAreCommentsOpen(current => !current)
+  }
+
+  const handleSubmitComment = async (data: CommentFormData) => {
+    const isPublished = await handlePublish(data)
+
+    if (!isPublished) {
+      return
+    }
+
+    setAreCommentsOpen(true)
+    setShouldScrollCommentsToTop(true)
+  }
+
+  useEffect(() => {
+    if (!areCommentsOpen || !shouldScrollCommentsToTop || !commentsPanelRef.current) {
+      return
+    }
+
+    const scrollTimer = window.setTimeout(() => {
+      commentsPanelRef.current?.scrollTo?.({ top: 0, behavior: 'smooth' })
+      commentsPanelRef.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
+      setShouldScrollCommentsToTop(false)
+    }, 0)
+
+    return () => window.clearTimeout(scrollTimer)
+  }, [areCommentsOpen, hasComments, postComments.length, shouldScrollCommentsToTop])
 
   return (
     <footer className={s.footer}>
@@ -57,6 +109,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
           className={s.actionButton}
           type={'button'}
           aria-label={'Comment on post'}
+          onClick={handleOpenComments}
         >
           <MessageCircleOutline />
         </Button>
@@ -110,11 +163,62 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         </Typography>
       </div>
 
-      <Typography variant={'bold_14'} className={s.comments}>
-        View All Comments ({totalCount})
-      </Typography>
+      {hasComments && (
+        <Button
+          variant={'text'}
+          type={'button'}
+          className={s.commentsToggle}
+          onClick={handleToggleComments}
+          aria-expanded={areCommentsOpen}
+          aria-controls={`feed-post-comments-${post.id}`}
+        >
+          View All Comments ({totalCount})
+        </Button>
+      )}
 
-      <form className={s.commentForm} onSubmit={handleCommentSubmit(handlePublish)}>
+      {hasComments && areCommentsOpen && (
+        <div
+          ref={commentsPanelRef}
+          id={`feed-post-comments-${post.id}`}
+          className={s.commentsPanel}
+          aria-label={'Post comments'}
+        >
+          <LinearProgress active={isFetchingNextPage} />
+
+          {isLoading && (
+            <Typography variant={'small_text'} className={s.commentsState}>
+              Loading comments...
+            </Typography>
+          )}
+
+          {isError && (
+            <Typography variant={'small_text'} className={s.commentsState}>
+              Failed to load comments
+            </Typography>
+          )}
+
+          {!isLoading &&
+            postComments.map(comment => (
+              <FeedCommentItem
+                key={comment.id}
+                postId={post.id}
+                comment={comment}
+                isAuthenticated={Boolean(currentUser)}
+                currentUserName={currentUser?.userName}
+              />
+            ))}
+
+          <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
+        </div>
+      )}
+
+      {isCommentPublishing && <LinearProgress active={isCommentPublishing} />}
+
+      <form
+        ref={commentFormRef}
+        className={s.commentForm}
+        onSubmit={handleCommentSubmit(handleSubmitComment)}
+      >
         <ControlledInput
           name={'comment'}
           control={commentControl}
@@ -131,3 +235,5 @@ export function FeedPostFooter({ currentUser, post }: Props) {
     </footer>
   )
 }
+
+const FeedCommentItem = CommentItem
