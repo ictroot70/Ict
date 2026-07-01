@@ -21,7 +21,6 @@ import { COMMENTS_PAGE_SIZE } from '../lib'
 type UsePostCommentsParams = {
   postId?: number
   enabled?: boolean
-  currentUserAvatar?: string
 }
 
 type ReplyTarget = {
@@ -29,11 +28,7 @@ type ReplyTarget = {
   userName: string
 }
 
-export const usePostComments = ({
-  postId,
-  enabled = true,
-  currentUserAvatar,
-}: UsePostCommentsParams) => {
+export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParams) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
   const [createAnswer, { isLoading: isCreateAnswerLoading }] = useCreateCommentAnswerMutation()
   const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null)
@@ -91,8 +86,6 @@ export const usePostComments = ({
           postId: resolvedPostId,
           commentId: replyTarget.commentId,
           content: contentToPublish,
-          authorName: user.name,
-          authorAvatar: currentUserAvatar,
         }).unwrap()
 
         setReplyTarget(null)

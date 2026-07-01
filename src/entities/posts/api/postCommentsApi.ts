@@ -13,15 +13,12 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { AnswersViewModel, CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
-import { InfiniteData } from '@reduxjs/toolkit/query'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 
 type CreateCommentAnswerInput = {
   postId: number
   commentId: number
   content: string
-  authorName?: string
-  authorAvatar?: string
 }
 
 export const commentsApi = baseApi.injectEndpoints({
@@ -45,78 +42,6 @@ export const commentsApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { content },
       }),
-
-      async onQueryStarted(
-        { postId, commentId, content, authorName = 'User', authorAvatar },
-        { dispatch, queryFulfilled }
-      ) {
-        const optimisticAnswer = {
-          id: Date.now(),
-          content,
-          createdAt: new Date().toISOString(),
-          likeCount: 0,
-          isLiked: false,
-          commentId,
-          from: {
-            id: Date.now(),
-            userName: authorName,
-            avatars: authorAvatar
-              ? [
-                  {
-                    url: authorAvatar,
-                    width: 36,
-                    height: 36,
-                    fileSize: 0,
-                    createdAt: new Date().toISOString(),
-                  },
-                ]
-              : [],
-          },
-        }
-
-        const patchAnswersResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getCommentAnswers',
-            { postId, commentId },
-            (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-              if (!draft?.pages?.length) {
-                return
-              }
-
-              const firstPage = draft.pages[0]
-
-              firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
-              draft.pages.forEach(page => {
-                page.totalCount += 1
-              })
-            }
-          )
-        )
-
-        const patchCommentsResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getPostComments',
-            { postId },
-            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-              for (const page of draft.pages) {
-                const comment = page.items.find(item => item.id === commentId)
-
-                if (comment) {
-                  comment.answerCount += 1
-                  break
-                }
-              }
-            }
-          )
-        )
-
-        try {
-          await queryFulfilled
-        } catch {
-          patchAnswersResult.undo()
-          patchCommentsResult.undo()
-        }
-      },
 
       invalidatesTags: (result, error, { postId, commentId }) => [
         { type: 'Comments', id: `${postId}-${commentId}` },

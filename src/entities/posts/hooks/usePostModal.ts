@@ -9,7 +9,6 @@ import {
   useGetPostByIdQuery,
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
-import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { showToastAlert } from '@/shared/lib'
 import { CommentFormData, DescriptionFormData, PostVariant } from '@/shared/types'
@@ -61,11 +60,6 @@ export const usePostModal = (
   const user = authState?.user
   const isAuthUiLoading = authState?.isAuthUiLoading ?? false
   const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
-
-  const { data: currentUserProfile } = useGetPublicProfileQuery(
-    { profileId: user?.userId ?? 0 },
-    { skip: !user?.userId }
-  )
 
   const {
     data: postDataFromQuery,
@@ -145,11 +139,6 @@ export const usePostModal = (
     }
   }, [])
 
-  const currentUserAvatar =
-    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
-    currentUserProfile?.avatars[0]?.url ??
-    ''
-
   const commentsPostId = postData?.id ?? postId
 
   const {
@@ -172,7 +161,6 @@ export const usePostModal = (
   } = usePostComments({
     postId: commentsPostId,
     enabled: open && !isAuthUiLoading,
-    currentUserAvatar,
   })
 
   const handlePublishComment = async (data: CommentFormData) => {
@@ -266,7 +254,5 @@ export const usePostModal = (
     applyLocalDescription,
     resolvedPostId,
     currentUserId: user?.userId,
-    currentUserName: user?.userName ?? '',
-    currentUserAvatar,
   }
 }
