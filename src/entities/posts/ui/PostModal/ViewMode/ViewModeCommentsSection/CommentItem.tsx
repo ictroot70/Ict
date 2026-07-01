@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 
 import { useCommentAnswers, useCommentLikeToggle } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
+import { Avatar } from '@/shared/composites'
 import {
   CommentsViewModel,
   getCommentAuthorName,
@@ -42,17 +42,57 @@ export const CommentItem: React.FC<CommentItemProps> = ({
     answers,
     loadMore,
     hasNextPage,
-    isLoading: isAnswersLoading,
+    isFetching: isAnswersFetching,
+    isFetchingNextPage: isAnswersFetchingNextPage,
+    totalCount,
   } = useCommentAnswers(postId, comment.id, showAnswers)
 
   const answerCount = comment.answerCount
   const displayedAnswers = answers
   const hasAnswers = answerCount > 0 || displayedAnswers.length > 0
+  const isAnswersLoading = isAnswersFetching || isAnswersFetchingNextPage
+  const totalAnswersCount = totalCount || answerCount
+  const remainingAnswersCount = showAnswers
+    ? Math.max(totalAnswersCount - displayedAnswers.length, 0)
+    : totalAnswersCount
+  const shouldShowViewAnswersButton = remainingAnswersCount > 0
+  const shouldShowHideAnswersButton = showAnswers && !hasNextPage && !isAnswersLoading
   const authorName = getCommentAuthorName(comment.from)
   const handleAnswer = () => onAnswer({ commentId: comment.id, userName: authorName })
 
-  const handleToggleAnswers = () => setShowAnswers(prev => !prev)
+  const handleViewAnswers = () => {
+    if (!showAnswers) {
+      setShowAnswers(true)
+
+      return
+    }
+
+    loadMore()
+  }
+
+  const handleHideAnswers = () => setShowAnswers(false)
   const handleToggleLike = () => toggleCommentLike(comment.id, comment.isLiked)
+
+  const renderViewAnswersButton = () => {
+    if (!shouldShowViewAnswersButton) {
+      return null
+    }
+
+    return (
+      <div className={s.answersToggleContainer}>
+        <div className={s.answersLine} />
+        <Button
+          variant={'text'}
+          className={s.viewRepliesButton}
+          onClick={handleViewAnswers}
+          disabled={isAnswersLoading}
+        >
+          View Answers ({remainingAnswersCount})
+        </Button>
+        {isAnswersLoading && <span className={s.answersLoader} aria-hidden={'true'} />}
+      </div>
+    )
+  }
 
   useEffect(() => {
     if (shouldShowAnswers) {
@@ -84,31 +124,34 @@ export const CommentItem: React.FC<CommentItemProps> = ({
       </div>
 
       {hasAnswers && (
-        <div className={s.answersToggleContainer}>
-          <div className={s.answersLine} />
-          <Button variant={'text'} className={s.viewRepliesButton} onClick={handleToggleAnswers}>
-            {showAnswers ? `Hide Answers (${answerCount})` : `View Answers (${answerCount})`}
-          </Button>
-        </div>
-      )}
-
-      {showAnswers && (
         <div className={s.replies}>
-          {isAnswersLoading && displayedAnswers.length === 0 && (
-            <Typography variant={'small_text'} className={s.commentTimestamp}>
-              Loading Answers...
-            </Typography>
+          {!showAnswers && renderViewAnswersButton()}
+          {showAnswers && (
+            <>
+              {displayedAnswers.map(answer => (
+                <AnswerItem
+                  key={answer.id}
+                  postId={postId}
+                  answer={answer}
+                  isAuthenticated={isAuthenticated}
+                  onAnswer={onAnswer}
+                />
+              ))}
+              {(hasNextPage || isAnswersLoading) && renderViewAnswersButton()}
+              {shouldShowHideAnswersButton && (
+                <div className={s.answersToggleContainer}>
+                  <div className={s.answersLine} />
+                  <Button
+                    variant={'text'}
+                    className={s.viewRepliesButton}
+                    onClick={handleHideAnswers}
+                  >
+                    Hide Answers
+                  </Button>
+                </div>
+              )}
+            </>
           )}
-          {displayedAnswers.map(answer => (
-            <AnswerItem
-              key={answer.id}
-              postId={postId}
-              answer={answer}
-              isAuthenticated={isAuthenticated}
-              onAnswer={onAnswer}
-            />
-          ))}
-          <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
         </div>
       )}
     </div>
