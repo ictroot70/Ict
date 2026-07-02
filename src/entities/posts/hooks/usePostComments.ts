@@ -34,7 +34,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
   const { user } = useAuthUiState()
 
   const resolvedPostId = postId ?? 0
-  const isValidPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
+  const hasPostId = resolvedPostId > 0
 
   const {
     control: commentControl,
@@ -61,19 +61,21 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
       sortDirection: 'desc',
     },
     {
-      skip: !enabled || !isValidPostId,
+      skip: !enabled || !hasPostId,
     }
   )
 
   const comments: CommentsViewModel[] = commentsData?.pages.flatMap(page => page.items) ?? []
+  const totalCount = commentsData?.pages[0]?.totalCount ?? 0
+  const isCommentPublishing = isCreateCommentLoading || isCreateAnswerLoading
 
   const handlePublish = async (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
-    const contentToPublish = trimmed
-    const isCommentValid = trimmed.length > 0 && contentToPublish.length <= COMMENT_CONTENT_MAX
-    const isCommentPublishing = isCreateCommentLoading || isCreateAnswerLoading
+    const content = data.comment.trim()
+    const isContentValid = content.length > 0 && content.length <= COMMENT_CONTENT_MAX
+    const canPublish =
+      enabled && user?.userId && hasPostId && isContentValid && !isCommentPublishing
 
-    if (!enabled || !user?.userId || !isCommentValid || !isValidPostId || isCommentPublishing) {
+    if (!canPublish) {
       return false
     }
 
@@ -82,19 +84,16 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
         await createAnswer({
           postId: resolvedPostId,
           commentId: replyTarget.commentId,
-          content: contentToPublish,
+          content,
         }).unwrap()
 
         setReplyTarget(null)
-        resetComment()
-
-        return true
+      } else {
+        await createComment({
+          postId: resolvedPostId,
+          body: { content },
+        }).unwrap()
       }
-
-      await createComment({
-        postId: resolvedPostId,
-        body: { content: contentToPublish },
-      }).unwrap()
 
       resetComment()
 
@@ -128,7 +127,6 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     resetComment()
   }, [resolvedPostId, resetComment])
 
-  const totalCount = commentsData?.pages[0]?.totalCount ?? 0
   const isReplyPublishing = Boolean(replyTarget && isCreateAnswerLoading)
 
   return {
@@ -141,7 +139,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     handleStartReply,
     replyTarget,
     isReplyPublishing,
-    isCommentPublishing: isCreateCommentLoading || isCreateAnswerLoading,
+    isCommentPublishing,
     isLoading: isCommentsLoading,
     isError: isCommentsError,
     hasNextPage: Boolean(hasNextPage),
