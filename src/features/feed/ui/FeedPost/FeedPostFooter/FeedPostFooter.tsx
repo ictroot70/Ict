@@ -25,8 +25,11 @@ type Props = {
 const getUniqueAvatarUrls = (avatarUrls: string[]) =>
   Array.from(new Set(avatarUrls.filter(Boolean)))
 
+const DESCRIPTION_MAX_CHAR_COUNT = 100
+
 export function FeedPostFooter({ currentUser, post }: Props) {
   const [areCommentsOpen, setAreCommentsOpen] = useState(false)
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
   const [shouldScrollCommentsToTop, setShouldScrollCommentsToTop] = useState(false)
   const [expandedAnswersCommentId, setExpandedAnswersCommentId] = useState<number | null>(null)
   const commentsPanelRef = useRef<HTMLDivElement>(null)
@@ -59,6 +62,11 @@ export function FeedPostFooter({ currentUser, post }: Props) {
   const visibleLikeAvatars =
     post.likesCount > 0 ? getUniqueAvatarUrls(post.avatarWhoLikes).slice(0, 3) : []
   const hasComments = totalCount > 0
+  const isLongDescription = post.description.length >= DESCRIPTION_MAX_CHAR_COUNT
+  const descriptionText =
+    isDescriptionExpanded || !isLongDescription
+      ? post.description
+      : `${post.description.slice(0, DESCRIPTION_MAX_CHAR_COUNT)}...`
 
   const handleOpenComments = () => {
     commentFormRef.current?.querySelector('input')?.focus()
@@ -151,7 +159,17 @@ export function FeedPostFooter({ currentUser, post }: Props) {
           <Link href={APP_ROUTES.PROFILE.ID(post.ownerId)}>
             <strong>{post.userName}</strong>
           </Link>
-          {post.description}
+          <span>{descriptionText}</span>
+          {isLongDescription && (
+            <Button
+              variant={'text'}
+              type={'button'}
+              className={s.descriptionToggle}
+              onClick={() => setIsDescriptionExpanded(current => !current)}
+            >
+              {isDescriptionExpanded ? 'Hide' : 'Show more'}
+            </Button>
+          )}
         </Typography>
       </div>
 
