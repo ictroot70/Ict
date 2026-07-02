@@ -259,7 +259,7 @@ describe('FeedPostFooter', () => {
     render(<FeedPostFooter post={post} />)
 
     expect(screen.getByRole('button', { name: 'Publish' })).toBeDisabled()
-    expect(screen.getByTestId('comments-progress')).toHaveAttribute('data-active', 'true')
+    expect(screen.getByPlaceholderText('Add a Comment')).toBeDisabled()
   })
 
   it('submits a valid comment, opens comments, and scrolls to the top', async () => {

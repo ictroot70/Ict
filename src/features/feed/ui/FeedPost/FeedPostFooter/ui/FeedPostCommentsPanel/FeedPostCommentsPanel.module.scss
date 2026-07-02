@@ -1,0 +1,25 @@
+.commentsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: min(34rem, 42vh);
+  /*   padding: 0 24px; */
+  margin-bottom: 1rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-dark-100) transparent;
+
+  &::-webkit-scrollbar {
+    width: 0.25rem;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    cursor: pointer;
+    background-color: var(--color-dark-100);
+    border-radius: 999px;
+  }
+}
+
+.commentsState {
+  color: var(--color-light-900);
+}
