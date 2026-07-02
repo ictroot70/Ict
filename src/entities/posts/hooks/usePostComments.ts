@@ -11,7 +11,6 @@ import { showToastAlert } from '@/shared/lib'
 import {
   buildReplyMentionPrefix,
   COMMENT_CONTENT_MAX,
-  ensureReplyMention,
   type CommentFormData,
   type CommentsViewModel,
 } from '@/shared/types/comments'
@@ -70,9 +69,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
 
   const handlePublish = async (data: CommentFormData) => {
     const trimmed = data.comment.trim()
-    const contentToPublish = replyTarget
-      ? ensureReplyMention(trimmed, replyTarget.userName)
-      : trimmed
+    const contentToPublish = trimmed
     const isCommentValid = trimmed.length > 0 && contentToPublish.length <= COMMENT_CONTENT_MAX
     const isCommentPublishing = isCreateCommentLoading || isCreateAnswerLoading
 
