@@ -34,45 +34,14 @@ export const PostModal = ({
   renderPostLikeAction,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
-  const {
-    isEditingDescription,
-    setIsEditingDescription,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
-    descriptionControl,
-    handleDescriptionSubmit,
-    watchDescription,
-    errors,
-    postData,
-    variant,
-    isAuthLoading,
-    isCreateCommentLoading,
-    commentMaxLength,
-    comments,
-    commentsTotalCount,
-    loadMoreComments,
-    hasNextCommentsPage,
-    isFetchingNextCommentsPage,
-    isCommentsLoading,
-    isCommentsError,
-    expandedAnswersCommentId,
-    isAuthenticated,
-    hasPostData,
-    isPostLoading,
-    isPostError,
-    uiText,
-    formattedCreatedAt,
-    handlePublish,
-    handleStartReply,
-    handleEditPost,
-    handleCancelEdit,
-    handleCopyLink,
-    handleFollow,
-    isFollowing,
-    isFollowPending,
-    applyLocalDescription,
-  } = usePostModal(open, initialPostData, postId, authState)
+  const { actions, auth, comments, description, follow, post, uiText } = usePostModal(
+    open,
+    initialPostData,
+    postId,
+    authState
+  )
+  const postData = post.data
+  const isEditingDescription = description.isEditing
 
   const handleSaveDescription = async ({
     description: newDescription,
@@ -88,8 +57,8 @@ export const PostModal = ({
         return
       }
 
-      applyLocalDescription(trimmed)
-      setIsEditingDescription(false)
+      description.applyLocal(trimmed)
+      description.setIsEditing(false)
     }
   }
 
@@ -143,7 +112,7 @@ export const PostModal = ({
   )
 
   function renderContent() {
-    if (isPostLoading) {
+    if (post.isLoading) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>{uiText.loadingPost}</Typography>
@@ -151,11 +120,11 @@ export const PostModal = ({
       )
     }
 
-    if (!hasPostData || !postData) {
+    if (!post.hasData || !postData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
-            {isPostError ? uiText.notFoundPost : uiText.unavailablePost}
+            {post.isError ? uiText.notFoundPost : uiText.unavailablePost}
           </Typography>
         </div>
       )
@@ -163,44 +132,21 @@ export const PostModal = ({
 
     return isEditingDescription ? (
       <EditMode
-        descriptionControl={descriptionControl}
-        handleDescriptionSubmit={handleDescriptionSubmit}
+        description={description}
         handleSaveDescription={handleSaveDescription}
-        handleCancelEdit={handleCancelEdit}
-        errors={errors}
-        watchDescription={watchDescription}
         postData={postData}
-        onClose={handleCloseModal}
         isEditing
       />
     ) : (
       <ViewMode
-        postData={postData}
-        variant={variant}
-        handleEditPost={handleEditPost}
-        handleDeletePost={handleDeletePostAction}
-        onCopyLink={handleCopyLink}
-        onFollow={handleFollow}
-        isFollowing={isFollowing}
-        isFollowPending={isFollowPending}
-        formattedCreatedAt={formattedCreatedAt}
-        isAuthLoading={isAuthLoading}
-        isCreateCommentLoading={isCreateCommentLoading}
-        commentMaxLength={commentMaxLength}
-        isAuthenticated={isAuthenticated}
+        actions={actions}
+        auth={auth}
         comments={comments}
-        commentsTotalCount={commentsTotalCount}
-        loadMoreComments={loadMoreComments}
-        hasNextCommentsPage={hasNextCommentsPage}
-        isFetchingNextCommentsPage={isFetchingNextCommentsPage}
-        isCommentsLoading={isCommentsLoading}
-        isCommentsError={isCommentsError}
-        expandedAnswersCommentId={expandedAnswersCommentId}
-        commentControl={commentControl}
-        handleCommentSubmit={handleCommentSubmit}
-        watchComment={watchComment}
-        handlePublish={handlePublish}
-        handleStartReply={handleStartReply}
+        description={description}
+        follow={follow}
+        handleDeletePost={handleDeletePostAction}
+        post={post}
+        postData={postData}
         renderPostLikeAction={renderPostLikeAction}
       />
     )

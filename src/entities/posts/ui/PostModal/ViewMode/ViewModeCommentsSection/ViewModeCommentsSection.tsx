@@ -12,6 +12,20 @@ import s from '../ViewMode.module.scss'
 import { CommentItem } from './CommentItem'
 
 interface CommentsSectionProps {
+  auth: {
+    isAuthenticated: boolean
+  }
+  comments: {
+    expandedAnswersCommentId: number | null
+    handleStartReply: (target: { commentId: number; userName: string }) => void
+    hasNextPage: boolean
+    isError: boolean
+    isFetchingNextPage: boolean
+    isLoading: boolean
+    items: CommentsViewModel[]
+    loadMore: () => void
+    totalCount: number
+  }
   postData: {
     avatar: string
     userName: string
@@ -19,31 +33,13 @@ interface CommentsSectionProps {
     createdAt: string
   }
   postId: number
-  isAuthenticated: boolean
-  comments: CommentsViewModel[]
-  loadMore: () => void
-  hasNextPage: boolean
-  isLoading: boolean
-  isFetchingNextPage: boolean
-  isError: boolean
-  totalCount: number
-  expandedAnswersCommentId: number | null
-  onAnswer: (target: { commentId: number; userName: string }) => void
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
+  auth,
+  comments,
   postData,
   postId,
-  isAuthenticated,
-  comments,
-  loadMore,
-  hasNextPage,
-  isLoading,
-  isFetchingNextPage,
-  isError,
-  totalCount,
-  expandedAnswersCommentId,
-  onAnswer,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
 
@@ -63,35 +59,38 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        {isLoading && (
+        {comments.isLoading && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
             Loading comments...
           </Typography>
         )}
 
-        {isError && (
+        {comments.isError && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
             Failed to load comments
           </Typography>
         )}
 
-        {!isLoading &&
-          comments.map(comment => (
+        {!comments.isLoading &&
+          comments.items.map(comment => (
             <CommentItem
               key={comment.id}
               postId={postId}
               comment={comment}
-              isAuthenticated={isAuthenticated}
-              shouldShowAnswers={expandedAnswersCommentId === comment.id}
-              onAnswer={onAnswer}
+              isAuthenticated={auth.isAuthenticated}
+              shouldShowAnswers={comments.expandedAnswersCommentId === comment.id}
+              onAnswer={comments.handleStartReply}
             />
           ))}
 
-        {hasNextPage && (
+        {comments.hasNextPage && (
           <>
-            <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
-            {!isFetchingNextPage && totalCount > comments.length && (
-              <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
+            <InfiniteScrollTrigger
+              hasNextPage={comments.hasNextPage}
+              onLoadMore={comments.loadMore}
+            />
+            {!comments.isFetchingNextPage && comments.totalCount > comments.items.length && (
+              <Button variant={'text'} className={s.loadMoreButton} onClick={comments.loadMore}>
                 Load more comments
               </Button>
             )}
