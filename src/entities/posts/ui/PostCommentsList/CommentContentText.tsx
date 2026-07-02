@@ -4,7 +4,7 @@ import React from 'react'
 
 import { parseReplyMention } from '@/shared/types/comments'
 
-import s from '../ViewMode.module.scss'
+import s from './PostCommentsList.module.scss'
 
 interface CommentContentTextProps {
   content: string

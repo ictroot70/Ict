@@ -99,11 +99,6 @@
   }
 }
 
-.commentBlock {
-  display: flex;
-  flex-direction: column;
-}
-
 .comment {
   display: flex;
   gap: 12px;
@@ -115,101 +110,9 @@
   min-width: 0;
 }
 
-.commentText {
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-  line-height: 1.4;
-
-  strong {
-    margin-right: 6px;
-  }
-}
-
-.commentMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 2px;
-  flex-wrap: wrap;
-}
-
 .commentTimestamp {
   color: var(--color-light-900);
   font-size: 12px;
-}
-
-.mention {
-  color: var(--color-primary-500);
-  font-weight: 600;
-}
-
-.commentLikeButton {
-  padding: 0;
-  min-width: 16px;
-  min-height: 16px;
-  width: 16px;
-  height: 16px;
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.answersToggleContainer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.answersToggleContainerNested {
-  margin-left: 0;
-  margin-bottom: 0;
-  margin-top: 0;
-}
-
-.answersLine {
-  width: 24px;
-  height: 1px;
-  background-color: var(--color-light-900);
-  flex-shrink: 0;
-}
-
-.viewRepliesButton {
-  margin: 0;
-  padding: 0;
-  font-weight: 600;
-  color: var(--color-light-900);
-  font-size: 12px;
-  min-width: 0;
-  min-height: 0;
-  height: auto;
-  display: inline-flex;
-  align-items: center;
-}
-
-.answersLoader {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--color-light-900);
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: reply-loader-spin 0.8s linear infinite;
-}
-
-.replies {
-  display: flex;
-  flex-direction: column;
-  margin-left: 44px;
-  padding-left: 0;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.answerBlock {
-  display: flex;
-  flex-direction: column;
 }
 
 .footer {
@@ -390,27 +293,6 @@
   }
 }
 
-.replyButton,
-.loadMoreButton,
-.commentActionButton {
-  padding: 0;
-  min-width: 0;
-  min-height: 0;
-  height: auto;
-  color: var(--color-light-900);
-  font-size: 12px;
-}
-
-.commentActionButton {
-  width: 16px;
-  height: 16px;
-}
-
-.loadMoreButton {
-  align-self: flex-start;
-  margin-top: 4px;
-}
-
 @media (max-width: 968px) {
   .viewMode {
     width: 95vw;
@@ -426,19 +308,4 @@
   .postSideBar {
     height: 50%;
   }
-}
-
-.commentThread {
-  display: flex;
-  flex-direction: column;
-}
-
-.commentContent {
-  flex: 1;
-}
-
-.commentMeta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }

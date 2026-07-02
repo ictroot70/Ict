@@ -2,14 +2,13 @@
 
 import React from 'react'
 
+import { PostCommentsList } from '@/entities/posts/ui/PostCommentsList'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
+import { Avatar } from '@/shared/composites'
 import { CommentsViewModel } from '@/shared/types/comments'
-import { Button, Separator, Typography } from '@/shared/ui'
+import { Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
-
-import { CommentItem } from './CommentItem'
 
 interface CommentsSectionProps {
   auth: {
@@ -59,43 +58,20 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        {comments.isLoading && (
-          <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Loading comments...
-          </Typography>
-        )}
-
-        {comments.isError && (
-          <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Failed to load comments
-          </Typography>
-        )}
-
-        {!comments.isLoading &&
-          comments.items.map(comment => (
-            <CommentItem
-              key={comment.id}
-              postId={postId}
-              comment={comment}
-              isAuthenticated={auth.isAuthenticated}
-              shouldShowAnswers={comments.expandedAnswersCommentId === comment.id}
-              onAnswer={comments.handleStartReply}
-            />
-          ))}
-
-        {comments.hasNextPage && (
-          <>
-            <InfiniteScrollTrigger
-              hasNextPage={comments.hasNextPage}
-              onLoadMore={comments.loadMore}
-            />
-            {!comments.isFetchingNextPage && comments.totalCount > comments.items.length && (
-              <Button variant={'text'} className={s.loadMoreButton} onClick={comments.loadMore}>
-                Load more comments
-              </Button>
-            )}
-          </>
-        )}
+        <PostCommentsList
+          comments={comments.items}
+          expandedAnswersCommentId={comments.expandedAnswersCommentId}
+          hasNextPage={comments.hasNextPage}
+          isAuthenticated={auth.isAuthenticated}
+          isError={comments.isError}
+          isFetchingNextPage={comments.isFetchingNextPage}
+          isLoading={comments.isLoading}
+          loadMore={comments.loadMore}
+          onAnswer={comments.handleStartReply}
+          postId={postId}
+          showLoadMoreButton
+          totalCount={comments.totalCount}
+        />
       </div>
     </>
   )

@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Button, Typography } from '@/shared/ui'
 
-import s from '../ViewMode.module.scss'
+import s from './PostCommentsList.module.scss'
 
 interface CommentMetaActionsProps {
   timeAgo: string

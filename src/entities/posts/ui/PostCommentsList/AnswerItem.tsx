@@ -12,7 +12,7 @@ import {
 } from '@/shared/types/comments'
 import { Typography } from '@/shared/ui'
 
-import s from '../ViewMode.module.scss'
+import s from './PostCommentsList.module.scss'
 
 import { CommentContentText } from './CommentContentText'
 import { CommentLikeButton } from './CommentLikeButton'

@@ -4,9 +4,8 @@ import type { CommentsViewModel } from '@/shared/types/comments'
 
 import { forwardRef } from 'react'
 
-import { CommentItem } from '@/entities/posts/ui/PostModal/ViewMode/ViewModeCommentsSection/CommentItem'
-import { InfiniteScrollTrigger, LinearProgress } from '@/shared/composites'
-import { Typography } from '@/shared/ui'
+import { PostCommentsList } from '@/entities/posts/ui/PostCommentsList'
+import { LinearProgress } from '@/shared/composites'
 
 import s from './FeedPostCommentsPanel.module.scss'
 
@@ -49,31 +48,18 @@ export const FeedPostCommentsPanel = forwardRef<HTMLDivElement, Props>(
     <div ref={ref} id={id} className={s.commentsPanel} aria-label={'Post comments'}>
       <LinearProgress active={isFetchingNextPage} />
 
-      {isLoading && (
-        <Typography variant={'small_text'} className={s.commentsState}>
-          Loading comments...
-        </Typography>
-      )}
-
-      {isError && (
-        <Typography variant={'small_text'} className={s.commentsState}>
-          Failed to load comments
-        </Typography>
-      )}
-
-      {!isLoading &&
-        comments.map(comment => (
-          <CommentItem
-            key={comment.id}
-            postId={postId}
-            comment={comment}
-            isAuthenticated={isAuthenticated}
-            shouldShowAnswers={expandedAnswersCommentId === comment.id}
-            onAnswer={onAnswer}
-          />
-        ))}
-
-      <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
+      <PostCommentsList
+        comments={comments}
+        expandedAnswersCommentId={expandedAnswersCommentId}
+        hasNextPage={hasNextPage}
+        isAuthenticated={isAuthenticated}
+        isError={isError}
+        isFetchingNextPage={isFetchingNextPage}
+        isLoading={isLoading}
+        loadMore={loadMore}
+        onAnswer={onAnswer}
+        postId={postId}
+      />
     </div>
   )
 )
