@@ -30,10 +30,7 @@ export const commentsApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: (result, error, { postId }) => [
-        { type: 'Comments', id: postId },
-        { type: 'Post', id: postId },
-      ],
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
     }),
 
     createCommentAnswer: builder.mutation<void, CreateCommentAnswerInput>({
