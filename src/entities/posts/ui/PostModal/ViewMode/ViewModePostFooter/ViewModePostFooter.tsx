@@ -35,7 +35,6 @@ interface PostFooterProps {
   handlePublish: (data: CommentFormData) => Promise<boolean>
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
-  isReplyPublishing: boolean
   commentMaxLength: number
 }
 
@@ -54,7 +53,6 @@ export const ViewModePostFooter = ({
   handlePublish,
   isAuthLoading,
   isCreateCommentLoading,
-  isReplyPublishing,
   commentMaxLength,
 }: PostFooterProps) => {
   const shouldShowAuthActions = variant !== 'public'
@@ -147,9 +145,9 @@ export const ViewModePostFooter = ({
                   placeholder={'Add a Comment...'}
                   className={s.input}
                   maxLength={commentMaxLength}
-                  disabled={isReplyPublishing}
+                  disabled={isCreateCommentLoading}
                 />
-                {isReplyPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
+                {isCreateCommentLoading && <span className={s.replyLoader} aria-hidden={'true'} />}
               </div>
               <Button
                 variant={'text'}

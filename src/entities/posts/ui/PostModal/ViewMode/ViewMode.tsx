@@ -32,7 +32,6 @@ interface ViewModeProps {
   formattedCreatedAt: string
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
-  isReplyPublishing: boolean
   isAuthenticated: boolean
   comments: CommentsViewModel[]
   commentsTotalCount: number
@@ -63,7 +62,6 @@ export const ViewMode = ({
   formattedCreatedAt,
   isAuthLoading,
   isCreateCommentLoading,
-  isReplyPublishing,
   isAuthenticated,
   comments,
   commentsTotalCount,
@@ -133,7 +131,6 @@ export const ViewMode = ({
           handlePublish={handlePublish}
           isAuthLoading={isAuthLoading}
           isCreateCommentLoading={isCreateCommentLoading}
-          isReplyPublishing={isReplyPublishing}
           commentMaxLength={commentMaxLength}
         />
       </div>

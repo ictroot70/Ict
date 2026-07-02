@@ -48,7 +48,6 @@ export const PostModal = ({
     variant,
     isAuthLoading,
     isCreateCommentLoading,
-    isReplyPublishing,
     commentMaxLength,
     comments,
     commentsTotalCount,
@@ -187,7 +186,6 @@ export const PostModal = ({
         formattedCreatedAt={formattedCreatedAt}
         isAuthLoading={isAuthLoading}
         isCreateCommentLoading={isCreateCommentLoading}
-        isReplyPublishing={isReplyPublishing}
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
         comments={comments}

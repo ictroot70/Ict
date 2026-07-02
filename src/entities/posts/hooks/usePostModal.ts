@@ -155,7 +155,6 @@ export const usePostModal = (
     handlePublish,
     handleStartReply,
     replyTarget,
-    isReplyPublishing,
     isCommentPublishing,
     commentMaxLength,
   } = usePostComments({
@@ -216,7 +215,6 @@ export const usePostModal = (
     isEditingDescription,
     setIsEditingDescription,
     isCreateCommentLoading: isCommentPublishing,
-    isReplyPublishing,
     commentMaxLength,
     comments,
     commentsTotalCount,

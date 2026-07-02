@@ -45,7 +45,6 @@ export function FeedPostFooter({ currentUser, post }: Props) {
     handlePublish,
     handleStartReply,
     replyTarget,
-    isReplyPublishing,
     isCommentPublishing,
     commentMaxLength,
   } = usePostComments({
@@ -227,8 +226,6 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         </div>
       )}
 
-      {isCommentPublishing && !isReplyPublishing && <LinearProgress active={isCommentPublishing} />}
-
       <form
         ref={commentFormRef}
         className={s.commentForm}
@@ -242,9 +239,9 @@ export function FeedPostFooter({ currentUser, post }: Props) {
             placeholder={'Add a Comment'}
             className={s.input}
             maxLength={commentMaxLength}
-            disabled={isReplyPublishing}
+            disabled={isCommentPublishing}
           />
-          {isReplyPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
+          {isCommentPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
         </div>
 
         <Button variant={'text'} type={'submit'} disabled={isCommentInvalid || isCommentPublishing}>
