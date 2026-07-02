@@ -145,6 +145,5 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
     loadMore,
-    commentMaxLength: COMMENT_CONTENT_MAX,
   }
 }

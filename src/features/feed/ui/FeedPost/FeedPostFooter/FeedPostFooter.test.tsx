@@ -173,7 +173,6 @@ const arrangeUsePostComments = ({
     isCommentPublishing,
     isCommentsLoading: false,
     isCommentsError: false,
-    commentMaxLength: 300,
   })
 }
 

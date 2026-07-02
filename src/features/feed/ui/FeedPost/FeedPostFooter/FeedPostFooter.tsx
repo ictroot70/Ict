@@ -1,7 +1,6 @@
 'use client'
 
 import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
-import type { CommentFormData } from '@/shared/types'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -12,6 +11,7 @@ import { ControlledInput } from '@/features/formControls'
 import { LikeButton } from '@/features/postLikes/ui/LikeButton'
 import { Avatar, InfiniteScrollTrigger, LinearProgress } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant/app-routes'
+import { COMMENT_CONTENT_MAX, type CommentFormData } from '@/shared/types'
 import { BookmarkOutline, Button, MessageCircleOutline, PaperPlane, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
@@ -49,7 +49,6 @@ export function FeedPostFooter({ currentUser, post }: Props) {
     handleStartReply,
     replyTarget,
     isCommentPublishing,
-    commentMaxLength,
   } = usePostComments({
     postId: post.id,
   })
@@ -57,7 +56,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
   const commentText = watchComment('comment') ?? ''
   const trimmedCommentText = commentText.trim()
   const isCommentInvalid =
-    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
+    trimmedCommentText.length === 0 || trimmedCommentText.length > COMMENT_CONTENT_MAX
 
   const visibleLikeAvatars =
     post.likesCount > 0 ? getUniqueAvatarUrls(post.avatarWhoLikes).slice(0, 3) : []
@@ -256,7 +255,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
             inputType={'text'}
             placeholder={'Add a Comment'}
             className={s.input}
-            maxLength={commentMaxLength}
+            maxLength={COMMENT_CONTENT_MAX}
             disabled={isCommentPublishing}
           />
           {isCommentPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}

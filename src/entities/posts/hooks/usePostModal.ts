@@ -184,7 +184,6 @@ export const usePostModal = (
     handleStartReply,
     replyTarget,
     isCommentPublishing,
-    commentMaxLength,
   } = usePostComments({
     postId: commentsPostId,
     enabled: open && !isAuthUiLoading,
@@ -260,7 +259,6 @@ export const usePostModal = (
       isPublishing: isCommentPublishing,
       items: comments,
       loadMore: loadMoreComments,
-      maxLength: commentMaxLength,
       totalCount: commentsTotalCount,
       watch: watchComment,
     },

@@ -6,7 +6,7 @@ import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 import { formatLikesCount } from '@/entities/posts/lib/format-likes'
 import { ControlledInput } from '@/features/formControls'
 import { Avatar, Skeleton } from '@/shared/composites'
-import { CommentFormData, PostVariant } from '@/shared/types'
+import { COMMENT_CONTENT_MAX, CommentFormData, PostVariant } from '@/shared/types'
 import {
   Button,
   Typography,
@@ -29,7 +29,6 @@ interface PostFooterProps {
     handlePublish: (data: CommentFormData) => Promise<boolean>
     handleSubmit: UseFormHandleSubmit<CommentFormData>
     isPublishing: boolean
-    maxLength: number
     watch: UseFormWatch<CommentFormData>
   }
   post: {
@@ -142,7 +141,7 @@ export const ViewModePostFooter = ({
                   inputType={'text'}
                   placeholder={'Add a Comment...'}
                   className={s.input}
-                  maxLength={comments.maxLength}
+                  maxLength={COMMENT_CONTENT_MAX}
                   disabled={comments.isPublishing}
                 />
                 {comments.isPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}

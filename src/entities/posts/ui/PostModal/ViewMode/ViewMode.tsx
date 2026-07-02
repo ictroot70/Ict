@@ -37,7 +37,6 @@ interface ViewModeProps {
     isPublishing: boolean
     items: CommentsViewModel[]
     loadMore: () => void
-    maxLength: number
     totalCount: number
     watch: UseFormWatch<CommentFormData>
   }
