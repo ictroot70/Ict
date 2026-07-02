@@ -13,6 +13,7 @@ import { FeedPostFooter } from './FeedPostFooter'
 
 const usePostCommentsMock = vi.hoisted(() => vi.fn())
 const useCommentLikeToggleMock = vi.hoisted(() => vi.fn())
+const useGetPostLikesQueryMock = vi.hoisted(() => vi.fn())
 const handlePublishMock = vi.fn(),
   handleStartReplyMock = vi.fn()
 const loadMoreMock = vi.fn()
@@ -21,13 +22,19 @@ const toggleCommentLikeMock = vi.fn()
 
 vi.mock('@/entities/posts/hooks', () => ({
   useCommentAnswers: () => ({
+    hasNextPage: false,
     answers: [],
     loadMore: vi.fn(),
-    hasNextPage: false,
     isLoading: false,
   }),
   useCommentLikeToggle: useCommentLikeToggleMock,
   usePostComments: usePostCommentsMock,
+}))
+
+vi.mock('@/entities/posts/api', () => ({
+  POST_LIKES_QUERY_ARG: { cursor: 0, pageNumber: 1, pageSize: 50 },
+  getAvatarWhoLikes: () => [],
+  useGetPostLikesQuery: useGetPostLikesQueryMock,
 }))
 
 vi.mock('@/entities/users/hooks/useTimeAgo', () => ({
@@ -181,6 +188,7 @@ describe('FeedPostFooter', () => {
     vi.clearAllMocks()
     Element.prototype.scrollTo = scrollToMock
     handlePublishMock.mockResolvedValue(true)
+    useGetPostLikesQueryMock.mockReturnValue({})
     arrangeUsePostComments()
     useCommentLikeToggleMock.mockReturnValue({
       toggleCommentLike: toggleCommentLikeMock,
@@ -277,21 +285,13 @@ describe('FeedPostFooter', () => {
   })
 
   it('renders unique like avatar URLs and hides them when likes count is zero', () => {
-    const { rerender } = render(
-      <FeedPostFooter post={{ ...post, avatarWhoLikes: ['/liked-1.svg', '/liked-1.svg'] }} />
-    )
+    const duplicatedLikesPost = { ...post, avatarWhoLikes: ['/liked-1.svg', '/liked-1.svg'] }
+    const postWithoutVisibleLikes = { ...post, avatarWhoLikes: ['/liked-1.svg'], likesCount: 0 }
+    const { rerender } = render(<FeedPostFooter post={duplicatedLikesPost} />)
 
     expect(screen.getAllByAltText('/liked-1.svg')).toHaveLength(1)
 
-    rerender(
-      <FeedPostFooter
-        post={{
-          ...post,
-          avatarWhoLikes: ['/liked-1.svg'],
-          likesCount: 0,
-        }}
-      />
-    )
+    rerender(<FeedPostFooter post={postWithoutVisibleLikes} />)
 
     expect(screen.queryByAltText('/liked-1.svg')).not.toBeInTheDocument()
     expect(screen.getByText((_, element) => element?.textContent === '0')).toBeInTheDocument()

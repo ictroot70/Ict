@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+import { POST_LIKES_QUERY_ARG, getAvatarWhoLikes, useGetPostLikesQuery } from '@/entities/posts/api'
 import { usePostComments } from '@/entities/posts/hooks'
 import { COMMENT_CONTENT_MAX, type CommentFormData } from '@/shared/types'
 
@@ -10,6 +11,7 @@ type UseFeedPostFooterParams = {
   likesCount: number
   postId: number
   avatarWhoLikes: string[]
+  isAuthenticated?: boolean
 }
 
 const DESCRIPTION_MAX_CHAR_COUNT = 100
@@ -22,6 +24,7 @@ export function useFeedPostFooter({
   likesCount,
   postId,
   avatarWhoLikes,
+  isAuthenticated = false,
 }: UseFeedPostFooterParams) {
   const [areCommentsOpen, setAreCommentsOpen] = useState(false)
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false)
@@ -31,11 +34,20 @@ export function useFeedPostFooter({
   const commentFormRef = useRef<HTMLFormElement>(null)
 
   const postComments = usePostComments({ postId })
+  const { data: postLikesData } = useGetPostLikesQuery(
+    { postId, ...POST_LIKES_QUERY_ARG },
+    {
+      skip: !isAuthenticated || likesCount <= 0,
+      refetchOnMountOrArgChange: true,
+    }
+  )
   const commentText = postComments.watchComment('comment') ?? ''
   const trimmedCommentText = commentText.trim()
   const isCommentInvalid =
     trimmedCommentText.length === 0 || trimmedCommentText.length > COMMENT_CONTENT_MAX
-  const visibleLikeAvatars = likesCount > 0 ? getUniqueAvatarUrls(avatarWhoLikes).slice(0, 3) : []
+  const resolvedLikeAvatarUrls = postLikesData ? getAvatarWhoLikes(postLikesData) : avatarWhoLikes
+  const visibleLikeAvatars =
+    likesCount > 0 ? getUniqueAvatarUrls(resolvedLikeAvatarUrls).slice(0, 3) : []
   const hasComments = postComments.totalCount > 0
   const isLongDescription = description.length > DESCRIPTION_MAX_CHAR_COUNT
   const descriptionText =

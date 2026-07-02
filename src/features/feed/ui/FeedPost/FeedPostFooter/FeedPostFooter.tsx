@@ -23,6 +23,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
   const footer = useFeedPostFooter({
     avatarWhoLikes: post.avatarWhoLikes,
     description: post.description,
+    isAuthenticated: Boolean(currentUser),
     likesCount: post.likesCount,
     postId: post.id,
   })
