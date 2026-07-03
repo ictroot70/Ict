@@ -2,16 +2,29 @@
 
 import React from 'react'
 
-import { usePostComments } from '@/entities/posts/hooks'
+import { PostCommentsList } from '@/entities/posts/ui/PostCommentsList'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
-import { Button, Separator, Typography } from '@/shared/ui'
+import { Avatar } from '@/shared/composites'
+import { CommentsViewModel } from '@/shared/types/comments'
+import { Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
-import { CommentItem } from './CommentItem'
-
 interface CommentsSectionProps {
+  auth: {
+    isAuthenticated: boolean
+  }
+  comments: {
+    expandedAnswersCommentId: number | null
+    handleStartReply: (target: { commentId: number; userName: string }) => void
+    hasNextPage: boolean
+    isError: boolean
+    isFetchingNextPage: boolean
+    isLoading: boolean
+    items: CommentsViewModel[]
+    loadMore: () => void
+    totalCount: number
+  }
   postData: {
     avatar: string
     userName: string
@@ -19,23 +32,15 @@ interface CommentsSectionProps {
     createdAt: string
   }
   postId: number
-  isAuthenticated: boolean
-  currentUserName?: string
-  currentUserAvatar?: string
-  enabled: boolean
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
+  auth,
+  comments,
   postData,
   postId,
-  isAuthenticated,
-  currentUserName,
-  currentUserAvatar,
-  enabled,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
-  const { comments, loadMore, hasNextPage, isLoading, isFetchingNextPage, isError, totalCount } =
-    usePostComments({ postId, enabled })
 
   return (
     <>
@@ -53,40 +58,20 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        {isLoading && (
-          <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Loading comments...
-          </Typography>
-        )}
-
-        {isError && (
-          <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Failed to load comments
-          </Typography>
-        )}
-
-        {!isLoading &&
-          comments.map(comment => (
-            <CommentItem
-              key={comment.id}
-              postId={postId}
-              comment={comment}
-              isAuthenticated={isAuthenticated}
-              currentUserName={currentUserName}
-              currentUserAvatar={currentUserAvatar}
-            />
-          ))}
-
-        {hasNextPage && (
-          <>
-            <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
-            {!isFetchingNextPage && totalCount > comments.length && (
-              <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
-                Load more comments
-              </Button>
-            )}
-          </>
-        )}
+        <PostCommentsList
+          comments={comments.items}
+          expandedAnswersCommentId={comments.expandedAnswersCommentId}
+          hasNextPage={comments.hasNextPage}
+          isAuthenticated={auth.isAuthenticated}
+          isError={comments.isError}
+          isFetchingNextPage={comments.isFetchingNextPage}
+          isLoading={comments.isLoading}
+          loadMore={comments.loadMore}
+          onAnswer={comments.handleStartReply}
+          postId={postId}
+          showLoadMoreButton
+          totalCount={comments.totalCount}
+        />
       </div>
     </>
   )

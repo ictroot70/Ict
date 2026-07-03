@@ -13,98 +13,32 @@ import {
 } from '@/entities/posts/lib/comment-likes'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { AnswersViewModel } from '@/shared/types/comments'
-import { InfiniteData } from '@reduxjs/toolkit/query'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 
 type CreateCommentAnswerInput = {
   postId: number
   commentId: number
   content: string
-  authorName?: string
-  authorAvatar?: string
 }
 
 export const commentsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: builder => ({
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.COMMENTS(postId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
+    }),
+
     createCommentAnswer: builder.mutation<void, CreateCommentAnswerInput>({
       query: ({ postId, commentId, content }) => ({
         url: API_ROUTES.POSTS.COMMENT_ANSWERS(postId, commentId),
         method: 'POST',
         body: { content },
       }),
-
-      async onQueryStarted(
-        { postId, commentId, content, authorName = 'User', authorAvatar },
-        { dispatch, queryFulfilled }
-      ) {
-        const optimisticAnswer = {
-          id: Date.now(),
-          content,
-          createdAt: new Date().toISOString(),
-          likeCount: 0,
-          isLiked: false,
-          commentId,
-          from: {
-            id: Date.now(),
-            userName: authorName,
-            avatars: authorAvatar
-              ? [
-                  {
-                    url: authorAvatar,
-                    width: 36,
-                    height: 36,
-                    fileSize: 0,
-                    createdAt: new Date().toISOString(),
-                  },
-                ]
-              : [],
-          },
-        }
-
-        const patchAnswersResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getCommentAnswers',
-            { postId, commentId },
-            (draft: InfiniteData<PaginatedAnswersResponse, number>) => {
-              if (!draft?.pages?.length) {
-                return
-              }
-
-              const firstPage = draft.pages[0]
-
-              firstPage.items.unshift(optimisticAnswer as AnswersViewModel)
-              draft.pages.forEach(page => {
-                page.totalCount += 1
-              })
-            }
-          )
-        )
-
-        const patchCommentsResult = dispatch(
-          commentsApi.util.updateQueryData(
-            'getPostComments',
-            { postId },
-            (draft: InfiniteData<PaginatedCommentsResponse, number>) => {
-              for (const page of draft.pages) {
-                const comment = page.items.find(item => item.id === commentId)
-
-                if (comment) {
-                  comment.answerCount += 1
-                  break
-                }
-              }
-            }
-          )
-        )
-
-        try {
-          await queryFulfilled
-        } catch {
-          patchAnswersResult.undo()
-          patchCommentsResult.undo()
-        }
-      },
 
       invalidatesTags: (result, error, { postId, commentId }) => [
         { type: 'Comments', id: `${postId}-${commentId}` },
@@ -200,6 +134,7 @@ export const commentsApi = baseApi.injectEndpoints({
 })
 
 export const {
+  useCreateCommentMutation,
   useCreateCommentAnswerMutation,
   useGetPostCommentsInfiniteQuery,
   useGetCommentAnswersInfiniteQuery,

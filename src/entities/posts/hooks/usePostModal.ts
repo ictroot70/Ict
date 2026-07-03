@@ -1,4 +1,4 @@
-import type { PostViewModel } from '@/entities/posts/api'
+import type { PostLikesResponse, PostViewModel } from '@/entities/posts/api'
 
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -9,15 +9,22 @@ import {
   useGetPostByIdQuery,
   useGetPostLikesQuery,
 } from '@/entities/posts/api/postApi'
-import { useGetPublicProfileQuery } from '@/entities/profile/api'
 import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { showToastAlert } from '@/shared/lib'
-import { PostVariant, DescriptionFormData } from '@/shared/types'
+import { CommentFormData, DescriptionFormData, PostVariant } from '@/shared/types'
 
 import { PostModalAuthState } from '../ui/PostModal/postModalLikeAction.types'
 import { usePostComments } from './usePostComments'
 
 type UiLanguage = 'en' | 'rus'
+
+type BuildPostDataParams = {
+  basePostData?: PostViewModel
+  fallbackAvatarWhoLikes?: string[]
+  initialPostData?: PostViewModel
+  postLikesData?: PostLikesResponse
+  shouldPreferInitialOptimisticFields: boolean
+}
 
 const postModalTextByLanguage = {
   en: {
@@ -36,6 +43,41 @@ const postModalTextByLanguage = {
   },
 } as const
 
+const buildPostData = ({
+  basePostData,
+  fallbackAvatarWhoLikes,
+  initialPostData,
+  postLikesData,
+  shouldPreferInitialOptimisticFields,
+}: BuildPostDataParams): PostViewModel | undefined => {
+  if (!basePostData) {
+    return undefined
+  }
+
+  const optimisticLikesCount = shouldPreferInitialOptimisticFields
+    ? (initialPostData?.likesCount ?? basePostData.likesCount)
+    : basePostData.likesCount
+
+  return {
+    ...basePostData,
+    isLiked: shouldPreferInitialOptimisticFields
+      ? (initialPostData?.isLiked ?? basePostData.isLiked)
+      : basePostData.isLiked,
+    likesCount: postLikesData?.totalCount ?? optimisticLikesCount,
+    avatarWhoLikes: postLikesData
+      ? getAvatarWhoLikes(postLikesData)
+      : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
+  }
+}
+
+const getPostVariant = (isAuthenticated: boolean, isOwnProfile: boolean): PostVariant => {
+  if (!isAuthenticated) {
+    return 'public'
+  }
+
+  return isOwnProfile ? 'myPost' : 'userPost'
+}
+
 export const usePostModal = (
   open: boolean,
   initialPostData?: PostViewModel,
@@ -44,6 +86,7 @@ export const usePostModal = (
 ) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
+  const [expandedAnswersCommentId, setExpandedAnswersCommentId] = useState<number | null>(null)
 
   const {
     control: descriptionControl,
@@ -56,36 +99,29 @@ export const usePostModal = (
     mode: 'onChange',
   })
 
-  const resolvedPostId = postId
   const user = authState?.user
   const isAuthUiLoading = authState?.isAuthUiLoading ?? false
   const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
-
-  const { data: currentUserProfile } = useGetPublicProfileQuery(
-    { profileId: user?.userId ?? 0 },
-    { skip: !user?.userId }
-  )
+  const queryPostId = postId ?? 0
 
   const {
     data: postDataFromQuery,
     isError: isPostError,
     isFetching: isPostFetching,
-  } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || isAuthUiLoading,
+  } = useGetPostByIdQuery(queryPostId, {
+    skip: !open || !postId || isAuthUiLoading,
     refetchOnMountOrArgChange: true,
   })
 
   const { data: postLikesData } = useGetPostLikesQuery(
-    { postId: resolvedPostId as number, ...POST_LIKES_QUERY_ARG },
+    { postId: queryPostId, ...POST_LIKES_QUERY_ARG },
     {
-      skip: !open || !resolvedPostId || isAuthUiLoading || !isAuthenticatedUi,
+      skip: !open || !postId || isAuthUiLoading || !isAuthenticatedUi,
       refetchOnMountOrArgChange: true,
     }
   )
 
-  const isSameInitialPost = Boolean(
-    initialPostData && resolvedPostId && initialPostData.id === resolvedPostId
-  )
+  const isSameInitialPost = Boolean(initialPostData && postId && initialPostData.id === postId)
   const basePostData = postDataFromQuery ?? initialPostData
   const shouldPreferInitialOptimisticFields = Boolean(isPostFetching && isSameInitialPost)
   const fallbackAvatarWhoLikes =
@@ -93,26 +129,17 @@ export const usePostModal = (
       ? initialPostData?.avatarWhoLikes
       : basePostData?.avatarWhoLikes
 
-  const postData = basePostData
-    ? {
-        ...basePostData,
-        isLiked: shouldPreferInitialOptimisticFields
-          ? (initialPostData?.isLiked ?? basePostData.isLiked)
-          : basePostData.isLiked,
-        likesCount:
-          postLikesData?.totalCount ??
-          (shouldPreferInitialOptimisticFields
-            ? (initialPostData?.likesCount ?? basePostData.likesCount)
-            : basePostData.likesCount),
-        avatarWhoLikes: postLikesData
-          ? getAvatarWhoLikes(postLikesData)
-          : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
-      }
-    : undefined
+  const postData = buildPostData({
+    basePostData,
+    fallbackAvatarWhoLikes,
+    initialPostData,
+    postLikesData,
+    shouldPreferInitialOptimisticFields,
+  })
 
   const hasPostData = Boolean(postData)
 
-  const isPostLoading = Boolean(open && resolvedPostId && !hasPostData && isPostFetching)
+  const isPostLoading = Boolean(open && postId && !hasPostData && isPostFetching)
   const uiText = postModalTextByLanguage[uiLanguage]
 
   const isOwnProfile = Boolean(
@@ -120,11 +147,7 @@ export const usePostModal = (
   )
 
   const ownerUserName = postData?.userName
-  let variant: PostVariant = 'public'
-
-  if (isAuthenticatedUi) {
-    variant = isOwnProfile ? 'myPost' : 'userPost'
-  }
+  const variant = getPostVariant(isAuthenticatedUi, isOwnProfile)
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -147,16 +170,32 @@ export const usePostModal = (
   const commentsPostId = postData?.id ?? postId
 
   const {
+    comments,
+    totalCount: commentsTotalCount,
+    loadMore: loadMoreComments,
+    hasNextPage: hasNextCommentsPage,
+    isFetchingNextPage: isFetchingNextCommentsPage,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
     commentControl,
     handleCommentSubmit,
     watchComment,
     handlePublish,
+    handleStartReply,
+    replyTarget,
     isCommentPublishing,
-    commentMaxLength,
   } = usePostComments({
     postId: commentsPostId,
     enabled: open && !isAuthUiLoading,
   })
+
+  const handlePublishComment = async (data: CommentFormData) => {
+    if (replyTarget) {
+      setExpandedAnswersCommentId(replyTarget.commentId)
+    }
+
+    return handlePublish(data)
+  }
 
   const handleEditPost = () => {
     setIsEditingDescription(true)
@@ -171,28 +210,14 @@ export const usePostModal = (
     resetDescription({ description })
   }
 
-  const {
-    isFollowing,
-    isFollowPending,
-    handleFollow: followPostOwner,
-    handleUnfollow: unfollowPostOwner,
-  } = useFollowUserState(ownerUserName || '', postData?.ownerId ?? 0, user?.userId, {
-    enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
-  })
-
-  const handleFollow = async () => {
-    if (isFollowPending) {
-      return
+  const { handleToggleFollow, isFollowing, isFollowPending } = useFollowUserState(
+    ownerUserName || '',
+    postData?.ownerId ?? 0,
+    user?.userId,
+    {
+      enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
     }
-
-    if (isFollowing) {
-      await unfollowPostOwner()
-
-      return
-    }
-
-    await followPostOwner()
-  }
+  )
 
   const handleCopyLink = async () => {
     const url = window.location.href
@@ -209,44 +234,54 @@ export const usePostModal = (
     }
   }
 
-  const currentUserAvatar =
-    currentUserProfile?.avatars.find(avatar => avatar.width === 192)?.url ??
-    currentUserProfile?.avatars[0]?.url ??
-    ''
-
   return {
-    isEditingDescription,
-    setIsEditingDescription,
-    isCreateCommentLoading: isCommentPublishing,
-    commentMaxLength,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
-    descriptionControl,
-    handleDescriptionSubmit,
-    watchDescription,
-    errors,
-    postData,
-    variant,
-    isAuthLoading: isAuthUiLoading,
-    isAuthenticated: isAuthenticatedUi,
-    isOwnProfile,
-    hasPostData,
-    isPostLoading,
-    isPostError,
+    actions: {
+      handleCopyLink,
+    },
+    auth: {
+      isAuthenticated: isAuthenticatedUi,
+      isLoading: isAuthUiLoading,
+    },
+    comments: {
+      control: commentControl,
+      expandedAnswersCommentId,
+      handlePublish: handlePublishComment,
+      handleStartReply,
+      handleSubmit: handleCommentSubmit,
+      hasNextPage: hasNextCommentsPage,
+      isError: isCommentsError,
+      isFetchingNextPage: isFetchingNextCommentsPage,
+      isLoading: isCommentsLoading,
+      isPublishing: isCommentPublishing,
+      items: comments,
+      loadMore: loadMoreComments,
+      totalCount: commentsTotalCount,
+      watch: watchComment,
+    },
+    description: {
+      applyLocal: applyLocalDescription,
+      control: descriptionControl,
+      errors,
+      handleCancel: handleCancelEdit,
+      handleEdit: handleEditPost,
+      handleSubmit: handleDescriptionSubmit,
+      isEditing: isEditingDescription,
+      setIsEditing: setIsEditingDescription,
+      watch: watchDescription,
+    },
+    follow: {
+      handleFollow: handleToggleFollow,
+      isFollowing,
+      isPending: isFollowPending,
+    },
+    post: {
+      data: postData,
+      formattedCreatedAt,
+      hasData: hasPostData,
+      isError: isPostError,
+      isLoading: isPostLoading,
+      variant,
+    },
     uiText,
-    formattedCreatedAt,
-    handlePublish,
-    handleEditPost,
-    handleCancelEdit,
-    handleCopyLink,
-    handleFollow,
-    isFollowing: isFollowing,
-    isFollowPending,
-    applyLocalDescription,
-    resolvedPostId,
-    currentUserId: user?.userId,
-    currentUserName: user?.userName ?? '',
-    currentUserAvatar,
   }
 }

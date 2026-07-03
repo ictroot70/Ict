@@ -3,131 +3,95 @@
 import type { CurrentPostLikeUser } from '@/features/postLikes/model/useLike'
 
 import { PostViewModel } from '@/entities/posts/api'
-import { usePostComments } from '@/entities/posts/hooks'
-import { ControlledInput } from '@/features/formControls'
-import { LikeButton } from '@/features/postLikes/ui/LikeButton'
-import { Avatar } from '@/shared/composites'
-import { APP_ROUTES } from '@/shared/constant/app-routes'
-import { BookmarkOutline, Button, MessageCircleOutline, PaperPlane, Typography } from '@/shared/ui'
-import Link from 'next/link'
+import { Button } from '@/shared/ui'
 
 import s from './FeedPostFooter.module.scss'
+
+import { useFeedPostFooter } from './model/useFeedPostFooter'
+import { FeedPostActionBar } from './ui/FeedPostActionBar'
+import { FeedPostCommentForm } from './ui/FeedPostCommentForm'
+import { FeedPostCommentsPanel } from './ui/FeedPostCommentsPanel'
+import { FeedPostDescription } from './ui/FeedPostDescription'
+import { FeedPostLikesSummary } from './ui/FeedPostLikesSummary'
 
 type Props = {
   currentUser?: CurrentPostLikeUser
   post: PostViewModel
 }
 
-const getUniqueAvatarUrls = (avatarUrls: string[]) =>
-  Array.from(new Set(avatarUrls.filter(Boolean)))
-
 export function FeedPostFooter({ currentUser, post }: Props) {
-  const {
-    totalCount,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
-    handlePublish,
-    isCommentPublishing,
-    commentMaxLength,
-  } = usePostComments({
+  const footer = useFeedPostFooter({
+    avatarWhoLikes: post.avatarWhoLikes,
+    description: post.description,
+    isAuthenticated: Boolean(currentUser),
+    likesCount: post.likesCount,
     postId: post.id,
   })
-
-  const commentText = watchComment('comment') ?? ''
-  const trimmedCommentText = commentText.trim()
-  const isCommentInvalid =
-    trimmedCommentText.length === 0 || trimmedCommentText.length > commentMaxLength
-
-  const visibleLikeAvatars =
-    post.likesCount > 0 ? getUniqueAvatarUrls(post.avatarWhoLikes).slice(0, 3) : []
+  const commentsPanelId = `feed-post-comments-${post.id}`
 
   return (
     <footer className={s.footer}>
-      <div className={s.actions} aria-label={'Post actions'}>
-        <LikeButton
-          className={s.actionButton}
+      <FeedPostActionBar
+        currentUser={currentUser}
+        isLiked={post.isLiked}
+        onOpenComments={footer.comments.onOpen}
+        ownerId={post.ownerId}
+        postId={post.id}
+      />
+
+      <FeedPostDescription
+        avatarOwner={post.avatarOwner}
+        descriptionText={footer.description.text}
+        isExpanded={footer.description.isExpanded}
+        isLong={footer.description.isLong}
+        onToggle={footer.description.onToggle}
+        ownerId={post.ownerId}
+        userName={post.userName}
+      />
+
+      <FeedPostLikesSummary
+        avatarUrls={footer.likes.visibleAvatarUrls}
+        likesCount={post.likesCount}
+      />
+
+      {footer.comments.hasComments && (
+        <Button
+          variant={'text'}
+          type={'button'}
+          className={s.commentsToggle}
+          onClick={footer.comments.onToggle}
+          aria-expanded={footer.comments.areOpen}
+          aria-controls={commentsPanelId}
+        >
+          View All Comments ({footer.comments.totalCount})
+        </Button>
+      )}
+
+      {footer.comments.hasComments && footer.comments.areOpen && (
+        <FeedPostCommentsPanel
+          ref={footer.comments.panelRef}
+          id={commentsPanelId}
+          comments={footer.comments.items}
+          expandedAnswersCommentId={footer.comments.expandedAnswersCommentId}
+          hasNextPage={footer.comments.hasNextPage}
+          isAuthenticated={Boolean(currentUser)}
+          isError={footer.comments.isError}
+          isFetchingNextPage={footer.comments.isFetchingNextPage}
+          isLoading={footer.comments.isLoading}
+          loadMore={footer.comments.loadMore}
+          onAnswer={footer.comments.handleStartReply}
           postId={post.id}
-          ownerId={post.ownerId}
-          isLiked={post.isLiked}
-          currentUser={currentUser}
         />
-        <Button
-          variant={'text'}
-          className={s.actionButton}
-          type={'button'}
-          aria-label={'Comment on post'}
-        >
-          <MessageCircleOutline />
-        </Button>
-        <Button
-          variant={'text'}
-          className={s.actionButton}
-          type={'button'}
-          aria-label={'Share post'}
-        >
-          <PaperPlane />
-        </Button>
-        <Button
-          variant={'text'}
-          className={`${s.actionButton} ${s.saveButton}`}
-          type={'button'}
-          aria-label={'Save post'}
-        >
-          <BookmarkOutline />
-        </Button>
-      </div>
+      )}
 
-      <div className={s.description}>
-        <Avatar image={post.avatarOwner} size={36} alt={`${post.userName} avatar`} />
-
-        <Typography variant={'regular_14'} className={s.descriptionText}>
-          <Link href={APP_ROUTES.PROFILE.BY_USERNAME(post.userName)}>
-            <strong>{post.userName}</strong>
-          </Link>
-          {post.description}
-        </Typography>
-      </div>
-
-      <div className={s.likes}>
-        {visibleLikeAvatars.length > 0 && (
-          <div className={s.likeAvatars} aria-hidden={'true'}>
-            {visibleLikeAvatars.map((avatar, index) => (
-              <Avatar
-                className={s.likeAvatar}
-                image={avatar}
-                size={24}
-                key={`${avatar}-${index}`}
-              />
-            ))}
-          </div>
-        )}
-        <Typography variant={'regular_14'}>
-          <span className={s.countComments}>{post.likesCount.toLocaleString('ru-RU')}</span>
-          <span>&quot;</span>
-          <strong>Like</strong>
-          <span>&quot;</span>
-        </Typography>
-      </div>
-
-      <Typography variant={'bold_14'} className={s.comments}>
-        View All Comments ({totalCount})
-      </Typography>
-
-      <form className={s.commentForm} onSubmit={handleCommentSubmit(handlePublish)}>
-        <ControlledInput
-          name={'comment'}
-          control={commentControl}
-          inputType={'text'}
-          placeholder={'Add a Comment'}
-          className={s.input}
-          maxLength={commentMaxLength}
-        />
-
-        <Button variant={'text'} type={'submit'} disabled={isCommentInvalid || isCommentPublishing}>
-          Publish
-        </Button>
-      </form>
+      <FeedPostCommentForm
+        ref={footer.comments.formRef}
+        control={footer.comments.control}
+        handleSubmit={footer.comments.handleSubmit}
+        isCommentInvalid={footer.comments.isCommentInvalid}
+        isPublishing={footer.comments.isPublishing}
+        onSubmit={footer.comments.onSubmit}
+      />
     </footer>
   )
 }

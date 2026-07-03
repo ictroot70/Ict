@@ -45,4 +45,3 @@ export const {
   useSearchUsersQuery,
   useGetUserByUserNameQuery,
 } = publicUsersApi
-
