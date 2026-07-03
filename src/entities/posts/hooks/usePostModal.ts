@@ -210,28 +210,14 @@ export const usePostModal = (
     resetDescription({ description })
   }
 
-  const {
-    isFollowing,
-    isFollowPending,
-    handleFollow: followPostOwner,
-    handleUnfollow: unfollowPostOwner,
-  } = useFollowUserState(ownerUserName || '', postData?.ownerId ?? 0, user?.userId, {
-    enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
-  })
-
-  const handleFollow = async () => {
-    if (isFollowPending) {
-      return
+  const { handleToggleFollow, isFollowing, isFollowPending } = useFollowUserState(
+    ownerUserName || '',
+    postData?.ownerId ?? 0,
+    user?.userId,
+    {
+      enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
     }
-
-    if (isFollowing) {
-      await unfollowPostOwner()
-
-      return
-    }
-
-    await followPostOwner()
-  }
+  )
 
   const handleCopyLink = async () => {
     const url = window.location.href
@@ -284,7 +270,7 @@ export const usePostModal = (
       watch: watchDescription,
     },
     follow: {
-      handleFollow,
+      handleFollow: handleToggleFollow,
       isFollowing,
       isPending: isFollowPending,
     },

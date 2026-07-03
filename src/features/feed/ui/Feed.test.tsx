@@ -3,9 +3,11 @@
 import React from 'react'
 
 import { type PostViewModel, useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { useFeedActions } from '@/features/feed/model'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { showToastAlert } from '@/shared/lib'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import '@testing-library/jest-dom'
@@ -21,8 +23,16 @@ vi.mock('@/features/feed/model', () => ({
   useFeedActions: vi.fn(),
 }))
 
+vi.mock('@/entities/users/hooks/useFollowUserState', () => ({
+  useFollowUserState: vi.fn(),
+}))
+
 vi.mock('@/features/posts/utils/useAuthUiState', () => ({
   useAuthUiState: vi.fn(),
+}))
+
+vi.mock('@/shared/lib', () => ({
+  showToastAlert: vi.fn(),
 }))
 
 vi.mock('@/shared/composites', () => ({
@@ -86,11 +96,13 @@ vi.mock('./FeedPost', () => ({
 }))
 
 const useFollowersFeedMock = vi.mocked(useGetFollowersFeedInfiniteQuery)
+const useFollowUserStateMock = vi.mocked(useFollowUserState)
 const useFeedActionsMock = vi.mocked(useFeedActions)
 const useAuthUiStateMock = vi.mocked(useAuthUiState)
+const showToastAlertMock = vi.mocked(showToastAlert)
 
 const fetchNextPage = vi.fn()
-const toggleFollow = vi.fn()
+const handleToggleFollow = vi.fn()
 const copyPostLink = vi.fn()
 
 const createPost = (id: number, ownerId: number = id): PostViewModel => ({
@@ -139,10 +151,18 @@ beforeEach(() => {
   vi.clearAllMocks()
   useFeedActionsMock.mockReturnValue({
     copyPostLink,
-    isFollowing: userId => userId !== 2,
-    isFollowPending: userId => userId === 3,
-    toggleFollow,
   })
+  handleToggleFollow.mockResolvedValue(undefined)
+  useFollowUserStateMock.mockImplementation((_userName, userId) => ({
+    followersCount: undefined,
+    followingCount: undefined,
+    handleFollow: vi.fn(),
+    handleToggleFollow,
+    handleUnfollow: vi.fn(),
+    isFollowPending: userId === 3,
+    isFollowing: userId !== 2,
+    publicationsCount: undefined,
+  }))
   useFollowersFeedMock.mockReturnValue(createQueryResult())
   useAuthUiStateMock.mockReturnValue({
     isAuthUiLoading: false,
@@ -225,7 +245,24 @@ describe('Feed', () => {
     fireEvent.click(screen.getByText('Toggle 1'))
     fireEvent.click(screen.getByText('Copy 2'))
 
-    expect(toggleFollow).toHaveBeenCalledWith({ userId: 2, userName: 'user-2' })
+    expect(useFollowUserStateMock).toHaveBeenCalledWith('user-2', 2, 30, { enabled: true })
+    expect(handleToggleFollow).toHaveBeenCalledTimes(1)
     expect(copyPostLink).toHaveBeenCalledWith(3, 2)
+  })
+
+  it('shows follow error from post item toggle', async () => {
+    handleToggleFollow.mockRejectedValueOnce(new Error('failed'))
+    useFollowersFeedMock.mockReturnValue(createQueryResult({ items: [createPost(1, 2)] }))
+
+    render(<Feed />)
+
+    fireEvent.click(screen.getByText('Toggle 1'))
+
+    await waitFor(() => {
+      expect(showToastAlertMock).toHaveBeenCalledWith({
+        message: 'Failed to follow user',
+        type: 'error',
+      })
+    })
   })
 })
