@@ -1,11 +1,13 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 
-import { SearchUserItem, SearchUsersResponse } from '@/entities/users/api/api.types'
+import { SearchUserItem } from '@/entities/users/api/api.types'
 import { publicUsersApi } from '@/entities/users/api/publicUsers.api'
 import { Avatar } from '@/shared/composites/Avatar/Avatar'
 import { InfiniteScrollTrigger } from '@/shared/composites/InfiniteScrollTrigger/InfiniteScrollTrigger'
+import { LinearProgress } from '@/shared/composites/LinearProgress'
+import { APP_ROUTES } from '@/shared/constant'
 import { Button, Close } from '@/shared/ui'
 import { Input } from '@/shared/ui/Input'
 import { Typography } from '@ictroot/ui-kit'
@@ -36,12 +38,14 @@ export const UserSearch = () => {
   const [recentUsers, setRecentUsers] = useState<SearchUserItem[]>([])
   const [allUsers, setAllUsers] = useState<SearchUserItem[]>([])
   const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const [isLoadingInitial, setIsLoadingInitial] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(0)
+  const [isError, setIsError] = useState(false)
+  const isLoadingMoreRef = useRef(false)
+  const requestIdRef = useRef(0)
+  const resultsRootRef = useRef<HTMLDivElement | null>(null)
 
-  const [triggerSearch, { data: searchData, isLoading: isLoadingInitial, isError }] =
-    publicUsersApi.useLazySearchUsersQuery()
+  const [triggerSearch] = publicUsersApi.useLazySearchUsersQuery()
 
   useEffect(() => {
     setRecentUsers(readRecentUsers())
@@ -56,57 +60,91 @@ export const UserSearch = () => {
   }, [query])
 
   useEffect(() => {
+    const requestId = requestIdRef.current + 1
+
+    requestIdRef.current = requestId
+
     if (debouncedQuery) {
       setAllUsers([])
       setNextCursor(null)
-      setCurrentPage(1)
-      setTotalPages(0)
-      // Для первого запроса не передаем cursor
-      triggerSearch({ search: debouncedQuery, pageSize: PAGE_SIZE }, true)
+      setIsError(false)
+      setIsLoadingInitial(true)
+      setIsLoadingMore(false)
+      isLoadingMoreRef.current = false
+
+      triggerSearch({ search: debouncedQuery, pageSize: PAGE_SIZE })
+        .unwrap()
+        .then(data => {
+          if (requestIdRef.current !== requestId) {
+            return
+          }
+
+          setAllUsers(data.items)
+          setNextCursor(data.nextCursor > 0 ? data.nextCursor : null)
+        })
+        .catch(() => {
+          if (requestIdRef.current !== requestId) {
+            return
+          }
+
+          setAllUsers([])
+          setNextCursor(null)
+          setIsError(true)
+        })
+        .finally(() => {
+          if (requestIdRef.current === requestId) {
+            setIsLoadingInitial(false)
+          }
+        })
+
+      return
     }
+
+    setAllUsers([])
+    setNextCursor(null)
+    setIsError(false)
+    setIsLoadingInitial(false)
+    setIsLoadingMore(false)
+    isLoadingMoreRef.current = false
   }, [debouncedQuery, triggerSearch])
 
-  useEffect(() => {
-    if (searchData) {
-      // Обновляем состояние на основе полученных данных
-      setAllUsers(prev => {
-        // Для первой страницы просто устанавливаем данные
-        if (nextCursor === null) {
-          setCurrentPage(searchData.page)
-          setTotalPages(searchData.pagesCount)
-
-          return searchData.items
-        } else {
-          // Для последующих страниц проверяем на дубликаты
-          const existingIds = new Set(prev.map(item => item.id))
-          const newItems = searchData.items.filter(item => !existingIds.has(item.id))
-
-          return [...prev, ...newItems]
-        }
-      })
-
-      // Обновляем курсор для следующего запроса
-      setNextCursor(searchData.nextCursor > 0 ? searchData.nextCursor : null)
-      setCurrentPage(searchData.page)
-      setTotalPages(searchData.pagesCount)
-    }
-  }, [searchData])
-
   const loadMore = useCallback(() => {
-    if (debouncedQuery && nextCursor !== null && !isLoadingMore && !isLoadingInitial) {
+    if (debouncedQuery && nextCursor !== null && !isLoadingMoreRef.current && !isLoadingInitial) {
+      const requestId = requestIdRef.current
+
+      isLoadingMoreRef.current = true
       setIsLoadingMore(true)
 
-      triggerSearch({ search: debouncedQuery, pageSize: PAGE_SIZE, cursor: nextCursor }, true)
+      triggerSearch({ search: debouncedQuery, pageSize: PAGE_SIZE, cursor: nextCursor })
         .unwrap()
+        .then(data => {
+          if (requestIdRef.current !== requestId) {
+            return
+          }
+
+          setAllUsers(prev => {
+            const existingIds = new Set(prev.map(item => item.id))
+            const newItems = data.items.filter(item => !existingIds.has(item.id))
+
+            return [...prev, ...newItems]
+          })
+          setNextCursor(data.nextCursor > 0 ? data.nextCursor : null)
+        })
         .catch(() => {
-          // В случае ошибки сбрасываем курсор, чтобы не пытаться загружать снова
+          if (requestIdRef.current !== requestId) {
+            return
+          }
+
           setNextCursor(null)
         })
         .finally(() => {
-          setIsLoadingMore(false)
+          if (requestIdRef.current === requestId) {
+            setIsLoadingMore(false)
+            isLoadingMoreRef.current = false
+          }
         })
     }
-  }, [debouncedQuery, nextCursor, isLoadingMore, isLoadingInitial, triggerSearch])
+  }, [debouncedQuery, isLoadingInitial, nextCursor, triggerSearch])
 
   const hasMore = nextCursor !== null
 
@@ -147,7 +185,7 @@ export const UserSearch = () => {
   const renderUserItem = (user: SearchUserItem, removable = false) => (
     <div key={user.id} className={styles.userRow}>
       <Link
-        href={`/profile/${user.id}`}
+        href={APP_ROUTES.PROFILE.BY_USERNAME(user.userName)}
         className={styles.userItem}
         onClick={() => handleSelectUser(user)}
       >
@@ -178,14 +216,17 @@ export const UserSearch = () => {
 
   return (
     <div className={styles.pageContainer}>
-      <h2 className={styles.pageTitle}>Search</h2>
-      <div className={styles.container}>
+      <LinearProgress active={isLoadingInitial || isLoadingMore} />
+      <div className={styles.searchHeader}>
+        <h2 className={styles.pageTitle}>Search</h2>
         <Input
           placeholder={'Search users...'}
           value={query}
           onChange={e => setQuery(e.target.value)}
           inputType={'search'}
         />
+      </div>
+      <div className={styles.container} ref={resultsRootRef}>
         {showRecent ? (
           <>
             <div className={styles.recentHeader}>
@@ -209,22 +250,19 @@ export const UserSearch = () => {
           </>
         ) : (
           <>
-            {isLoadingInitial && allUsers.length === 0 && (
-              <div className={styles.loadingInitial}>Loading users...</div>
-            )}
-
             {isError && (
               <div className={styles.errorMessage}>Error during search. Please try again.</div>
             )}
 
             {allUsers.length > 0 && (
-              <>
-                <div className={styles.resultsList}>
-                  {allUsers.map(user => renderUserItem(user))}
-                  <InfiniteScrollTrigger hasNextPage={hasMore} onLoadMore={loadMore} />
-                  {isLoadingMore && <div className={styles.loadingMore}>Loading more users...</div>}
-                </div>
-              </>
+              <div className={styles.resultsList}>
+                {allUsers.map(user => renderUserItem(user))}
+                <InfiniteScrollTrigger
+                  hasNextPage={hasMore}
+                  onLoadMore={loadMore}
+                  rootRef={resultsRootRef}
+                />
+              </div>
             )}
 
             {debouncedQuery && allUsers.length === 0 && !isLoadingInitial && !isError && (

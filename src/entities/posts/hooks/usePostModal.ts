@@ -213,14 +213,24 @@ export const usePostModal = (
   const {
     isFollowing,
     isFollowPending,
-    handleFollow: followOrUnfollow,
-  } = useFollowUserState(ownerUserName || '', postData?.ownerId ?? 0)
+    handleFollow: followPostOwner,
+    handleUnfollow: unfollowPostOwner,
+  } = useFollowUserState(ownerUserName || '', postData?.ownerId ?? 0, user?.userId, {
+    enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
+  })
 
   const handleFollow = async () => {
     if (isFollowPending) {
       return
     }
-    await followOrUnfollow()
+
+    if (isFollowing) {
+      await unfollowPostOwner()
+
+      return
+    }
+
+    await followPostOwner()
   }
 
   const handleCopyLink = async () => {

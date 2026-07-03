@@ -225,7 +225,7 @@ describe('Feed', () => {
     fireEvent.click(screen.getByText('Toggle 1'))
     fireEvent.click(screen.getByText('Copy 2'))
 
-    expect(toggleFollow).toHaveBeenCalledWith(2)
+    expect(toggleFollow).toHaveBeenCalledWith({ userId: 2, userName: 'user-2' })
     expect(copyPostLink).toHaveBeenCalledWith(3, 2)
   })
 })

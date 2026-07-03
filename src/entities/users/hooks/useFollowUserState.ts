@@ -1,28 +1,48 @@
 'use client'
 
 import {
-  useFollowProfileUserMutation,
-  useUnfollowProfileUserMutation,
+  useFollowUserMutation,
   useGetUserByUserNameQuery,
-} from '@/entities/users/api/publicUsers.api'
+  useUnfollowUserMutation,
+} from '@/entities/users/api'
 
-export const useFollowUserState = (userName: string, userId: number) => {
-  const { data: followState } = useGetUserByUserNameQuery(userName, { skip: !userName })
-  const [followUser, { isLoading: isFollowingLoading }] = useFollowProfileUserMutation()
-  const [unfollowUser, { isLoading: isUnfollowingLoading }] = useUnfollowProfileUserMutation()
+type FollowUserStateOptions = {
+  enabled?: boolean
+}
+
+export const useFollowUserState = (
+  userName: string,
+  userId: number,
+  currentUserId?: number,
+  { enabled = true }: FollowUserStateOptions = {}
+) => {
+  const canQuery = enabled && Boolean(userName)
+  const canMutate = enabled && Boolean(userName) && Number.isInteger(userId) && userId > 0
+  const { data: followState } = useGetUserByUserNameQuery(userName, { skip: !canQuery })
+  const [followUser, { isLoading: isFollowingLoading }] = useFollowUserMutation()
+  const [unfollowUser, { isLoading: isUnfollowingLoading }] = useUnfollowUserMutation()
 
   const handleFollow = async () => {
-    await followUser({ selectedUserId: userId }).unwrap()
+    if (!canMutate) {
+      return
+    }
+
+    await followUser({ currentUserId, selectedUserId: userId, targetUserName: userName }).unwrap()
   }
 
   const handleUnfollow = async () => {
-    await unfollowUser(userId).unwrap()
+    if (!canMutate) {
+      return
+    }
+
+    await unfollowUser({ currentUserId, selectedUserId: userId, targetUserName: userName }).unwrap()
   }
 
   return {
     isFollowing: followState?.isFollowing ?? false,
-    followersCount: followState?.followersCount ?? 0,
-    followingCount: followState?.followingCount ?? 0,
+    followersCount: followState?.followersCount,
+    followingCount: followState?.followingCount,
+    publicationsCount: followState?.publicationsCount,
     isFollowPending: isFollowingLoading || isUnfollowingLoading,
     handleFollow,
     handleUnfollow,

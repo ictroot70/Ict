@@ -49,7 +49,7 @@ export function Feed() {
             post={post}
             isFollowing={isFollowing(post.ownerId)}
             isFollowPending={isFollowPending(post.ownerId)}
-            onToggleFollow={() => toggleFollow(post.ownerId)}
+            onToggleFollow={() => toggleFollow({ userId: post.ownerId, userName: post.userName })}
             onCopyLink={() => copyPostLink(post.ownerId, post.id)}
             currentUser={user ? { userId: user.userId, userName: user.name } : undefined}
           />
