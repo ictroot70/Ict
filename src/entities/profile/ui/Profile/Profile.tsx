@@ -24,6 +24,7 @@ export type ProfileProps = {
   initialPostSourceServer?: PostOpenSource
   postModalAuthState?: PostModalAuthState
   renderPostLikeAction?: RenderPostLikeAction
+  resolvedUserId: number
 }
 
 export function Profile({
@@ -34,6 +35,7 @@ export function Profile({
   initialPostSourceServer = 'direct',
   postModalAuthState,
   renderPostLikeAction,
+  resolvedUserId,
 }: Readonly<ProfileProps>) {
   const {
     posts,
@@ -47,7 +49,7 @@ export function Profile({
     authActionSkeletonVariant,
     profileInfoActions,
     loadMorePostsHandler,
-  } = useProfile(profileDataServer, postsDataServer)
+  } = useProfile(profileDataServer, postsDataServer, resolvedUserId)
 
   if (isLoading) {
     return <Loading />

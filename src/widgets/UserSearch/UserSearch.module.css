@@ -1,9 +1,19 @@
 .pageContainer {
+  height: calc(100vh - 132px);
+  min-height: 0;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  overflow: hidden;
+}
+
+.searchHeader {
+  flex-shrink: 0;
+  width: 100%;
+  padding-bottom: 16px;
+  background: var(--color-dark-700);
 }
 
 .pageTitle {
@@ -14,14 +24,17 @@
 }
 
 .container {
+  flex: 1;
+  min-height: 0;
   width: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .resultsList {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
 }
 
 .userRow {
@@ -97,7 +110,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
 }
 
 .emptyPlaceholder {
@@ -109,21 +121,6 @@
   color: var(--color-light-900);
   text-align: center;
   margin-top: 84px;
-}
-
-.loadingMore {
-  padding: 16px;
-  text-align: center;
-  color: var(--color-light-900);
-  font-size: 14px;
-}
-
-.loadingInitial {
-  margin-top: 16px;
-  padding: 24px;
-  text-align: center;
-  color: var(--color-light-900);
-  font-size: 14px;
 }
 
 .errorMessage {

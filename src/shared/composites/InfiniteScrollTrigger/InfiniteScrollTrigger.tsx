@@ -1,12 +1,15 @@
+import { RefObject } from 'react'
+
 import { useInfiniteScroll } from '@/shared/hooks'
 
 type Prop = {
   hasNextPage: boolean
   onLoadMore: () => void
+  rootRef?: RefObject<Element | null>
 }
 
-export const InfiniteScrollTrigger = ({ hasNextPage, onLoadMore }: Prop) => {
-  const { observerRef } = useInfiniteScroll({ hasNextPage, onLoadMore })
+export const InfiniteScrollTrigger = ({ hasNextPage, onLoadMore, rootRef }: Prop) => {
+  const { observerRef } = useInfiniteScroll({ hasNextPage, onLoadMore, rootRef })
 
   if (!hasNextPage) {
     return null

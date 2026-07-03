@@ -23,6 +23,7 @@ export const APP_ROUTES = {
   },
 
   PROFILE: {
+    BY_USERNAME: (userName: string) => `/profile/${encodeURIComponent(userName)}`,
     ID: (id: number) => `/profile/${id}`,
     WITH_POST: (id: number, postId: number, from?: PostOpenSource) => {
       const params = new URLSearchParams({ postId: String(postId) })

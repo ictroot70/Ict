@@ -82,7 +82,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
         <Avatar image={post.avatarOwner} size={36} alt={`${post.userName} avatar`} />
 
         <Typography variant={'regular_14'} className={s.descriptionText}>
-          <Link href={APP_ROUTES.PROFILE.ID(post.ownerId)}>
+          <Link href={APP_ROUTES.PROFILE.BY_USERNAME(post.userName)}>
             <strong>{post.userName}</strong>
           </Link>
           {post.description}
