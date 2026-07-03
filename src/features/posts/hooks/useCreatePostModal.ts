@@ -1,6 +1,6 @@
 'use client'
 
-import type { PostViewModel } from '@/shared/types'
+import type { PostViewModel } from '@/entities/posts/api'
 
 import { useCallback, useMemo } from 'react'
 

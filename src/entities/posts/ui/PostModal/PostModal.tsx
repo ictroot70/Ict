@@ -11,12 +11,15 @@ import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
 import { ViewMode } from './ViewMode/ViewMode'
+import { PostModalAuthState, RenderPostLikeAction } from './postModalLikeAction.types'
 
 interface Props extends PostModalHandlers {
   open: boolean
   isEditing?: boolean
   postData?: PostViewModel
   postId?: number
+  authState?: PostModalAuthState
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const PostModal = ({
@@ -27,35 +30,18 @@ export const PostModal = ({
   isEditing,
   postData: initialPostData,
   postId,
+  authState,
+  renderPostLikeAction,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
-  const {
-    comments,
-    isEditingDescription,
-    setIsEditingDescription,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
-    descriptionControl,
-    handleDescriptionSubmit,
-    watchDescription,
-    errors,
-    postData,
-    variant,
-    isAuthLoading,
-    isAuthenticated,
-    isOwnProfile,
-    hasPostData,
-    isPostLoading,
-    isPostError,
-    uiText,
-    formattedCreatedAt,
-    handlePublish,
-    handleEditPost,
-    handleCancelEdit,
-    handleCopyLink,
-    applyLocalDescription,
-  } = usePostModal(open, initialPostData, postId)
+  const { actions, auth, comments, description, follow, post, uiText } = usePostModal(
+    open,
+    initialPostData,
+    postId,
+    authState
+  )
+  const postData = post.data
+  const isEditingDescription = description.isEditing
 
   const handleSaveDescription = async ({
     description: newDescription,
@@ -64,21 +50,21 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData.postId) {
-      const updated = await onEditPost(postData.postId, trimmed)
+    if (trimmed && onEditPost && postData?.id) {
+      const updated = await onEditPost(postData.id, trimmed)
 
-      if (updated === false) {
+      if (!updated) {
         return
       }
 
-      applyLocalDescription(trimmed)
-      setIsEditingDescription(false)
+      description.applyLocal(trimmed)
+      description.setIsEditing(false)
     }
   }
 
   const handleDeletePostAction = () => {
-    if (onDeletePost && postData.postId) {
-      onDeletePost(postData.postId)
+    if (onDeletePost && postData?.id) {
+      onDeletePost(postData.id)
     }
   }
 
@@ -126,7 +112,7 @@ export const PostModal = ({
   )
 
   function renderContent() {
-    if (isPostLoading) {
+    if (post.isLoading) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>{uiText.loadingPost}</Typography>
@@ -134,11 +120,11 @@ export const PostModal = ({
       )
     }
 
-    if (!hasPostData) {
+    if (!post.hasData || !postData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
-            {isPostError ? uiText.notFoundPost : uiText.unavailablePost}
+            {post.isError ? uiText.notFoundPost : uiText.unavailablePost}
           </Typography>
         </div>
       )
@@ -146,34 +132,22 @@ export const PostModal = ({
 
     return isEditingDescription ? (
       <EditMode
-        descriptionControl={descriptionControl}
-        handleDescriptionSubmit={handleDescriptionSubmit}
+        description={description}
         handleSaveDescription={handleSaveDescription}
-        handleCancelEdit={handleCancelEdit}
-        errors={errors}
-        watchDescription={watchDescription}
         postData={postData}
-        onClose={handleCloseModal}
         isEditing
       />
     ) : (
       <ViewMode
-        onClose={handleCloseModal}
-        postData={postData}
-        variant={variant}
-        handleEditPost={handleEditPost}
-        handleDeletePost={handleDeletePostAction}
-        isEditing={isEditing}
+        actions={actions}
+        auth={auth}
         comments={comments}
-        commentControl={commentControl}
-        handleCommentSubmit={handleCommentSubmit}
-        watchComment={watchComment}
-        handlePublish={handlePublish}
-        onCopyLink={handleCopyLink}
-        formattedCreatedAt={formattedCreatedAt}
-        isAuthLoading={isAuthLoading}
-        isAuthenticated={isAuthenticated}
-        isOwnProfile={isOwnProfile}
+        description={description}
+        follow={follow}
+        handleDeletePost={handleDeletePostAction}
+        post={post}
+        postData={postData}
+        renderPostLikeAction={renderPostLikeAction}
       />
     )
   }

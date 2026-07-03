@@ -3,9 +3,12 @@ import type { PostOpenSource } from '@/shared/constant'
 
 import { fetchPostByIdForSSR, fetchUserPosts } from '@/entities/posts/lib'
 import { fetchProfileData } from '@/entities/profile/lib'
-import { Profile } from '@/entities/profile/ui'
 import { logger } from '@/shared/lib/logger'
 import { getSsrFetchErrorStatus } from '@/shared/lib/ssr/safeSsrFetch'
+import {
+  ProfileWithPostLikes,
+  ProfileWithPostLikesByUserName,
+} from '@/widgets/ProfileWithPostLikes'
 
 type Props = {
   params: Promise<{ id: string }>
@@ -33,6 +36,8 @@ const parsePostId = (raw?: string) => {
 
 const parsePostSource = (raw?: string): PostOpenSource =>
   raw && isPostSource(raw) ? raw : 'direct'
+
+const isValidProfileUserName = (value: string) => /^[A-Za-z0-9._-]{1,30}$/.test(value)
 
 const getEmptyPosts = (pageSize: number): PaginatedPosts => ({
   items: [],
@@ -69,13 +74,15 @@ const renderProfileError = (error: unknown, userId: number) => {
   return <ServerUnavailableView />
 }
 
-export const revalidate = 60
-
 export default async function ProfilePage({ params, searchParams }: Readonly<Props>) {
   const [{ id }, query] = await Promise.all([params, searchParams])
   const userId = Number(id)
 
   if (!Number.isInteger(userId) || userId <= 0) {
+    if (isValidProfileUserName(id)) {
+      return <ProfileWithPostLikesByUserName userName={id} />
+    }
+
     return <NotFoundView />
   }
 
@@ -101,9 +108,10 @@ export default async function ProfilePage({ params, searchParams }: Readonly<Pro
     initialPostResult.status === 'fulfilled' ? initialPostResult.value : null
 
   return (
-    <Profile
+    <ProfileWithPostLikes
       profileDataServer={profileDataServer}
       postsDataServer={postsData}
+      resolvedUserId={userId}
       initialPostIdServer={initialPostId}
       initialPostDataServer={initialPostDataServer}
       initialPostSourceServer={initialPostSource}

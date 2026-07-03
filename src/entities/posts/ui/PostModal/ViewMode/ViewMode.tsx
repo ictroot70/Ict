@@ -1,49 +1,79 @@
+'use client'
+
+import type { PostViewModel } from '@/entities/posts/api'
+
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { CommentFormData, PostModalData, PostVariant } from '@/shared/types'
+import { CommentFormData, PostVariant } from '@/shared/types'
+import { CommentsViewModel } from '@/shared/types/comments'
 import { Separator } from '@/shared/ui'
 
 import s from './ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../postModalLikeAction.types'
 import { ViewModeCommentsSection } from './ViewModeCommentsSection/ViewModeCommentsSection'
 import { ViewModePhotoSection } from './ViewModePhotoSection/ViewModePhotoSection'
 import { ViewModePostFooter } from './ViewModePostFooter/ViewModePostFooter'
 import { ViewModePostHeader } from './ViewModePostHeader/ViewModePostHeader'
 
 interface ViewModeProps {
-  onClose: () => void
-  postData: PostModalData
-  variant: PostVariant
-  handleEditPost: () => void
+  actions: {
+    handleCopyLink: () => void
+  }
+  auth: {
+    isAuthenticated: boolean
+    isLoading: boolean
+  }
+  comments: {
+    control: Control<CommentFormData>
+    expandedAnswersCommentId: number | null
+    handlePublish: (data: CommentFormData) => Promise<boolean>
+    handleStartReply: (target: { commentId: number; userName: string }) => void
+    handleSubmit: UseFormHandleSubmit<CommentFormData>
+    hasNextPage: boolean
+    isError: boolean
+    isFetchingNextPage: boolean
+    isLoading: boolean
+    isPublishing: boolean
+    items: CommentsViewModel[]
+    loadMore: () => void
+    totalCount: number
+    watch: UseFormWatch<CommentFormData>
+  }
+  description: {
+    handleEdit: () => void
+  }
+  follow: {
+    handleFollow: () => Promise<void>
+    isFollowing: boolean
+    isPending: boolean
+  }
   handleDeletePost: () => void
-  onCopyLink: () => void
-  isEditing?: boolean
-  comments: string[]
-  commentControl: Control<CommentFormData>
-  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
-  watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
-  formattedCreatedAt: string
-  isAuthLoading: boolean
-  isAuthenticated: boolean
-  isOwnProfile: boolean
+  post: {
+    formattedCreatedAt: string
+    variant: PostVariant
+  }
+  postData: PostViewModel
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
 export const ViewMode = ({
-  postData,
-  variant,
-  handleEditPost,
-  handleDeletePost,
-  onCopyLink,
+  actions,
+  auth,
   comments,
-  commentControl,
-  handleCommentSubmit,
-  watchComment,
-  handlePublish,
-  formattedCreatedAt,
-  isAuthLoading,
+  description,
+  follow,
+  handleDeletePost,
+  post,
+  postData,
+  renderPostLikeAction,
 }: ViewModeProps) => {
-  const handleFollow = () => {}
+  const postDataForChildren = {
+    avatar: postData.avatarOwner,
+    userName: postData.userName,
+    description: postData.description ?? '',
+    createdAt: postData.createdAt,
+  }
 
   return (
     <div className={s.viewMode} onClick={e => e.stopPropagation()}>
@@ -51,27 +81,30 @@ export const ViewMode = ({
 
       <div className={s.postSideBar}>
         <ViewModePostHeader
-          postData={postData}
-          variant={variant}
-          onEdit={handleEditPost}
+          actions={actions}
+          auth={auth}
+          description={description}
+          follow={follow}
           onDelete={handleDeletePost}
-          onFollow={handleFollow}
-          onCopyLink={onCopyLink}
-          isAuthLoading={isAuthLoading}
+          post={post}
+          postData={postDataForChildren}
         />
 
-        <ViewModeCommentsSection postData={postData} comments={comments} />
+        <ViewModeCommentsSection
+          auth={auth}
+          comments={comments}
+          postData={postDataForChildren}
+          postId={postData.id}
+        />
 
         <Separator />
 
         <ViewModePostFooter
-          variant={variant}
-          formattedCreatedAt={formattedCreatedAt}
-          commentControl={commentControl}
-          handleCommentSubmit={handleCommentSubmit}
-          watchComment={watchComment}
-          handlePublish={handlePublish}
-          isAuthLoading={isAuthLoading}
+          auth={auth}
+          comments={comments}
+          post={post}
+          postData={postData}
+          renderPostLikeAction={renderPostLikeAction}
         />
       </div>
     </div>

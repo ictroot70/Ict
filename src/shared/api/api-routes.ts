@@ -50,17 +50,8 @@ export const API_ROUTES = {
     COMMENTS: (postId: number) => `/v1/posts/${postId}/comments`,
     COMMENT_ANSWERS: (postId: number, commentId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers`,
-    ANSWER_LIKES: (postId: number, commentId: number, answerId: number) =>
-      `/v1/posts/${postId}/comments/${commentId}/answers/${answerId}/likes`,
-    COMMENT_LIKES: (postId: number, commentId: number) =>
-      `/v1/posts/${postId}/comments/${commentId}/likes`,
     LIKE_STATUS_POST: (postId: number) => `/v1/posts/${postId}/like-status`,
     POST_LIKES: (postId: number) => `/v1/posts/${postId}/likes`,
-
-    // Comments and Answers
-    CREATE_COMMENT: (postId: number) => `/v1/posts/${postId}/comments`,
-    CREATE_ANSWER_COMMENT: (postId: number, commentId: number) =>
-      `/v1/posts/${postId}/comments/${commentId}/answers`,
     LIKE_STATUS_ANSWER: (postId: number, commentId: number, answerId: number) =>
       `/v1/posts/${postId}/comments/${commentId}/answers/${answerId}/like-status`,
     LIKE_STATUS_COMMENT: (postId: number, commentId: number) =>
@@ -103,6 +94,7 @@ export const API_ROUTES = {
     BY_USERNAME: (userName: string) => `/v1/users/${userName}`,
     FOLLOWERS_BY_USERNAME: (userName: string) => `/v1/users/${userName}/followers`,
     FOLLOWING_BY_USERNAME: (userName: string) => `/v1/users/${userName}/following`,
+    SEARCH: '/v1/users',
   },
 
   PROFILE: {

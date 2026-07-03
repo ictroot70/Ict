@@ -3,6 +3,10 @@
 import type { PaginatedPosts, PostViewModel } from '@/entities/posts/api'
 import type { PostOpenSource } from '@/shared/constant'
 
+import {
+  PostModalAuthState,
+  RenderPostLikeAction,
+} from '@/entities/posts/ui/PostModal/postModalLikeAction.types'
 import { PublicProfileData } from '@/entities/profile/api'
 import { useProfile } from '@/entities/profile/hooks'
 import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
@@ -12,12 +16,15 @@ import s from './Profile.module.scss'
 import { ProfileInfo } from './ProfileInfo'
 import { ProfilePosts } from './ProfilePosts'
 
-type Props = {
+export type ProfileProps = {
   profileDataServer: PublicProfileData
   postsDataServer: PaginatedPosts
   initialPostIdServer?: null | number
   initialPostDataServer?: null | PostViewModel
   initialPostSourceServer?: PostOpenSource
+  postModalAuthState?: PostModalAuthState
+  renderPostLikeAction?: RenderPostLikeAction
+  resolvedUserId: number
 }
 
 export function Profile({
@@ -26,7 +33,10 @@ export function Profile({
   initialPostIdServer = null,
   initialPostDataServer = null,
   initialPostSourceServer = 'direct',
-}: Readonly<Props>) {
+  postModalAuthState,
+  renderPostLikeAction,
+  resolvedUserId,
+}: Readonly<ProfileProps>) {
   const {
     posts,
     userId,
@@ -39,7 +49,7 @@ export function Profile({
     authActionSkeletonVariant,
     profileInfoActions,
     loadMorePostsHandler,
-  } = useProfile(profileDataServer, postsDataServer)
+  } = useProfile(profileDataServer, postsDataServer, resolvedUserId)
 
   if (isLoading) {
     return <Loading />
@@ -63,6 +73,8 @@ export function Profile({
           initialPostIdServer={initialPostIdServer}
           initialPostDataServer={initialPostDataServer}
           initialPostSourceServer={initialPostSourceServer}
+          postModalAuthState={postModalAuthState}
+          renderPostLikeAction={renderPostLikeAction}
         />
       </div>
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMorePostsHandler} />

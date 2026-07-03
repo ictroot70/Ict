@@ -1,14 +1,16 @@
-import React, { useEffect } from 'react'
+import React, { RefObject, useEffect } from 'react'
 
 interface Props {
   hasNextPage: boolean
   onLoadMore: () => void
+  rootRef?: RefObject<Element | null>
   rootMargin?: string
   threshold?: number
 }
 
 export const useInfiniteScroll = ({
   hasNextPage,
+  rootRef,
   rootMargin = '100px',
   threshold = 0.1,
   onLoadMore,
@@ -16,13 +18,17 @@ export const useInfiniteScroll = ({
   const observerRef = React.useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
+    if (!hasNextPage) {
+      return
+    }
+
     const observer = new IntersectionObserver(
       entries => {
-        if (entries.length > 0 && entries[0].isIntersecting && hasNextPage) {
+        if (entries.length > 0 && entries[0].isIntersecting) {
           onLoadMore()
         }
       },
-      { root: null, rootMargin, threshold }
+      { root: rootRef?.current ?? null, rootMargin, threshold }
     )
 
     const currentRef = observerRef.current
@@ -36,7 +42,7 @@ export const useInfiniteScroll = ({
         observer.unobserve(currentRef)
       }
     }
-  }, [onLoadMore, hasNextPage, rootMargin, threshold])
+  }, [onLoadMore, hasNextPage, rootMargin, rootRef, threshold])
 
   return { observerRef }
 }

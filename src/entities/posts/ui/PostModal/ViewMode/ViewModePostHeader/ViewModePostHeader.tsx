@@ -11,35 +11,57 @@ import s from '../ViewMode.module.scss'
 import PostActions from '../../PostActions/PostActions'
 
 interface PostHeaderProps {
+  actions: {
+    handleCopyLink: () => void
+  }
+  auth: {
+    isLoading: boolean
+  }
+  description: {
+    handleEdit: () => void
+  }
+  follow: {
+    handleFollow: () => void
+    isFollowing: boolean
+    isPending: boolean
+  }
+  onDelete: () => void
+  post: {
+    variant: PostVariant
+  }
   postData: {
     avatar: string
     userName: string
   }
-  variant: PostVariant
-  onEdit: () => void
-  onDelete: () => void
-  onFollow: () => void
-  onCopyLink: () => void
-  isAuthLoading: boolean
 }
 
 export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
-  postData,
-  variant,
-  onEdit,
+  actions,
+  auth,
+  description,
+  follow,
   onDelete,
-  onFollow,
-  onCopyLink,
-  isAuthLoading,
+  post,
+  postData,
 }) => {
-  let actions = null
+  let renderedActions = null
 
-  if (isAuthLoading) {
-    actions = <Skeleton className={s.actionsSkeleton} aria-hidden />
-  } else if (variant === 'myPost') {
-    actions = <PostActions variant={'myPost'} onEdit={onEdit} onDelete={onDelete} />
-  } else if (variant === 'userPost') {
-    actions = <PostActions variant={'userPost'} onFollow={onFollow} onCopyLink={onCopyLink} />
+  if (auth.isLoading) {
+    renderedActions = <Skeleton className={s.actionsSkeleton} aria-hidden />
+  } else if (post.variant === 'myPost') {
+    renderedActions = (
+      <PostActions variant={'myPost'} onEdit={description.handleEdit} onDelete={onDelete} />
+    )
+  } else if (post.variant === 'userPost') {
+    renderedActions = (
+      <PostActions
+        variant={'userPost'}
+        onFollow={follow.handleFollow}
+        isFollowing={follow.isFollowing}
+        isFollowPending={follow.isPending}
+        onCopyLink={actions.handleCopyLink}
+      />
+    )
   }
 
   return (
@@ -51,7 +73,7 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
         </Typography>
       </div>
 
-      {actions}
+      {renderedActions}
     </div>
   )
 }

@@ -1,9 +1,12 @@
+'use client'
+
 import React from 'react'
 import { Control, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
+import { formatLikesCount } from '@/entities/posts/lib/format-likes'
 import { ControlledInput } from '@/features/formControls'
-import { Skeleton } from '@/shared/composites'
-import { CommentFormData } from '@/shared/types'
+import { Avatar, Skeleton } from '@/shared/composites'
+import { COMMENT_CONTENT_MAX, CommentFormData, PostVariant } from '@/shared/types'
 import {
   Button,
   Typography,
@@ -15,27 +18,43 @@ import {
 
 import s from '../ViewMode.module.scss'
 
+import { RenderPostLikeAction } from '../../postModalLikeAction.types'
+
 interface PostFooterProps {
-  variant: 'public' | 'myPost' | 'userPost'
-  formattedCreatedAt: string
-  commentControl: Control<CommentFormData>
-  handleCommentSubmit: UseFormHandleSubmit<CommentFormData>
-  watchComment: UseFormWatch<CommentFormData>
-  handlePublish: (data: CommentFormData) => void
-  isAuthLoading: boolean
+  auth: {
+    isLoading: boolean
+  }
+  comments: {
+    control: Control<CommentFormData>
+    handlePublish: (data: CommentFormData) => Promise<boolean>
+    handleSubmit: UseFormHandleSubmit<CommentFormData>
+    isPublishing: boolean
+    watch: UseFormWatch<CommentFormData>
+  }
+  post: {
+    formattedCreatedAt: string
+    variant: PostVariant
+  }
+  postData: {
+    avatarWhoLikes: string[]
+    id: number
+    isLiked: boolean
+    likesCount: number
+    ownerId: number
+  }
+  renderPostLikeAction?: RenderPostLikeAction
 }
 
-export const ViewModePostFooter: React.FC<PostFooterProps> = ({
-  variant,
-  formattedCreatedAt,
-  commentControl,
-  handleCommentSubmit,
-  watchComment,
-  handlePublish,
-  isAuthLoading,
-}) => {
-  const shouldShowAuthActions = variant !== 'public'
-  const shouldShowAuthSkeleton = isAuthLoading
+export const ViewModePostFooter = ({
+  auth,
+  comments,
+  post,
+  postData,
+  renderPostLikeAction,
+}: PostFooterProps) => {
+  const shouldShowAuthActions = post.variant !== 'public'
+  const shouldShowAuthSkeleton = auth.isLoading
+  const visibleAvatars = postData.avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
 
   return (
     <div className={s.footer}>
@@ -55,13 +74,22 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
             </>
           ) : (
             <>
-              <Button variant={'text'} className={s.postButton}>
-                <HeartOutline color={'white'} />
-              </Button>
-              <Button variant={'text'} className={s.postButton}>
+              {renderPostLikeAction ? (
+                renderPostLikeAction({
+                  postId: postData.id,
+                  ownerId: postData.ownerId,
+                  isLiked: postData.isLiked,
+                  className: s.postButton,
+                })
+              ) : (
+                <Button variant={'text'} className={s.postButton} aria-label={'Like post'}>
+                  <HeartOutline color={'white'} />
+                </Button>
+              )}
+              <Button variant={'text'} className={s.postButton} aria-label={'Share post'}>
                 <PaperPlane color={'white'} />
               </Button>
-              <Button variant={'text'} className={s.postButton}>
+              <Button variant={'text'} className={s.postButton} aria-label={'Save post'}>
                 <BookmarkOutline color={'white'} />
               </Button>
             </>
@@ -69,24 +97,33 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
         </div>
       )}
 
-      <div className={s.likesRow}>
-        <div className={s.likesAvatars}>
-          <div className={`${s.likeAvatar} ${s.likeAvatar1}`} />
-          <div className={`${s.likeAvatar} ${s.likeAvatar2}`} />
-          <div className={`${s.likeAvatar} ${s.likeAvatar3}`} />
+      {postData.likesCount > 0 && (
+        <div className={s.likesRow}>
+          {visibleAvatars.length > 0 && (
+            <div className={s.likesAvatars}>
+              {visibleAvatars.map((avatarUrl, index) => (
+                <Avatar
+                  key={`${avatarUrl}-${index}`}
+                  size={24}
+                  image={avatarUrl}
+                  className={index > 0 ? s.likeAvatarOverlap : undefined}
+                />
+              ))}
+            </div>
+          )}
+          <Typography variant={'regular_14'} color={'light'}>
+            <strong>{formatLikesCount(postData.likesCount)}</strong>
+          </Typography>
         </div>
-        <Typography variant={'regular_14'} color={'light'}>
-          2,243 <strong>Likes</strong>
-        </Typography>
-      </div>
+      )}
 
       <Typography variant={'small_text'} className={s.timestamp}>
-        {formattedCreatedAt}
+        {post.formattedCreatedAt}
       </Typography>
 
       {shouldShowAuthSkeleton ? (
         <>
-          <Separator className={s.separator} />
+          <Separator className={s.fullWidthSeparator} />
           <div className={s.inputForm} aria-hidden>
             <Skeleton className={s.inputSkeleton} />
             <Skeleton className={s.publishSkeleton} />
@@ -95,16 +132,25 @@ export const ViewModePostFooter: React.FC<PostFooterProps> = ({
       ) : (
         shouldShowAuthActions && (
           <>
-            <Separator className={s.separator} />
-            <form onSubmit={handleCommentSubmit(handlePublish)} className={s.inputForm}>
-              <ControlledInput
-                name={'comment'}
-                control={commentControl}
-                inputType={'text'}
-                placeholder={'Add a Comment'}
-                className={s.input}
-              />
-              <Button variant={'text'} type={'submit'} disabled={!watchComment('comment')?.trim()}>
+            <Separator className={s.fullWidthSeparator} />
+            <form onSubmit={comments.handleSubmit(comments.handlePublish)} className={s.inputForm}>
+              <div className={s.commentInputWrapper}>
+                <ControlledInput
+                  name={'comment'}
+                  control={comments.control}
+                  inputType={'text'}
+                  placeholder={'Add a Comment...'}
+                  className={s.input}
+                  maxLength={COMMENT_CONTENT_MAX}
+                  disabled={comments.isPublishing}
+                />
+                {comments.isPublishing && <span className={s.replyLoader} aria-hidden={'true'} />}
+              </div>
+              <Button
+                variant={'text'}
+                type={'submit'}
+                disabled={!comments.watch('comment')?.trim() || comments.isPublishing}
+              >
                 Publish
               </Button>
             </form>

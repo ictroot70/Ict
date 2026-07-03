@@ -1,8 +1,9 @@
+import type { PostImageViewModel, PostViewModel } from '@/entities/posts/api'
+
 import type { Dispatch, SetStateAction } from 'react'
 
 import { FilterName } from '@/features/posts/lib/constants/filter-configs'
 import { Step, UploadedFile } from '@/features/posts/model/types'
-import { PostImageViewModel, PostViewModel } from '@/shared/types'
 
 export type UploadProgress = {
   current: number

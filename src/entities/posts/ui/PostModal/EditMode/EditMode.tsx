@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { Control, FieldErrors, UseFormHandleSubmit, UseFormWatch } from 'react-hook-form'
 
-import { PostModalData, DescriptionFormData } from '@/shared/types'
+import { PostViewModel } from '@/entities/posts/api'
+import { DescriptionFormData } from '@/shared/types'
 
 import s from './EditMode.module.scss'
 
@@ -8,29 +10,27 @@ import { EditModeDescriptionForm } from './EditModeDescriptionForm/EditModeDescr
 import { EditModeHeader } from './EditModeHeader/EditModeHeader'
 import { EditModeImageSection } from './EditModeImageSection/EditModeImageSection'
 import { ExitConfirmationModal } from './ExitConfirmationModal/ExitConfirmationModal'
+
 interface EditModeProps {
-  descriptionControl: any
-  handleDescriptionSubmit: any
+  description: {
+    control: Control<DescriptionFormData>
+    errors: FieldErrors<DescriptionFormData>
+    handleCancel: () => void
+    handleSubmit: UseFormHandleSubmit<DescriptionFormData>
+    watch: UseFormWatch<DescriptionFormData>
+  }
   handleSaveDescription: (data: DescriptionFormData) => void
-  handleCancelEdit: () => void
-  errors: any
-  watchDescription: (field: string) => string
-  postData: PostModalData
-  onClose: () => void
+  postData: PostViewModel
   isEditing?: boolean
 }
 
 export const EditMode = ({
-  descriptionControl,
-  handleDescriptionSubmit,
+  description,
   handleSaveDescription,
-  handleCancelEdit,
-  errors,
-  watchDescription,
   postData,
   isEditing = false,
 }: EditModeProps) => {
-  const descriptionValue = watchDescription('description') || ''
+  const descriptionValue = description.watch('description') || ''
   const characterCount = descriptionValue.length
   const maxCharacters = 500
 
@@ -42,12 +42,12 @@ export const EditMode = ({
   }, [descriptionValue, postData.description])
 
   const attemptClose = useCallback(() => {
-    hasUnsavedChanges ? setShowExitConfirm(true) : handleCancelEdit()
-  }, [hasUnsavedChanges, handleCancelEdit])
+    hasUnsavedChanges ? setShowExitConfirm(true) : description.handleCancel()
+  }, [description, hasUnsavedChanges])
 
   const handleConfirmExit = () => {
     setShowExitConfirm(false)
-    handleCancelEdit()
+    description.handleCancel()
   }
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -84,7 +84,7 @@ export const EditMode = ({
             isEditing={isEditing}
             title={'Edit Post'}
             onClose={attemptClose}
-            onSave={handleDescriptionSubmit(handleFormSubmit)}
+            onSave={description.handleSubmit(handleFormSubmit)}
             isSaveDisabled={shouldDisableSave}
             saveButtonText={'Save'}
           />
@@ -94,10 +94,9 @@ export const EditMode = ({
 
             <EditModeDescriptionForm
               postData={postData}
-              control={descriptionControl}
-              handleSubmit={handleDescriptionSubmit}
-              errors={errors}
-              watchDescription={watchDescription}
+              control={description.control}
+              handleSubmit={description.handleSubmit}
+              errors={description.errors}
               characterCount={characterCount}
               maxCharacters={maxCharacters}
               shouldDisableSave={shouldDisableSave}

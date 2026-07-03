@@ -1,19 +1,30 @@
-import { useState, useEffect } from 'react'
+import type { PostLikesResponse, PostViewModel } from '@/entities/posts/api'
+
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useGetPostByIdQuery } from '@/entities/posts/api/postApi'
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { showToastAlert } from '@/shared/lib'
 import {
-  mapPostToModalData,
-  PostModalData,
-  PostVariant,
-  CommentFormData,
-  DescriptionFormData,
-  PostViewModel,
-} from '@/shared/types'
+  POST_LIKES_QUERY_ARG,
+  getAvatarWhoLikes,
+  useGetPostByIdQuery,
+  useGetPostLikesQuery,
+} from '@/entities/posts/api/postApi'
+import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
+import { showToastAlert } from '@/shared/lib'
+import { CommentFormData, DescriptionFormData, PostVariant } from '@/shared/types'
+
+import { PostModalAuthState } from '../ui/PostModal/postModalLikeAction.types'
+import { usePostComments } from './usePostComments'
 
 type UiLanguage = 'en' | 'rus'
+
+type BuildPostDataParams = {
+  basePostData?: PostViewModel
+  fallbackAvatarWhoLikes?: string[]
+  initialPostData?: PostViewModel
+  postLikesData?: PostLikesResponse
+  shouldPreferInitialOptimisticFields: boolean
+}
 
 const postModalTextByLanguage = {
   en: {
@@ -32,19 +43,50 @@ const postModalTextByLanguage = {
   },
 } as const
 
-export const usePostModal = (open: boolean, initialPostData?: PostViewModel, postId?: number) => {
-  const [comments, setComments] = useState<string[]>([])
+const buildPostData = ({
+  basePostData,
+  fallbackAvatarWhoLikes,
+  initialPostData,
+  postLikesData,
+  shouldPreferInitialOptimisticFields,
+}: BuildPostDataParams): PostViewModel | undefined => {
+  if (!basePostData) {
+    return undefined
+  }
+
+  const optimisticLikesCount = shouldPreferInitialOptimisticFields
+    ? (initialPostData?.likesCount ?? basePostData.likesCount)
+    : basePostData.likesCount
+
+  return {
+    ...basePostData,
+    isLiked: shouldPreferInitialOptimisticFields
+      ? (initialPostData?.isLiked ?? basePostData.isLiked)
+      : basePostData.isLiked,
+    likesCount: postLikesData?.totalCount ?? optimisticLikesCount,
+    avatarWhoLikes: postLikesData
+      ? getAvatarWhoLikes(postLikesData)
+      : (fallbackAvatarWhoLikes ?? basePostData.avatarWhoLikes),
+  }
+}
+
+const getPostVariant = (isAuthenticated: boolean, isOwnProfile: boolean): PostVariant => {
+  if (!isAuthenticated) {
+    return 'public'
+  }
+
+  return isOwnProfile ? 'myPost' : 'userPost'
+}
+
+export const usePostModal = (
+  open: boolean,
+  initialPostData?: PostViewModel,
+  postId?: number,
+  authState?: PostModalAuthState
+) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('en')
-
-  const {
-    control: commentControl,
-    handleSubmit: handleCommentSubmit,
-    reset: resetComment,
-    watch: watchComment,
-  } = useForm<CommentFormData>({
-    defaultValues: { comment: '' },
-  })
+  const [expandedAnswersCommentId, setExpandedAnswersCommentId] = useState<number | null>(null)
 
   const {
     control: descriptionControl,
@@ -57,58 +99,65 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     mode: 'onChange',
   })
 
-  const resolvedPostId = postId
+  const user = authState?.user
+  const isAuthUiLoading = authState?.isAuthUiLoading ?? false
+  const isAuthenticatedUi = authState?.isAuthenticatedUi ?? false
+  const queryPostId = postId ?? 0
 
   const {
     data: postDataFromQuery,
     isError: isPostError,
     isFetching: isPostFetching,
-  } = useGetPostByIdQuery(resolvedPostId as number, {
-    skip: !open || !resolvedPostId || !!initialPostData,
+  } = useGetPostByIdQuery(queryPostId, {
+    skip: !open || !postId || isAuthUiLoading,
+    refetchOnMountOrArgChange: true,
   })
-  const basePostData = initialPostData ?? postDataFromQuery
-  const [localPostData, setLocalPostData] = useState<PostViewModel | undefined>(basePostData)
-  const postData = localPostData
-  const hasPostData = Boolean(postData)
-  const isPostLoading = Boolean(open && resolvedPostId && !initialPostData && isPostFetching)
-  const uiText = postModalTextByLanguage[uiLanguage]
 
-  const { user, isAuthUiLoading, isAuthenticatedUi } = useAuthUiState()
+  const { data: postLikesData } = useGetPostLikesQuery(
+    { postId: queryPostId, ...POST_LIKES_QUERY_ARG },
+    {
+      skip: !open || !postId || isAuthUiLoading || !isAuthenticatedUi,
+      refetchOnMountOrArgChange: true,
+    }
+  )
+
+  const isSameInitialPost = Boolean(initialPostData && postId && initialPostData.id === postId)
+  const basePostData = postDataFromQuery ?? initialPostData
+  const shouldPreferInitialOptimisticFields = Boolean(isPostFetching && isSameInitialPost)
+  const fallbackAvatarWhoLikes =
+    isAuthenticatedUi && isSameInitialPost
+      ? initialPostData?.avatarWhoLikes
+      : basePostData?.avatarWhoLikes
+
+  const postData = buildPostData({
+    basePostData,
+    fallbackAvatarWhoLikes,
+    initialPostData,
+    postLikesData,
+    shouldPreferInitialOptimisticFields,
+  })
+
+  const hasPostData = Boolean(postData)
+
+  const isPostLoading = Boolean(open && postId && !hasPostData && isPostFetching)
+  const uiText = postModalTextByLanguage[uiLanguage]
 
   const isOwnProfile = Boolean(
     isAuthenticatedUi && postData?.ownerId && user?.userId && postData.ownerId === user.userId
   )
 
-  let variant: PostVariant = 'public'
-
-  if (isAuthenticatedUi) {
-    variant = isOwnProfile ? 'myPost' : 'userPost'
-  }
-  const postModalData: PostModalData = postData
-    ? mapPostToModalData(postData)
-    : {
-        images: [],
-        userName: '',
-        avatar: '',
-        description: '',
-        createdAt: new Date().toISOString(),
-        postId: '',
-        ownerId: undefined,
-      }
+  const ownerUserName = postData?.userName
+  const variant = getPostVariant(isAuthenticatedUi, isOwnProfile)
 
   const formattedCreatedAt = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  }).format(new Date(postModalData.createdAt))
+  }).format(new Date(postData?.createdAt ?? new Date().toISOString()))
 
   useEffect(() => {
-    resetDescription({ description: postModalData.description })
-  }, [postModalData.description, resetDescription])
-
-  useEffect(() => {
-    setLocalPostData(basePostData)
-  }, [basePostData, resolvedPostId])
+    resetDescription({ description: postData?.description ?? '' })
+  }, [postData?.description, resetDescription])
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('language')
@@ -118,14 +167,34 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
     }
   }, [])
 
-  const handlePublish = (data: CommentFormData) => {
-    const trimmed = data.comment.trim()
+  const commentsPostId = postData?.id ?? postId
 
-    if (!trimmed) {
-      return
+  const {
+    comments,
+    totalCount: commentsTotalCount,
+    loadMore: loadMoreComments,
+    hasNextPage: hasNextCommentsPage,
+    isFetchingNextPage: isFetchingNextCommentsPage,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
+    handlePublish,
+    handleStartReply,
+    replyTarget,
+    isCommentPublishing,
+  } = usePostComments({
+    postId: commentsPostId,
+    enabled: open && !isAuthUiLoading,
+  })
+
+  const handlePublishComment = async (data: CommentFormData) => {
+    if (replyTarget) {
+      setExpandedAnswersCommentId(replyTarget.commentId)
     }
-    setComments(prev => [...prev, trimmed])
-    resetComment()
+
+    return handlePublish(data)
   }
 
   const handleEditPost = () => {
@@ -133,23 +202,22 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   const handleCancelEdit = () => {
-    resetDescription({ description: postModalData.description })
+    resetDescription({ description: postData?.description ?? '' })
     setIsEditingDescription(false)
   }
 
   const applyLocalDescription = (description: string) => {
-    setLocalPostData(prev => {
-      if (!prev) {
-        return prev
-      }
-
-      return {
-        ...prev,
-        description,
-        updatedAt: new Date().toISOString(),
-      }
-    })
+    resetDescription({ description })
   }
+
+  const { handleToggleFollow, isFollowing, isFollowPending } = useFollowUserState(
+    ownerUserName || '',
+    postData?.ownerId ?? 0,
+    user?.userId,
+    {
+      enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
+    }
+  )
 
   const handleCopyLink = async () => {
     const url = window.location.href
@@ -167,30 +235,53 @@ export const usePostModal = (open: boolean, initialPostData?: PostViewModel, pos
   }
 
   return {
-    comments,
-    isEditingDescription,
-    setIsEditingDescription,
-    commentControl,
-    handleCommentSubmit,
-    watchComment,
-    descriptionControl,
-    handleDescriptionSubmit,
-    watchDescription,
-    errors,
-    postData: postModalData,
-    variant,
-    isAuthLoading: isAuthUiLoading,
-    isAuthenticated: isAuthenticatedUi,
-    isOwnProfile,
-    hasPostData,
-    isPostLoading,
-    isPostError,
+    actions: {
+      handleCopyLink,
+    },
+    auth: {
+      isAuthenticated: isAuthenticatedUi,
+      isLoading: isAuthUiLoading,
+    },
+    comments: {
+      control: commentControl,
+      expandedAnswersCommentId,
+      handlePublish: handlePublishComment,
+      handleStartReply,
+      handleSubmit: handleCommentSubmit,
+      hasNextPage: hasNextCommentsPage,
+      isError: isCommentsError,
+      isFetchingNextPage: isFetchingNextCommentsPage,
+      isLoading: isCommentsLoading,
+      isPublishing: isCommentPublishing,
+      items: comments,
+      loadMore: loadMoreComments,
+      totalCount: commentsTotalCount,
+      watch: watchComment,
+    },
+    description: {
+      applyLocal: applyLocalDescription,
+      control: descriptionControl,
+      errors,
+      handleCancel: handleCancelEdit,
+      handleEdit: handleEditPost,
+      handleSubmit: handleDescriptionSubmit,
+      isEditing: isEditingDescription,
+      setIsEditing: setIsEditingDescription,
+      watch: watchDescription,
+    },
+    follow: {
+      handleFollow: handleToggleFollow,
+      isFollowing,
+      isPending: isFollowPending,
+    },
+    post: {
+      data: postData,
+      formattedCreatedAt,
+      hasData: hasPostData,
+      isError: isPostError,
+      isLoading: isPostLoading,
+      variant,
+    },
     uiText,
-    formattedCreatedAt,
-    handlePublish,
-    handleEditPost,
-    handleCancelEdit,
-    handleCopyLink,
-    applyLocalDescription,
   }
 }
