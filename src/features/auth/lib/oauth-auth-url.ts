@@ -2,7 +2,7 @@ import { API_ROUTES } from '@/shared/api'
 
 export const buildGoogleAuthUrl = (origin: string) => {
   const params = new URLSearchParams({
-    redirect_uri: `${origin.replace(/\/+$/, '')}`,
+    redirect_uri: origin.replace(/\/+$/, ''),
     response_type: 'code',
     client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
     scope: 'email profile',

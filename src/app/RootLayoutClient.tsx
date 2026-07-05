@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 
-import { useGitHubAuth, useGoogleAuth } from '@/features/auth/hooks'
+import { useGitHubAuth } from '@/features/auth/hooks'
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
@@ -50,10 +50,9 @@ export const RootLayoutClient = ({ children }: Props) => {
 
   const isCreatePostOpen = isHydrated && status === 'authenticated'
 
-  const { isLoading: isGoogleAuthLoading } = useGoogleAuth()
   const { isLoading: isGitHubAuthLoading } = useGitHubAuth()
 
-  if (isGoogleAuthLoading || isGitHubAuthLoading) {
+  if (isGitHubAuthLoading) {
     return <Loading />
   }
 

@@ -14,7 +14,6 @@ export const APP_ROUTES = {
     NEW_PASSWORD: '/auth/new-password',
     EMAIL_EXPIRED: '/auth/email-expired',
     GITHUB_LOGIN: '/auth/github/login',
-    GOOGLE_LOGIN: '/auth/google/login',
   },
 
   LEGAL: {

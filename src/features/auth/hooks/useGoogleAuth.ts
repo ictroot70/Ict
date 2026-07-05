@@ -7,7 +7,12 @@ import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export const useGoogleAuth = () => {
+type UseGoogleAuthOptions = {
+  enabled?: boolean
+  redirectUrl?: string
+}
+
+export const useGoogleAuth = ({ enabled = true, redirectUrl }: UseGoogleAuthOptions = {}) => {
   const params = useSearchParams()
   const router = useRouter()
   const code = params.get('code')
@@ -16,13 +21,17 @@ export const useGoogleAuth = () => {
   const [googleAuth, { isLoading }] = useGoogleAuthMutation()
 
   useEffect(() => {
-    if (!code || startedRef.current) {
+    if (!enabled || !code || startedRef.current) {
       return
     }
 
     startedRef.current = true
+    const resolvedRedirectUrl = redirectUrl ?? window.location.origin
 
-    void googleAuth({ code })
+    void googleAuth({
+      code,
+      redirectUrl: resolvedRedirectUrl,
+    })
       .unwrap()
       .then(() => {
         router.replace(APP_ROUTES.ROOT)
@@ -35,7 +44,7 @@ export const useGoogleAuth = () => {
         })
         router.replace(APP_ROUTES.AUTH.LOGIN)
       })
-  }, [code, googleAuth, router])
+  }, [code, enabled, googleAuth, redirectUrl, router])
 
   return { isLoading }
 }
