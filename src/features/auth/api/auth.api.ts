@@ -1,4 +1,3 @@
-import { AppDispatch } from '@/app/store'
 import {
   API_ROUTES,
   CheckRecoveryCodeRequest,
@@ -15,10 +14,13 @@ import { baseApi } from '@/shared/api/base-api'
 import { logout, setAuthenticated } from '@/shared/auth/authSlice'
 import { authTokenStorage, logger } from '@/shared/lib'
 import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
 import { jwtDecode } from 'jwt-decode'
 
+type AuthLifecycleDispatch = ThunkDispatch<unknown, unknown, UnknownAction>
+
 const applyAuthSuccess = (
-  dispatch: AppDispatch,
+  dispatch: AuthLifecycleDispatch,
   data: RefreshTokenResponse | GoogleAuthResponse,
   source: 'login' | 'googleAuth'
 ) => {
@@ -50,7 +52,7 @@ const createAuthSuccessHandler =
       dispatch,
       queryFulfilled,
     }: {
-      dispatch: AppDispatch
+      dispatch: AuthLifecycleDispatch
       queryFulfilled: Promise<{ data: RefreshTokenResponse | GoogleAuthResponse }>
     }
   ) => {
