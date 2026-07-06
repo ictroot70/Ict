@@ -39,7 +39,7 @@ export function FeedPost({
     <article className={s.post}>
       <header className={s.header}>
         <Avatar image={avatarOwner} size={36} alt={`${userName} avatar`} />
-        <Link href={APP_ROUTES.PROFILE.BY_USERNAME(userName)} className={s.authorLink}>
+        <Link href={APP_ROUTES.PROFILE.ID(ownerId)} className={s.authorLink}>
           <Typography variant={'bold_14'}>{userName}</Typography>
         </Link>
         <span className={s.separator} aria-hidden={'true'} />
