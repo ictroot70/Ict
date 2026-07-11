@@ -300,7 +300,7 @@ export const postApi = baseApi.injectEndpoints({
 
     createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
       query: ({ postId, body }) => ({
-        url: API_ROUTES.POSTS.CREATE_COMMENT(postId),
+        url: API_ROUTES.POSTS.COMMENTS(postId),
         method: 'POST',
         body,
       }),

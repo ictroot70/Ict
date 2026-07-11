@@ -185,7 +185,7 @@ export const UserSearch = () => {
   const renderUserItem = (user: SearchUserItem, removable = false) => (
     <div key={user.id} className={styles.userRow}>
       <Link
-        href={APP_ROUTES.PROFILE.BY_USERNAME(user.userName)}
+        href={APP_ROUTES.PROFILE.ID(user.id)}
         className={styles.userItem}
         onClick={() => handleSelectUser(user)}
       >

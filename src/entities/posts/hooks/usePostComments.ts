@@ -1,13 +1,16 @@
-import type { CommentsViewModel } from '@/shared/types/comments'
+import type { CommentFormData, CommentsViewModel } from '@/shared/types/comments'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { useCreateCommentMutation } from '@/entities/posts/api'
-import { useGetPostCommentsInfiniteQuery } from '@/entities/posts/api/postCommentsApi'
+import {
+  useCreateCommentAnswerMutation,
+  useGetPostCommentsInfiniteQuery,
+} from '@/entities/posts/api/postCommentsApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-import { CommentFormData } from '@/shared/types'
+import { buildReplyMentionPrefix, COMMENT_CONTENT_MAX } from '@/shared/types'
 
 import { COMMENTS_PAGE_SIZE } from '../lib'
 
@@ -16,19 +19,26 @@ type UsePostCommentsParams = {
   enabled?: boolean
 }
 
-const COMMENT_MAX_LENGTH = 300
+type ReplyTarget = {
+  commentId: number
+  userName: string
+}
 
 export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParams) => {
   const [createComment, { isLoading: isCreateCommentLoading }] = useCreateCommentMutation()
+  const [createAnswer, { isLoading: isCreateAnswerLoading }] = useCreateCommentAnswerMutation()
+  const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null)
   const { user } = useAuthUiState()
 
   const resolvedPostId = postId ?? 0
-  const isValidPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
+  const hasPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
 
   const {
     control: commentControl,
     handleSubmit: handleCommentSubmit,
     reset: resetComment,
+    setFocus: setCommentFocus,
+    setValue: setCommentValue,
     watch: watchComment,
   } = useForm<CommentFormData>({
     defaultValues: { comment: '' },
@@ -48,30 +58,56 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
       sortDirection: 'desc',
     },
     {
-      skip: !enabled || !isValidPostId,
+      skip: !enabled || !hasPostId,
     }
   )
 
   const comments: CommentsViewModel[] = commentsData?.pages.flatMap(page => page.items) ?? []
+  const isCommentPublishing = isCreateCommentLoading || isCreateAnswerLoading
 
   const handlePublish = async (data: CommentFormData) => {
     const trimmed = data.comment.trim()
-    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_MAX_LENGTH
+    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_CONTENT_MAX
 
-    if (!enabled || !user?.userId || !isCommentValid || !isValidPostId || isCreateCommentLoading) {
-      return
+    if (!enabled || !user?.userId || !isCommentValid || !hasPostId || isCommentPublishing) {
+      return false
     }
-
-    resetComment()
 
     try {
-      await createComment({
-        postId: resolvedPostId,
-        body: { content: trimmed },
-      }).unwrap()
+      if (replyTarget) {
+        await createAnswer({
+          postId: resolvedPostId,
+          commentId: replyTarget.commentId,
+          content: trimmed,
+        }).unwrap()
+
+        setReplyTarget(null)
+      } else {
+        await createComment({
+          postId: resolvedPostId,
+          body: { content: trimmed },
+        }).unwrap()
+      }
+
+      resetComment()
+
+      return true
     } catch {
-      showToastAlert({ message: 'Failed to publish comment', type: 'error' })
+      showToastAlert({
+        message: replyTarget ? 'Failed to publish reply' : 'Failed to publish comment',
+        type: 'error',
+      })
+
+      return false
     }
+  }
+
+  const handleStartReply = (target: ReplyTarget) => {
+    const mentionPrefix = buildReplyMentionPrefix(target.userName)
+
+    setReplyTarget(target)
+    setCommentValue('comment', mentionPrefix, { shouldDirty: true, shouldTouch: true })
+    setCommentFocus('comment')
   }
 
   const loadMore = () => {
@@ -81,6 +117,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
   }
 
   useEffect(() => {
+    setReplyTarget(null)
     resetComment()
   }, [resolvedPostId, resetComment])
 
@@ -93,12 +130,15 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     handleCommentSubmit,
     watchComment,
     handlePublish,
-    isCommentPublishing: isCreateCommentLoading,
+    handleStartReply,
+    replyTarget,
+    isReplyPublishing: Boolean(replyTarget && isCreateAnswerLoading),
+    isCommentPublishing,
     isLoading: isCommentsLoading,
     isError: isCommentsError,
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
     loadMore,
-    commentMaxLength: COMMENT_MAX_LENGTH,
+    commentMaxLength: COMMENT_CONTENT_MAX,
   }
 }
