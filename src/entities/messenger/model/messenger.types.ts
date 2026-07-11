@@ -69,7 +69,17 @@ export interface UpdateMessagePayload {
   message: string
 }
 
+export type MessageAcknowledgement = (payload: SendMessagePayload) => void
+
 export interface MessengerSocketErrorDto {
   message: string
   error: string
+}
+
+export type MessengerErrorSource = 'api' | 'socket' | 'validation'
+
+export interface MessengerError {
+  source: MessengerErrorSource
+  code: string
+  message: string
 }
