@@ -1,4 +1,4 @@
-import { MessageStatus, MessageType, type MessageViewModel } from '@/entities/messenger/model'
+import { MessageStatus, MessageType, type MessageViewModel } from '../model/messenger.types'
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null
