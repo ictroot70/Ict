@@ -76,7 +76,7 @@ export interface MessengerSocketErrorDto {
   error: string
 }
 
-export type MessengerErrorSource = 'api' | 'socket' | 'validation'
+export type MessengerErrorSource = 'api' | 'socket'
 
 export interface MessengerError {
   source: MessengerErrorSource
