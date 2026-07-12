@@ -1,6 +1,7 @@
 'use client'
 
-import { ReactElement } from 'react'
+import { ReactElement, useState } from 'react'
+import { useWatch } from 'react-hook-form'
 
 import { useSignIn } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
@@ -17,14 +18,25 @@ type SignInFormProps = {
 }
 
 export const SignInForm = ({ router, redirectFrom }: SignInFormProps): ReactElement => {
+  const [focusedField, setFocusedField] = useState<'email' | 'password' | null>(null)
   const {
     form: {
       control,
-      formState: { errors, isDirty, isValid },
+      formState: { errors, isDirty, isSubmitted, isValid, touchedFields },
     },
     onSubmit,
     isLoading,
   } = useSignIn(router, redirectFrom)
+  const emailValue = useWatch({ control, name: 'email' })
+  const passwordValue = useWatch({ control, name: 'password' })
+  const emailError =
+    (touchedFields.email || isSubmitted) && !(focusedField === 'email' && emailValue)
+      ? errors.email?.message
+      : ''
+  const passwordError =
+    (touchedFields.password || isSubmitted) && !(focusedField === 'password' && passwordValue)
+      ? errors.password?.message
+      : ''
 
   if (isLoading) {
     return <Loading />
@@ -44,19 +56,23 @@ export const SignInForm = ({ router, redirectFrom }: SignInFormProps): ReactElem
             control={control}
             id={'email'}
             inputType={'text'}
-            error={errors.email?.message}
+            error={emailError}
             label={'Email'}
             placeholder={'Your email...'}
+            onFocus={() => setFocusedField('email')}
+            onBlur={() => setFocusedField(null)}
           />
           <ControlledInput
             name={'password'}
             control={control}
             id={'password'}
             inputType={'hide-able'}
-            error={errors.password?.message}
+            error={passwordError}
             label={'Password'}
             placeholder={'***************'}
             className={s.passwordField}
+            onFocus={() => setFocusedField('password')}
+            onBlur={() => setFocusedField(null)}
           />
         </div>
 

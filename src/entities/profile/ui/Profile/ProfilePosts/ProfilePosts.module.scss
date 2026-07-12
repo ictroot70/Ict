@@ -10,6 +10,10 @@
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
 }
 
+.postItem {
+  list-style: none;
+}
+
 .message {
   text-align: center;
   width: 100%;

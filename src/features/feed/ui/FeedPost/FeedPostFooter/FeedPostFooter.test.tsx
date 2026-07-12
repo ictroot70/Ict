@@ -12,7 +12,19 @@ import '@testing-library/jest-dom'
 import { FeedPostFooter } from './FeedPostFooter'
 
 const usePostCommentsMock = vi.hoisted(() => vi.fn())
+const useGetPostLikesQueryMock = vi.hoisted(() => vi.fn())
 const handlePublishMock = vi.fn()
+
+vi.mock('@/entities/posts/api', () => ({
+  POST_LIKES_QUERY_ARG: {
+    cursor: 0,
+    pageNumber: 1,
+    pageSize: 50,
+  },
+  getAvatarWhoLikes: (likes: { items: Array<{ avatars: Array<{ url: string }> }> }) =>
+    likes.items.map(item => item.avatars[0]?.url).filter(Boolean),
+  useGetPostLikesQuery: useGetPostLikesQueryMock,
+}))
 
 vi.mock('@/entities/posts/hooks', () => ({
   usePostComments: usePostCommentsMock,
@@ -31,6 +43,10 @@ vi.mock('@/features/formControls', () => ({
 
 vi.mock('@/shared/composites', () => ({
   Avatar: ({ image }: { image: string }) => <img alt={image} src={image} />,
+  InfiniteScrollTrigger: () => null,
+  LinearProgress: ({ active }: { active: boolean }) => (
+    <div data-testid={'linear-progress'} data-active={active} />
+  ),
 }))
 
 vi.mock('@/shared/ui', () => ({
@@ -103,12 +119,17 @@ const arrangeUsePostComments = ({
     comments: [],
     totalCount: 2,
     commentControl: {},
+    handleStartReply: vi.fn(),
     handleCommentSubmit: createHandleCommentSubmit(),
     watchComment: vi.fn(() => comment),
     handlePublish: handlePublishMock,
+    replyTarget: null,
     isCommentPublishing,
-    isCommentsLoading: false,
-    isCommentsError: false,
+    isLoading: false,
+    isError: false,
+    hasNextPage: false,
+    isFetchingNextPage: false,
+    loadMore: vi.fn(),
     commentMaxLength: 300,
   })
 }
@@ -116,6 +137,7 @@ const arrangeUsePostComments = ({
 describe('FeedPostFooter', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    useGetPostLikesQueryMock.mockReturnValue({ data: undefined })
     arrangeUsePostComments()
   })
 

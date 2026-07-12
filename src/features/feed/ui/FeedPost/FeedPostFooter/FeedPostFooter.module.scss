@@ -3,82 +3,12 @@
   flex-direction: column;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.actionButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
+.commentsToggle {
+  justify-content: flex-start;
+  width: fit-content;
+  min-height: 0;
   padding: 0;
-  color: var(--color-light-100);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-
-  &:hover:not(:disabled) svg {
-    scale: 1.1;
-  }
-}
-
-.saveButton {
-  margin-left: auto;
-}
-
-.description {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.875rem;
-  overflow-wrap: anywhere;
-}
-
-.descriptionText {
-  strong {
-    margin-right: 0.25rem;
-  }
-}
-
-.likes {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.likeAvatars {
-  display: flex;
-  padding-left: 0.5rem;
-}
-
-.likeAvatar {
-  margin-left: -0.5rem;
-  border: 1px solid var(--color-dark-700);
-}
-
-.countComments {
-  margin-right: 0.25rem;
-}
-
-.comments {
   margin-bottom: 0.5rem;
   color: var(--color-light-900);
-}
-
-.commentForm {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-height: 3rem;
-  border-bottom: 1px solid var(--color-dark-100);
-
-  input {
-    border: 0;
-  }
+  font-weight: 700;
 }

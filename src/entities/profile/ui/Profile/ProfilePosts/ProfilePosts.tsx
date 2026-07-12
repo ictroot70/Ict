@@ -201,7 +201,9 @@ export const ProfilePosts: React.FC<Props> = ({
       {hasPosts ? (
         <ul className={s.posts}>
           {posts.map(post => (
-            <PostCard key={post.id} post={post} onOpen={handleOpenPost} />
+            <li key={post.id} className={s.postItem}>
+              <PostCard post={post} onOpen={handleOpenPost} />
+            </li>
           ))}
         </ul>
       ) : (

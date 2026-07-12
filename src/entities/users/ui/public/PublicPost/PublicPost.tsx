@@ -117,7 +117,7 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
               variant={"regular_link"}
               className={s.post__toggle}
             >
-              <button type={"button"}>{isExpanded ? 'Hide' : 'ShowMore'}</button>
+              <button type={'button'}>{isExpanded ? 'Hide' : 'Show more'}</button>
             </Typography>
           )}
         </div>

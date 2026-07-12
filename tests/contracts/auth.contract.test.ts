@@ -208,15 +208,17 @@ describe('AUTH-UC2-LOGIN-FLOW', () => {
     expect(APP_ROUTES.AUTH.EMAIL_EXPIRED).toBe('/auth/email-expired')
   })
 
-  it('rejects invalid login email', () => {
-    const result = signInSchema.safeParse({
-      email: 'wrong-email',
-      password: '123456',
-    })
+  it('distinguishes required login email from invalid format', () => {
+    for (const [email, message] of [
+      ['', 'Email is required'],
+      ['ab', 'The email must match the format example@example.com'],
+    ] as const) {
+      const result = signInSchema.safeParse({ email, password: '123456' })
 
-    expect(result.success).toBe(false)
-    if (!result.success) {
-      expect(getFieldIssueMessage(result.error.issues, 'email')).toBe('This is not a valid email.')
+      expect(result.success).toBe(false)
+      if (!result.success) {
+        expect(getFieldIssueMessage(result.error.issues, 'email')).toBe(message)
+      }
     }
   })
 
