@@ -31,7 +31,11 @@ const asJsonResponse = () =>
 const asNoContentResponse = () => new Response(null, { status: 204 })
 
 const asRequest = (call: unknown[]) => {
-  const [input, init] = call as [Request | URL | string, RequestInit | undefined]
+  const [input, init] = call as [
+    Request | URL | string,
+    ConstructorParameters<typeof Request>[1],
+    undefined,
+  ]
 
   if (input instanceof Request) {
     return input
