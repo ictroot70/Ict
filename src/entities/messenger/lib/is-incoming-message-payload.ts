@@ -15,7 +15,7 @@ const isMessageType = (value: unknown): value is MessageType =>
 const isMessageStatus = (value: unknown): value is MessageStatus =>
   Object.values(MessageStatus).some(status => status === value)
 
-export function validateIncomingMessagePayload(payload: unknown): payload is MessageViewModel {
+export function isIncomingMessagePayload(payload: unknown): payload is MessageViewModel {
   if (!isRecord(payload)) {
     return false
   }

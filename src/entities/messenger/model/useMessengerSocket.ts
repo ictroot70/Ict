@@ -10,7 +10,7 @@ import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './mess
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { normalizeMessengerError, validateIncomingMessagePayload } from '@/entities/messenger/lib'
+import { normalizeMessengerError, isIncomingMessagePayload } from '@/entities/messenger/lib'
 import { logger } from '@/shared/lib/logger'
 import { io, type Socket } from 'socket.io-client'
 
@@ -79,7 +79,7 @@ export function useMessengerSocket({
     }
 
     const processMessage = async (payload: unknown): Promise<MessageViewModel | null> => {
-      if (!validateIncomingMessagePayload(payload)) {
+      if (!isIncomingMessagePayload(payload)) {
         reportError({
           source: 'socket',
           code: 'INVALID_MESSAGE_PAYLOAD',

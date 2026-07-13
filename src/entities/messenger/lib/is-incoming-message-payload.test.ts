@@ -1,7 +1,7 @@
 import { MessageStatus, MessageType, type MessageViewModel } from '@/entities/messenger/model'
 import { describe, expect, it } from 'vitest'
 
-import { validateIncomingMessagePayload } from './validate-incoming-message'
+import { isIncomingMessagePayload } from './is-incoming-message-payload'
 
 const validPayload = {
   id: 10,
@@ -16,7 +16,7 @@ const validPayload = {
 
 describe('validateIncomingMessagePayload', () => {
   it('accepts a valid message', () => {
-    expect(validateIncomingMessagePayload(validPayload)).toBe(true)
+    expect(isIncomingMessagePayload(validPayload)).toBe(true)
   })
 
   it.each([
@@ -27,6 +27,6 @@ describe('validateIncomingMessagePayload', () => {
     ['invalid status', { ...validPayload, status: 'DELIVERED' }],
     ['invalid date', { ...validPayload, createdAt: 'invalid' }],
   ])('rejects %s', (_, payload) => {
-    expect(validateIncomingMessagePayload(payload)).toBe(false)
+    expect(isIncomingMessagePayload(payload)).toBe(false)
   })
 })
