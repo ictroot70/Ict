@@ -1,0 +1,158 @@
+# Quality Gates Runbook
+
+Короткая инструкция для ручного запуска проверок и интерпретации результата.
+
+Подробный пошаговый flow по сценариям:
+
+- [`docs/developer-check-sequence.md`](docs/developer-check-sequence.md)
+
+## Кто запускает проверки
+
+- Локально проверки запускает разработчик вручную.
+- В CI проверки запускаются только если pipeline явно вызывает нужные команды.
+- Агент (Codex) не запускает их «сам по себе» в фоне; он запускает проверки только по вашей явной задаче.
+- В текущем репозитории GitHub Actions сейчас покрывает только `secret-scan`, поэтому `verify:smart`/`verify:full` по умолчанию локально-ручные (или в вашем внешнем CI).
+
+## One-time setup
+
+```bash
+pnpm install
+pnpm run playwright:install
+pnpm run hooks:install
+```
+
+`playwright:install` скачивает браузеры для smoke-check (`chromium`, `firefox`, `webkit`).
+`hooks:install` настраивает локальный `core.hooksPath=.githooks`.
+
+После этого проверки запускаются автоматически:
+
+- `pre-commit` -> `pnpm run verify:precommit` (быстрый gate)
+- `pre-push` -> `pnpm run verify:auto` (умный выбор smart/full + reuse stamp)
+
+## Что запускать и когда
+
+- Базовый обязательный контракт: `pnpm run ci:check`
+- Для PR/feature-веток: `pnpm run verify:smart`
+- Для `develop` (merge/integration): `pnpm run verify:full`
+- Автоматический выбор команды: `pnpm run verify:auto`
+- Для PR в `main`: обязательный GitHub check `release-boundary` (workflow `.github/workflows/release-boundary.yml`)
+
+`verify:auto` сам выбирает, что запускать:
+
+- `develop` -> `verify:full`
+- PR/feature-ветка -> `verify:smart`
+- нет изменений относительно `VERIFY_SMART_BASE_REF` -> skip
+- если текущий `HEAD` уже успешно проверен и stamp валиден -> reuse (без повторного прогона)
+- в `pre-push` при наличии remote/local SHA используется фактический push-range для smart-detector
+
+## Как работает verify:smart
+
+1. Всегда запускает `ci:check`.
+2. Запускает `detect-impact` (по умолчанию база `origin/develop`, либо explicit range от `pre-push`).
+3. Если решение `skip_full`, pipeline завершается успешно без `verify:full`.
+4. Если решение `run_full`, автоматически запускается `verify:full`.
+5. Fail-safe: при uncertainty решение всегда `run_full`.
+6. После успешного прогона записывается verification stamp в `.git/codex/verification-stamp.json`.
+
+## Traceability lock (TaskShifter -> Product contract)
+
+- Единый файл трассировки ТЗ: `.ai/contracts/taskshifter-traceability-lock.json`
+- Проверка консистентности трассировки: `pnpm run traceability:check`
+- `traceability:check` встроен в `verify:precommit` и `ci:check`.
+- Для каждого UC из TaskShifter должен быть:
+
+1. `mapping` на `locked` contract item(ы), или
+2. запись в `knownGaps` с явным описанием пробела.
+
+## Полезные env-переменные
+
+- `APP_BASE_URL` (default: `http://localhost:3000`)
+- `PERF_BUDGET_PROFILE_ROUTE` (default: `/profile/1`)
+- `PERF_BUDGET_ROUTE_MODE` (`static` | `auto`, default: `static`)
+- `PERF_INCLUDE_PROTECTED_ROUTES` (`1` | `0`, default: `1`)
+- `PERF_SKIP_AUTH_REDIRECTED_ROUTES` (`1` | `0`, default: `1`) — не падать на маршрутах, которые редиректят в `/auth/login`
+- `PERF_EXTRA_ROUTES` (CSV список дополнительных маршрутов, например `/search,/profile/1?action=create`)
+- `PERF_ROUTE_PARAM_ID` / `PERF_ROUTE_PARAM_TAB` / `PERF_ROUTE_PARAM_SLUG` (подстановка для dynamic routes в `auto` режиме)
+- `PERF_FAIL_ON_REDIRECT=1` (считать redirect нарушением budget-check)
+- `VERIFY_SMART_BASE_REF` (default: `origin/develop`)
+- `VERIFY_SMART_FORCE_FULL=1` (аварийно принудить полный прогон)
+- `VERIFY_AUTO_DRY_RUN=1` (только показать решение `verify:auto`, без запуска команд)
+- `VERIFY_AUTO_IGNORE_STAMP=1` (игнорировать локальный verification stamp)
+- `VERIFY_AUTO_LOCAL_SHA` / `VERIFY_AUTO_REMOTE_SHA` (служебные подсказки range от `pre-push`)
+- `VERIFY_SMART_DIFF_FROM` / `VERIFY_SMART_DIFF_TO` (служебный explicit range для `detect-impact`)
+- `SKIP_PRE_COMMIT=1` (разово пропустить `pre-commit`)
+- `SKIP_PRE_PUSH=1` (разово пропустить `pre-push`)
+
+## Быстрые команды для проверки логики smart-gate
+
+Проверить только детектор:
+
+```bash
+pnpm run detect:impact
+```
+
+Проверить детектор относительно текущего `HEAD` (удобно для sanity-check на локальных точечных изменениях):
+
+```bash
+VERIFY_SMART_BASE_REF=HEAD pnpm run detect:impact
+```
+
+Прогнать Lighthouse budgets по авто-обнаруженным маршрутам из `.next/app-path-routes-manifest.json`:
+
+```bash
+pnpm run perf:check:auto
+```
+
+## PR message snippets (for template)
+
+Используйте в секции `## Verification evidence -> Automated`:
+
+- `Product contract impact`:
+
+```text
+Product contract impact:
+- contract file: unchanged
+- locked behaviors: unchanged
+- contract tests: unchanged and green (`pnpm run test:contracts`)
+```
+
+- `Smart impact decision`:
+
+```text
+Smart impact decision:
+- gate: verify:smart
+- decision: run_full | skip_full
+- reason: <detector reason from summary JSON>
+- baseRef: origin/develop
+```
+
+- `Full-check evidence`:
+
+```text
+Full-check evidence:
+- verify:full: passed | skipped
+- e2e smoke (chromium/firefox/webkit): passed
+- perf budgets (`/` and `/profile/1`): passed
+```
+
+## Release boundary (PR в `main`)
+
+Правило источника PR в `main`:
+
+- базовый процесс команды допускает PR `develop -> main` (как в текущем CI/CD flow);
+- для сложных релизов с большим смешанным diff рекомендуется вариант `release/*` от `main` + `cherry-pick` только продуктовых коммитов;
+- `release-boundary` применяется в любом случае, независимо от source-ветки PR.
+
+Блокирующий check `release-boundary` отклоняет PR в `main`, если diff содержит технические пути:
+
+- `.ai/**`
+- `docs/**`
+- `tests/contracts/**`
+- `.githooks/**`
+- `scripts/check-*.mjs`
+- `scripts/verify-*.mjs`
+
+Допустимое исключение только через label `infra-exception`:
+
+- check проходит, но публикует явный warning со списком нарушенных путей;
+- label применяется только для осознанных infra/governance PR.

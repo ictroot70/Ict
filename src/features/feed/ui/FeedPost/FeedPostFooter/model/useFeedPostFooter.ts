@@ -34,7 +34,11 @@ export function useFeedPostFooter({
   const commentFormRef = useRef<HTMLFormElement>(null)
 
   const postComments = usePostComments({ postId })
-  const { data: postLikesData } = useGetPostLikesQuery(
+  const {
+    data: postLikesData,
+    isFetching: isPostLikesFetching,
+    isLoading: isPostLikesLoading,
+  } = useGetPostLikesQuery(
     { postId, ...POST_LIKES_QUERY_ARG },
     {
       skip: !isAuthenticated || likesCount <= 0,
@@ -48,6 +52,12 @@ export function useFeedPostFooter({
   const resolvedLikeAvatarUrls = postLikesData ? getAvatarWhoLikes(postLikesData) : avatarWhoLikes
   const visibleLikeAvatars =
     likesCount > 0 ? getUniqueAvatarUrls(resolvedLikeAvatarUrls).slice(0, 3) : []
+  const shouldShowLikesSkeleton = Boolean(
+    isAuthenticated &&
+      likesCount > 0 &&
+      !postLikesData &&
+      (isPostLikesLoading || isPostLikesFetching)
+  )
   const hasComments = postComments.totalCount > 0
   const isLongDescription = description.length > DESCRIPTION_MAX_CHAR_COUNT
   const descriptionText =
@@ -136,6 +146,7 @@ export function useFeedPostFooter({
       text: descriptionText,
     },
     likes: {
+      isLoading: shouldShowLikesSkeleton,
       visibleAvatarUrls: visibleLikeAvatars,
     },
   }

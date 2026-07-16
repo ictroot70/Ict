@@ -3,14 +3,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAccountManagement, usePaymentModalState } from '@/features/subscriptions/hooks'
-import { resolveAccountManagementView, mapPricingToPlans } from '@/features/subscriptions/model'
+import { mapPricingToPlans } from '@/features/subscriptions/model/adapters/pricingAdapter'
+import { resolveAccountManagementView } from '@/features/subscriptions/model/resolvers/accountManagementResolver'
 import {
   AccountTypeValue,
   SubscriptionPlanValue,
   UISubscriptionPlan,
-} from '@/features/subscriptions/model/payments.types'
-import { BusinessSubscriptionView, PersonalView } from '@/features/subscriptions/ui'
-import { Loading } from '@/shared/composites'
+} from '@/features/subscriptions/model/types'
+import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
+import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
+import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
 import { PaymentType } from '@/shared/types'
 
 import styles from './AccountManagement.module.scss'
@@ -21,6 +23,7 @@ import {
   PaymentProcessingModal,
   PaymentSuccessModal,
 } from '../PaymentModals'
+import { AccountManagementSkeleton } from './AccountManagementSkeleton'
 
 const PROCESSING_MODAL_SHOW_DELAY_MS = 250
 const PROCESSING_MODAL_MIN_VISIBLE_MS = 600
@@ -65,10 +68,17 @@ export const AccountManagement = () => {
 
   const isPaymentDisabled = !selectedPlan || isPaymentLocked
 
-  const { modal, backToPayment, openConfirmModal, closeConfirmModal, closePaymentResultModal } =
-    usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
+  const {
+    modal,
+    backToPayment,
+    openConfirmModal,
+    closeConfirmModal,
+    clearPaymentModalState,
+    closePaymentResultModal,
+  } = usePaymentModalState({ isPaymentDisabled, paymentResultStatus })
 
   const confirmPayment = async () => {
+    clearPaymentModalState()
     resetPaymentResult()
 
     await handlePay(PaymentType.STRIPE)
@@ -171,13 +181,8 @@ export const AccountManagement = () => {
     }
   }, [])
 
-  if (isLoading) {
-    return (
-      <>
-        <Loading />
-        <PaymentProcessingModal open={isProcessingModalVisible} />
-      </>
-    )
+  if (isLoading && flowStatus !== 'polling') {
+    return <AccountManagementSkeleton />
   }
 
   return (
@@ -191,8 +196,8 @@ export const AccountManagement = () => {
           />
         )}
 
-        {(view === 'business-no-subscription' || view === 'business-active-subscription') && (
-          <BusinessSubscriptionView
+        {view === 'business-no-subscription' && (
+          <BusinessNoSubscriptionView
             accountType={accountType}
             onAccountTypeChange={handleAccountTypeChange}
             plans={plans}
@@ -200,7 +205,18 @@ export const AccountManagement = () => {
             onPlanChange={handlePlanValueChange}
             onStripeClick={openConfirmModal}
             isPaymentLocked={isPaymentLocked}
-            hasActiveSubscription={hasActiveSubscription}
+          />
+        )}
+
+        {view === 'business-active-subscription' && (
+          <BusinessActiveSubscriptionView
+            accountType={accountType}
+            onAccountTypeChange={handleAccountTypeChange}
+            plans={plans}
+            selectedPlan={selectedPlanValue}
+            onPlanChange={handlePlanValueChange}
+            onStripeClick={openConfirmModal}
+            isPaymentLocked={isPaymentLocked}
           />
         )}
       </div>

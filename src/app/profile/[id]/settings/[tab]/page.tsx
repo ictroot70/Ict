@@ -1,39 +1,14 @@
-import type { ComponentType } from 'react'
+import { Devices, GeneralInfo } from '@/features/profile/settings'
+import { AccountManagement, Payments } from '@/features/subscriptions/ui'
 
-type TabKey = 'general' | 'devices' | 'account' | 'payments'
+const TABS = {
+  general: GeneralInfo,
+  devices: Devices,
+  account: AccountManagement,
+  payments: Payments,
+} as const
 
-const resolveTab = (tab: string): TabKey => {
-  if (tab === 'general' || tab === 'devices' || tab === 'account' || tab === 'payments') {
-    return tab
-  }
-
-  return 'general'
-}
-
-const loadTabComponent = async (tab: TabKey): Promise<ComponentType> => {
-  switch (tab) {
-    case 'general': {
-      const { GeneralInfo } = await import('@/features/profile/settings')
-
-      return GeneralInfo
-    }
-    case 'devices': {
-      const { Devices } = await import('@/features/profile/settings')
-
-      return Devices
-    }
-    case 'account': {
-      const { AccountManagement } = await import('@/features/subscriptions/ui/AccountManagement')
-
-      return AccountManagement
-    }
-    case 'payments': {
-      const { Payments } = await import('@/features/subscriptions/ui/Payments')
-
-      return Payments
-    }
-  }
-}
+type TabKey = keyof typeof TABS
 
 export default async function ProfileSettingsTabPage({
   params,
@@ -44,8 +19,9 @@ export default async function ProfileSettingsTabPage({
 }) {
   const { tab } = await params
 
-  const current = resolveTab(tab)
-  const TabComponent = await loadTabComponent(current)
+  const current: TabKey = tab && tab in TABS ? (tab as TabKey) : 'general'
+
+  const TabComponent = TABS[current]
 
   return <TabComponent />
 }

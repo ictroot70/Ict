@@ -11,6 +11,11 @@ export function usePaymentModalState({ isPaymentDisabled, paymentResultStatus }:
   const [modal, setModal] = useState<AccountModal>(null)
   const [handledPaymentResult, setHandledPaymentResult] = useState(false)
 
+  const clearPaymentModalState = () => {
+    setModal(null)
+    setHandledPaymentResult(false)
+  }
+
   useEffect(() => {
     if (handledPaymentResult) {
       return
@@ -54,6 +59,7 @@ export function usePaymentModalState({ isPaymentDisabled, paymentResultStatus }:
     backToPayment,
     openConfirmModal,
     closeConfirmModal,
+    clearPaymentModalState,
     closePaymentResultModal,
   }
 }

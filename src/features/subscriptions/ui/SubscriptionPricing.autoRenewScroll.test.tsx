@@ -13,19 +13,18 @@ vi.mock('@/features/subscriptions/hooks', () => ({
 }))
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => React.createElement('div', { 'data-testid': 'loading' }),
+  Loading: () => <div data-testid={'loading'} />,
 }))
 
 vi.mock('@ictroot/ui-kit', () => ({
-  RadioGroupRadix: () => React.createElement('div', { role: 'radiogroup' }),
+  RadioGroupRadix: () => <div role={'radiogroup'} />,
 }))
 
 vi.mock('@/shared/ui', () => ({
-  Button: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('button', { type: 'button' }, children),
-
-  Card: ({ children }: { children: React.ReactNode }) => React.createElement('div', null, children),
-
+  Button: ({ children }: { children: React.ReactNode }) => (
+    <button type={'button'}>{children}</button>
+  ),
+  Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CheckboxRadix: ({
     label,
     checked,
@@ -36,31 +35,26 @@ vi.mock('@/shared/ui', () => ({
     checked?: boolean
     disabled?: boolean
     onCheckedChange?: (checked: boolean) => void
-  }) =>
-    React.createElement(
-      'label',
-      null,
-      React.createElement('input', {
-        type: 'checkbox',
-        'aria-label': label,
-        checked: !!checked,
-        disabled: !!disabled,
-        onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
-          onCheckedChange?.(event.currentTarget.checked),
-      }),
-      label
-    ),
-
+  }) => (
+    <label>
+      <input
+        type={'checkbox'}
+        aria-label={label}
+        checked={!!checked}
+        disabled={!!disabled}
+        onChange={event => onCheckedChange?.(event.currentTarget.checked)}
+      />
+      {label}
+    </label>
+  ),
   ScrollAreaRadix: ({
     children,
     viewportClassName,
   }: {
     children: React.ReactNode
     viewportClassName?: string
-  }) => React.createElement('div', { className: viewportClassName }, children),
-
-  Typography: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('div', null, children),
+  }) => <div className={viewportClassName}>{children}</div>,
+  Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 const useCurrentSubscriptionChainMock = vi.mocked(useCurrentSubscriptionChain)
@@ -141,8 +135,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
         })
       )
 
-    const { rerender } = render(React.createElement(SubscriptionPricing, { plans }))
-
+    const { rerender } = render(<SubscriptionPricing plans={plans} />)
     const body = screen.getByTestId('current-subscription-body')
     const tailRow = body.querySelector('[data-subscription-id="sub-next-4"]')
 
@@ -156,7 +149,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
     Object.defineProperty(tailRow as HTMLElement, 'offsetHeight', { configurable: true, value: 24 })
     ;(tailRow as HTMLElement).scrollIntoView = scrollIntoView
 
-    rerender(React.createElement(SubscriptionPricing, { plans }))
+    rerender(<SubscriptionPricing plans={plans} />)
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1)
   })
@@ -176,8 +169,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
         })
       )
 
-    const { rerender } = render(React.createElement(SubscriptionPricing, { plans }))
-
+    const { rerender } = render(<SubscriptionPricing plans={plans} />)
     const body = screen.getByTestId('current-subscription-body')
     const tailRow = body.querySelector('[data-subscription-id="sub-next-4"]')
 
@@ -187,7 +179,7 @@ describe('SubscriptionPricing auto-renew scroll', () => {
 
     ;(tailRow as HTMLElement).scrollIntoView = scrollIntoView
 
-    rerender(React.createElement(SubscriptionPricing, { plans }))
+    rerender(<SubscriptionPricing plans={plans} />)
 
     expect(scrollIntoView).not.toHaveBeenCalled()
   })

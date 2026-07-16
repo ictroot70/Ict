@@ -13,8 +13,8 @@ import {
 } from './useBackgroundUpload.utils'
 
 const MAX_FILES_PER_UPLOAD = 10
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
-const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png'])
 
 interface BackgroundUploadState {
   status: 'idle' | 'uploading' | 'completed' | 'error'
@@ -184,7 +184,7 @@ export const useBackgroundUpload = ({
             status: 'error',
             uploadStage: 'idle',
             errorActionHint: 'back',
-            error: `Файл [${idx + 1}] превышает 10MB.`,
+            error: `Файл [${idx + 1}] превышает 20MB.`,
           }))
 
           return

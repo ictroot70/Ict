@@ -10,6 +10,7 @@ import { Close, Modal, Typography } from '@/shared/ui'
 import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
+import { PostModalSkeleton } from './PostModalSkeleton'
 import { ViewMode } from './ViewMode/ViewMode'
 import { PostModalAuthState, RenderPostLikeAction } from './postModalLikeAction.types'
 
@@ -34,14 +35,39 @@ export const PostModal = ({
   renderPostLikeAction,
 }: Props): ReactElement => {
   const [isClientMounted, setIsClientMounted] = useState(false)
-  const { actions, auth, comments, description, follow, post, uiText } = usePostModal(
-    open,
-    initialPostData,
-    postId,
-    authState
-  )
-  const postData = post.data
-  const isEditingDescription = description.isEditing
+  const {
+    isEditingDescription,
+    setIsEditingDescription,
+    commentControl,
+    handleCommentSubmit,
+    watchComment,
+    descriptionControl,
+    handleDescriptionSubmit,
+    watchDescription,
+    errors,
+    postData,
+    variant,
+    isAuthLoading,
+    isCreateCommentLoading,
+    commentMaxLength,
+    isAuthenticated,
+    hasPostData,
+    isPostLoading,
+    isPostEngagementLoading,
+    isPostError,
+    uiText,
+    formattedCreatedAt,
+    handlePublish,
+    handleEditPost,
+    handleCancelEdit,
+    handleCopyLink,
+    handleFollow,
+    isFollowing,
+    isFollowPending,
+    applyLocalDescription,
+    currentUserName,
+    currentUserAvatar,
+  } = usePostModal(open, initialPostData, postId, authState)
 
   const handleSaveDescription = async ({
     description: newDescription,
@@ -50,15 +76,19 @@ export const PostModal = ({
   }) => {
     const trimmed = newDescription.trim()
 
-    if (trimmed && onEditPost && postData?.id) {
-      const updated = await onEditPost(postData.id, trimmed)
+    if (!postData) {
+      return
+    }
+
+    if (onEditPost && postData.postId) {
+      const updated = await onEditPost(postData.postId, trimmed)
 
       if (!updated) {
         return
       }
 
-      description.applyLocal(trimmed)
-      description.setIsEditing(false)
+      applyLocalDescription(trimmed)
+      setIsEditingDescription(false)
     }
   }
 
@@ -112,19 +142,15 @@ export const PostModal = ({
   )
 
   function renderContent() {
-    if (post.isLoading) {
-      return (
-        <div className={s.stateContainer}>
-          <Typography variant={'h1'}>{uiText.loadingPost}</Typography>
-        </div>
-      )
+    if (isPostLoading) {
+      return <PostModalSkeleton />
     }
 
-    if (!post.hasData || !postData) {
+    if (!hasPostData || !postData) {
       return (
         <div className={s.stateContainer}>
           <Typography variant={'h1'}>
-            {post.isError ? uiText.notFoundPost : uiText.unavailablePost}
+            {isPostError ? uiText.notFoundPost : uiText.unavailablePost}
           </Typography>
         </div>
       )
@@ -132,21 +158,39 @@ export const PostModal = ({
 
     return isEditingDescription ? (
       <EditMode
-        description={description}
+        descriptionControl={descriptionControl}
+        handleDescriptionSubmit={handleDescriptionSubmit}
         handleSaveDescription={handleSaveDescription}
+        handleCancelEdit={handleCancelEdit}
+        errors={errors}
+        watchDescription={watchDescription}
         postData={postData}
+        onClose={handleCloseModal}
         isEditing
       />
     ) : (
       <ViewMode
-        actions={actions}
-        auth={auth}
-        comments={comments}
-        description={description}
-        follow={follow}
-        handleDeletePost={handleDeletePostAction}
-        post={post}
         postData={postData}
+        variant={variant}
+        handleEditPost={handleEditPost}
+        handleDeletePost={handleDeletePostAction}
+        onCopyLink={handleCopyLink}
+        onFollow={handleFollow}
+        isFollowing={isFollowing}
+        isFollowPending={isFollowPending}
+        formattedCreatedAt={formattedCreatedAt}
+        isAuthLoading={isAuthLoading}
+        isCreateCommentLoading={isCreateCommentLoading}
+        commentMaxLength={commentMaxLength}
+        isAuthenticated={isAuthenticated}
+        isPostEngagementLoading={isPostEngagementLoading}
+        commentsEnabled={open && hasPostData}
+        commentControl={commentControl}
+        handleCommentSubmit={handleCommentSubmit}
+        watchComment={watchComment}
+        handlePublish={handlePublish}
+        currentUserName={currentUserName}
+        currentUserAvatar={currentUserAvatar}
         renderPostLikeAction={renderPostLikeAction}
       />
     )

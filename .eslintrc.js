@@ -1,5 +1,6 @@
 module.exports = {
   root: true,
+  plugins: ['@next/next'],
   env: {
     node: true,
     es2022: true,
@@ -13,6 +14,13 @@ module.exports = {
     {
       files: ['**/*.{js,ts,jsx,tsx}'],
       extends: ['@it-incubator/eslint-config'],
+    },
+    {
+      files: ['src/**/*.{js,ts,jsx,tsx}', 'app/**/*.{js,ts,jsx,tsx}'],
+      extends: ['plugin:@next/next/recommended'],
+      rules: {
+        '@next/next/no-img-element': 'off',
+      },
     },
   ],
   rules: {

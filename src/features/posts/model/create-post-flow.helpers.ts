@@ -32,7 +32,7 @@ export const buildCreatePostBody = (
   const uniqueUploadIds = Array.from(new Set(uploadedImages.map(img => img.uploadId)))
 
   return {
-    description: normalizedDescription || undefined,
+    description: normalizedDescription,
     childrenMetadata: uniqueUploadIds.map(uploadId => ({ uploadId })),
   }
 }

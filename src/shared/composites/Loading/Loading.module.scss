@@ -1,9 +1,37 @@
-.loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.fullscreenRoot {
+  pointer-events: none;
+  position: fixed;
+  z-index: 120;
+  inset: 60px 0 0;
+  padding-left: 0;
 
+  display: grid;
+  place-items: center;
+}
+
+:global(html[data-auth-hint='1']) .fullscreenRoot {
+  padding-left: 160px;
+}
+
+:global(html[data-layout-sidebar='1']) .fullscreenRoot {
+  padding-left: 160px;
+}
+
+:global(html[data-layout-sidebar='0']) .fullscreenRoot {
+  padding-left: 0;
+}
+
+.containerRoot {
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+}
+
+.loader {
   font-size: 10px;
   width: 1em;
   height: 1em;

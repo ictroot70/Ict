@@ -4,11 +4,11 @@ import React from 'react'
 
 import { usePaymentsTable } from '@/features/subscriptions/hooks'
 import { PAYMENTS_PAGE_SIZE_OPTIONS } from '@/features/subscriptions/model'
-import { Loading } from '@/shared/composites'
 import { Pagination, Typography } from '@/shared/ui'
 
 import s from './Payments.module.scss'
 
+import { PaymentsSkeleton } from './PaymentsSkeleton'
 import { PaymentsTable } from './PaymentsTable'
 
 export function Payments() {
@@ -16,7 +16,7 @@ export function Payments() {
     usePaymentsTable()
 
   if (payments.isLoading) {
-    return <Loading />
+    return <PaymentsSkeleton />
   }
 
   if (payments.isError) {

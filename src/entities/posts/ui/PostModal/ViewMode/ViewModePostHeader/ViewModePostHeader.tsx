@@ -11,55 +11,45 @@ import s from '../ViewMode.module.scss'
 import PostActions from '../../PostActions/PostActions'
 
 interface PostHeaderProps {
-  actions: {
-    handleCopyLink: () => void
-  }
-  auth: {
-    isLoading: boolean
-  }
-  description: {
-    handleEdit: () => void
-  }
-  follow: {
-    handleFollow: () => void
-    isFollowing: boolean
-    isPending: boolean
-  }
-  onDelete: () => void
-  post: {
-    variant: PostVariant
-  }
   postData: {
     avatar: string
     userName: string
   }
+  variant: PostVariant
+  onEdit: () => void
+  onDelete: () => void
+  onFollow: () => void
+  isFollowing: boolean
+  isFollowPending: boolean
+  onCopyLink: () => void
+  isAuthLoading: boolean
 }
 
 export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
-  actions,
-  auth,
-  description,
-  follow,
-  onDelete,
-  post,
   postData,
+  variant,
+  onEdit,
+  onDelete,
+  onFollow,
+  isFollowing,
+  isFollowPending,
+  onCopyLink,
+  isAuthLoading,
 }) => {
-  let renderedActions = null
+  let actions = null
 
-  if (auth.isLoading) {
-    renderedActions = <Skeleton className={s.actionsSkeleton} aria-hidden />
-  } else if (post.variant === 'myPost') {
-    renderedActions = (
-      <PostActions variant={'myPost'} onEdit={description.handleEdit} onDelete={onDelete} />
-    )
-  } else if (post.variant === 'userPost') {
-    renderedActions = (
+  if (isAuthLoading) {
+    actions = <Skeleton className={s.actionsSkeleton} aria-hidden />
+  } else if (variant === 'myPost') {
+    actions = <PostActions variant={'myPost'} onEdit={onEdit} onDelete={onDelete} />
+  } else if (variant === 'userPost') {
+    actions = (
       <PostActions
         variant={'userPost'}
-        onFollow={follow.handleFollow}
-        isFollowing={follow.isFollowing}
-        isFollowPending={follow.isPending}
-        onCopyLink={actions.handleCopyLink}
+        onFollow={onFollow}
+        isFollowing={isFollowing}
+        isFollowPending={isFollowPending}
+        onCopyLink={onCopyLink}
       />
     )
   }
@@ -73,7 +63,7 @@ export const ViewModePostHeader: React.FC<PostHeaderProps> = ({
         </Typography>
       </div>
 
-      {renderedActions}
+      {actions}
     </div>
   )
 }

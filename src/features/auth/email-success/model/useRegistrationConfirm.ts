@@ -21,7 +21,7 @@ export function useRegistrationConfirm(urlCode: string, router: { push: (arg0: s
         await confirmRegistration({ confirmationCode: urlCode }).unwrap()
         setIsValidating(false)
       } catch {
-        router.push(`${APP_ROUTES.AUTH.EMAIL_EXPIRED}`)
+        router.push(`${APP_ROUTES.AUTH.EMAIL_EXPIRED}?mode=verification`)
       }
     }
 

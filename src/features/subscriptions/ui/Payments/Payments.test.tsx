@@ -14,15 +14,19 @@ vi.mock('@/features/subscriptions/hooks', () => ({
   usePaymentsTable: vi.fn(),
 }))
 
-vi.mock('@/shared/ui', () => ({
-  Typography: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('div', null, children),
+vi.mock('@/shared/composites', () => ({
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
+}))
 
-  Pagination: () => React.createElement('div', { 'data-testid': 'pagination' }),
+vi.mock('@/shared/ui', () => ({
+  Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  Pagination: () => <div data-testid={'pagination'} />,
 }))
 
 vi.mock('./PaymentsTable', () => ({
-  PaymentsTable: () => React.createElement('div', { 'data-testid': 'payments-table' }),
+  PaymentsTable: () => <div data-testid={'payments-table'} />,
 }))
 
 type UsePaymentsTableResult = ReturnType<typeof usePaymentsTable>
@@ -43,7 +47,6 @@ const createHookResult = (
   handlePageChange: vi.fn(),
   handleItemsPerPageChange: vi.fn(),
 })
-
 const createData = (itemsCount: number): PaymentsWithPaginationViewModel => ({
   totalCount: itemsCount,
   pagesCount: 1,
@@ -61,14 +64,15 @@ const createData = (itemsCount: number): PaymentsWithPaginationViewModel => ({
 })
 
 describe('Payments', () => {
-  it('renders loading state', () => {
+  it('renders table skeleton during loading', () => {
     usePaymentsTableMock.mockReturnValue(
       createHookResult(asQueryResult({ isLoading: true, isError: false }))
     )
 
-    const { container } = render(React.createElement(Payments))
+    render(<Payments />)
 
-    expect(container.querySelector('span')).not.toBeNull()
+    expect(screen.getByLabelText('Loading payments')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
   })
 
   it('renders error state', () => {
@@ -76,16 +80,15 @@ describe('Payments', () => {
       createHookResult(asQueryResult({ isLoading: false, isError: true }))
     )
 
-    render(React.createElement(Payments))
+    render(<Payments />)
     expect(screen.getByText('Failed to load payments')).not.toBeNull()
   })
-
   it('renders empty state', () => {
     usePaymentsTableMock.mockReturnValue(
       createHookResult(asQueryResult({ isLoading: false, isError: false, data: createData(0) }))
     )
 
-    render(React.createElement(Payments))
+    render(<Payments />)
     expect(screen.getByText('No payments yet')).not.toBeNull()
   })
 
@@ -94,7 +97,7 @@ describe('Payments', () => {
       createHookResult(asQueryResult({ isLoading: false, isError: false, data: createData(1) }))
     )
 
-    render(React.createElement(Payments))
+    render(<Payments />)
     expect(screen.getByTestId('payments-table')).not.toBeNull()
     expect(screen.getByTestId('pagination')).not.toBeNull()
   })

@@ -340,7 +340,7 @@ export function GeneralSettings(): ReactElement {
 
         {isSubmittingProfile && (
           <div className={s.overlay}>
-            <Loading />
+            <Loading mode={'container'} />
           </div>
         )}
       </div>

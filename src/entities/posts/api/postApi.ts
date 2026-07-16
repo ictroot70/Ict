@@ -17,6 +17,7 @@ import {
 } from '@/entities/posts/api/posts.types'
 import { API_ROUTES } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
+import { CommentsViewModel, CreateCommentDto } from '@/shared/types/comments'
 import { InfiniteData } from '@reduxjs/toolkit/query'
 
 import { FOLLOWERS_FEED_QUERY_ARGS } from './posts.constants'
@@ -104,9 +105,11 @@ export const postApi = baseApi.injectEndpoints({
           throw new Error('At least one image is required')
         }
 
+        const normalizedDescription = typeof body.description === 'string' ? body.description : ''
+
         const validatedBody = {
           ...body,
-          description: body.description || undefined,
+          description: normalizedDescription,
         }
 
         return {
@@ -293,6 +296,15 @@ export const postApi = baseApi.injectEndpoints({
           patchResult.undo()
         }
       },
+    }),
+
+    createComment: builder.mutation<CommentsViewModel, { postId: number; body: CreateCommentDto }>({
+      query: ({ postId, body }) => ({
+        url: API_ROUTES.POSTS.COMMENTS(postId),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
     }),
 
     uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({
@@ -554,6 +566,7 @@ export const {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useCreateCommentMutation,
   useUploadImageMutation,
   useDeleteImageMutation,
   useGetPostByIdQuery,

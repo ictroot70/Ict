@@ -1,3 +1,8 @@
+import {
+  PASSWORD_ALLOWED_CHARACTERS,
+  PASSWORD_COMPLEXITY_REQUIREMENTS,
+  PASSWORD_REGEX,
+} from '@/shared/constant'
 import { z } from 'zod'
 
 export const signUpSchema = z
@@ -14,10 +19,9 @@ export const signUpSchema = z
       .string()
       .min(6, 'Minimum number of characters 6')
       .max(20, 'Maximum number of characters 20')
-      .regex(
-        /^[a-zA-Z0-9!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]+$/,
-        'Password must contain 0-9, a-z, A-Z, ! " # $ % & \' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ \\ { | } ~'
-      ),
+      .regex(PASSWORD_REGEX, {
+        message: `Password must contain ${PASSWORD_COMPLEXITY_REQUIREMENTS}. Allowed symbols: ${PASSWORD_ALLOWED_CHARACTERS}`,
+      }),
 
     passwordConfirm: z.string(),
 

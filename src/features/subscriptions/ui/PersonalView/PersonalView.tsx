@@ -1,8 +1,8 @@
 import React from 'react'
 
-import { AccountTypeSection } from '@/features/subscriptions/ui'
+import { AccountTypeSection } from '@/features/subscriptions/ui/AccountTypeSection/AccountTypeSection'
 
-import { AccountTypeValue } from '../../model/payments.types'
+import { AccountTypeValue } from '../../model/types'
 
 interface PersonalViewProps {
   accountType: AccountTypeValue

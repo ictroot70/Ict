@@ -1,6 +1,7 @@
 import {
   API_ROUTES,
   CheckRecoveryCodeRequest,
+  CheckRecoveryCodeResponse,
   LoginRequest,
   MeResponse,
   NewPasswordRequest,
@@ -11,7 +12,12 @@ import {
 import { baseApi } from '@/shared/api/base-api'
 import { logout, setAuthenticated } from '@/shared/auth/authSlice'
 import { authTokenStorage, logger } from '@/shared/lib'
-import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import {
+  clearAuthForcedLogout,
+  clearAuthSessionHint,
+  markAuthForcedLogout,
+  markAuthSessionHint,
+} from '@/shared/lib/storage'
 import { jwtDecode } from 'jwt-decode'
 
 export const authApi = baseApi.injectEndpoints({
@@ -40,6 +46,7 @@ export const authApi = baseApi.injectEndpoints({
             }
 
             authTokenStorage.setAccessToken(data.accessToken)
+            clearAuthForcedLogout()
             markAuthSessionHint(userId)
             dispatch(setAuthenticated())
             dispatch(authApi.util.invalidateTags(['Me']))
@@ -80,17 +87,30 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          await queryFulfilled
-
+        const performClientLogoutCleanup = ({
+          markForcedLogout = false,
+        }: {
+          markForcedLogout?: boolean
+        } = {}) => {
           authTokenStorage.clear()
           clearAuthSessionHint()
-
+          if (markForcedLogout) {
+            markAuthForcedLogout()
+          } else {
+            clearAuthForcedLogout()
+          }
           dispatch(logout())
           dispatch(authApi.util.invalidateTags(['Me']))
           dispatch(authApi.util.resetApiState())
+        }
+
+        try {
+          await queryFulfilled
+
+          performClientLogoutCleanup()
         } catch (error) {
-          logger.error('Logout failed:', error)
+          logger.warn('[logout] Server logout failed, applying local cleanup:', error)
+          performClientLogoutCleanup({ markForcedLogout: true })
         }
       },
     }),
@@ -134,7 +154,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    checkRecoveryCode: builder.mutation<void, CheckRecoveryCodeRequest>({
+    checkRecoveryCode: builder.mutation<CheckRecoveryCodeResponse, CheckRecoveryCodeRequest>({
       query: body => ({
         url: API_ROUTES.AUTH.CHECK_RECOVERY_CODE,
         method: 'POST',

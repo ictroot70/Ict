@@ -20,18 +20,22 @@ export const LogOutButton = () => {
 
   const { handleLogout, handleCancelLogout, user } = useLogoutHandler(handlerCloseModal)
 
-  const confirmLogout = () => handleCancelLogout()
-
   return (
     <>
-      <Button as={'button'} variant={'text'} className={s.button} onClick={handlerOpenModal}>
+      <Button
+        as={'button'}
+        variant={'text'}
+        className={s.button}
+        onClick={handlerOpenModal}
+        aria-label={'Log Out'}
+      >
         <LogOut />
         <span>Log Out</span>
       </Button>
       <LogoutModal
         open={showLogoutModal}
         onConfirm={handleLogout}
-        onClose={confirmLogout}
+        onClose={handleCancelLogout}
         userEmail={user?.email}
       />
     </>

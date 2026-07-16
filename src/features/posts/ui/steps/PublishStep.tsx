@@ -53,7 +53,7 @@ export const PublishStep: React.FC<Props> = ({
     uploadError,
   })
 
-  const isDescriptionValid = description.length > 0 && description.length <= 500
+  const isDescriptionValid = description.length <= 500
   const uploadStatusTextByLanguage = {
     en: {
       uploading: 'Preparing images for publication...',

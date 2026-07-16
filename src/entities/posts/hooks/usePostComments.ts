@@ -1,19 +1,16 @@
+import type { CommentFormData, CommentsViewModel } from '@/shared/types/comments'
+
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
+import { useCreateCommentMutation } from '@/entities/posts/api'
 import {
   useCreateCommentAnswerMutation,
-  useCreateCommentMutation,
   useGetPostCommentsInfiniteQuery,
 } from '@/entities/posts/api/postCommentsApi'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { showToastAlert } from '@/shared/lib'
-import {
-  buildReplyMentionPrefix,
-  COMMENT_CONTENT_MAX,
-  type CommentFormData,
-  type CommentsViewModel,
-} from '@/shared/types/comments'
+import { buildReplyMentionPrefix, COMMENT_CONTENT_MAX } from '@/shared/types'
 
 import { COMMENTS_PAGE_SIZE } from '../lib'
 
@@ -34,7 +31,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
   const { user } = useAuthUiState()
 
   const resolvedPostId = postId ?? 0
-  const hasPostId = resolvedPostId > 0
+  const hasPostId = Number.isInteger(resolvedPostId) && resolvedPostId > 0
 
   const {
     control: commentControl,
@@ -66,16 +63,13 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
   )
 
   const comments: CommentsViewModel[] = commentsData?.pages.flatMap(page => page.items) ?? []
-  const totalCount = commentsData?.pages[0]?.totalCount ?? 0
   const isCommentPublishing = isCreateCommentLoading || isCreateAnswerLoading
 
   const handlePublish = async (data: CommentFormData) => {
-    const content = data.comment.trim()
-    const isContentValid = content.length > 0 && content.length <= COMMENT_CONTENT_MAX
-    const canPublish =
-      enabled && user?.userId && hasPostId && isContentValid && !isCommentPublishing
+    const trimmed = data.comment.trim()
+    const isCommentValid = trimmed.length > 0 && trimmed.length <= COMMENT_CONTENT_MAX
 
-    if (!canPublish) {
+    if (!enabled || !user?.userId || !isCommentValid || !hasPostId || isCommentPublishing) {
       return false
     }
 
@@ -84,14 +78,14 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
         await createAnswer({
           postId: resolvedPostId,
           commentId: replyTarget.commentId,
-          content,
+          content: trimmed,
         }).unwrap()
 
         setReplyTarget(null)
       } else {
         await createComment({
           postId: resolvedPostId,
-          body: { content },
+          body: { content: trimmed },
         }).unwrap()
       }
 
@@ -127,7 +121,7 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     resetComment()
   }, [resolvedPostId, resetComment])
 
-  const isReplyPublishing = Boolean(replyTarget && isCreateAnswerLoading)
+  const totalCount = commentsData?.pages[0]?.totalCount ?? 0
 
   return {
     comments,
@@ -138,12 +132,13 @@ export const usePostComments = ({ postId, enabled = true }: UsePostCommentsParam
     handlePublish,
     handleStartReply,
     replyTarget,
-    isReplyPublishing,
+    isReplyPublishing: Boolean(replyTarget && isCreateAnswerLoading),
     isCommentPublishing,
     isLoading: isCommentsLoading,
     isError: isCommentsError,
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
     loadMore,
+    commentMaxLength: COMMENT_CONTENT_MAX,
   }
 }

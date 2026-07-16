@@ -21,8 +21,6 @@ export const useFollowUserState = (
   const { data: followState } = useGetUserByUserNameQuery(userName, { skip: !canQuery })
   const [followUser, { isLoading: isFollowingLoading }] = useFollowUserMutation()
   const [unfollowUser, { isLoading: isUnfollowingLoading }] = useUnfollowUserMutation()
-  const isFollowing = followState?.isFollowing ?? false
-  const isFollowPending = isFollowingLoading || isUnfollowingLoading
 
   const handleFollow = async () => {
     if (!canMutate) {
@@ -40,28 +38,13 @@ export const useFollowUserState = (
     await unfollowUser({ currentUserId, selectedUserId: userId, targetUserName: userName }).unwrap()
   }
 
-  const handleToggleFollow = async () => {
-    if (isFollowPending) {
-      return
-    }
-
-    if (isFollowing) {
-      await handleUnfollow()
-
-      return
-    }
-
-    await handleFollow()
-  }
-
   return {
-    isFollowing,
+    isFollowing: followState?.isFollowing ?? false,
     followersCount: followState?.followersCount,
     followingCount: followState?.followingCount,
     publicationsCount: followState?.publicationsCount,
-    isFollowPending,
+    isFollowPending: isFollowingLoading || isUnfollowingLoading,
     handleFollow,
-    handleToggleFollow,
     handleUnfollow,
   }
 }

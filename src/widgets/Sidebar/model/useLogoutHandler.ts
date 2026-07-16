@@ -12,22 +12,23 @@ export const useLogoutHandler = (onClose: () => void) => {
   const handleLogout = async () => {
     try {
       await logout().unwrap()
-      router.replace(APP_ROUTES.AUTH.LOGIN)
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Something went wrong'
 
       console.error('Logout failed', message)
+      showToastAlert({
+        message:
+          'Server logout was not confirmed. You have been logged out locally; please sign in again if needed.',
+        type: 'warning',
+      })
     } finally {
       onClose()
+      router.replace(APP_ROUTES.AUTH.LOGIN)
     }
   }
 
   const handleCancelLogout = () => {
     onClose()
-    showToastAlert({
-      message: "User with this email doesn't exist",
-      type: 'info',
-    })
   }
 
   return { handleLogout, handleCancelLogout, user }

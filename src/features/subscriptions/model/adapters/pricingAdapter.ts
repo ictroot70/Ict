@@ -1,6 +1,6 @@
 import { GetPricingResponseDto } from '@/shared/types'
 
-import { SubscriptionPlan } from '../payments.types'
+import { SubscriptionPlan } from '../types'
 
 export const mapPricingToPlans = (data: GetPricingResponseDto): SubscriptionPlan[] => {
   return data.data.map(plan => {

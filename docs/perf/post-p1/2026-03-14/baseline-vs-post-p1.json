@@ -1,0 +1,83 @@
+{
+  "baselineSnapshotDate": "2026-03-12",
+  "postSnapshotDate": "2026-03-14",
+  "jsDiff": {
+    "/": {
+      "baselineKb": 249,
+      "postKb": 241,
+      "deltaKb": -8
+    },
+    "/(.)create": {
+      "baselineKb": 376,
+      "postKb": 369,
+      "deltaKb": -7
+    },
+    "/create": {
+      "baselineKb": 376,
+      "postKb": 369,
+      "deltaKb": -7
+    },
+    "/auth/login": {
+      "baselineKb": 287,
+      "postKb": 280,
+      "deltaKb": -7
+    },
+    "shared": {
+      "baselineKb": 102,
+      "postKb": 103,
+      "deltaKb": 1
+    }
+  },
+  "budgets": {
+    "/": {
+      "performanceScoreMin": 95,
+      "lcpSecondsMax": 1.2,
+      "tbtMsMax": 150,
+      "clsMax": 0.03
+    },
+    "/profile/[id]": {
+      "performanceScoreMin": 95,
+      "lcpSecondsMax": 1.6,
+      "tbtMsMax": 150,
+      "clsMax": 0.03
+    }
+  },
+  "budgetCheck": {
+    "/": {
+      "performanceScore": 100,
+      "lcpSeconds": 0.59,
+      "tbtMs": 0,
+      "cls": 0.002,
+      "pass": true
+    },
+    "/profile/[id]": {
+      "performanceScore": 99,
+      "lcpSeconds": 0.82,
+      "tbtMs": 0,
+      "cls": 0.0013,
+      "pass": true
+    }
+  },
+  "networkDiff": {
+    "/": {
+      "baselineTransferKB": 948.22,
+      "postTransferKB": 719.06,
+      "deltaTransferKB": -229.16,
+      "baselineRequests": 53,
+      "postRequests": 45,
+      "deltaRequests": -8
+    },
+    "/profile/[id]": {
+      "baselineTransferKB": 760.15,
+      "postTransferKB": 688.37,
+      "deltaTransferKB": -71.78,
+      "baselineRequests": 40,
+      "postRequests": 38,
+      "deltaRequests": -2
+    }
+  },
+  "decision": {
+    "p1bNeeded": false,
+    "rule": "P1b required only if Lighthouse thresholds fail or targeted First Load JS does not decrease."
+  }
+}

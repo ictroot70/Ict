@@ -1,5 +1,5 @@
 'use client'
-import { useCallback, useMemo, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, type MouseEvent } from 'react'
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -8,6 +8,8 @@ import s from './Sidebar.module.scss'
 import { SidebarGroup, SidebarLink } from './components'
 import { LogOutButton } from './components/LogoutButton/LogOutButton'
 import { useLinkGroups, type SidebarLinkItem } from './model/useLinkGroups'
+
+const LOCATION_SEARCH_CHANGE_EVENT = 'app:location-search-change'
 
 export const Sidebar = () => {
   const pathname = usePathname()
@@ -19,6 +21,29 @@ export const Sidebar = () => {
   const isCreateModalOpen = action === 'create'
 
   const queryObject = useMemo(() => Object.fromEntries(searchParams.entries()), [searchParams])
+  const myProfileHref = useMemo(() => {
+    if (!linkGroupsData) {
+      return null
+    }
+
+    for (const group of linkGroupsData.linkGroups) {
+      for (const link of group.links) {
+        if (typeof link.href === 'string' && link.href.startsWith('/profile/')) {
+          return link.href
+        }
+      }
+    }
+
+    return null
+  }, [linkGroupsData])
+
+  useEffect(() => {
+    if (!myProfileHref || pathname === myProfileHref) {
+      return
+    }
+
+    router.prefetch(myProfileHref)
+  }, [myProfileHref, pathname, router])
 
   const handleModalLinkClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>, modalAction: string) => {
@@ -26,9 +51,10 @@ export const Sidebar = () => {
       const params = new URLSearchParams(searchParams.toString())
 
       params.set('action', modalAction)
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+      window.history.replaceState(window.history.state, '', `${pathname}?${params.toString()}`)
+      window.dispatchEvent(new Event(LOCATION_SEARCH_CHANGE_EVENT))
     },
-    [pathname, router, searchParams]
+    [pathname, searchParams]
   )
 
   const getLinkHref = useCallback(

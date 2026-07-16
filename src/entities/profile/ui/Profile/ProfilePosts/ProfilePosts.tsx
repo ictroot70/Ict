@@ -36,6 +36,8 @@ type ModalUrlState = {
   source: PostOpenSource
 }
 
+const POST_MODAL_RETURN_KEY = 'post-modal-return-to'
+
 const getPostIdFromParam = (value: null | string): null | number => {
   const parsedPostId = value ? Number(value) : NaN
 
@@ -115,19 +117,77 @@ export const ProfilePosts: React.FC<Props> = ({
     handleDeletePost,
   } = useDeletePostLogic(userId, {
     enabled: isOwnProfile,
+    onDeleted: () => {
+      handleClosePost()
+    },
   })
 
-  const handleClosePost = () => {
+  const syncUrlWithoutNavigation = useCallback((url: string, mode: 'push' | 'replace') => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+
+    if (mode === 'push') {
+      window.history.pushState(window.history.state, '', url)
+    } else {
+      window.history.replaceState(window.history.state, '', url)
+    }
+
+    return true
+  }, [])
+
+  const handleOpenPost = useCallback(
+    (postId: number, href: string) => {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(POST_MODAL_RETURN_KEY)
+      }
+
+      setModalUrlState({
+        postId,
+        source: 'profile',
+      })
+
+      if (!syncUrlWithoutNavigation(href, 'push')) {
+        router.push(href, { scroll: false })
+      }
+    },
+    [router, syncUrlWithoutNavigation]
+  )
+
+  const handleClosePost = useCallback(() => {
     setModalUrlState(prev => ({ ...prev, postId: null }))
 
     if (modalSource === 'home') {
+      if (typeof window !== 'undefined') {
+        const returnTo = window.sessionStorage.getItem(POST_MODAL_RETURN_KEY)
+
+        window.sessionStorage.removeItem(POST_MODAL_RETURN_KEY)
+        if (returnTo === 'home' && window.history.length > 1) {
+          window.history.back()
+
+          return
+        }
+      }
+
       router.replace(APP_ROUTES.ROOT, { scroll: false })
 
       return
     }
 
-    router.replace(APP_ROUTES.PROFILE.ID(userId), { scroll: false })
-  }
+    const profileUrl = APP_ROUTES.PROFILE.ID(userId)
+    const params = new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search)
+
+    params.delete('postId')
+    params.delete('from')
+
+    const queryString = params.toString()
+    const nextUrl = queryString ? `${profileUrl}?${queryString}` : profileUrl
+
+    if (!syncUrlWithoutNavigation(nextUrl, 'replace')) {
+      router.replace(nextUrl, { scroll: false })
+    }
+  }, [modalSource, router, syncUrlWithoutNavigation, userId])
+
   const hasPosts = Boolean(posts?.length)
 
   return (
@@ -141,7 +201,9 @@ export const ProfilePosts: React.FC<Props> = ({
       {hasPosts ? (
         <ul className={s.posts}>
           {posts.map(post => (
-            <PostCard key={post.id} post={post} />
+            <li key={post.id} className={s.postItem}>
+              <PostCard post={post} onOpen={handleOpenPost} />
+            </li>
           ))}
         </ul>
       ) : (
@@ -156,7 +218,7 @@ export const ProfilePosts: React.FC<Props> = ({
         <>
           <PostModal
             key={currentPostIdNumber}
-            open={isPostModalOpen}
+            open={isPostModalOpen && !isDeleteModalOpen}
             onClose={handleClosePost}
             onEditPost={isOwnProfile ? handleEditPost : undefined}
             onDeletePost={isOwnProfile ? handleDeletePost : undefined}

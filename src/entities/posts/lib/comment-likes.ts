@@ -11,7 +11,6 @@ type LikeableItem = {
 }
 
 export const COMMENTS_PAGE_SIZE = 12
-export const ANSWERS_PAGE_SIZE = 6
 
 export const getNextLikeStatus = (isLiked: boolean): LikeStatus =>
   isLiked ? LikeStatus.NONE : LikeStatus.LIKE
@@ -62,7 +61,7 @@ export const patchAnswerLikeInPages = (
   }
 }
 
-export const getNextPageParam = <T extends { items: unknown[]; totalCount: number }>(
+export const getNextPageParam = <T extends { items: any[]; totalCount: number }>(
   lastPage: T,
   allPages: T[]
 ): number | undefined => {

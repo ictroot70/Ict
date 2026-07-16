@@ -1,0 +1,22 @@
+{
+  "/": {
+    "finalUrl": "http://localhost:3100/",
+    "requestCount": 45,
+    "totalTransferBytes": 736314,
+    "totalTransferKB": 719.06,
+    "totalResourceBytes": 1542867,
+    "totalResourceKB": 1506.71,
+    "largestRequest": "http://localhost:3100/icon-512x512.png",
+    "largestTransferBytes": 219167
+  },
+  "/profile/[id] (sample: /profile/1)": {
+    "finalUrl": "http://localhost:3100/profile/1",
+    "requestCount": 38,
+    "totalTransferBytes": 704891,
+    "totalTransferKB": 688.37,
+    "totalResourceBytes": 1511563,
+    "totalResourceKB": 1476.14,
+    "largestRequest": "http://localhost:3100/icon-512x512.png",
+    "largestTransferBytes": 219167
+  }
+}

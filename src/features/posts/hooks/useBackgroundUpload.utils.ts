@@ -27,6 +27,16 @@ export function getErrorStatus(error: unknown): number | null {
   return typeof status === 'number' ? status : null
 }
 
+export function chunkBlobs(blobs: Blob[], chunkSize: number): Blob[][] {
+  const chunks: Blob[][] = []
+
+  for (let idx = 0; idx < blobs.length; idx += chunkSize) {
+    chunks.push(blobs.slice(idx, idx + chunkSize))
+  }
+
+  return chunks
+}
+
 export async function uploadWithRetry(
   blobs: Blob[],
   handleUpload: (files: Array<File | Blob>) => Promise<UploadedImageViewModel | undefined>,
@@ -37,7 +47,7 @@ export async function uploadWithRetry(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        logger.info(`🔄 Retry attempt ${attempt}/${maxRetries} (token refresh)...`)
+        logger.warn(`[uploadWithRetry] Retry attempt ${attempt}/${maxRetries} (token refresh)`)
         await new Promise(resolve => setTimeout(resolve, 300))
       }
 
@@ -54,7 +64,7 @@ export async function uploadWithRetry(
         (error as { status?: unknown }).status === 401 &&
         attempt < maxRetries
       ) {
-        logger.info('⚠️ Token expired, will retry after refresh...')
+        logger.warn('[uploadWithRetry] Token expired, will retry after refresh')
         continue
       }
 

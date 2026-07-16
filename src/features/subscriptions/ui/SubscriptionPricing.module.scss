@@ -240,6 +240,45 @@
   }
 }
 
+.skeletonTitle {
+  width: 190px;
+  height: 18px;
+  margin-bottom: 18px;
+}
+
+.skeletonMetrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+  gap: 45px;
+  width: min(100%, 285px);
+}
+
+.skeletonMetric {
+  height: 42px;
+}
+
+.skeletonToggle {
+  width: 150px;
+  height: 20px;
+  margin-top: 8px;
+}
+
+.skeletonPlanList {
+  display: grid;
+  gap: 14px;
+}
+
+.skeletonPlanRow {
+  width: min(100%, 320px);
+  height: 24px;
+}
+
+.skeletonPaymentButton {
+  width: 96px;
+  height: 64px;
+  border-radius: 8px;
+}
+
 @keyframes autoRenewalSpinnerRotation {
   to {
     transform: rotate(360deg);

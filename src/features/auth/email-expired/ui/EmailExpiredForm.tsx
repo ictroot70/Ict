@@ -9,20 +9,24 @@ import s from './EmailExpiredForm.module.scss'
 
 export const EmailExpiredForm = () => {
   const params = useSearchParams()
-  const urlEmail = params?.get('email')
+  const modeParam = params?.get('mode')
+  const emailFromQuery = params?.get('email')?.trim() || ''
+  const isRecoveryMode = modeParam === 'recovery'
 
-  const passwordRecovery = usePasswordRecoveryResend()
+  const passwordRecovery = usePasswordRecoveryResend(emailFromQuery)
   const emailVerification = useEmailVerificationResend()
 
-  const hook = urlEmail ? passwordRecovery : emailVerification
+  const hook = isRecoveryMode ? passwordRecovery : emailVerification
   const {
     control,
+    register,
     handleSubmit,
     isOpenModalWindow,
     isSubmitting,
     currentEmail,
     handleCloseModalWindow,
   } = hook
+  const shouldShowEmailInput = !isRecoveryMode || emailFromQuery.length === 0
 
   return (
     <>
@@ -30,18 +34,20 @@ export const EmailExpiredForm = () => {
         <div className={s.content}>
           <Typography asChild variant={'h1'} className={s.title}>
             <h2>
-              {urlEmail ? 'Password recovery link expired' : 'Email verification link expired'}
+              {isRecoveryMode
+                ? 'Password recovery link expired'
+                : 'Email verification link expired'}
             </h2>
           </Typography>
 
           <Typography variant={'regular_16'} className={s.description}>
-            {urlEmail
+            {isRecoveryMode
               ? 'Looks like the password recovery link has expired. We can send a new one'
               : 'Looks like the verification link has expired. Not to worry, we can send the link again'}
           </Typography>
 
           <form onSubmit={handleSubmit} className={s.form}>
-            {!urlEmail && (
+            {shouldShowEmailInput && (
               <ControlledInput
                 control={control}
                 name={'email'}
@@ -51,10 +57,10 @@ export const EmailExpiredForm = () => {
               />
             )}
 
-            {urlEmail && <input type={'hidden'} {...control.register('email')} />}
+            {!shouldShowEmailInput && <input type={'hidden'} {...register('email')} />}
 
             <Button className={s.button} type={'submit'} fullWidth disabled={isSubmitting}>
-              {urlEmail ? 'Resend recovery link' : 'Resend verification link'}
+              {isRecoveryMode ? 'Resend recovery link' : 'Resend verification link'}
             </Button>
           </form>
         </div>
@@ -62,7 +68,7 @@ export const EmailExpiredForm = () => {
       </div>
       <ModalWithButton
         title={'Email sent'}
-        message={`We have sent a link to ${urlEmail ? 'recover your password' : 'confirm your email'} to ${currentEmail}`}
+        message={`We have sent a link to ${isRecoveryMode ? 'recover your password' : 'confirm your email'} to ${currentEmail}`}
         isOpen={isOpenModalWindow}
         onClose={handleCloseModalWindow}
       />

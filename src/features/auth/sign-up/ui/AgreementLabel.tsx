@@ -16,7 +16,7 @@ export const AgreementLabel = (
       href={{
         pathname: APP_ROUTES.LEGAL.PRIVACY,
         query: {
-          from: APP_ROUTES.AUTH.REGISTRATION,
+          from: 'signup',
         },
       }}
     >

@@ -1,12 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { SignUpFormData, signUpSchema, useSignupMutation } from '@/features/auth'
-import { APP_ROUTES, REGISTRATION_MESSAGES } from '@/shared/constant'
+import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
+
+import { resolveSignUpError } from './resolveSignUpError'
+
+type SignUpDraft = {
+  agreement: boolean
+  email: string
+  password: string
+  passwordConfirm: string
+  username: string
+}
+
+const EMPTY_SIGN_UP_DRAFT: SignUpDraft = {
+  username: '',
+  email: '',
+  password: '',
+  passwordConfirm: '',
+  agreement: false,
+}
+
+let signUpDraft: SignUpDraft | null = null
+
+const getSignUpDraft = (): SignUpDraft => signUpDraft ?? EMPTY_SIGN_UP_DRAFT
+const setSignUpDraft = (draft: SignUpDraft) => {
+  signUpDraft = draft
+}
+const clearSignUpDraft = () => {
+  signUpDraft = null
+}
 
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
@@ -17,16 +45,26 @@ export const useSignUp = () => {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     mode: 'onTouched',
-    defaultValues: {
-      username: '',
-      email: '',
-      password: '',
-      passwordConfirm: '',
-      agreement: false,
-    },
+    defaultValues: getSignUpDraft(),
   })
 
   const isAgreementChecked = form.watch('agreement')
+
+  useEffect(() => {
+    const subscription = form.watch(values => {
+      setSignUpDraft({
+        username: values.username ?? '',
+        email: values.email ?? '',
+        password: values.password ?? '',
+        passwordConfirm: values.passwordConfirm ?? '',
+        agreement: values.agreement ?? false,
+      })
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [form])
 
   const onSubmit = form.handleSubmit(async (data: SignUpFormData) => {
     setServerError('')
@@ -39,6 +77,7 @@ export const useSignUp = () => {
       }).unwrap()
 
       setIsSuccess(true)
+      clearSignUpDraft()
 
       showToastAlert({
         message: result?.message || `We have sent a link to confirm your email to ${data.email}`,
@@ -47,37 +86,19 @@ export const useSignUp = () => {
       })
 
       localStorage.setItem('lastRegistrationEmail', data.email)
-    } catch (error: any) {
-      const apiError = error as { status: number; data?: any }
+    } catch (error: unknown) {
+      const { fieldErrors, serverError: nextServerError, toastMessage } = resolveSignUpError(error)
 
-      if (apiError && apiError.status === 400 && apiError.data?.messages) {
-        apiError.data.messages.forEach((err: any) => {
-          if (err.field === 'userName' || err.field === 'username') {
-            form.setError('username', {
-              type: 'server',
-              message: REGISTRATION_MESSAGES.USERNAME_EXISTS,
-            })
-          } else if (err.field === 'password') {
-            form.setError('password', {
-              type: 'server',
-              message: err.message,
-            })
-          } else if (err.field === 'email') {
-            form.setError('email', {
-              type: 'server',
-              message: REGISTRATION_MESSAGES.EMAIL_EXISTS,
-            })
-          }
+      fieldErrors.forEach(fieldError => {
+        form.setError(fieldError.field, {
+          type: 'server',
+          message: fieldError.message,
         })
-      } else if (apiError && apiError.status === 429) {
-        setServerError('Too many requests. Please wait a moment and try again.')
-      } else {
-        setServerError(
-          `Registration failed. Server returned status: ${apiError?.status || 'unknown'}`
-        )
-      }
+      })
+
+      setServerError(nextServerError)
       showToastAlert({
-        message: serverError || 'Registration failed',
+        message: toastMessage,
         duration: 5000,
         type: 'error',
       })
@@ -92,5 +113,6 @@ export const useSignUp = () => {
     serverError,
     isSuccess,
     setIsSuccess,
+    clearDraft: clearSignUpDraft,
   }
 }

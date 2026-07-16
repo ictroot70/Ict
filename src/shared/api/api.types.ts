@@ -40,6 +40,10 @@ export interface CheckRecoveryCodeRequest {
   recoveryCode: string
 }
 
+export interface CheckRecoveryCodeResponse {
+  email: string
+}
+
 export interface NewPasswordRequest {
   newPassword: string
   recoveryCode: string

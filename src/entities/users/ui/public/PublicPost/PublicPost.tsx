@@ -19,6 +19,7 @@ type Props = {
 }
 
 const DEFAULT_IMAGE = '/default-image.svg'
+const POST_MODAL_RETURN_KEY = 'post-modal-return-to'
 
 export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
   const { id, ownerId, userName, images, avatarOwner, description, createdAt } = post
@@ -51,6 +52,19 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
           if (target.closest('button')) {
             event.preventDefault()
             event.stopPropagation()
+
+            return
+          }
+
+          const isPlainLeftClick =
+            event.button === 0 &&
+            !event.metaKey &&
+            !event.ctrlKey &&
+            !event.shiftKey &&
+            !event.altKey
+
+          if (isPlainLeftClick) {
+            window.sessionStorage.setItem(POST_MODAL_RETURN_KEY, 'home')
           }
         }}
       >
@@ -96,7 +110,7 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
               variant={"regular_link"}
               className={s.post__toggle}
             >
-              <button type={"button"}>{isExpanded ? 'Hide' : 'ShowMore'}</button>
+              <button type={'button'}>{isExpanded ? 'Hide' : 'Show more'}</button>
             </Typography>
           )}
         </div>

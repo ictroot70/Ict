@@ -13,8 +13,13 @@ export const commentFormSchema = z.object({
   comment: commentContentSchema,
 })
 
+export const answerFormSchema = z.object({
+  answer: commentContentSchema,
+})
+
 export type CommentFormSchema = z.infer<typeof commentFormSchema>
 export type CommentFormData = CommentFormSchema
+export type AnswerFormSchema = z.infer<typeof answerFormSchema>
 
 export interface BaseComment {
   id: number
@@ -40,6 +45,10 @@ export interface CreateCommentDto {
 
 export type CommentAuthor = UserBase & {
   username?: string
+}
+
+export interface ReplyFormData {
+  content: string
 }
 
 export const getCommentAuthorName = (from: CommentAuthor): string =>

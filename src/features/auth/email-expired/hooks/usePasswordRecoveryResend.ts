@@ -5,14 +5,13 @@ import {
 } from '@/features/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
-import { useSearchParams } from 'next/navigation'
 
-export const usePasswordRecoveryResend = () => {
-  const params = useSearchParams()
-  const urlEmail = params?.get('email') || ''
+export const usePasswordRecoveryResend = (prefilledEmail = '') => {
+  const normalizedPrefilledEmail = prefilledEmail.trim()
   const [passwordRecoveryResending, { isLoading }] = usePasswordRecoveryResendingMutation()
 
-  const { handleSuccess, handleCloseModalWindow, ...formMethods } = useBaseEmailResend(urlEmail)
+  const { handleSuccess, handleCloseModalWindow, ...formMethods } =
+    useBaseEmailResend(normalizedPrefilledEmail)
 
   const handleSubmit = formMethods.handleSubmit(async ({ email }: EmailExpiredInputs) => {
     try {
@@ -36,7 +35,6 @@ export const usePasswordRecoveryResend = () => {
     isSubmitting: isLoading || formMethods.formState.isSubmitting,
     isOpenModalWindow: formMethods.isOpenModalWindow,
     currentEmail: formMethods.currentEmail,
-    urlEmail,
     handleCloseModalWindow,
   }
 }

@@ -12,25 +12,28 @@ import { EditModeImageSection } from './EditModeImageSection/EditModeImageSectio
 import { ExitConfirmationModal } from './ExitConfirmationModal/ExitConfirmationModal'
 
 interface EditModeProps {
-  description: {
-    control: Control<DescriptionFormData>
-    errors: FieldErrors<DescriptionFormData>
-    handleCancel: () => void
-    handleSubmit: UseFormHandleSubmit<DescriptionFormData>
-    watch: UseFormWatch<DescriptionFormData>
-  }
+  descriptionControl: Control<DescriptionFormData>
+  handleDescriptionSubmit: UseFormHandleSubmit<DescriptionFormData>
   handleSaveDescription: (data: DescriptionFormData) => void
+  handleCancelEdit: () => void
+  errors: FieldErrors<DescriptionFormData>
+  watchDescription: UseFormWatch<DescriptionFormData>
   postData: PostViewModel
+  onClose: () => void
   isEditing?: boolean
 }
 
 export const EditMode = ({
-  description,
+  descriptionControl,
+  handleDescriptionSubmit,
   handleSaveDescription,
+  handleCancelEdit,
+  errors,
+  watchDescription,
   postData,
   isEditing = false,
 }: EditModeProps) => {
-  const descriptionValue = description.watch('description') || ''
+  const descriptionValue = watchDescription('description') || ''
   const characterCount = descriptionValue.length
   const maxCharacters = 500
 
@@ -42,12 +45,12 @@ export const EditMode = ({
   }, [descriptionValue, postData.description])
 
   const attemptClose = useCallback(() => {
-    hasUnsavedChanges ? setShowExitConfirm(true) : description.handleCancel()
-  }, [description, hasUnsavedChanges])
+    hasUnsavedChanges ? setShowExitConfirm(true) : handleCancelEdit()
+  }, [hasUnsavedChanges, handleCancelEdit])
 
   const handleConfirmExit = () => {
     setShowExitConfirm(false)
-    description.handleCancel()
+    handleCancelEdit()
   }
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -74,7 +77,7 @@ export const EditMode = ({
     setHasUnsavedChanges(false)
   }
 
-  const shouldDisableSave = !descriptionValue.trim() || characterCount > maxCharacters
+  const shouldDisableSave = characterCount > maxCharacters
 
   return (
     <>
@@ -84,7 +87,7 @@ export const EditMode = ({
             isEditing={isEditing}
             title={'Edit Post'}
             onClose={attemptClose}
-            onSave={description.handleSubmit(handleFormSubmit)}
+            onSave={handleDescriptionSubmit(handleFormSubmit)}
             isSaveDisabled={shouldDisableSave}
             saveButtonText={'Save'}
           />
@@ -94,9 +97,9 @@ export const EditMode = ({
 
             <EditModeDescriptionForm
               postData={postData}
-              control={description.control}
-              handleSubmit={description.handleSubmit}
-              errors={description.errors}
+              control={descriptionControl}
+              handleSubmit={handleDescriptionSubmit}
+              errors={errors}
               characterCount={characterCount}
               maxCharacters={maxCharacters}
               shouldDisableSave={shouldDisableSave}

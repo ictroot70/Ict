@@ -8,7 +8,9 @@ import { Input, type InputProps } from '@/shared/ui'
 import s from './style.module.scss'
 
 type ControlledInputProps<T extends FieldValues> = UseControllerProps<T> &
-  Omit<InputProps, 'value' | 'onChange' | 'onBlur'>
+  Omit<InputProps, 'value' | 'onChange' | 'onBlur'> & {
+    onBlur?: FocusEventHandler<HTMLInputElement>
+  }
 
 export const ControlledInput = <T extends FieldValues>({
   control,
@@ -29,9 +31,10 @@ export const ControlledInput = <T extends FieldValues>({
     inputProps.onFocus?.(event)
   }
 
-  const handleBlur: FocusEventHandler<HTMLInputElement> = () => {
+  const handleBlur: FocusEventHandler<HTMLInputElement> = event => {
     setIsFocused(false)
     field.onBlur()
+    inputProps.onBlur?.(event)
   }
 
   const resolvedClassName = [externalClassName, isPlaceholderLike ? s.placeholderLike : '']

@@ -4,10 +4,11 @@
 }
 
 .commentsToggle {
-  width: max-content;
+  justify-content: flex-start;
+  width: fit-content;
+  min-height: 0;
   padding: 0;
   margin-bottom: 0.5rem;
   color: var(--color-light-900);
-  text-align: left;
-  font-size: 14px;
+  font-weight: 700;
 }

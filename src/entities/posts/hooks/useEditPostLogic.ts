@@ -6,20 +6,21 @@ export const useEditPostLogic = (userId: number, options?: { enabled?: boolean }
   const [updatePost] = useUpdatePostMutation()
   const [editingPostId, setEditingPostId] = useState<number | null>(null)
 
-  const handleEditPost = async (postId: number, newDescription: string) => {
+  const handleEditPost = async (postIdValue: number, newDescription: string) => {
     if (options?.enabled === false) {
       return false
     }
 
+    const postId = String(postIdValue)
     const updateData = {
       description: newDescription,
     }
 
     try {
-      setEditingPostId(postId)
+      setEditingPostId(postIdValue)
 
       await updatePost({
-        postId: parseInt(String(postId)),
+        postId: parseInt(postId),
         body: updateData,
         userId: userId,
       }).unwrap()

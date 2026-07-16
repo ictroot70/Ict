@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Card, Typography, RadioGroupRadix } from '@/shared/ui'
+import { Card, RadioGroupRadix, Typography } from '@/shared/ui'
 
 import styles from './AccountTypeSection.module.scss'
 
@@ -15,13 +15,13 @@ export const AccountTypeSection: React.FC<AccountTypeSectionProps> = ({
   accountTypes,
   selectedType,
   onTypeChange,
-  disabled = false,
+  disabled,
 }) => {
   const radioOptions = accountTypes.map(type => ({
     value: type.value,
     label: type.label,
     id: `account-type-${type.value}`,
-    disabled: disabled || type.disabled,
+    disabled: type.disabled,
   }))
 
   return (

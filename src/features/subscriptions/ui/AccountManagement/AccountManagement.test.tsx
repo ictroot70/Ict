@@ -1,5 +1,4 @@
 /* @vitest-environment jsdom */
-/* eslint-disable max-lines */
 
 import React from 'react'
 
@@ -47,90 +46,77 @@ vi.mock('@/features/subscriptions/hooks', async importOriginal => {
 })
 
 vi.mock('@/features/subscriptions/ui/PersonalView/PersonalView', () => ({
-  PersonalView: ({
-    disabled,
-    onAccountTypeChange,
-  }: {
-    disabled?: boolean
-    onAccountTypeChange: (type: 'business') => void
-  }) =>
-    React.createElement(
-      'div',
-      { 'data-disabled': String(Boolean(disabled)), 'data-testid': 'personal-view' },
-      React.createElement(
-        'button',
-        {
-          type: 'button',
-          onClick: () => onAccountTypeChange('business'),
-        },
-        'to business'
-      )
-    ),
+  PersonalView: ({ onAccountTypeChange }: { onAccountTypeChange: (type: 'business') => void }) => (
+    <div data-testid={'personal-view'}>
+      <button type={'button'} onClick={() => onAccountTypeChange('business')}>
+        to business
+      </button>
+    </div>
+  ),
 }))
 
-vi.mock('@/features/subscriptions/ui/BusinessSubscriptionView/BusinessSubscriptionView', () => ({
-  BusinessSubscriptionView: ({
-    onStripeClick,
-    isPaymentLocked,
-    onPlanChange,
-    hasActiveSubscription,
-  }: {
-    onStripeClick?: () => void
-    isPaymentLocked?: boolean
-    onPlanChange?: (plan: 'month') => void
-    hasActiveSubscription?: boolean
-  }) =>
-    React.createElement(
-      'div',
-      {
-        'data-testid': 'business-subscription-view',
-        'data-active': String(Boolean(hasActiveSubscription)),
-      },
-      React.createElement(
-        'button',
-        {
-          type: 'button',
-          onClick: () => onPlanChange?.('month'),
-        },
-        'select month'
-      ),
-      React.createElement(
-        'button',
-        {
-          type: 'button',
-          onClick: onStripeClick,
-          disabled: isPaymentLocked,
-        },
-        'STRIPE'
-      )
+vi.mock(
+  '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView',
+  () => ({
+    BusinessNoSubscriptionView: ({
+      onStripeClick,
+      isPaymentLocked,
+      onPlanChange,
+    }: {
+      onStripeClick?: () => void
+      isPaymentLocked?: boolean
+      onPlanChange?: (plan: 'month') => void
+    }) => (
+      <div data-testid={'business-no-subscription-view'}>
+        <button type={'button'} onClick={() => onPlanChange?.('month')}>
+          select month
+        </button>
+        <button type={'button'} onClick={onStripeClick} disabled={isPaymentLocked}>
+          STRIPE
+        </button>
+      </div>
     ),
-}))
+  })
+)
+
+vi.mock(
+  '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView',
+  () => ({
+    BusinessActiveSubscriptionView: ({
+      onStripeClick,
+      isPaymentLocked,
+    }: {
+      onStripeClick?: () => void
+      isPaymentLocked?: boolean
+    }) => (
+      <div data-testid={'business-active-subscription-view'}>
+        <button type={'button'} onClick={onStripeClick} disabled={isPaymentLocked}>
+          STRIPE
+        </button>
+      </div>
+    ),
+  })
+)
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => React.createElement('div', { 'data-testid': 'loading' }),
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
 }))
 
 vi.mock('../PaymentModals', () => ({
   PaymentConfirmationModal: ({ open, onConfirm }: { open: boolean; onConfirm: () => void }) =>
-    open
-      ? React.createElement(
-          'button',
-          {
-            type: 'button',
-            onClick: onConfirm,
-          },
-          'confirm payment'
-        )
-      : null,
-
+    open ? (
+      <button type={'button'} onClick={onConfirm}>
+        confirm payment
+      </button>
+    ) : null,
   PaymentProcessingModal: ({ open }: { open: boolean }) =>
-    open ? React.createElement('div', { 'data-testid': 'payment-processing-modal' }) : null,
-
+    open ? <div data-testid={'payment-processing-modal'} /> : null,
   PaymentFailureModal: ({ open }: { open: boolean }) =>
-    open ? React.createElement('div', { 'data-testid': 'payment-failure-modal' }) : null,
-
+    open ? <div data-testid={'payment-failure-modal'} /> : null,
   PaymentSuccessModal: ({ open }: { open: boolean }) =>
-    open ? React.createElement('div', { 'data-testid': 'payment-success-modal' }) : null,
+    open ? <div data-testid={'payment-success-modal'} /> : null,
 }))
 
 describe('AccountManagement', () => {
@@ -155,28 +141,26 @@ describe('AccountManagement', () => {
     vi.useRealTimers()
   })
 
-  it('renders loading state', () => {
+  it('renders account skeleton during loading', () => {
     mocks.accountState.isLoading = true
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
-    expect(screen.getByTestId('loading')).not.toBeNull()
+    expect(screen.getByLabelText('Loading account management')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
   })
 
   it('renders personal view by default and switches to business without subscription', () => {
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     expect(screen.getByTestId('personal-view')).not.toBeNull()
 
     fireEvent.click(screen.getByText('to business'))
 
-    expect(screen.getByTestId('business-subscription-view')).not.toBeNull()
-    expect(screen.getByTestId('business-subscription-view').getAttribute('data-active')).toBe(
-      'false'
-    )
+    expect(screen.getByTestId('business-no-subscription-view')).not.toBeNull()
   })
 
-  it('passes active-subscription flag to business subscription view when queue exists', () => {
+  it('renders business active subscription view when subscription queue exists', () => {
     mocks.accountState.subscriptionQueue = [
       {
         subscriptionId: 'sub-1',
@@ -185,18 +169,16 @@ describe('AccountManagement', () => {
       },
     ]
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
-    expect(screen.getByTestId('business-subscription-view').getAttribute('data-active')).toBe(
-      'true'
-    )
+    expect(screen.getByTestId('business-active-subscription-view')).not.toBeNull()
   })
 
   it('shows processing modal with anti-flicker delay when polling starts', async () => {
     vi.useFakeTimers()
     mocks.accountState.flowStatus = 'polling'
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     expect(screen.queryByTestId('payment-processing-modal')).toBeNull()
 
@@ -211,14 +193,14 @@ describe('AccountManagement', () => {
     vi.useFakeTimers()
     mocks.accountState.flowStatus = 'polling'
 
-    const { rerender } = render(React.createElement(AccountManagement))
+    const { rerender } = render(<AccountManagement />)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(200)
     })
 
     mocks.accountState.flowStatus = 'success'
-    rerender(React.createElement(AccountManagement))
+    rerender(<AccountManagement />)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(100)
@@ -231,7 +213,7 @@ describe('AccountManagement', () => {
     vi.useFakeTimers()
     mocks.accountState.flowStatus = 'polling'
 
-    const { rerender } = render(React.createElement(AccountManagement))
+    const { rerender } = render(<AccountManagement />)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(250)
@@ -240,7 +222,7 @@ describe('AccountManagement', () => {
     expect(screen.getByTestId('payment-processing-modal')).not.toBeNull()
 
     mocks.accountState.flowStatus = 'success'
-    rerender(React.createElement(AccountManagement))
+    rerender(<AccountManagement />)
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(300)
@@ -262,7 +244,7 @@ describe('AccountManagement', () => {
       },
     ]
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     fireEvent.click(screen.getByRole('button', { name: 'STRIPE' }))
     fireEvent.click(screen.getByText('confirm payment'))
@@ -283,42 +265,17 @@ describe('AccountManagement', () => {
     ]
     mocks.accountState.isPaymentLocked = true
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     const button = screen.getByRole('button', { name: 'STRIPE' }) as HTMLButtonElement
 
     expect(button.disabled).toBe(true)
   })
 
-  it('passes payment lock to personal account type view', () => {
-    mocks.accountState.isPaymentLocked = true
-
-    render(React.createElement(AccountManagement))
-
-    expect(screen.getByTestId('personal-view').getAttribute('data-disabled')).toBe('true')
-  })
-
-  it('ignores plan changes while payment is locked', () => {
-    mocks.accountState.isPaymentLocked = true
-    mocks.accountState.subscriptionQueue = [
-      {
-        subscriptionId: 'sub-1',
-        endDateOfSubscription: '2026-05-01T00:00:00.000Z',
-        autoRenewal: true,
-      },
-    ]
-
-    render(React.createElement(AccountManagement))
-
-    fireEvent.click(screen.getByText('select month'))
-
-    expect(mocks.handlePlanChange).not.toHaveBeenCalled()
-  })
-
   it('opens success modal when paymentResultStatus is success', async () => {
     mocks.accountState.paymentResultStatus = 'success'
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     await waitFor(() => {
       expect(screen.getByTestId('payment-success-modal')).not.toBeNull()
@@ -328,7 +285,7 @@ describe('AccountManagement', () => {
   it('opens failure modal when paymentResultStatus is failure', async () => {
     mocks.accountState.paymentResultStatus = 'failure'
 
-    render(React.createElement(AccountManagement))
+    render(<AccountManagement />)
 
     await waitFor(() => {
       expect(screen.getByTestId('payment-failure-modal')).not.toBeNull()

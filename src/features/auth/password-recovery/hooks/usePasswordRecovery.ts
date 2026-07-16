@@ -7,6 +7,7 @@ import {
   usePasswordRecoveryResendingMutation,
   ForgotPasswordInputs,
   forgotPasswordSchema,
+  normalizeRecaptchaToken,
 } from '@/features/auth'
 import { ApiErrorResponse } from '@/shared/api'
 import { APP_ROUTES } from '@/shared/constant'
@@ -36,13 +37,25 @@ export const usePasswordRecovery = () => {
 
   const recaptchaValue = watch('recaptcha')
 
-  const handlePasswordRecovery = async (email: string, baseUrl: string, recaptcha?: string) => {
+  const handlePasswordRecovery = async ({
+    email,
+    baseUrl,
+    isResending,
+    recaptchaToken,
+  }: {
+    email: string
+    baseUrl: string
+    isResending: boolean
+    recaptchaToken?: string
+  }) => {
     try {
-      if (recaptcha) {
-        await passwordRecovery({ email, recaptcha, baseUrl }).unwrap()
+      if (isResending) {
+        await passwordRecoveryResending({ email, baseUrl }).unwrap()
+      } else if (recaptchaToken) {
+        await passwordRecovery({ email, recaptcha: recaptchaToken, baseUrl }).unwrap()
         reset()
       } else {
-        await passwordRecoveryResending({ email, baseUrl }).unwrap()
+        throw new Error('Missing recaptcha token for password recovery request')
       }
 
       setCurrentEmail(email)
@@ -75,14 +88,25 @@ export const usePasswordRecovery = () => {
 
     try {
       if (isEmailSent) {
-        await handlePasswordRecovery(email, baseUrl)
+        await handlePasswordRecovery({
+          email,
+          baseUrl,
+          isResending: true,
+        })
       } else {
-        if (recaptcha === undefined) {
+        const recaptchaToken = normalizeRecaptchaToken(recaptcha)
+
+        if (!recaptchaToken) {
           setError('recaptcha', { type: 'custom', message: 'Please complete the reCAPTCHA' })
 
           return
         }
-        await handlePasswordRecovery(email, baseUrl, recaptcha)
+        await handlePasswordRecovery({
+          email,
+          baseUrl,
+          isResending: false,
+          recaptchaToken,
+        })
       }
     } catch {
       showToastAlert({
@@ -97,6 +121,7 @@ export const usePasswordRecovery = () => {
     if (token) {
       setValue('recaptcha', token, { shouldValidate: true })
     } else {
+      setValue('recaptcha', '', { shouldValidate: true })
       setError('recaptcha', { type: 'custom', message: 'Verification error' })
     }
   }

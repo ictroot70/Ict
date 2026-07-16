@@ -13,7 +13,9 @@ vi.mock('@/features/subscriptions/hooks', () => ({
 }))
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => React.createElement('div', { 'data-testid': 'loading' }),
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
 }))
 
 vi.mock('@ictroot/ui-kit', () => ({
@@ -27,26 +29,23 @@ vi.mock('@ictroot/ui-kit', () => ({
     value?: string
     onValueChange?: (value: string) => void
     disabled?: boolean
-  }) =>
-    React.createElement(
-      'div',
-      { role: 'radiogroup' },
-      options.map(option =>
-        React.createElement(
-          'label',
-          { key: option.id },
-          React.createElement('input', {
-            type: 'radio',
-            name: 'plan',
-            'aria-label': option.label,
-            checked: value === option.value,
-            disabled,
-            onChange: () => onValueChange?.(option.value),
-          }),
-          option.label
-        )
-      )
-    ),
+  }) => (
+    <div role={'radiogroup'}>
+      {options.map(option => (
+        <label key={option.id}>
+          <input
+            type={'radio'}
+            name={'plan'}
+            aria-label={option.label}
+            checked={value === option.value}
+            disabled={disabled}
+            onChange={() => onValueChange?.(option.value)}
+          />
+          {option.label}
+        </label>
+      ))}
+    </div>
+  ),
 }))
 
 vi.mock('@/shared/ui', () => ({
@@ -58,10 +57,12 @@ vi.mock('@/shared/ui', () => ({
     children: React.ReactNode
     onClick?: () => void
     disabled?: boolean
-  }) => React.createElement('button', { type: 'button', onClick, disabled }, children),
-
-  Card: ({ children }: { children: React.ReactNode }) => React.createElement('div', null, children),
-
+  }) => (
+    <button type={'button'} onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
+  Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   CheckboxRadix: ({
     label,
     checked,
@@ -72,25 +73,20 @@ vi.mock('@/shared/ui', () => ({
     checked?: boolean
     disabled?: boolean
     onCheckedChange?: (checked: boolean) => void
-  }) =>
-    React.createElement(
-      'label',
-      null,
-      React.createElement('input', {
-        type: 'checkbox',
-        'aria-label': label,
-        checked: !!checked,
-        disabled: !!disabled,
-        onChange: event => onCheckedChange?.(event.currentTarget.checked),
-      }),
-      label
-    ),
-
-  ScrollAreaRadix: ({ children }: { children: React.ReactNode }) =>
-    React.createElement(React.Fragment, null, children),
-
-  Typography: ({ children }: { children: React.ReactNode }) =>
-    React.createElement('div', null, children),
+  }) => (
+    <label>
+      <input
+        type={'checkbox'}
+        aria-label={label}
+        checked={!!checked}
+        disabled={!!disabled}
+        onChange={event => onCheckedChange?.(event.currentTarget.checked)}
+      />
+      {label}
+    </label>
+  ),
+  ScrollAreaRadix: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 const useCurrentSubscriptionChainMock = vi.mocked(useCurrentSubscriptionChain)
@@ -113,43 +109,67 @@ const plans = [
   },
 ]
 
-const createCurrentSubscriptionChainResult = (partial?: any) => ({
-  subscriptions: [
-    {
-      userId: 1,
-      subscriptionId: 'sub-current',
-      dateOfPayment: '2026-03-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-04-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next',
-      dateOfPayment: '2026-04-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-05-01T00:00:00.000Z',
-      autoRenewal: false,
-    },
-    {
-      userId: 1,
-      subscriptionId: 'sub-next-2',
-      dateOfPayment: '2026-05-01T00:00:00.000Z',
-      endDateOfSubscription: '2026-06-01T00:00:00.000Z',
-      autoRenewal: true,
-    },
-  ],
-  hasAutoRenewal: true,
-  isLoading: false,
-  isFetching: false,
-  isError: false,
-  refetchCurrentSubscription: vi.fn(),
-  toggleAutoRenewal: vi.fn(),
-  isToggleLoading: false,
-  isToggleDisabled: false,
-  hasQueueInvariantViolation: false,
-  ...partial,
-})
+const createCurrentSubscriptionChainResult = (partial?: {
+  hasAutoRenewal?: boolean
+  isLoading?: boolean
+  isToggleLoading?: boolean
+  isToggleDisabled?: boolean
+  hasQueueInvariantViolation?: boolean
+  subscriptions?: ReturnType<typeof useCurrentSubscriptionChain>['subscriptions']
+  toggleAutoRenewal?: ReturnType<typeof useCurrentSubscriptionChain>['toggleAutoRenewal']
+}) =>
+  ({
+    subscriptions: [
+      {
+        userId: 1,
+        subscriptionId: 'sub-current',
+        dateOfPayment: '2026-03-01T00:00:00.000Z',
+        endDateOfSubscription: '2026-04-01T00:00:00.000Z',
+        autoRenewal: false,
+      },
+      {
+        userId: 1,
+        subscriptionId: 'sub-next',
+        dateOfPayment: '2026-04-01T00:00:00.000Z',
+        endDateOfSubscription: '2026-05-01T00:00:00.000Z',
+        autoRenewal: false,
+      },
+      {
+        userId: 1,
+        subscriptionId: 'sub-next-2',
+        dateOfPayment: '2026-05-01T00:00:00.000Z',
+        endDateOfSubscription: '2026-06-01T00:00:00.000Z',
+        autoRenewal: true,
+      },
+    ],
+    hasAutoRenewal: true,
+    isLoading: false,
+    isFetching: false,
+    isError: false,
+    refetchCurrentSubscription: vi.fn(),
+    toggleAutoRenewal: vi.fn(),
+    isToggleLoading: false,
+    isToggleDisabled: false,
+    hasQueueInvariantViolation: false,
+    ...partial,
+  }) as ReturnType<typeof useCurrentSubscriptionChain>
 
 describe('SubscriptionPricing', () => {
+  it('renders pricing skeleton during initial loading', () => {
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        subscriptions: [],
+        hasAutoRenewal: false,
+        isLoading: true,
+      })
+    )
+
+    render(<SubscriptionPricing plans={plans} />)
+
+    expect(screen.getByLabelText('Loading subscription pricing')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
+  })
+
   it('hides current subscription block for user without active subscriptions', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
@@ -159,54 +179,82 @@ describe('SubscriptionPricing', () => {
       })
     )
 
-    render(React.createElement(SubscriptionPricing, { plans }))
+    render(<SubscriptionPricing plans={plans} />)
 
     expect(screen.queryByText('Current Subscription:')).toBeNull()
     expect(screen.queryByLabelText('Auto-Renewal')).toBeNull()
   })
 
-  it('renders current and next subscriptions', () => {
+  it('renders current and next subscriptions with normalized next payment dates', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(createCurrentSubscriptionChainResult())
 
-    render(React.createElement(SubscriptionPricing, { plans }))
+    render(<SubscriptionPricing plans={plans} />)
 
     expect(screen.getByText('Expire at')).not.toBeNull()
     expect(screen.getByText('Next payment')).not.toBeNull()
+    expect(screen.getAllByText('01.04.2026').length).toBe(2)
+    expect(screen.getAllByText('01.05.2026').length).toBe(2)
+    expect(screen.getAllByText('01.06.2026').length).toBe(2)
+    expect(screen.queryByText('—')).toBeNull()
+    expect(screen.queryByRole('button', { name: /Show more/i })).toBeNull()
   })
 
-  it('calls toggle action', () => {
+  it('keeps next payment at or after current expiration for prepaid queue item', () => {
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        subscriptions: [
+          {
+            userId: 1,
+            subscriptionId: 'sub-current',
+            dateOfPayment: '2026-03-17T00:00:00.000Z',
+            endDateOfSubscription: '2026-04-17T00:00:00.000Z',
+            autoRenewal: false,
+          },
+          {
+            userId: 1,
+            subscriptionId: 'sub-next',
+            dateOfPayment: '2026-03-17T00:00:00.000Z',
+            endDateOfSubscription: '2026-05-17T00:00:00.000Z',
+            autoRenewal: false,
+          },
+        ],
+        hasAutoRenewal: false,
+      })
+    )
+
+    render(<SubscriptionPricing plans={plans} />)
+
+    expect(screen.getAllByText('17.04.2026').length).toBeGreaterThan(0)
+    expect(screen.queryByText('17.03.2026')).toBeNull()
+  })
+
+  it('calls toggle action from Auto-Renewal checkbox', () => {
     const toggleAutoRenewal = vi.fn()
 
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
+        hasAutoRenewal: true,
         toggleAutoRenewal,
       })
     )
 
-    render(React.createElement(SubscriptionPricing, { plans }))
+    render(<SubscriptionPricing plans={plans} />)
 
     fireEvent.click(screen.getByLabelText('Auto-Renewal'))
 
     expect(toggleAutoRenewal).toHaveBeenCalledTimes(1)
   })
 
-  it('disables auto-renewal while payment is locked', () => {
-    const toggleAutoRenewal = vi.fn()
-
+  it('shows spinner while auto-renewal toggle mutation is in progress', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({
-        toggleAutoRenewal,
+        isToggleLoading: true,
+        isToggleDisabled: true,
       })
     )
 
-    render(React.createElement(SubscriptionPricing, { plans, isPaymentLocked: true }))
+    render(<SubscriptionPricing plans={plans} />)
 
-    const autoRenewalCheckbox = screen.getByLabelText('Auto-Renewal') as HTMLInputElement
-
-    expect(autoRenewalCheckbox.disabled).toBe(true)
-
-    fireEvent.click(autoRenewalCheckbox)
-
-    expect(toggleAutoRenewal).not.toHaveBeenCalled()
+    expect(screen.getByLabelText('Updating auto-renewal')).not.toBeNull()
   })
 })

@@ -2,29 +2,46 @@
 
 import React from 'react'
 
-import { PostCommentsList } from '@/entities/posts/ui/PostCommentsList'
+import { usePostComments } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { Avatar } from '@/shared/composites'
-import { CommentsViewModel } from '@/shared/types/comments'
-import { Separator, Typography } from '@/shared/ui'
+import { InfiniteScrollTrigger, Avatar, Skeleton } from '@/shared/composites'
+import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
+import { CommentItem } from './CommentItem'
+
+const COMMENTS_SKELETON_ROWS = [
+  {
+    textClassName: s.commentSkeletonTextLong,
+    metaClassName: s.commentSkeletonMetaLong,
+  },
+  {
+    textClassName: s.commentSkeletonTextMedium,
+    metaClassName: s.commentSkeletonMetaMedium,
+  },
+  {
+    textClassName: s.commentSkeletonTextShort,
+    metaClassName: s.commentSkeletonMetaShort,
+  },
+]
+
+const CommentsSkeleton = () => (
+  <div className={s.commentsSkeleton} aria-label={'Loading comments'}>
+    {COMMENTS_SKELETON_ROWS.map(({ textClassName, metaClassName }, index) => (
+      <div className={s.comment} key={index}>
+        <Skeleton className={s.commentSkeletonAvatar} />
+        <div className={s.commentBody}>
+          <Skeleton className={`${s.commentSkeletonText} ${textClassName}`} />
+          <Skeleton className={`${s.commentSkeletonMeta} ${metaClassName}`} />
+        </div>
+        <Skeleton className={s.commentSkeletonLikeButton} />
+      </div>
+    ))}
+  </div>
+)
+
 interface CommentsSectionProps {
-  auth: {
-    isAuthenticated: boolean
-  }
-  comments: {
-    expandedAnswersCommentId: number | null
-    handleStartReply: (target: { commentId: number; userName: string }) => void
-    hasNextPage: boolean
-    isError: boolean
-    isFetchingNextPage: boolean
-    isLoading: boolean
-    items: CommentsViewModel[]
-    loadMore: () => void
-    totalCount: number
-  }
   postData: {
     avatar: string
     userName: string
@@ -32,15 +49,23 @@ interface CommentsSectionProps {
     createdAt: string
   }
   postId: number
+  isAuthenticated: boolean
+  currentUserName?: string
+  currentUserAvatar?: string
+  enabled: boolean
 }
 
 export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
-  auth,
-  comments,
   postData,
   postId,
+  isAuthenticated,
+  currentUserName,
+  currentUserAvatar,
+  enabled,
 }) => {
   const descriptionTimeAgo = useTimeAgo(postData.createdAt)
+  const { comments, loadMore, hasNextPage, isLoading, isFetchingNextPage, isError, totalCount } =
+    usePostComments({ postId, enabled })
 
   return (
     <>
@@ -58,20 +83,36 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        <PostCommentsList
-          comments={comments.items}
-          expandedAnswersCommentId={comments.expandedAnswersCommentId}
-          hasNextPage={comments.hasNextPage}
-          isAuthenticated={auth.isAuthenticated}
-          isError={comments.isError}
-          isFetchingNextPage={comments.isFetchingNextPage}
-          isLoading={comments.isLoading}
-          loadMore={comments.loadMore}
-          onAnswer={comments.handleStartReply}
-          postId={postId}
-          showLoadMoreButton
-          totalCount={comments.totalCount}
-        />
+        {isLoading && <CommentsSkeleton />}
+
+        {isError && (
+          <Typography variant={'small_text'} className={s.commentTimestamp}>
+            Failed to load comments
+          </Typography>
+        )}
+
+        {!isLoading &&
+          comments.map(comment => (
+            <CommentItem
+              key={comment.id}
+              postId={postId}
+              comment={comment}
+              isAuthenticated={isAuthenticated}
+              currentUserName={currentUserName}
+              currentUserAvatar={currentUserAvatar}
+            />
+          ))}
+
+        {hasNextPage && (
+          <>
+            <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMore} />
+            {!isFetchingNextPage && totalCount > comments.length && (
+              <Button variant={'text'} className={s.loadMoreButton} onClick={loadMore}>
+                Load more comments
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </>
   )

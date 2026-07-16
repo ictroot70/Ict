@@ -1,10 +1,15 @@
 'use client'
 
-import { type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
-import { type PublicProfileData, useGetPublicProfileQuery } from '@/entities/profile/api'
+import { postApi, type PaginatedPosts, useGetPostsByUserInfiniteQuery } from '@/entities/posts/api'
+import {
+  profileApi,
+  type PublicProfileData,
+  useGetPublicProfileQuery,
+} from '@/entities/profile/api'
 import { useInitializeProfile } from '@/entities/profile/hooks'
 import { useFollowUserState } from '@/entities/users/hooks/useFollowUserState'
 import { useMeQuery } from '@/features/auth'
+import { useAppSelector } from '@/lib/hooks'
 import { useAuthSessionHintContext } from '@/shared/auth'
 import { APP_ROUTES } from '@/shared/constant'
 import { useRouter } from 'next/navigation'
@@ -18,14 +23,29 @@ export const useProfile = (
   const router = useRouter()
   const profileQueryArgs = { profileId: userId }
   const postsQueryArgs = { userId }
+
   const { data: user, isLoading: isMeLoading, isUninitialized: isMeUninitialized } = useMeQuery()
+  const profileDataFromCache = useAppSelector(
+    profileApi.endpoints.getPublicProfile.select(profileQueryArgs)
+  )?.data
+  const postsDataFromCache = useAppSelector(
+    postApi.endpoints.getInfinitePostsByUser.select(postsQueryArgs)
+  )?.data
+  const hasProfileDataInCache = Boolean(profileDataFromCache)
+  const hasPostsDataInCache = Boolean(postsDataFromCache?.pages?.length)
   const { hasAuthHint, authUserIdHint } = useAuthSessionHintContext()
 
-  const { isInit } = useInitializeProfile(userId, profileDataServer, postsDataServer)
+  useInitializeProfile({
+    userId,
+    profileDataServer,
+    postsDataServer,
+    hasProfileDataInCache,
+    hasPostsDataInCache,
+  })
 
   const { data: profileData, isLoading: isProfileLoading } = useGetPublicProfileQuery(
     profileQueryArgs,
-    { refetchOnMountOrArgChange: true, skip: !isInit }
+    { skip: Boolean(profileDataServer) && !hasProfileDataInCache }
   )
 
   const {
@@ -35,12 +55,12 @@ export const useProfile = (
     fetchNextPage,
     hasNextPage,
   } = useGetPostsByUserInfiniteQuery(postsQueryArgs, {
-    skip: !isInit,
+    skip: Boolean(postsDataServer) && !hasPostsDataInCache,
   })
 
   const isLoading = isProfileLoading || isPostsLoading
 
-  const profile = profileData || profileDataServer
+  const profile = profileData || profileDataFromCache || profileDataServer
 
   const isAuthenticated = Boolean(user)
   const isAuthResolving = hasAuthHint && !isAuthenticated && (isMeLoading || isMeUninitialized)
@@ -73,7 +93,11 @@ export const useProfile = (
     publications: publicationsCount ?? profile.userMetadata.publications,
   }
 
-  const posts = postsData?.pages?.flatMap(page => page.items || []) || postsDataServer?.items || []
+  const posts =
+    postsData?.pages?.flatMap(page => page.items || []) ||
+    postsDataFromCache?.pages?.flatMap(page => page.items || []) ||
+    postsDataServer?.items ||
+    []
 
   const loadMorePostsHandler = () => {
     if (hasNextPage && !isFetchingPosts) {
