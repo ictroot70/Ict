@@ -1,15 +1,14 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { PublicPostResponse } from '@/entities/users/api/api.types'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
 import { Carousel } from '@/shared/composites'
 import { Avatar } from '@/shared/composites/Avatar'
 import { APP_ROUTES, IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { SafeImage } from '@/shared/ui'
 import { Typography } from '@ictroot/ui-kit'
+import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 import s from './PublicPost.module.scss'
 
@@ -24,7 +23,6 @@ const POST_MODAL_RETURN_KEY = 'post-modal-return-to'
 
 export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) => {
   const { id, ownerId, userName, images, avatarOwner, description, createdAt } = post
-  const router = useRouter()
 
   const timeAgo = useTimeAgo(createdAt)
   const postUrl = APP_ROUTES.PROFILE.WITH_POST(ownerId, id, 'home')
@@ -41,15 +39,12 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
     setIsExpanded(prev => !prev)
   }
 
-  useEffect(() => {
-    router.prefetch(postUrl)
-  }, [postUrl, router])
-
   return (
     <div className={s.post}>
       <Link
         href={postUrl}
         scroll={false}
+        prefetch={false}
         className={s.post__media}
         onClick={event => {
           const target = event.target as HTMLElement
@@ -80,14 +75,12 @@ export const PublicPost = ({ post, urlProfile, isPriorityPost = false }: Props) 
             priorityFirstImage={isPriorityPost}
           />
         ) : (
-          <SafeImage
+          <Image
             {...imageLoadingStrategy}
             src={images[0]?.url || DEFAULT_IMAGE}
-            fallbackSrc={DEFAULT_IMAGE}
             alt={'Image'}
             fill
             sizes={IMAGE_SIZES.PUBLIC_POST}
-            telemetryLabel={'PublicPost'}
             className={s.post__image}
           />
         )}

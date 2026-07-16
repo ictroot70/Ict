@@ -4,7 +4,7 @@ import { lazy, Suspense, type FC } from 'react'
 
 import { UserImage } from '@/entities/users/api/api.types'
 import { IMAGE_LOADING_STRATEGY, IMAGE_SIZES } from '@/shared/constant'
-import { SafeImage } from '@/shared/ui'
+import { ArrowBackSimple, ArrowForwardSimple, SafeImage } from '@/shared/ui'
 
 import s from './Carousel.module.scss'
 
@@ -33,6 +33,7 @@ const CarouselSingleSlide = ({
   Pick<CarouselProps, 'filtersState'>) => {
   const singleSlide = slides[0]
   const filter = filtersState?.[0] ?? ''
+  const hasMultipleSlides = slides.length > 1
   const imageLoadingStrategy = priorityFirstImage
     ? IMAGE_LOADING_STRATEGY.lcp
     : IMAGE_LOADING_STRATEGY.default
@@ -57,6 +58,46 @@ const CarouselSingleSlide = ({
           </div>
         </div>
       </div>
+
+      {hasMultipleSlides && (
+        <>
+          <div className={s.carousel__nav} aria-hidden={'true'}>
+            <button
+              className={s.carousel__button}
+              disabled
+              tabIndex={-1}
+              type={'button'}
+              aria-label={'Previous slide'}
+            >
+              <ArrowBackSimple />
+            </button>
+            <button
+              className={s.carousel__button}
+              disabled
+              tabIndex={-1}
+              type={'button'}
+              aria-label={'Next slide'}
+            >
+              <ArrowForwardSimple />
+            </button>
+          </div>
+
+          <div className={s.carousel__controls} aria-hidden={'true'}>
+            <div className={s.carousel__dots}>
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`${s.carousel__dot} ${index === 0 ? s['carousel__dot--active'] : ''}`}
+                  disabled
+                  tabIndex={-1}
+                  type={'button'}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

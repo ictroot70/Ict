@@ -135,6 +135,31 @@ describe('MAIN-UC1-PUBLIC-FEED-FOUR-POSTS', () => {
     expect(source).toContain('pollingInterval: 60000')
     expect(source).toContain('pageSize: 4')
   })
+
+  it('keeps public post links from prefetching modal routes on initial home render', () => {
+    const source = readSource('src/entities/users/ui/public/PublicPost/PublicPost.tsx')
+
+    expect(source).toContain('prefetch={false}')
+    expect(source).not.toContain('router.prefetch')
+  })
+
+  it('keeps public home single-image posts on plain Next Image for SSR-first rendering', () => {
+    const source = readSource('src/entities/users/ui/public/PublicPost/PublicPost.tsx')
+
+    expect(source).toContain("import Image from 'next/image'")
+    expect(source).toContain('<Image')
+    expect(source).not.toContain('<SafeImage')
+  })
+
+  it('keeps lazy carousel fallback structurally aligned with the interactive carousel', () => {
+    const source = readSource('src/shared/composites/Carousel/Carousel.tsx')
+
+    expect(source).toContain('const hasMultipleSlides = slides.length > 1')
+    expect(source).toContain('hasMultipleSlides &&')
+    expect(source).toContain('s.carousel__nav')
+    expect(source).toContain('s.carousel__controls')
+    expect(source).toContain('s.carousel__dot')
+  })
 })
 
 describe('SSR-UC1/UC2 PROFILE', () => {
