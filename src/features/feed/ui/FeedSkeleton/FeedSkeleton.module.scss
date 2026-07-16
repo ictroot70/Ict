@@ -1,0 +1,184 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.25rem;
+}
+
+.post {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(100%, 490px);
+  padding-bottom: 1.5rem;
+}
+
+.header,
+.actions {
+  display: flex;
+  align-items: center;
+}
+
+.header {
+  gap: 0.5rem;
+}
+
+.actions {
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.author {
+  width: 112px;
+  height: 17px;
+}
+
+.separator.separator {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+}
+
+.time {
+  width: 48px;
+  height: 12px;
+}
+
+.menu.menu {
+  width: 20px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 999px;
+}
+
+.media.media {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  border-radius: 4px;
+}
+
+.saveIcon {
+  margin-left: auto;
+}
+
+.descriptionRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.descriptionAvatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.descriptionText {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.descriptionLine {
+  width: min(100%, 360px);
+  height: 16px;
+}
+
+.descriptionLineShort {
+  width: min(72%, 260px);
+  height: 16px;
+}
+
+.descriptionTextLong {
+  // Uses the default two-line layout.
+}
+
+.descriptionTextMedium {
+  .descriptionLine {
+    width: min(78%, 300px);
+  }
+
+  .descriptionLineShort {
+    display: none;
+  }
+}
+
+.descriptionTextShort {
+  .descriptionLine {
+    width: min(48%, 180px);
+  }
+
+  .descriptionLineShort {
+    display: none;
+  }
+}
+
+.likesRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 24px;
+  margin-bottom: 1.5rem;
+}
+
+.likesText {
+  width: 72px;
+  height: 16px;
+}
+
+.commentsToggle {
+  width: 148px;
+  height: 16px;
+  margin-bottom: 0.5rem;
+}
+
+.commentForm {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3rem;
+  border-bottom: 1px solid var(--color-dark-100);
+}
+
+.commentInputWrapper {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.commentInput {
+  flex: 1;
+  height: 24px;
+}
+
+.publishButton {
+  width: 48px;
+  height: 24px;
+}

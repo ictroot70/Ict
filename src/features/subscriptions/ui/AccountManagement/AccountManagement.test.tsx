@@ -99,7 +99,9 @@ vi.mock(
 )
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => <div data-testid={'loading'} />,
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
 }))
 
 vi.mock('../PaymentModals', () => ({
@@ -139,12 +141,13 @@ describe('AccountManagement', () => {
     vi.useRealTimers()
   })
 
-  it('renders loading state', () => {
+  it('renders account skeleton during loading', () => {
     mocks.accountState.isLoading = true
 
     render(<AccountManagement />)
 
-    expect(screen.getByTestId('loading')).not.toBeNull()
+    expect(screen.getByLabelText('Loading account management')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
   })
 
   it('renders personal view by default and switches to business without subscription', () => {

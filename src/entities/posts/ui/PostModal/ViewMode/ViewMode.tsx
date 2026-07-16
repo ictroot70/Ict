@@ -32,6 +32,7 @@ interface ViewModeProps {
   isAuthLoading: boolean
   isCreateCommentLoading: boolean
   isAuthenticated: boolean
+  isPostEngagementLoading: boolean
   commentsEnabled?: boolean
   currentUserName?: string
   currentUserAvatar?: string
@@ -56,6 +57,7 @@ export const ViewMode = ({
   isAuthLoading,
   isCreateCommentLoading,
   isAuthenticated,
+  isPostEngagementLoading,
   commentsEnabled = true,
   currentUserName,
   currentUserAvatar,
@@ -104,6 +106,7 @@ export const ViewMode = ({
           isLiked={postData.isLiked}
           likesCount={postData.likesCount}
           avatarWhoLikes={postData.avatarWhoLikes}
+          isPostEngagementLoading={isPostEngagementLoading}
           renderPostLikeAction={renderPostLikeAction}
           formattedCreatedAt={formattedCreatedAt}
           commentControl={commentControl}

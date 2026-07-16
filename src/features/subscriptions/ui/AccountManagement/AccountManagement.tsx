@@ -13,7 +13,6 @@ import {
 import { BusinessActiveSubscriptionView } from '@/features/subscriptions/ui/BusinessActiveSubscriptionView/BusinessActiveSubscriptionView'
 import { BusinessNoSubscriptionView } from '@/features/subscriptions/ui/BusinessNoSubscriptionView/BusinessNoSubscriptionView'
 import { PersonalView } from '@/features/subscriptions/ui/PersonalView/PersonalView'
-import { Loading } from '@/shared/composites'
 import { PaymentType } from '@/shared/types'
 
 import styles from './AccountManagement.module.scss'
@@ -24,6 +23,7 @@ import {
   PaymentProcessingModal,
   PaymentSuccessModal,
 } from '../PaymentModals'
+import { AccountManagementSkeleton } from './AccountManagementSkeleton'
 
 const PROCESSING_MODAL_SHOW_DELAY_MS = 250
 const PROCESSING_MODAL_MIN_VISIBLE_MS = 600
@@ -182,7 +182,7 @@ export const AccountManagement = () => {
   }, [])
 
   if (isLoading && flowStatus !== 'polling') {
-    return <Loading />
+    return <AccountManagementSkeleton />
   }
 
   return (

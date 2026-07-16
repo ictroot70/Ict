@@ -2,13 +2,14 @@
 
 import { FOLLOWERS_FEED_QUERY_ARGS, useGetFollowersFeedInfiniteQuery } from '@/entities/posts/api'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { InfiniteScrollTrigger, Loading, LinearProgress } from '@/shared/composites'
+import { InfiniteScrollTrigger, LinearProgress } from '@/shared/composites'
 
 import s from './Feed.module.scss'
 
 import { useFeedActions } from '../model'
 import { FeedEmptyState } from './FeedEmptyState'
 import { FeedPost } from './FeedPost'
+import { FeedSkeleton } from './FeedSkeleton'
 
 export function Feed() {
   const { copyPostLink, isFollowing, isFollowPending, toggleFollow } = useFeedActions()
@@ -23,7 +24,7 @@ export function Feed() {
   }
 
   if (isLoading) {
-    return <Loading />
+    return <FeedSkeleton />
   }
 
   if (isError) {

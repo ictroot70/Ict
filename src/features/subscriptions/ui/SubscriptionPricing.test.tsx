@@ -13,7 +13,9 @@ vi.mock('@/features/subscriptions/hooks', () => ({
 }))
 
 vi.mock('@/shared/composites', () => ({
-  Loading: () => <div data-testid={'loading'} />,
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
 }))
 
 vi.mock('@ictroot/ui-kit', () => ({
@@ -109,6 +111,7 @@ const plans = [
 
 const createCurrentSubscriptionChainResult = (partial?: {
   hasAutoRenewal?: boolean
+  isLoading?: boolean
   isToggleLoading?: boolean
   isToggleDisabled?: boolean
   hasQueueInvariantViolation?: boolean
@@ -152,6 +155,21 @@ const createCurrentSubscriptionChainResult = (partial?: {
   }) as ReturnType<typeof useCurrentSubscriptionChain>
 
 describe('SubscriptionPricing', () => {
+  it('renders pricing skeleton during initial loading', () => {
+    useCurrentSubscriptionChainMock.mockReturnValue(
+      createCurrentSubscriptionChainResult({
+        subscriptions: [],
+        hasAutoRenewal: false,
+        isLoading: true,
+      })
+    )
+
+    render(<SubscriptionPricing plans={plans} />)
+
+    expect(screen.getByLabelText('Loading subscription pricing')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
+  })
+
   it('hides current subscription block for user without active subscriptions', () => {
     useCurrentSubscriptionChainMock.mockReturnValue(
       createCurrentSubscriptionChainResult({

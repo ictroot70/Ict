@@ -14,3 +14,65 @@
   place-items: center;
   min-height: 12rem;
 }
+
+.skeletonTable {
+  display: grid;
+  align-content: start;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-dark-300);
+}
+
+.skeletonHeader,
+.skeletonRow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 1rem;
+  min-width: 760px;
+  padding: 0.75rem 1rem;
+}
+
+.skeletonHeader {
+  border-bottom: 1px solid var(--color-dark-300);
+  background-color: var(--color-dark-500);
+}
+
+.skeletonRow {
+  border-bottom: 1px solid var(--color-dark-500);
+}
+
+.skeletonHeaderCell {
+  height: 18px;
+}
+
+.skeletonCell {
+  height: 16px;
+}
+
+.skeletonPagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.skeletonPageSize {
+  width: 170px;
+  height: 32px;
+}
+
+.skeletonPages {
+  width: 220px;
+  height: 32px;
+}
+
+@media (max-width: 768px) {
+  .skeletonTable {
+    overflow-x: auto;
+  }
+
+  .skeletonPagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

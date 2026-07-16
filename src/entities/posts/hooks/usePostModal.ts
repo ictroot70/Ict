@@ -75,7 +75,11 @@ export const usePostModal = (
     refetchOnMountOrArgChange: true,
   })
 
-  const { data: postLikesData } = useGetPostLikesQuery(
+  const {
+    data: postLikesData,
+    isFetching: isPostLikesFetching,
+    isLoading: isPostLikesLoading,
+  } = useGetPostLikesQuery(
     { postId: resolvedPostId as number, ...POST_LIKES_QUERY_ARG },
     {
       skip: !open || !resolvedPostId || isAuthUiLoading || !isAuthenticatedUi,
@@ -114,6 +118,12 @@ export const usePostModal = (
   const hasPostData = Boolean(postData)
 
   const isPostLoading = Boolean(open && resolvedPostId && !hasPostData && isPostFetching)
+  const isPostEngagementLoading = Boolean(
+    open &&
+      resolvedPostId &&
+      hasPostData &&
+      (isAuthUiLoading || (isAuthenticatedUi && !postLikesData))
+  )
   const uiText = postModalTextByLanguage[uiLanguage]
   const isAuthenticated = isAuthenticatedUi
   const isAuthLoading = isAuthUiLoading
@@ -236,6 +246,7 @@ export const usePostModal = (
     isOwnProfile,
     hasPostData,
     isPostLoading,
+    isPostEngagementLoading,
     isPostError,
     uiText,
     formattedCreatedAt,

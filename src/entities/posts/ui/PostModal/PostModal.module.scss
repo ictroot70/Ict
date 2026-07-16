@@ -58,3 +58,183 @@
   background-color: var(--color-dark-300);
   text-align: center;
 }
+
+.skeletonModal {
+  position: relative;
+  z-index: 1001;
+  display: grid;
+  grid-template-columns: 490px 480px;
+  width: 972px;
+  height: 574px;
+  overflow: hidden;
+  border: 1px solid var(--color-dark-100);
+  background: var(--color-dark-300);
+}
+
+.skeletonPhoto {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.skeletonSideBar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+}
+
+.skeletonAvatar,
+.skeletonCommentAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.skeletonUserName {
+  width: 126px;
+  height: 16px;
+}
+
+.skeletonAction.skeletonAction {
+  width: 20px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 999px;
+}
+
+.skeletonComments {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  padding: 20px 24px;
+}
+
+.skeletonComment {
+  display: flex;
+  gap: 12px;
+}
+
+.skeletonCommentBody {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+}
+
+.skeletonCommentLine {
+  width: 100%;
+  height: 16px;
+}
+
+.skeletonCommentMeta {
+  width: 92px;
+  height: 12px;
+}
+
+.skeletonFooter {
+  display: grid;
+  padding: 12px 24px 0;
+  border-top: 1px solid var(--color-dark-100);
+}
+
+.skeletonFooterActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 19px;
+}
+
+.skeletonIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+.skeletonSaveIcon {
+  margin-left: auto;
+}
+
+.skeletonLikesRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
+.skeletonLikesAvatars {
+  display: flex;
+  isolation: isolate;
+}
+
+.skeletonLikeAvatar {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-dark-300);
+  border-radius: 50%;
+}
+
+.skeletonLikeAvatarOverlap {
+  margin-left: -8px;
+}
+
+.skeletonLikesCount {
+  width: 72px;
+  height: 16px;
+}
+
+.skeletonTimestamp {
+  width: 96px;
+  height: 12px;
+  margin-bottom: 7px;
+}
+
+.skeletonSeparator {
+  width: calc(100% + 48px);
+  height: 1px;
+  margin-right: -24px;
+  margin-left: -24px;
+  background: var(--color-dark-100);
+}
+
+.skeletonInputForm {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 59px;
+}
+
+.skeletonInput {
+  flex: 1;
+  height: 36px;
+  border-radius: 4px;
+}
+
+.skeletonPublish {
+  width: 100px;
+  height: 36px;
+  border-radius: 4px;
+}
+
+@media (max-width: 1024px) {
+  .skeletonModal {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(100vw - 32px, 490px);
+    height: min(100vh - 32px, 760px);
+  }
+
+  .skeletonPhoto {
+    aspect-ratio: 1 / 1;
+    height: auto;
+  }
+}

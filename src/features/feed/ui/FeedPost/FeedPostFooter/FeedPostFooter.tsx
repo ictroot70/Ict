@@ -52,6 +52,7 @@ export function FeedPostFooter({ currentUser, post }: Props) {
       <FeedPostLikesSummary
         avatarUrls={footer.likes.visibleAvatarUrls}
         likesCount={post.likesCount}
+        isLoading={footer.likes.isLoading}
       />
 
       <Button

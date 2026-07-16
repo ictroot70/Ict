@@ -42,7 +42,8 @@ vi.mock('@/shared/composites', () => ({
       : null,
   LinearProgress: ({ active }: { active: boolean }) =>
     React.createElement('div', { 'data-active': active, 'data-testid': 'linear-progress' }),
-  Loading: () => React.createElement('div', { 'data-testid': 'loading' }),
+  Skeleton: ({ className }: { className?: string }) =>
+    React.createElement('div', { className, 'data-testid': 'skeleton' }),
 }))
 
 vi.mock('./FeedEmptyState', () => ({
@@ -158,11 +159,12 @@ beforeEach(() => {
 })
 
 describe('Feed', () => {
-  it('renders loading, error and empty states', () => {
+  it('renders skeleton, error and empty states', () => {
     useFollowersFeedMock.mockReturnValue(createQueryResult({ isLoading: true }))
     const { rerender } = render(<Feed />)
 
-    expect(screen.getByTestId('loading')).toBeInTheDocument()
+    expect(screen.getByLabelText('Loading feed')).toBeInTheDocument()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
 
     useFollowersFeedMock.mockReturnValue(createQueryResult({ isError: true }))
     rerender(<Feed />)

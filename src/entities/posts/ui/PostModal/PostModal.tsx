@@ -10,6 +10,7 @@ import { Close, Modal, Typography } from '@/shared/ui'
 import s from './PostModal.module.scss'
 
 import { EditMode } from './EditMode/EditMode'
+import { PostModalSkeleton } from './PostModalSkeleton'
 import { ViewMode } from './ViewMode/ViewMode'
 import { PostModalAuthState, RenderPostLikeAction } from './postModalLikeAction.types'
 
@@ -52,6 +53,7 @@ export const PostModal = ({
     isAuthenticated,
     hasPostData,
     isPostLoading,
+    isPostEngagementLoading,
     isPostError,
     uiText,
     formattedCreatedAt,
@@ -141,11 +143,7 @@ export const PostModal = ({
 
   function renderContent() {
     if (isPostLoading) {
-      return (
-        <div className={s.stateContainer}>
-          <Typography variant={'h1'}>{uiText.loadingPost}</Typography>
-        </div>
-      )
+      return <PostModalSkeleton />
     }
 
     if (!hasPostData || !postData) {
@@ -185,6 +183,7 @@ export const PostModal = ({
         isCreateCommentLoading={isCreateCommentLoading}
         commentMaxLength={commentMaxLength}
         isAuthenticated={isAuthenticated}
+        isPostEngagementLoading={isPostEngagementLoading}
         commentsEnabled={open && hasPostData}
         commentControl={commentControl}
         handleCommentSubmit={handleCommentSubmit}

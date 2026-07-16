@@ -14,6 +14,12 @@ vi.mock('@/features/subscriptions/hooks', () => ({
   usePaymentsTable: vi.fn(),
 }))
 
+vi.mock('@/shared/composites', () => ({
+  Skeleton: ({ className }: { className?: string }) => (
+    <div className={className} data-testid={'skeleton'} />
+  ),
+}))
+
 vi.mock('@/shared/ui', () => ({
   Typography: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Pagination: () => <div data-testid={'pagination'} />,
@@ -58,14 +64,15 @@ const createData = (itemsCount: number): PaymentsWithPaginationViewModel => ({
 })
 
 describe('Payments', () => {
-  it('renders loading state', () => {
+  it('renders table skeleton during loading', () => {
     usePaymentsTableMock.mockReturnValue(
       createHookResult(asQueryResult({ isLoading: true, isError: false }))
     )
 
-    const { container } = render(<Payments />)
+    render(<Payments />)
 
-    expect(container.querySelector('span')).not.toBeNull()
+    expect(screen.getByLabelText('Loading payments')).not.toBeNull()
+    expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0)
   })
 
   it('renders error state', () => {

@@ -17,6 +17,53 @@
   font-size: 14px;
 }
 
+.skeletonAccountType,
+.skeletonSection {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.skeletonSection {
+  margin-top: 24px;
+}
+
+.skeletonTitle {
+  width: 190px;
+  height: 18px;
+}
+
+.skeletonTabs {
+  display: flex;
+  gap: 12px;
+}
+
+.skeletonTab {
+  width: 120px;
+  height: 36px;
+  border-radius: 2px;
+}
+
+.skeletonCard {
+  display: grid;
+  gap: 14px;
+  width: 100%;
+  min-height: 128px;
+  padding: 16px;
+  border: 1px solid var(--color-dark-300);
+  background-color: var(--color-dark-500);
+}
+
+.skeletonRow {
+  width: min(100%, 420px);
+  height: 18px;
+}
+
+.skeletonRowShort {
+  width: min(70%, 280px);
+  height: 18px;
+}
+
 @media (max-width: 768px) {
   .accountManagementPage {
     padding: 16px 0;

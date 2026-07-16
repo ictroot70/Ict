@@ -3,7 +3,6 @@
 import React, { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { useCurrentSubscriptionChain } from '@/features/subscriptions/hooks'
-import { Loading } from '@/shared/composites'
 import { formatDate } from '@/shared/lib/formatters'
 import { Button, Card, Typography } from '@/shared/ui'
 import { RadioGroupRadix } from '@ictroot/ui-kit'
@@ -12,6 +11,7 @@ import styles from './SubscriptionPricing.module.scss'
 
 import { SubscriptionPlan, SubscriptionPlanValue } from '../model/types'
 import { SubscriptionCurrentSection } from './SubscriptionCurrentSection'
+import { SubscriptionPricingSkeleton } from './SubscriptionPricingSkeleton'
 
 interface SubscriptionPricingProps {
   plans: SubscriptionPlan[]
@@ -171,7 +171,7 @@ export function SubscriptionPricing({
   }
 
   if (isInitialLoading) {
-    return <Loading />
+    return <SubscriptionPricingSkeleton />
   }
 
   return (
