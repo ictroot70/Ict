@@ -91,10 +91,21 @@ async function stubAuthRestore(
 
 test.describe('Full check smoke @smoke', () => {
   test('auth login redirects user to profile when profile is missing', async ({ page }) => {
+    let isLoggedIn = false
     let profileCallCount = 0
 
-    await page.route(apiPath('/v1/auth/login'), route => json(route, { accessToken: ACCESS_TOKEN }))
-    await page.route(apiPath('/v1/auth/me'), route => json(route, defaultMe))
+    await page.route(apiPath('/v1/auth/login'), route => {
+      isLoggedIn = true
+
+      return json(route, { accessToken: ACCESS_TOKEN })
+    })
+    await page.route(apiPath('/v1/auth/me'), route => {
+      if (!isLoggedIn) {
+        return json(route, {}, 401)
+      }
+
+      return json(route, defaultMe)
+    })
     await page.route(apiPath('/v1/users/profile'), route => {
       profileCallCount += 1
 
@@ -109,6 +120,7 @@ test.describe('Full check smoke @smoke', () => {
     await page.goto('/auth/login')
     await page.locator('#email').fill('qa@ictroot.uk')
     await page.locator('#password').fill('QaPassword123!')
+    await page.locator('#password').blur()
 
     const signInButton = page.getByRole('button', { name: 'Sign In' })
 
