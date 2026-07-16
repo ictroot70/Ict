@@ -304,10 +304,7 @@ export const postApi = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: (result, error, { postId }) => [
-        { type: 'Comments', id: postId },
-        { type: 'Post', id: postId },
-      ],
+      invalidatesTags: (result, error, { postId }) => [{ type: 'Comments', id: postId }],
     }),
 
     uploadImage: builder.mutation<{ images: PostImageViewModel[] }, FormData>({

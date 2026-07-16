@@ -4,12 +4,42 @@ import React from 'react'
 
 import { usePostComments } from '@/entities/posts/hooks'
 import { useTimeAgo } from '@/entities/users/hooks/useTimeAgo'
-import { InfiniteScrollTrigger, Avatar } from '@/shared/composites'
+import { InfiniteScrollTrigger, Avatar, Skeleton } from '@/shared/composites'
 import { Button, Separator, Typography } from '@/shared/ui'
 
 import s from '../ViewMode.module.scss'
 
 import { CommentItem } from './CommentItem'
+
+const COMMENTS_SKELETON_ROWS = [
+  {
+    textClassName: s.commentSkeletonTextLong,
+    metaClassName: s.commentSkeletonMetaLong,
+  },
+  {
+    textClassName: s.commentSkeletonTextMedium,
+    metaClassName: s.commentSkeletonMetaMedium,
+  },
+  {
+    textClassName: s.commentSkeletonTextShort,
+    metaClassName: s.commentSkeletonMetaShort,
+  },
+]
+
+const CommentsSkeleton = () => (
+  <div className={s.commentsSkeleton} aria-label={'Loading comments'}>
+    {COMMENTS_SKELETON_ROWS.map(({ textClassName, metaClassName }, index) => (
+      <div className={s.comment} key={index}>
+        <Skeleton className={s.commentSkeletonAvatar} />
+        <div className={s.commentBody}>
+          <Skeleton className={`${s.commentSkeletonText} ${textClassName}`} />
+          <Skeleton className={`${s.commentSkeletonMeta} ${metaClassName}`} />
+        </div>
+        <Skeleton className={s.commentSkeletonLikeButton} />
+      </div>
+    ))}
+  </div>
+)
 
 interface CommentsSectionProps {
   postData: {
@@ -53,11 +83,7 @@ export const ViewModeCommentsSection: React.FC<CommentsSectionProps> = ({
           </div>
         </div>
 
-        {isLoading && (
-          <Typography variant={'small_text'} className={s.commentTimestamp}>
-            Loading comments...
-          </Typography>
-        )}
+        {isLoading && <CommentsSkeleton />}
 
         {isError && (
           <Typography variant={'small_text'} className={s.commentTimestamp}>
