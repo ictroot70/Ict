@@ -60,20 +60,15 @@ export const ViewModePostFooter = ({
   const shouldShowAuthActions = variant !== 'public'
   const shouldShowAuthSkeleton = isAuthLoading
   const visibleAvatars = avatarWhoLikes?.filter(Boolean).slice(0, 3) || []
-  const skeletonAvatarCount = Math.min(Math.max(likesCount, 0), 3)
+  const skeletonAvatarCount = likesCount > 0 ? Math.min(likesCount, 3) : 3
+  const shouldShowFooterSkeleton = shouldShowAuthSkeleton || isPostEngagementLoading
   let likeAction: ReactNode = (
     <Button variant={'text'} className={s.postButton} aria-label={'Like post'}>
       <HeartOutline color={'white'} />
     </Button>
   )
 
-  if (isPostEngagementLoading) {
-    likeAction = (
-      <Button variant={'text'} className={s.postButton} disabled tabIndex={-1} aria-hidden>
-        <Skeleton className={s.postButtonSkeleton} />
-      </Button>
-    )
-  } else if (renderPostLikeAction) {
+  if (renderPostLikeAction) {
     likeAction = renderPostLikeAction({
       postId,
       ownerId,
@@ -86,7 +81,7 @@ export const ViewModePostFooter = ({
     <div className={s.footer}>
       {(shouldShowAuthActions || shouldShowAuthSkeleton) && (
         <div className={s.likeSendSave}>
-          {shouldShowAuthSkeleton ? (
+          {shouldShowFooterSkeleton ? (
             <>
               <Button variant={'text'} className={s.postButton} disabled tabIndex={-1} aria-hidden>
                 <Skeleton className={s.postButtonSkeleton} />
@@ -114,18 +109,16 @@ export const ViewModePostFooter = ({
 
       {isPostEngagementLoading ? (
         <div className={s.likesRow} aria-hidden={'true'}>
-          {skeletonAvatarCount > 0 && (
-            <div className={s.likesAvatars}>
-              {Array.from({ length: skeletonAvatarCount }, (_, index) => (
-                <Skeleton
-                  className={[s.likeAvatarSkeleton, index > 0 ? s.likeAvatarOverlap : '']
-                    .filter(Boolean)
-                    .join(' ')}
-                  key={index}
-                />
-              ))}
-            </div>
-          )}
+          <div className={s.likesAvatars}>
+            {Array.from({ length: skeletonAvatarCount }, (_, index) => (
+              <Skeleton
+                className={[s.likeAvatarSkeleton, index > 0 ? s.likeAvatarOverlap : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                key={index}
+              />
+            ))}
+          </div>
           <Skeleton className={s.likesCountSkeleton} />
         </div>
       ) : (
