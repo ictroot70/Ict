@@ -25,16 +25,26 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
     <div className={styles.container}>
       {/* Messages Area */}
       <div className={styles.messagesArea}>
-        {[...(messages || [])].reverse().map(msg => (
-          <MessageBubble
-            key={msg.id}
-            text={msg.text}
-            direction={msg.senderId === 'me' ? 'outgoing' : 'incoming'}
-            timestamp={msg.timestamp}
-            type={msg.type}
-            url={msg.url}
-          />
-        ))}
+        {[...(messages || [])].reverse().map((msg, index, array) => {
+          const isIncoming = msg.senderId !== 'me'
+          const prevMsg = array[index - 1]
+          const isPrevIncoming = prevMsg && prevMsg.senderId !== 'me'
+          const showAvatar = isIncoming && !isPrevIncoming
+
+          return (
+            <MessageBubble
+              key={msg.id}
+              text={msg.text}
+              direction={isIncoming ? 'incoming' : 'outgoing'}
+              timestamp={msg.timestamp}
+              type={msg.type}
+              url={msg.url}
+              avatarUrl={chat?.avatarUrl}
+              showAvatar={showAvatar}
+              isRead={index % 3 === 0}
+            />
+          )
+        })}
       </div>
 
       {/* Message Composer */}

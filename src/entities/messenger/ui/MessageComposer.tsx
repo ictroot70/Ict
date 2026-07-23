@@ -1,91 +1,148 @@
+'use client'
+
 import React, { useState } from 'react'
 
-import { ImageOutline } from '@/shared/ui'
-import { Button, Input } from '@ictroot/ui-kit'
-import { MicOutline } from '@ictroot/ui-kit/icons'
+import { ImageOutline, PlusCircle } from '@/shared/ui'
+import { Button, Input, Typography } from '@ictroot/ui-kit'
+import { MicOutline, PlayCircle, PauseCircle, PlusCircleOutline } from '@ictroot/ui-kit/icons'
 
 import styles from './MessageComposer.module.scss'
 
 interface MessageComposerProps {
   onSendMessage?: (text: string) => void
   onSendImage?: (file: File) => void
-  onSendVoice?: (blob: Blob) => void
 }
 
-export const MessageComposer: React.FC<MessageComposerProps> = ({
-  onSendMessage,
-  onSendImage,
-  onSendVoice,
-}) => {
+export const MessageComposer: React.FC<MessageComposerProps> = ({ onSendMessage }) => {
   const [text, setText] = useState('')
-  const [hasImage, setHasImage] = useState(false)
+  const [images, setImages] = useState<number[]>([])
   const [hasVoice, setHasVoice] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [voiceDuration, setVoiceDuration] = useState('00:00')
+  const [waveformHeights, setWaveformHeights] = useState<number[]>([])
 
   return (
     <div className={styles.composer}>
       {/* Preview Area */}
-      {(hasImage || hasVoice) && (
+      {(images.length > 0 || hasVoice) && (
         <div className={styles.previewArea}>
-          {hasImage && (
-            <div className={styles.previewItem}>
-              Image Preview
-              <Button onClick={() => setHasImage(false)} className={styles.removeBtn}>
+          {images.map((_, index) => (
+            <div key={index} className={styles.previewItem}>
+              <ImageOutline />
+              <Button
+                onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}
+                className={styles.removeBtn}
+              >
                 ✕
               </Button>
             </div>
-          )}
-          {hasVoice && (
-            <div className={styles.previewItem}>
-              Voice Preview
-              <Button onClick={() => setHasVoice(false)} className={styles.removeBtn}>
-                ✕
-              </Button>
-            </div>
-          )}
+          ))}
+          <Button
+            onClick={() => setImages(prev => [...prev, prev.length])}
+            className={styles.addPreviewBtn}
+            title={'Add image'}
+            variant={'text'}
+          >
+            <PlusCircleOutline />
+          </Button>
         </div>
       )}
 
       <div className={styles.inputArea}>
-        <Input
-          inputType={'text'}
-          value={text}
-          onChange={e => setText(e.target.value)}
-          placeholder={'Type message...'}
-          className={styles.input}
-        />
-
-        {!text && (
+        {isRecording ? (
+          <div className={styles.recordingArea}>
+            <div className={styles.recordingControls}>
+              <Button
+                onClick={() => setIsRecording(false)}
+                className={styles.voiceActionBtn}
+                title={'Cancel recording'}
+                variant={'text'}
+              >
+                <PlusCircle className={styles.plusCircle} />
+              </Button>
+              <Button
+                className={styles.voiceActionBtn}
+                title={isPaused ? 'Resume recording' : 'Pause recording'}
+                variant={'text'}
+                onClick={() => setIsPaused(!isPaused)}
+              >
+                {isPaused ? <PlayCircle /> : <PauseCircle />}
+              </Button>
+            </div>
+            <div className={styles.waveformContainer}>
+              <div className={styles.waveform}>
+                {waveformHeights.map((height, i) => (
+                  <div
+                    key={i}
+                    className={styles.waveformBar}
+                    style={{
+                      height: `${height}%`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className={styles.redDot}></div>
+              <span className={styles.timer}>{voiceDuration}</span>
+            </div>
+            <div className={styles.recordingActions}>
+              <Button
+                onClick={() => {
+                  setIsRecording(false)
+                }}
+                className={styles.sendVoiceBtn}
+                title={'Send voice'}
+                variant={'text'}
+              >
+                Send voice
+              </Button>
+            </div>
+          </div>
+        ) : (
           <>
-            <Button
-              onClick={() => setHasVoice(true)}
-              className={styles.actionBtn}
-              title={'Record voice'}
-            >
-              <MicOutline />
-            </Button>
-            <Button
-              onClick={() => setHasImage(true)}
-              className={styles.actionBtn}
-              title={'Attach image'}
-            >
-              <ImageOutline />
-            </Button>
-          </>
-        )}
+            <Input
+              inputType={'text'}
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder={'Type Message'}
+              className={styles.input}
+            />
 
-        {(text || hasImage || hasVoice) && (
-          <Button
-            onClick={() => onSendMessage?.(text)}
-            variant={'text'}
-            disabled={!text && !hasImage && !hasVoice}
-            className={
-              text || hasImage || hasVoice
-                ? styles.sendBtn + ' ' + styles.active
-                : styles.sendBtn + ' ' + styles.disabled
-            }
-          >
-            {hasVoice ? 'Send Voice' : 'Send Message'}
-          </Button>
+            <div className={styles.controls}>
+              {!text && images.length == 0 && !hasVoice && (
+                <>
+                  <Button
+                    onClick={() => {
+                      setIsRecording(true)
+                      setWaveformHeights([...Array(100)].map(() => Math.random() * 100))
+                    }}
+                    className={styles.actionBtn}
+                    title={'Record voice'}
+                  >
+                    <MicOutline />
+                  </Button>
+                  <Button
+                    onClick={() => setImages(prev => [...prev, prev.length])}
+                    className={styles.actionBtn}
+                    title={'Attach image'}
+                  >
+                    <ImageOutline />
+                  </Button>
+                </>
+              )}
+
+              {(text || images.length > 0 || hasVoice) && (
+                <Button
+                  onClick={() => onSendMessage?.(text)}
+                  variant={'text'}
+                  disabled={!text && images.length === 0 && !hasVoice}
+                  className={styles.sendBtn}
+                >
+                  <Typography variant={'h3'}>Send Message</Typography>
+                </Button>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>

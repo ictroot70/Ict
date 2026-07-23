@@ -3,6 +3,8 @@
 import React from 'react'
 
 import { Chat } from '@/shared/api/messenger-mocks'
+import { Avatar } from '@/shared/composites'
+import { Typography } from '@ictroot/ui-kit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -33,13 +35,19 @@ export const ChatList: React.FC<ChatListProps> = ({ chats, searchQuery }) => {
                 href={`/messenger/${chat.userId}`}
                 className={styles.chatItem + (isSelected ? ' ' + styles.selected : '')}
               >
-                <img src={chat.avatarUrl} alt={chat.username} className={styles.avatar} />
+                <Avatar image={chat.avatarUrl} alt={chat.username} size={48} />
                 <div className={styles.info}>
                   <div className={styles.headerRow}>
-                    <span className={styles.name}>{chat.username}</span>
-                    <span className={styles.time}>{chat.lastMessageTimestamp}</span>
+                    <Typography variant={'regular_14'} className={styles.name}>
+                      {chat.username}
+                    </Typography>
+                    <Typography variant={'small_text'} className={styles.time}>
+                      {chat.lastMessageTimestamp}
+                    </Typography>
                   </div>
-                  <div className={styles.lastMsg}>{chat.lastMessage}</div>
+                  <Typography variant={'small_text'} className={styles.lastMsg}>
+                    {chat.lastMessage}
+                  </Typography>
                 </div>
               </Link>
             )

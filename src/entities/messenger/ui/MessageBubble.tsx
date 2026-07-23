@@ -1,4 +1,10 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useMemo } from 'react'
+
+import { Avatar } from '@/shared/composites'
+import { Button, Typography } from '@ictroot/ui-kit'
+import { Checkmark, DoneAll, PlayCircle, PauseCircle } from '@ictroot/ui-kit/icons'
 
 import styles from './MessageBubble.module.scss'
 
@@ -8,6 +14,9 @@ interface MessageBubbleProps {
   timestamp: string
   type?: 'text' | 'image' | 'voice'
   url?: string
+  avatarUrl?: string
+  showAvatar?: boolean
+  isRead?: boolean
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -16,34 +25,77 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   timestamp,
   type = 'text',
   url,
+  avatarUrl,
+  showAvatar,
+  isRead,
 }) => {
   const isIncoming = direction === 'incoming'
+  const isImageOnly = type === 'image' && !text
+  const isImageWithText = type === 'image' && text
+  const [isPlaying, setIsPlaying] = useState(false)
+  const waveformHeights = useMemo(() => [...Array(40)].map(() => Math.random() * 100), [])
 
   return (
     <div
       className={styles.bubbleContainer + ' ' + (isIncoming ? styles.incoming : styles.outgoing)}
     >
+      {isIncoming &&
+        (avatarUrl && showAvatar ? (
+          <Avatar image={avatarUrl} alt={'Avatar'} size={36} className={styles.avatar} />
+        ) : (
+          <div className={styles.avatarSpacer} />
+        ))}
       <div
         className={
-          styles.bubble + ' ' + (isIncoming ? styles.incomingBubble : styles.outgoingBubble)
+          styles.bubble +
+          ' ' +
+          (isIncoming ? styles.incomingBubble : styles.outgoingBubble) +
+          (isImageOnly ? ' ' + styles.imageOnly : '') +
+          (isImageWithText ? ' ' + styles.imageWithText : '')
         }
       >
-        {type === 'text' && <div className={'whitespace-pre-wrap'}>{text}</div>}
+        {type === 'text' && <Typography variant={'regular_14'}>{text}</Typography>}
         {type === 'image' && (
           <div className={styles.image}>
             <img src={url} alt={'Sent image'} className={styles.imageImg} />
-            <div className={'text-xs opacity-70'}>{text}</div>
+            {text && (
+              <Typography variant={'regular_14'} className={styles.imageCaption}>
+                {text}
+              </Typography>
+            )}
           </div>
         )}
         {type === 'voice' && (
           <div className={styles.voiceContent}>
-            <div className={styles.voiceIcon}>
-              <span className={'text-xs'}>▶</span>
+            <Button
+              variant={'text'}
+              className={styles.voiceButton}
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? (
+                <PauseCircle className={styles.voiceIcon} size={40} />
+              ) : (
+                <PlayCircle className={styles.voiceIcon} size={40} />
+              )}
+            </Button>
+            <div className={styles.voiceWaveform}>
+              {waveformHeights.map((height, i) => (
+                <div key={i} className={styles.waveformBar} style={{ height: `${height}%` }} />
+              ))}
             </div>
-            <div className={'text-sm'}>{text}</div>
+            <div className={styles.voiceMeta}>
+              <span className={styles.duration}>02:31</span>
+            </div>
           </div>
         )}
-        <span className={styles.timestamp}>{timestamp}</span>
+        <div className={styles.footer}>
+          <Typography variant={'small_text'} className={styles.timestamp}>
+            {timestamp}
+          </Typography>
+          {!isIncoming && (
+            <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
+          )}
+        </div>
       </div>
     </div>
   )

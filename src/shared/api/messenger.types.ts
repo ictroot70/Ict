@@ -1,7 +1,7 @@
 export interface Message {
   id: string
   text: string
-  senderId: string
+  senderId: number | 'me'
   timestamp: string
   type: 'text' | 'image' | 'voice'
   url?: string
@@ -9,7 +9,7 @@ export interface Message {
 
 export interface Chat {
   id: string
-  userId: string
+  userId: number
   username: string
   avatarUrl: string
   lastMessage: string

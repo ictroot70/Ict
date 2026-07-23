@@ -54,7 +54,7 @@ export const Sidebar = () => {
         return action === link.modalAction
       }
 
-      return !isCreateModalOpen && link.href === pathname
+      return !isCreateModalOpen && (link.href === pathname || pathname.startsWith(`${link.href}/`))
     },
     [action, isCreateModalOpen, pathname]
   )

@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 
 import { ChatList } from '@/entities/messenger/ui/ChatList'
 import { MOCK_CHATS } from '@/shared/api/messenger-mocks'
+import { Avatar } from '@/shared/composites'
 import { Typography, Input } from '@ictroot/ui-kit'
 import { usePathname } from 'next/navigation'
 
@@ -15,7 +16,7 @@ export default function MessengerLayout({ children }: { children: React.ReactNod
 
   const chatUserId = pathname?.split('/').filter(Boolean).pop()
   const activeChat = MOCK_CHATS.find(
-    chat => chat.userId === chatUserId && pathname?.includes('/messenger/')
+    chat => chat.userId === Number(chatUserId) && pathname?.includes('/messenger/')
   )
 
   return (
@@ -33,12 +34,8 @@ export default function MessengerLayout({ children }: { children: React.ReactNod
         <div className={styles.headerArea}>
           {activeChat && (
             <div className={styles.activeChatHeader}>
-              <img
-                src={activeChat.avatarUrl}
-                alt={activeChat.username}
-                className={styles.headerAvatar}
-              />
-              <Typography variant={'h1'}>{activeChat.username}</Typography>
+              <Avatar image={activeChat.avatarUrl} alt={activeChat.username} size={48} />
+              <Typography variant={'regular_16'}>{activeChat.username}</Typography>
             </div>
           )}
         </div>
