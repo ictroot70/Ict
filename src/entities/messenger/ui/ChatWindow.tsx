@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 
 import { Chat, Message } from '@/shared/api/messenger-mocks'
 
@@ -13,13 +15,7 @@ interface ChatWindowProps {
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
-  if (!chat) {
-    return (
-      <div className={styles.emptyState}>
-        <p className={styles.emptyTitle}>Choose who you would like to talk to</p>
-      </div>
-    )
-  }
+  const [text, setText] = useState('')
 
   return (
     <div className={styles.container}>
@@ -48,7 +44,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
       </div>
 
       {/* Message Composer */}
-      <MessageComposer />
+      <MessageComposer
+        value={text}
+        onChange={setText}
+        onSend={() => {
+          setText('')
+        }}
+      />
     </div>
   )
 }
