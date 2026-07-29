@@ -112,7 +112,7 @@ export function useMessengerSocket({
           }
 
           acknowledge?.({
-            message: message.messageText,
+            message: message.messageText ?? '',
             receiverId: message.receiverId,
           })
         })
