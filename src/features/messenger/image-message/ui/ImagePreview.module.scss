@@ -1,0 +1,33 @@
+.previewItem {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background-color: var(--color-dark-300);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.removeButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0;
+
+  color: var(--color-light-100);
+  background-color: var(--color-dark-900);
+  opacity: 0.8;
+  border: none;
+}
