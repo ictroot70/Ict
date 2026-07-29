@@ -22,7 +22,7 @@ export interface MessageViewModel {
   id: number
   ownerId: number
   receiverId: number
-  messageText: string
+  messageText: string | null
   status: MessageStatus
   messageType: MessageType
   createdAt: string
