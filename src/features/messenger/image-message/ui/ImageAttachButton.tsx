@@ -4,6 +4,8 @@ import { ChangeEvent, useRef } from 'react'
 
 import { Button, ImageOutline } from '@/shared/ui'
 
+import styles from './ImageAttachButton.module.scss'
+
 type ImageAttachButtonProps = {
   disabled?: boolean
   onImageSelect: (file: File) => void
@@ -37,7 +39,13 @@ export function ImageAttachButton({ disabled, onImageSelect }: ImageAttachButton
         onChange={handleFileChange}
       />
 
-      <Button type={'button'} variant={'text'} disabled={disabled} onClick={handleOpenFilePicker}>
+      <Button
+        type={'button'}
+        variant={'text'}
+        disabled={disabled}
+        onClick={handleOpenFilePicker}
+        className={styles.button}
+      >
         <ImageOutline size={24} />
       </Button>
     </>

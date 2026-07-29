@@ -2,6 +2,11 @@
 
 import React, { useState } from 'react'
 
+import {
+  ImageAttachButton,
+  ImagePreview,
+  useImageMessageDraft,
+} from '@/features/messenger/image-message'
 import { Chat, Message } from '@/shared/api/messenger-mocks'
 
 import styles from './ChatWindow.module.scss'
@@ -16,6 +21,22 @@ interface ChatWindowProps {
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
   const [text, setText] = useState('')
+
+  const { previewUrl, error, selectImage, removeImage } = useImageMessageDraft()
+
+  const getImageErrorText = () => {
+    if (error === 'invalidType') {
+      return 'Only PNG or JPEG images are allowed'
+    }
+
+    if (error === 'tooLarge') {
+      return 'Image must be less than 1 MB'
+    }
+
+    return null
+  }
+
+  const imageErrorText = getImageErrorText()
 
   return (
     <div className={styles.container}>
@@ -50,6 +71,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
         onSend={() => {
           setText('')
         }}
+        previewSlot={
+          previewUrl ? <ImagePreview previewUrl={previewUrl} onRemove={removeImage} /> : null
+        }
+        actionsSlot={<ImageAttachButton onImageSelect={selectImage} />}
+        error={imageErrorText}
       />
     </div>
   )
