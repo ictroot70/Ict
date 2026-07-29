@@ -3,6 +3,8 @@ import type {
   GetDialogueMessagesParams,
   GetMessengerDialogsParams,
   MessengerDialogsResponseDto,
+  MessageViewModel,
+  SendImageMessagePayload,
   UpdateMessagesStatusDto,
 } from '@/entities/messenger/model'
 
@@ -42,6 +44,27 @@ export const messengerApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['MessengerDialogs', 'DialogueMessages'],
     }),
+    sendImageMessage: builder.mutation<MessageViewModel, SendImageMessagePayload>({
+      query: ({ receiverId, file, message }) => {
+        const formData = new FormData()
+
+        formData.append('file', file)
+
+        if (message?.trim()) {
+          formData.append('message', message.trim())
+        }
+
+        return {
+          url: API_ROUTES.MESSENGER.IMAGE(receiverId),
+          method: 'POST',
+          body: formData,
+        }
+      },
+      invalidatesTags: (result, error, { receiverId }) => [
+        'MessengerDialogs',
+        { type: 'DialogueMessages', id: receiverId },
+      ],
+    }),
   }),
 })
 
@@ -52,4 +75,5 @@ export const {
   useLazyGetDialogueMessagesQuery,
   useLazyGetMessengerDialogsQuery,
   useMarkMessagesAsReadMutation,
+  useSendImageMessageMutation,
 } = messengerApi
