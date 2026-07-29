@@ -12,6 +12,12 @@ export enum MessageStatus {
   READ = 'READ',
 }
 
+export interface MediaContent {
+  fileType: 'image' | 'voice'
+  fileUrl: string
+  fileSize: number
+}
+
 export interface MessageViewModel {
   id: number
   ownerId: number
@@ -21,6 +27,7 @@ export interface MessageViewModel {
   messageType: MessageType
   createdAt: string
   updatedAt: string
+  mediaContent?: MediaContent
 }
 
 export interface LastMessageViewDto extends MessageViewModel {
@@ -62,6 +69,12 @@ export interface DialogueMessagesResponseDto {
 export interface SendMessagePayload {
   message: string
   receiverId: number
+}
+
+export interface SendImageMessagePayload {
+  receiverId: number
+  file: File
+  message?: string
 }
 
 export interface UpdateMessagePayload {
