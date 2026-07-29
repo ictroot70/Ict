@@ -29,6 +29,7 @@ export const API_ROUTES = {
     BASE: '/v1/messenger',
     DIALOGUE: (dialoguePartnerId: string) => `/v1/messenger/${dialoguePartnerId}`,
     DELETE_MESSAGE: (id: number) => `/v1/messenger/${id}`,
+    IMAGE: (receiverId: number) => `/v1/messenger/${receiverId}/image`,
   },
 
   NOTIFICATIONS: {
