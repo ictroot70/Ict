@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, useRef } from 'react'
+import { ChangeEvent, ReactNode, useRef } from 'react'
 
 import { Button, ImageOutline } from '@/shared/ui'
 
@@ -9,9 +9,10 @@ import styles from './ImageAttachButton.module.scss'
 type ImageAttachButtonProps = {
   disabled?: boolean
   onImageSelect: (file: File) => void
+  children?: ReactNode
 }
 
-export function ImageAttachButton({ disabled, onImageSelect }: ImageAttachButtonProps) {
+export function ImageAttachButton({ disabled, onImageSelect, children }: ImageAttachButtonProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const handleOpenFilePicker = () => {
@@ -46,7 +47,7 @@ export function ImageAttachButton({ disabled, onImageSelect }: ImageAttachButton
         onClick={handleOpenFilePicker}
         className={styles.button}
       >
-        <ImageOutline size={24} />
+        {children ?? <ImageOutline size={24} />}
       </Button>
     </>
   )

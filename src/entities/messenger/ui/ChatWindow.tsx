@@ -9,6 +9,7 @@ import {
   useImageMessageDraft,
 } from '@/features/messenger/image-message'
 import { Chat, Message } from '@/shared/api/messenger-mocks'
+import { PlusCircle } from '@/shared/ui'
 
 import styles from './ChatWindow.module.scss'
 
@@ -95,9 +96,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages, receiver
         onSend={handleSend}
         pending={isSendingImage}
         previewSlot={
-          previewUrl ? <ImagePreview previewUrl={previewUrl} onRemove={removeImage} /> : null
+          previewUrl ? (
+            <ImagePreview
+              previewUrl={previewUrl}
+              onRemove={removeImage}
+              disabled={isSendingImage}
+              addSlot={
+                <ImageAttachButton onImageSelect={selectImage} disabled={isSendingImage}>
+                  <PlusCircle size={24} />
+                </ImageAttachButton>
+              }
+            />
+          ) : null
         }
-        actionsSlot={<ImageAttachButton onImageSelect={selectImage} />}
+        actionsSlot={!previewUrl ? <ImageAttachButton onImageSelect={selectImage} /> : null}
         error={imageErrorText}
       />
     </div>
