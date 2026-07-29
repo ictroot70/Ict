@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 
+import { useSendImageMessageMutation } from '@/entities/messenger'
 import {
   ImageAttachButton,
   ImagePreview,
@@ -17,12 +18,14 @@ import { MessageComposer } from './MessageComposer'
 interface ChatWindowProps {
   chat?: Chat
   messages?: Message[]
+  receiverId: number
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
+export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages, receiverId }) => {
   const [text, setText] = useState('')
 
-  const { previewUrl, error, selectImage, removeImage } = useImageMessageDraft()
+  const { file, previewUrl, error, selectImage, removeImage } = useImageMessageDraft()
+  const [sendImageMessage, { isLoading: isSendingImage }] = useSendImageMessageMutation()
 
   const getImageErrorText = () => {
     if (error === 'invalidType') {
@@ -34,6 +37,27 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
     }
 
     return null
+  }
+
+  const handleSend = async () => {
+    if (!file) {
+      setText('')
+
+      return
+    }
+
+    try {
+      await sendImageMessage({
+        receiverId,
+        file,
+        message: text,
+      }).unwrap()
+
+      removeImage()
+      setText('')
+    } catch {
+      // нормальную ошибку добавим следующим шагом
+    }
   }
 
   const imageErrorText = getImageErrorText()
@@ -68,9 +92,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ chat, messages }) => {
       <MessageComposer
         value={text}
         onChange={setText}
-        onSend={() => {
-          setText('')
-        }}
+        onSend={handleSend}
+        pending={isSendingImage}
         previewSlot={
           previewUrl ? <ImagePreview previewUrl={previewUrl} onRemove={removeImage} /> : null
         }

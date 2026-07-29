@@ -8,5 +8,5 @@ export default async function Dialogue({ params }: { params: Promise<{ id: strin
   const chat = MOCK_CHATS.find(c => c.userId === userId)
   const messages = MOCK_MESSAGES[userIdStr] || []
 
-  return <ChatWindow chat={chat} messages={messages} />
+  return <ChatWindow chat={chat} messages={messages} receiverId={userId} />
 }
