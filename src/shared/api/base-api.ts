@@ -22,6 +22,8 @@ export const baseApi = createApi({
     'Countries',
     'Notifications',
     'FollowersFeed',
+    'MessengerDialogs',
+    'DialogueMessages',
   ],
 })
 
