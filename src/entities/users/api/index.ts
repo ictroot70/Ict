@@ -2,6 +2,8 @@ export {
   publicUsersApi,
   useGetPublicUsersCounterQuery,
   useGetPublicPostsQuery,
+  useLazyGetFollowersByUserNameQuery,
+  useLazyGetFollowingByUserNameQuery,
   useSearchUsersQuery,
   useGetUserByUserNameQuery,
 } from './publicUsers.api'

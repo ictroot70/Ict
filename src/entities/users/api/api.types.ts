@@ -1,3 +1,5 @@
+import type { FollowingWithPaginationViewModel } from '@/shared/types'
+
 export type GetPublicPostsResponse = {
   items: PublicPostResponse[]
   pageSize: number
@@ -10,6 +12,14 @@ export type SearchUsersRequest = {
   pageSize?: number
   cursor?: number
 }
+
+export type FollowListRequest = {
+  userName: string
+  pageSize?: number
+  cursor?: number
+}
+
+export type FollowListResponse = FollowingWithPaginationViewModel
 
 export type FollowUserRequest = {
   selectedUserId: number
