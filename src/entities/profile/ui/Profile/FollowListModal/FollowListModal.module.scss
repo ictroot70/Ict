@@ -1,21 +1,98 @@
 .modal {
-  width: min(438px, calc(100vw - 32px));
+  width: min(644px, calc(100vw - 32px));
+}
+
+.modalConfirming {
+  border-color: var(--color-dark-500);
+}
+
+.modalInner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--color-dark-100);
+}
+
+.title {
+  padding: 0;
+}
+
+.closeButton {
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-light-100);
+  background: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 30px;
+  line-height: 0;
+
+  &:hover {
+    background-color: var(--color-dark-100);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-500);
+  }
+}
+
+.modalConfirming .header {
+  justify-content: center;
+}
+
+.modalConfirming .closeButton {
+  position: absolute;
+  left: 24px;
+  color: var(--color-light-900);
+}
+
+.modalConfirming .title {
+  color: var(--color-light-900);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  min-height: 260px;
-  max-height: min(560px, calc(100vh - 180px));
+  min-height: 360px;
+  max-height: min(480px, calc(100vh - 190px));
+  padding: 24px 24px 36px;
+}
+
+.searchWrapper {
+  flex-shrink: 0;
+  margin-bottom: 14px;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   min-height: 0;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 58px;
+  padding: 2px 4px;
 }
 
 .userLink {
@@ -23,7 +100,8 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 8px;
+  flex: 1;
+  padding: 6px 8px;
   border-radius: 6px;
   color: var(--color-light-100);
   text-decoration: none;
@@ -34,13 +112,20 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-primary-500);
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-primary-500);
   }
+}
+
+.followButton {
+  flex-shrink: 0;
+  min-width: 120px;
 }
 
 .avatar {
   flex-shrink: 0;
+  width: 40px;
+  height: 40px;
 }
 
 .userInfo {
@@ -49,14 +134,12 @@
   min-width: 0;
 }
 
-.userName,
-.fullName {
+.userName {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.fullName,
 .stateText {
   color: var(--color-light-900);
 }
@@ -73,4 +156,90 @@
   padding: 12px 0;
   text-align: center;
   color: var(--color-light-900);
+}
+
+.confirmOverlay {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 52%);
+}
+
+.confirmModal {
+  width: min(378px, calc(100% - 32px));
+  min-height: 240px;
+  border: 1px solid var(--color-dark-100);
+  background-color: var(--color-dark-300);
+}
+
+.confirmHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--color-dark-100);
+}
+
+.confirmTitle {
+  font-size: 20px;
+  line-height: 36px;
+}
+
+.confirmCloseButton {
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-light-100);
+  background: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  line-height: 0;
+
+  &:hover {
+    background-color: var(--color-dark-100);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-primary-500);
+  }
+}
+
+.confirmBody {
+  display: flex;
+  gap: 16px;
+  padding: 24px 24px 0;
+}
+
+.confirmAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.confirmText {
+  max-width: 260px;
+}
+
+.confirmUserName {
+  font-weight: var(--font-weight-bold);
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 32px 24px 0;
+}
+
+.confirmButton {
+  min-width: 96px;
 }

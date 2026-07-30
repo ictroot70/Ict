@@ -17,6 +17,7 @@ export type FollowListRequest = {
   userName: string
   pageSize?: number
   cursor?: number
+  search?: string
 }
 
 export type FollowListResponse = FollowingWithPaginationViewModel
