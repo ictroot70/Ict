@@ -68,26 +68,33 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   receiverId,
 }) => {
   const [text, setText] = useState('')
+  const [sendError, setSendError] = useState<string | null>(null)
 
   const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
 
   const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
 
   const imageErrorText = getImageErrorText(imageError)
-  const composerError = imageErrorText ?? error
+  const composerError = imageErrorText ?? sendError ?? error
 
   const handleSend = async () => {
     const message = text.trim()
 
     if (file) {
-      await sendImageMessage({
-        receiverId,
-        file,
-        message: message || undefined,
-      }).unwrap()
+      try {
+        setSendError(null)
 
-      removeImage()
-      setText('')
+        await sendImageMessage({
+          receiverId,
+          file,
+          message: message || undefined,
+        }).unwrap()
+
+        removeImage()
+        setText('')
+      } catch {
+        setSendError('Could not send image. Try again later')
+      }
 
       return
     }
@@ -96,12 +103,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       return
     }
 
+    setSendError(null)
     onSend(message)
     setText('')
   }
 
   const addImageButton = (
-    <ImageAttachButton disabled={sendDisabled} onImageSelect={selectImage}>
+    <ImageAttachButton disabled={sendDisabled || isImageSending} onImageSelect={selectImage}>
       <span className={styles.addImageButton}>+</span>
     </ImageAttachButton>
   )
@@ -110,13 +118,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     <ImagePreview
       previewUrl={previewUrl}
       onRemove={removeImage}
-      disabled={sendDisabled}
+      disabled={sendDisabled || isImageSending}
       addSlot={addImageButton}
     />
   ) : null
 
   const actionsSlot = previewUrl ? null : (
-    <ImageAttachButton disabled={sendDisabled} onImageSelect={selectImage} />
+    <ImageAttachButton disabled={sendDisabled || isImageSending} onImageSelect={selectImage} />
   )
 
   return (
@@ -151,7 +159,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         value={text}
         onChange={setText}
         onSend={handleSend}
-        disabled={sendDisabled}
+        disabled={sendDisabled || isImageSending}
         pending={isImageSending}
         previewSlot={previewSlot}
         actionsSlot={actionsSlot}
