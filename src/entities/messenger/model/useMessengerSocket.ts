@@ -1,159 +1,73 @@
 'use client'
 
-import type {
-  MessageAcknowledgement,
-  MessageViewModel,
-  MessengerError,
-  SendMessagePayload,
-} from './messenger.types'
 import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './messenger-socket.types'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { normalizeMessengerError, isIncomingMessagePayload } from '@/entities/messenger/lib'
 import { logger } from '@/shared/lib/logger'
-import { io, type Socket } from 'socket.io-client'
 
-import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
-
-const WS_URL = 'https://inctagram.work'
+import {
+  MessageStatus,
+  MessageType,
+  type MessageViewModel,
+  type MessengerError,
+  type SendMessagePayload,
+} from './messenger.types'
 
 export function useMessengerSocket({
   accessToken,
   onError,
   onMessage,
 }: UseMessengerSocketOptions): UseMessengerSocketResult {
-  const socketRef = useRef<Socket | null>(null)
-  const onErrorRef = useRef(onError)
-  const onMessageRef = useRef(onMessage)
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(true)
 
-  useEffect(() => {
-    onErrorRef.current = onError
-  }, [onError])
+  const onMessageRef = useRef(onMessage)
+  const onErrorRef = useRef(onError)
 
   useEffect(() => {
     onMessageRef.current = onMessage
   }, [onMessage])
 
-  const sendMessage = useCallback((payload: SendMessagePayload) => {
-    const socket = socketRef.current
-
-    if (!socket?.connected) {
-      const error: MessengerError = {
-        source: 'socket',
-        code: 'SOCKET_NOT_CONNECTED',
-        message: 'Messenger socket is not connected',
-      }
-
-      logger.error('[MessengerSocket]', error.message)
-      onErrorRef.current(error)
-
-      return
-    }
-
-    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
-  }, [])
-
   useEffect(() => {
-    if (!accessToken) {
-      setIsConnected(false)
+    onErrorRef.current = onError
+  }, [onError])
 
-      return
-    }
-
-    setIsConnected(false)
-
-    const socket = io(WS_URL, {
-      query: { accessToken },
-      autoConnect: true,
-      reconnection: true,
-      transports: ['websocket'],
-    })
-
-    socketRef.current = socket
-
-    const reportError = (error: MessengerError) => {
-      logger.error(`[MessengerSocket] ${error.code}:`, error.message)
-      onErrorRef.current(error)
-    }
-
-    const processMessage = async (payload: unknown): Promise<MessageViewModel | null> => {
-      if (!isIncomingMessagePayload(payload)) {
-        reportError({
+  const sendMessage = useCallback(
+    (payload: SendMessagePayload) => {
+      if (!isConnected) {
+        const error: MessengerError = {
           source: 'socket',
-          code: 'INVALID_MESSAGE_PAYLOAD',
-          message: 'Invalid incoming message payload',
-        })
+          code: 'SOCKET_NOT_CONNECTED',
+          message: 'Messenger socket is not connected',
+        }
 
-        return null
+        logger.error('[MessengerSocket]', error.message)
+        onErrorRef.current(error)
+
+        return
       }
 
-      try {
-        await onMessageRef.current(payload)
+      logger.info('[MessengerSocket MOCK] Emulating send:', payload)
 
-        return payload
-      } catch (error) {
-        reportError(normalizeMessengerError(error, 'socket'))
+      setTimeout(() => {
+        const mockServerResponse: MessageViewModel = {
+          id: Date.now(),
+          ownerId: 63,
+          receiverId: payload.receiverId,
+          messageText: payload.message,
+          status: MessageStatus.RECEIVED,
+          messageType: MessageType.TEXT,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
 
-        return null
-      }
-    }
-
-    const handleReceivedMessage = (payload: unknown) => {
-      void processMessage(payload)
-    }
-
-    const handleIncomingMessage = (payload: unknown, acknowledge?: MessageAcknowledgement) => {
-      void processMessage(payload)
-        .then(message => {
-          if (!message) {
-            return
-          }
-
-          acknowledge?.({
-            message: message.messageText,
-            receiverId: message.receiverId,
-          })
+        onMessageRef.current(mockServerResponse).catch(err => {
+          logger.error('[MessengerSocket MOCK] onMessage handler error:', err)
         })
-        .catch(error => {
-          reportError(normalizeMessengerError(error, 'socket'))
-        })
-    }
-
-    const handleConnect = () => {
-      setIsConnected(true)
-    }
-
-    const handleDisconnect = () => {
-      setIsConnected(false)
-    }
-
-    const handleSocketError = (error: unknown) => {
-      reportError(normalizeMessengerError(error, 'socket'))
-    }
-
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
-    socket.on(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
-    socket.on(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
-    socket.on(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
-    socket.on('connect_error', handleSocketError)
-
-    return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
-      socket.off(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
-      socket.off(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
-      socket.off(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
-      socket.off('connect_error', handleSocketError)
-      socket.disconnect()
-
-      if (socketRef.current === socket) {
-        socketRef.current = null
-      }
-    }
-  }, [accessToken])
+      }, 300)
+    },
+    [isConnected]
+  )
 
   return { isConnected, sendMessage }
 }

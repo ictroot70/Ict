@@ -1,12 +1,23 @@
 import { ChatWindow } from '@/entities/messenger/ui/ChatWindow'
-import { MOCK_CHATS, MOCK_MESSAGES } from '@/shared/api/messenger-mocks'
 
-export default async function Dialogue({ params }: { params: Promise<{ id: string }> }) {
+const getPartnerInfo = async (id: number) => {
+  return {
+    name: `User ${id}`,
+    avatarUrl: undefined,
+  }
+}
+
+export default async function DialoguePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: userIdStr } = await params
-  const userId = Number(userIdStr)
+  const dialoguePartnerId = Number(userIdStr)
 
-  const chat = MOCK_CHATS.find(c => c.userId === userId)
-  const messages = MOCK_MESSAGES[userIdStr] || []
+  const partnerInfo = await getPartnerInfo(dialoguePartnerId)
 
-  return <ChatWindow chat={chat} messages={messages} />
+  return (
+    <ChatWindow
+      dialoguePartnerId={dialoguePartnerId}
+      partnerName={partnerInfo.name}
+      partnerAvatarUrl={partnerInfo.avatarUrl}
+    />
+  )
 }
