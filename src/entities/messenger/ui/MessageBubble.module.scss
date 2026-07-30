@@ -55,7 +55,8 @@
   background: none;
   padding: 0;
 
-  .timestamp, .statusIcon {
+  .timestamp,
+  .statusIcon {
     color: var(--color-light-100);
   }
 }
@@ -63,7 +64,6 @@
 .imageWithText {
   padding: 2px;
   padding-bottom: 8px;
-
 
   .image {
     gap: 0;
@@ -103,9 +103,11 @@
 }
 
 .imageImg {
-  border-radius: 0.5rem;
+  width: 360px;
+  height: 360px;
   max-width: 100%;
-  height: auto;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
 .voiceContent {
