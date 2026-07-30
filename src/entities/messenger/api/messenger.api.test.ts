@@ -136,4 +136,61 @@ describe('messengerApi', () => {
     expect(request.method).toBe('DELETE')
     expect(request.body).toBeNull()
   })
+
+  it('sends an image message as multipart form data', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(asJsonResponse())
+    const store = createTestStore()
+    const file = new File(['image'], 'message.png', { type: 'image/png' })
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    await store.dispatch(
+      messengerApi.endpoints.sendImageMessage.initiate({
+        receiverId: 7,
+        file,
+        message: 'Caption',
+      })
+    )
+
+    const request = asRequest(fetchMock.mock.calls[0])
+    const url = new URL(request.url)
+    const formData = await request.formData()
+    const uploadedFile = formData.get('file')
+
+    expect(url.pathname.endsWith(API_ROUTES.MESSENGER.IMAGE(7))).toBe(true)
+    expect(request.method).toBe('POST')
+    expect(request.headers.get('content-type')).toContain('multipart/form-data')
+    expect(uploadedFile).toBeInstanceOf(Blob)
+    expect((uploadedFile as Blob).type).toBe('image/png')
+    expect((uploadedFile as File).name).toBe('message.png')
+    expect(formData.get('message')).toBe('Caption')
+  })
+
+  it('sends a voice message as multipart form data', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(asJsonResponse())
+    const store = createTestStore()
+    const file = new File(['voice'], 'message.webm', { type: 'audio/webm' })
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    await store.dispatch(
+      messengerApi.endpoints.sendVoiceMessage.initiate({
+        receiverId: 8,
+        file,
+      })
+    )
+
+    const request = asRequest(fetchMock.mock.calls[0])
+    const url = new URL(request.url)
+    const formData = await request.formData()
+    const uploadedFile = formData.get('file')
+
+    expect(url.pathname.endsWith(API_ROUTES.MESSENGER.VOICE(8))).toBe(true)
+    expect(request.method).toBe('POST')
+    expect(request.headers.get('content-type')).toContain('multipart/form-data')
+    expect(uploadedFile).toBeInstanceOf(Blob)
+    expect((uploadedFile as Blob).type).toBe('audio/webm')
+    expect((uploadedFile as File).name).toBe('message.webm')
+    expect(formData.has('message')).toBe(false)
+  })
 })

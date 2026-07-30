@@ -8,6 +8,7 @@ const createMessage = (id: number, status: MessageStatus, text = 'Message'): Mes
   ownerId: 1,
   receiverId: 2,
   messageText: text,
+  mediaContent: null,
   status,
   messageType: MessageType.TEXT,
   createdAt: '2026-07-13T10:00:00.000Z',

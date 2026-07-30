@@ -1,11 +1,5 @@
 'use client'
 
-import type {
-  MessageAcknowledgement,
-  MessageViewModel,
-  MessengerError,
-  SendMessagePayload,
-} from './messenger.types'
 import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './messenger-socket.types'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -15,6 +9,13 @@ import { logger } from '@/shared/lib/logger'
 import { io, type Socket } from 'socket.io-client'
 
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
+import {
+  MessageType,
+  type MessageAcknowledgement,
+  type MessageViewModel,
+  type MessengerError,
+  type SendMessagePayload,
+} from './messenger.types'
 
 const WS_URL = 'https://inctagram.work'
 
@@ -108,6 +109,10 @@ export function useMessengerSocket({
       void processMessage(payload)
         .then(message => {
           if (!message) {
+            return
+          }
+
+          if (message.messageType !== MessageType.TEXT || message.messageText === null) {
             return
           }
 
