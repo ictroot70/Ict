@@ -1,11 +1,5 @@
 'use client'
 
-import type {
-  MessageAcknowledgement,
-  MessageViewModel,
-  MessengerError,
-  SendMessagePayload,
-} from './messenger.types'
 import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './messenger-socket.types'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -15,8 +9,16 @@ import { logger } from '@/shared/lib/logger'
 import { io, type Socket } from 'socket.io-client'
 
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
+import {
+  MessageType,
+  type MessageAcknowledgement,
+  type MessageViewModel,
+  type MessengerError,
+  type SendMessagePayload,
+} from './messenger.types'
 
 const WS_URL = 'https://inctagram.work'
+const AUTH_ERROR_PATTERN = /authentication|unauthorized|token|401|403/i
 
 export function useMessengerSocket({
   accessToken,
@@ -74,12 +76,18 @@ export function useMessengerSocket({
     socketRef.current = socket
 
     const reportError = (error: MessengerError) => {
-      logger.error(`[MessengerSocket] ${error.code}:`, error.message)
+      if (AUTH_ERROR_PATTERN.test(error.message)) {
+        logger.warn(`[MessengerSocket] Recovering after ${error.code}:`, error.message)
+      } else {
+        logger.error(`[MessengerSocket] ${error.code}:`, error.message)
+      }
+
       onErrorRef.current(error)
     }
 
     const processMessage = async (payload: unknown): Promise<MessageViewModel | null> => {
       if (!isIncomingMessagePayload(payload)) {
+        logger.warn('[MessengerSocket] Rejected incoming payload:', payload)
         reportError({
           source: 'socket',
           code: 'INVALID_MESSAGE_PAYLOAD',
@@ -101,7 +109,19 @@ export function useMessengerSocket({
     }
 
     const handleReceivedMessage = (payload: unknown) => {
-      void processMessage(payload)
+      const payloads = Array.isArray(payload) ? payload : [payload]
+
+      if (payloads.length === 0) {
+        reportError({
+          source: 'socket',
+          code: 'INVALID_MESSAGE_PAYLOAD',
+          message: 'Invalid incoming message payload',
+        })
+
+        return
+      }
+
+      void Promise.all(payloads.map(processMessage))
     }
 
     const handleIncomingMessage = (payload: unknown, acknowledge?: MessageAcknowledgement) => {
@@ -111,9 +131,13 @@ export function useMessengerSocket({
             return
           }
 
+          if (message.messageType !== MessageType.TEXT || message.messageText === null) {
+            return
+          }
+
           acknowledge?.({
             message: message.messageText,
-            receiverId: message.receiverId,
+            receiverId: message.ownerId,
           })
         })
         .catch(error => {
@@ -130,7 +154,14 @@ export function useMessengerSocket({
     }
 
     const handleSocketError = (error: unknown) => {
-      reportError(normalizeMessengerError(error, 'socket'))
+      const normalizedError = normalizeMessengerError(error, 'socket')
+
+      if (AUTH_ERROR_PATTERN.test(normalizedError.message)) {
+        setIsConnected(false)
+        socket.disconnect()
+      }
+
+      reportError(normalizedError)
     }
 
     socket.on('connect', handleConnect)

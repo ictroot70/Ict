@@ -1,12 +1,13 @@
-import { ChatWindow } from '@/entities/messenger/ui/ChatWindow'
-import { MOCK_CHATS, MOCK_MESSAGES } from '@/shared/api/messenger-mocks'
+import { MessengerDialogue } from '@/widgets/messenger/ui/MessengerDialogue'
+import { notFound } from 'next/navigation'
 
 export default async function Dialogue({ params }: { params: Promise<{ id: string }> }) {
   const { id: userIdStr } = await params
   const userId = Number(userIdStr)
 
-  const chat = MOCK_CHATS.find(c => c.userId === userId)
-  const messages = MOCK_MESSAGES[userIdStr] || []
+  if (!Number.isInteger(userId) || userId <= 0) {
+    notFound()
+  }
 
-  return <ChatWindow chat={chat} messages={messages} />
+  return <MessengerDialogue partnerId={userId} />
 }
