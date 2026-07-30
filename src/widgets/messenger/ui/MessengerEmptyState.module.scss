@@ -1,0 +1,21 @@
+.container {
+  height: 100%;
+}
+
+.content {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-dark-700);
+}
+
+.title {
+  background-color: var(--color-dark-300);
+  color: var(--color-light-100);
+  font-weight: 500;
+  border-radius: 10px;
+  font-size: 14px;
+  padding: 12px 24px;
+}

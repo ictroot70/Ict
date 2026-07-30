@@ -1,0 +1,159 @@
+.bubbleContainer {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.incoming {
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.outgoing {
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.avatar {
+  margin-right: 0.75rem;
+}
+
+.avatarSpacer {
+  width: 2.5rem;
+  margin-right: 0.75rem;
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.incomingBubble {
+  background-color: var(--color-dark-300);
+  color: var(--color-light-100);
+
+  .timestamp {
+    color: var(--color-light-900);
+  }
+}
+
+.outgoingBubble {
+  background-color: var(--color-primary-900);
+  color: var(--color-light-100);
+
+  .timestamp {
+    color: var(--color-primary-100);
+  }
+}
+
+.imageOnly {
+  background: none;
+  padding: 0;
+
+  .timestamp, .statusIcon {
+    color: var(--color-light-100);
+  }
+}
+
+.imageWithText {
+  padding: 2px;
+  padding-bottom: 8px;
+
+
+  .image {
+    gap: 0;
+  }
+
+  .imageCaption {
+    padding: 0 10px;
+    margin-top: 7px;
+  }
+
+  .footer {
+    padding: 0 10px;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.statusIcon {
+  height: 16px;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-100);
+}
+
+.image {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.imageImg {
+  border-radius: 0.5rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.voiceContent {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.voiceButton {
+  color: var(--color-light-100);
+  min-width: 0;
+
+  padding: 0;
+}
+
+.voiceIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.voiceWaveform {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 30px;
+}
+
+.waveformBar {
+  flex: 1;
+  background-color: var(--color-light-100);
+  border-radius: 1px;
+  min-width: 2px;
+}
+
+.voiceMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.duration {
+  font-weight: 500;
+}
