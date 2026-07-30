@@ -41,6 +41,7 @@ vi.mock('socket.io-client', () => ({
 vi.mock('@/shared/lib/logger', () => ({
   logger: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }))
 
@@ -176,6 +177,22 @@ describe('useMessengerSocket', () => {
     })
   })
 
+  it('processes an array of status updates received after marking messages as read', async () => {
+    const { onMessage } = setupHook()
+    const readMessage = {
+      ...validMessage,
+      status: MessageStatus.READ,
+    }
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, [readMessage])
+    })
+
+    await waitFor(() => {
+      expect(onMessage).toHaveBeenCalledWith(readMessage)
+    })
+  })
+
   it('acknowledges a successfully processed message', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
@@ -187,7 +204,7 @@ describe('useMessengerSocket', () => {
     await waitFor(() => {
       expect(acknowledge).toHaveBeenCalledWith({
         message: validMessage.messageText,
-        receiverId: validMessage.receiverId,
+        receiverId: validMessage.ownerId,
       })
     })
 
@@ -277,6 +294,26 @@ describe('useMessengerSocket', () => {
       source: 'socket',
       code: 'DELIVERY_FAILED',
       message: 'Cannot deliver message',
+    })
+  })
+
+  it('disconnects an authenticated socket after an authentication error', () => {
+    socketMock.connected = true
+    const { onError, result } = setupHook()
+
+    act(() => {
+      triggerSocketEvent('connect')
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.ERROR, {
+        message: 'Authentication error',
+      })
+    })
+
+    expect(result.current.isConnected).toBe(false)
+    expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(onError).toHaveBeenCalledWith({
+      source: 'socket',
+      code: 'SOCKET_ERROR',
+      message: 'Authentication error',
     })
   })
 

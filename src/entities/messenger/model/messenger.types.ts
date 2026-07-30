@@ -41,6 +41,14 @@ export interface LastMessageViewDto extends MessageViewModel {
   notReadCount: number
 }
 
+export interface MessengerListItem {
+  userId: number
+  userName: string
+  avatarUrl?: string
+  lastMessage: string | null
+  updatedAt: string | null
+}
+
 export interface UpdateMessagesStatusDto {
   ids: number[]
 }
