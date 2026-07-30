@@ -3,6 +3,11 @@
 import React, { useState } from 'react'
 
 import { MessageStatus, MessageType, type MessageViewModel } from '@/entities/messenger/model'
+import {
+  ImageAttachButton,
+  ImagePreview,
+  useImageMessageDraft,
+} from '@/features/messenger/image-message'
 import { LinearProgress } from '@/shared/composites'
 
 import styles from './ChatWindow.module.scss'
@@ -32,6 +37,18 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
+const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
+  if (error === 'invalidType') {
+    return 'Only PNG or JPEG images are allowed'
+  }
+
+  if (error === 'tooLarge') {
+    return 'Image must be less than 1 MB'
+  }
+
+  return null
+}
+
 const formatTime = (value: string) =>
   new Intl.DateTimeFormat('en', {
     hour: '2-digit',
@@ -48,6 +65,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   isLoading = false,
 }) => {
   const [text, setText] = useState('')
+
+  const { previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+
+  const imageErrorText = getImageErrorText(imageError)
+  const composerError = imageErrorText ?? error
+
   const handleSend = () => {
     const message = text.trim()
 
@@ -58,6 +81,25 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     onSend(message)
     setText('')
   }
+
+  const addImageButton = (
+    <ImageAttachButton disabled={sendDisabled} onImageSelect={selectImage}>
+      <span className={styles.addImageButton}>+</span>
+    </ImageAttachButton>
+  )
+
+  const previewSlot = previewUrl ? (
+    <ImagePreview
+      previewUrl={previewUrl}
+      onRemove={removeImage}
+      disabled={sendDisabled}
+      addSlot={addImageButton}
+    />
+  ) : null
+
+  const actionsSlot = previewUrl ? null : (
+    <ImageAttachButton disabled={sendDisabled} onImageSelect={selectImage} />
+  )
 
   return (
     <div className={styles.container}>
@@ -92,7 +134,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         onChange={setText}
         onSend={handleSend}
         disabled={!onSend || sendDisabled}
-        error={error}
+        previewSlot={previewSlot}
+        actionsSlot={actionsSlot}
+        error={composerError}
       />
     </div>
   )
