@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 
+import { useSendImageMessageMutation } from '@/entities/messenger'
 import { MessageStatus, MessageType, type MessageViewModel } from '@/entities/messenger/model'
 import {
   ImageAttachButton,
@@ -23,6 +24,7 @@ interface ChatWindowProps {
   sendDisabled?: boolean
   error?: string | null
   isLoading?: boolean
+  receiverId: number
 }
 
 const getBubbleType = (type: MessageType) => {
@@ -63,16 +65,32 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   sendDisabled,
   error,
   isLoading = false,
+  receiverId,
 }) => {
   const [text, setText] = useState('')
 
-  const { previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+  const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+
+  const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
 
   const imageErrorText = getImageErrorText(imageError)
   const composerError = imageErrorText ?? error
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const message = text.trim()
+
+    if (file) {
+      await sendImageMessage({
+        receiverId,
+        file,
+        message: message || undefined,
+      }).unwrap()
+
+      removeImage()
+      setText('')
+
+      return
+    }
 
     if (!message || !onSend) {
       return
@@ -133,7 +151,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         value={text}
         onChange={setText}
         onSend={handleSend}
-        disabled={!onSend || sendDisabled}
+        disabled={sendDisabled}
+        pending={isImageSending}
         previewSlot={previewSlot}
         actionsSlot={actionsSlot}
         error={composerError}

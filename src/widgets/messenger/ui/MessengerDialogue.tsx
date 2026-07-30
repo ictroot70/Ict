@@ -14,6 +14,7 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
 
   return (
     <ChatWindow
+      receiverId={partnerId}
       currentUserId={currentUserId}
       messages={messages}
       partnerAvatarUrl={partnerAvatarUrl}
