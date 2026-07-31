@@ -41,6 +41,7 @@ vi.mock('socket.io-client', () => ({
 vi.mock('@/shared/lib/logger', () => ({
   logger: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }))
 
@@ -186,7 +187,7 @@ describe('useMessengerSocket', () => {
     await waitFor(() => {
       expect(acknowledge).toHaveBeenCalledWith({
         message: validMessage.messageText,
-        receiverId: validMessage.receiverId,
+        receiverId: validMessage.ownerId,
       })
     })
 
