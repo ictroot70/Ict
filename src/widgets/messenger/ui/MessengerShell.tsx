@@ -9,32 +9,27 @@ import { MessageStatus, MessageType } from '@/entities/messenger'
 import { messengerApi, useGetMessengerDialogsQuery } from '@/entities/messenger/api/messenger.api'
 import { ChatList } from '@/entities/messenger/ui/ChatList'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
-import { Avatar } from '@/shared/composites'
+import { Avatar, LinearProgress } from '@/shared/composites'
 import { Typography, Input } from '@ictroot/ui-kit'
 import { usePathname } from 'next/navigation'
 
 import styles from './MessengerShell.module.scss'
 
+import { useMessengerShell } from '../model'
+
 export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const pathname = usePathname()
-  const { user } = useAuthUiState()
+  const { activeProfile, items, searchQuery, setSearchQuery, isLoading, isError } =
+    useMessengerShell()
   const dispatch = useDispatch() as AppDispatch
+  const { user } = useAuthUiState()
+  const pathname = usePathname()
 
   const chatPartnerIdStr = pathname?.split('/').filter(Boolean).pop()
   const chatPartnerId = chatPartnerIdStr ? Number(chatPartnerIdStr) : null
 
-  const { data: dialogsData } = useGetMessengerDialogsQuery({
-    searchName: searchQuery || undefined,
-  })
-
-  const dialogs = dialogsData?.items || []
-
   useEffect(() => {
-    if (chatPartnerId && user?.userId && dialogs.length === 0) {
-      const hasDialogue = dialogs.some(
-        d => d.ownerId === chatPartnerId || d.receiverId === chatPartnerId
-      )
+    if (chatPartnerId && user?.userId && items.length === 0) {
+      const hasDialogue = items.some(d => d.userId === chatPartnerId)
 
       if (!hasDialogue) {
         dispatch(
@@ -55,6 +50,7 @@ export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
                   userName: `User ${chatPartnerId}`,
                   avatars: [],
                   notReadCount: 0,
+                  mediaContent: null,
                 },
               ],
               totalCount: 1,
@@ -65,20 +61,11 @@ export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
         )
       }
     }
-  }, [chatPartnerId, user?.userId, dialogs.length, dialogs, dispatch])
-
-  const activeDialogue = useMemo(() => {
-    if (!chatPartnerId || dialogs.length === 0) {
-      return null
-    }
-
-    return dialogs.find(
-      dialogue => dialogue.ownerId === chatPartnerId || dialogue.receiverId === chatPartnerId
-    )
-  }, [chatPartnerId, dialogs])
+  }, [chatPartnerId, user?.userId, items.length, items, dispatch])
 
   return (
     <>
+      <LinearProgress active={isLoading} />
       <Typography variant={'h1'}>Messenger</Typography>
       <div className={styles.container}>
         <div className={styles.searchArea}>
@@ -90,19 +77,19 @@ export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
           />
         </div>
         <div className={styles.headerArea}>
-          {activeDialogue && (
+          {activeProfile && (
             <div className={styles.activeChatHeader}>
               <Avatar
-                image={activeDialogue.avatars?.[0]?.url}
-                alt={activeDialogue.userName}
+                image={activeProfile.avatars[0]?.url}
+                alt={activeProfile.userName}
                 size={48}
               />
-              <Typography variant={'regular_16'}>{activeDialogue.userName}</Typography>
+              <Typography variant={'regular_16'}>{activeProfile.userName}</Typography>
             </div>
           )}
         </div>
         <div className={styles.sidebar}>
-          <ChatList searchQuery={searchQuery} currentUserId={user?.userId} />
+          <ChatList items={items} searchQuery={searchQuery} isError={isError} />
         </div>
         <div className={styles.main}>{children}</div>
       </div>

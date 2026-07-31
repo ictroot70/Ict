@@ -12,11 +12,23 @@ export enum MessageStatus {
   READ = 'READ',
 }
 
+export enum MediaFileType {
+  IMAGE = 'image',
+  VOICE = 'voice',
+}
+
+export interface MediaContentViewModel {
+  fileType: MediaFileType
+  fileUrl: string
+  fileSize: number
+}
+
 export interface MessageViewModel {
   id: number
   ownerId: number
   receiverId: number
-  messageText: string
+  messageText: string | null
+  mediaContent: MediaContentViewModel | null
   status: MessageStatus
   messageType: MessageType
   createdAt: string
@@ -27,6 +39,14 @@ export interface LastMessageViewDto extends MessageViewModel {
   userName: string
   avatars: AvatarViewDto[]
   notReadCount: number
+}
+
+export interface MessengerListItem {
+  userId: number
+  userName: string
+  avatarUrl?: string
+  lastMessage: string | null
+  updatedAt: string | null
 }
 
 export interface UpdateMessagesStatusDto {
@@ -62,6 +82,17 @@ export interface DialogueMessagesResponseDto {
 export interface SendMessagePayload {
   message: string
   receiverId: number
+}
+
+export interface SendImageMessagePayload {
+  receiverId: number
+  file: File
+  message?: string
+}
+
+export interface SendVoiceMessagePayload {
+  receiverId: number
+  file: File
 }
 
 export interface UpdateMessagePayload {
