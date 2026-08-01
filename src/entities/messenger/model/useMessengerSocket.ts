@@ -51,16 +51,18 @@ export function useMessengerSocket({
     logger.info('[MessengerSocket] Initializing socket connection to', WS_URL)
 
     const socket = io(WS_URL, {
-      auth: { token: accessToken },
       query: { accessToken },
       autoConnect: true,
       reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'],
     })
 
     socketRef.current = socket
+
+    // Socket.IO may already be connected by the time listeners are attached
+    if (socket.connected) {
+      setIsConnected(true)
+    }
 
     const reportError = (error: MessengerError) => {
       if (AUTH_ERROR_PATTERN.test(error.message)) {
@@ -185,33 +187,29 @@ export function useMessengerSocket({
     }
   }, [accessToken])
 
-  const handleMessageSendAck = (response: unknown) => {
-    logger.info('[MessengerSocket] Message send acknowledged by server:', response)
-  }
+  const sendMessage = useCallback((payload: SendMessagePayload): boolean => {
+    const socket = socketRef.current
+    const connected = Boolean(socket?.connected)
 
-  const sendMessage = useCallback(
-    (payload: SendMessagePayload) => {
-      const socket = socketRef.current
-
-      if (!isConnected || !socket) {
-        const error = {
-          source: 'socket' as const,
-          code: 'SOCKET_NOT_CONNECTED',
-          message: 'Messenger socket is not connected',
-        }
-
-        logger.error('[MessengerSocket] Cannot send:', error.message, 'isConnected:', isConnected)
-        onErrorRef.current(error)
-
-        return
+    if (!connected || !socket) {
+      const error = {
+        source: 'socket' as const,
+        code: 'SOCKET_NOT_CONNECTED',
+        message: 'Messenger socket is not connected',
       }
 
-      logger.info('[MessengerSocket] Emitting MESSAGE_SEND:', payload)
+      logger.error('[MessengerSocket] Cannot send:', error.message, 'connected:', connected)
+      onErrorRef.current(error)
 
-      socket.emit(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, payload, handleMessageSendAck)
-    },
-    [isConnected]
-  )
+      return false
+    }
+
+    logger.info('[MessengerSocket] Emitting RECEIVE_MESSAGE:', payload)
+
+    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
+
+    return true
+  }, [])
 
   return { isConnected, sendMessage }
 }

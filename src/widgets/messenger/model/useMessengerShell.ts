@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { type MessengerListItem, useGetMessengerDialogsQuery } from '@/entities/messenger'
+import { MESSENGER_DIALOGS_QUERY_ARGS } from '@/entities/messenger/model/messenger-dialogs-query'
 import { useGetPublicProfileQuery } from '@/entities/profile'
 import { useSearchUsersQuery } from '@/entities/users/api'
 import { useMeQuery } from '@/features/auth'
@@ -39,7 +40,7 @@ export function useMessengerShell() {
     isError: areDialoguesError,
   } = useGetMessengerDialogsQuery(
     {
-      pageSize: 50,
+      ...MESSENGER_DIALOGS_QUERY_ARGS,
       searchName: search || undefined,
     },
     {

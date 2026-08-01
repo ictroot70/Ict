@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { useAppDispatch } from '@/lib/hooks'
@@ -19,27 +19,49 @@ import {
   type MessengerError,
   type SendMessagePayload,
 } from './messenger.types'
+import { MESSENGER_DIALOGS_QUERY_ARGS } from './messenger-dialogs-query'
 import { useMessengerSocket } from './useMessengerSocket'
 
-export const useMessengerCenter = (dialoguePartnerId: number) => {
+export const useMessengerCenter = (
+  dialoguePartnerId: number,
+  partnerPreview?: { userName?: string; avatarUrl?: string }
+) => {
   const dispatch = useAppDispatch()
   const { user } = useAuthUiState()
   const currentUserId = user?.userId ?? 0
   const accessToken = useAccessToken()
 
-  const dialogsQueryArgs: GetMessengerDialogsParams = useMemo(() => ({}), [])
+  const dialogsQueryArgs: GetMessengerDialogsParams = MESSENGER_DIALOGS_QUERY_ARGS
   const messagesQueryArgs: GetDialogueMessagesParams = useMemo(
     () => ({ dialoguePartnerId }),
     [dialoguePartnerId]
   )
 
-  const { data: dialogsData } = messengerApi.useGetMessengerDialogsQuery(dialogsQueryArgs)
   const { data: messagesData, isFetching } =
     messengerApi.useGetDialogueMessagesQuery(messagesQueryArgs)
 
   const [draftText, setDraftText] = useState('')
   const [sendError, setSendError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
+  const pendingOptimisticIdRef = useRef<number | null>(null)
+  const pendingTextRef = useRef<string | null>(null)
+
+  const rollbackOptimisticSend = useCallback(() => {
+    const optimisticId = pendingOptimisticIdRef.current
+
+    if (optimisticId == null) {
+      return
+    }
+
+    dispatch(
+      messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
+        draft.items = (draft.items || []).filter(item => item.id !== optimisticId)
+      })
+    )
+
+    pendingOptimisticIdRef.current = null
+    pendingTextRef.current = null
+  }, [dispatch, messagesQueryArgs])
 
   const handleIncomingMessage = useCallback(
     async (message: MessageViewModel): Promise<void> => {
@@ -51,7 +73,6 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
         dispatch(
           messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
             if (isOwnMessage) {
-              // Удаляем оптимистичное сообщение с временным ID (< 0)
               draft.items = (draft.items || []).filter(
                 item => !(item.id < 0 && item.messageText === message.messageText)
               )
@@ -71,7 +92,9 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
           } else if (result.type === 'dialogue-not-found') {
             const newDialogue: LastMessageViewDto = {
               ...message,
-              userName: `User ${message.ownerId === currentUserId ? message.receiverId : message.ownerId}`,
+              userName:
+                partnerPreview?.userName ??
+                `User ${message.ownerId === currentUserId ? message.receiverId : message.ownerId}`,
               avatars: [],
               notReadCount: isOwnMessage ? 0 : 1,
             }
@@ -80,15 +103,39 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
           }
         })
       )
+
+      // UC-1: clear input only after successful send confirmation
+      if (
+        isOwnMessage &&
+        pendingTextRef.current !== null &&
+        message.messageText === pendingTextRef.current
+      ) {
+        setDraftText('')
+        setIsSending(false)
+        setSendError(null)
+        pendingOptimisticIdRef.current = null
+        pendingTextRef.current = null
+        // Sync dialog list (incl. first-time dialogue) with backend preview/userName
+        dispatch(messengerApi.util.invalidateTags(['MessengerDialogs']))
+      }
     },
-    [currentUserId, dialoguePartnerId, dispatch, dialogsQueryArgs, messagesQueryArgs]
+    [currentUserId, dialoguePartnerId, dispatch, dialogsQueryArgs, messagesQueryArgs, partnerPreview]
   )
 
-  const handleSocketError = useCallback((error: MessengerError) => {
-    logger.error('[MessengerCenter] Socket error:', error)
-    setSendError(error.message)
-    setIsSending(false)
-  }, [])
+  const handleSocketError = useCallback(
+    (error: MessengerError) => {
+      logger.error('[MessengerCenter] Socket error:', error)
+
+      if (pendingTextRef.current === null) {
+        return
+      }
+
+      setSendError(error.message)
+      setIsSending(false)
+      rollbackOptimisticSend()
+    },
+    [rollbackOptimisticSend]
+  )
 
   const { isConnected, sendMessage } = useMessengerSocket({
     accessToken,
@@ -97,7 +144,7 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
   })
 
   const sendTextMessage = useCallback(
-    async (text: string, receiverId: number): Promise<void> => {
+    (text: string, receiverId: number): void => {
       const trimmedText = text.trim()
 
       if (!trimmedText || isSending) {
@@ -119,25 +166,28 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
       setIsSending(true)
       setSendError(null)
 
+      const optimisticId = -Date.now()
       const optimisticMessage: MessageViewModel = {
-        id: -Date.now(), // Временный отрицательный ID для оптимистичного UI
+        id: optimisticId,
         ownerId: currentUserId,
         receiverId,
         messageText: trimmedText,
+        mediaContent: null,
         status: MessageStatus.SENT,
         messageType: MessageType.TEXT,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       }
 
-      // 1. Оптимистично добавляем в чат
+      pendingOptimisticIdRef.current = optimisticId
+      pendingTextRef.current = trimmedText
+
       dispatch(
         messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
           draft.items = [...(draft.items || []), optimisticMessage]
         })
       )
 
-      // 2. Оптимистично обновляем список диалогов
       dispatch(
         messengerApi.util.updateQueryData('getMessengerDialogs', dialogsQueryArgs, draft => {
           const currentItems = draft.items || []
@@ -147,7 +197,10 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
 
           const updatedDialog: LastMessageViewDto = {
             ...optimisticMessage,
-            userName: currentItems[existingIdx]?.userName ?? `User ${receiverId}`,
+            userName:
+              currentItems[existingIdx]?.userName ??
+              partnerPreview?.userName ??
+              `User ${receiverId}`,
             avatars: currentItems[existingIdx]?.avatars ?? [],
             notReadCount: 0,
           }
@@ -164,39 +217,29 @@ export const useMessengerCenter = (dialoguePartnerId: number) => {
         })
       )
 
-      try {
-        const payload: SendMessagePayload = {
-          message: trimmedText,
-          receiverId,
-        }
+      const payload: SendMessagePayload = {
+        message: trimmedText,
+        receiverId,
+      }
 
-        sendMessage(payload)
-        setDraftText('')
+      const sent = sendMessage(payload)
 
-        // Сбрасываем флаг отправки через небольшую задержку
-        setTimeout(() => setIsSending(false), 500)
-      } catch (err) {
-        logger.error('[MessengerCenter] Send error:', err)
-        setSendError('Не удалось отправить сообщение')
-        setIsSending(false)
-
-        // Откат оптимистичного обновления при ошибке
-        dispatch(
-          messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
-            draft.items = (draft.items || []).filter(m => m.id !== optimisticMessage.id)
-          })
-        )
+      if (!sent) {
+        // onError already rolled back optimistic UI for the pending send
+        return
       }
     },
     [
+      accessToken,
       currentUserId,
       dispatch,
       dialogsQueryArgs,
       isConnected,
       isSending,
       messagesQueryArgs,
+      partnerPreview?.userName,
+      rollbackOptimisticSend,
       sendMessage,
-      accessToken,
     ]
   )
 

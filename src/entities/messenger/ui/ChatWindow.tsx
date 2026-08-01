@@ -223,7 +223,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     isSending,
     sendError,
     currentUserId,
-  } = useMessengerCenter(dialoguePartnerId)
+  } = useMessengerCenter(dialoguePartnerId, {
+    userName: partnerName,
+    avatarUrl: partnerAvatarUrl,
+  })
 
   const handleSend = () => {
     sendTextMessage(draftText, dialoguePartnerId)

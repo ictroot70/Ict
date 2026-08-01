@@ -40,8 +40,11 @@ vi.mock('socket.io-client', () => ({
 
 vi.mock('@/shared/lib/logger', () => ({
   logger: {
+    info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
+    debug: vi.fn(),
+    log: vi.fn(),
   },
 }))
 
@@ -140,23 +143,29 @@ describe('useMessengerSocket', () => {
       receiverId: 2,
     }
 
+    let sent = false
+
     act(() => {
-      result.current.sendMessage(payload)
+      sent = result.current.sendMessage(payload)
     })
 
+    expect(sent).toBe(true)
     expect(socketMock.emit).toHaveBeenCalledWith(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
   })
 
   it('reports an error when sending while disconnected', () => {
     const { onError, result } = setupHook()
 
+    let sent = true
+
     act(() => {
-      result.current.sendMessage({
+      sent = result.current.sendMessage({
         message: 'Hello',
         receiverId: 2,
       })
     })
 
+    expect(sent).toBe(false)
     expect(socketMock.emit).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledWith({
       source: 'socket',
@@ -320,11 +329,11 @@ describe('useMessengerSocket', () => {
   it('removes listeners and disconnects on unmount', () => {
     const { unmount } = setupHook()
 
-    expect(handlers.size).toBe(6)
+    expect(handlers.size).toBe(7)
 
     unmount()
 
-    expect(socketMock.off).toHaveBeenCalledTimes(6)
+    expect(socketMock.off).toHaveBeenCalledTimes(7)
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
     expect(handlers.size).toBe(0)
   })
