@@ -1,20 +1,22 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { LinearProgress } from '@/shared/composites'
 
 import styles from './ChatWindow.module.scss'
 
-import { MessageStatus, MessageType, type MessageViewModel } from '../model/messenger.types'
+import { MessageStatus, MessageType } from '../model/messenger.types'
 import { useMessengerCenter } from '../model/useMessengerCenter'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 
 interface ChatWindowProps {
   dialoguePartnerId: number
+  currentUserId: number
   partnerName: string
   partnerAvatarUrl?: string
+  hasAttachment?: boolean
 }
 
 const getBubbleType = (type: MessageType) => {
@@ -37,35 +39,34 @@ const formatTime = (value: string) =>
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   dialoguePartnerId,
+  currentUserId,
   partnerName,
   partnerAvatarUrl,
+  hasAttachment = false,
 }) => {
-  const {
-    messages,
-    isFetching,
-    draftText,
-    setDraftText,
-    sendTextMessage,
-    isSending,
-    sendError,
-    currentUserId,
-  } = useMessengerCenter(dialoguePartnerId, {
-    userName: partnerName,
-    avatarUrl: partnerAvatarUrl,
-  })
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+  const { messages, isFetching, draftText, setDraftText, sendTextMessage, isSending, sendError } =
+    useMessengerCenter(dialoguePartnerId, currentUserId, {
+      userName: partnerName,
+      avatarUrl: partnerAvatarUrl,
+    })
 
   const handleSend = () => {
     sendTextMessage(draftText, dialoguePartnerId)
   }
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   return (
     <div className={styles.container}>
       <LinearProgress active={isFetching} />
 
       <div className={styles.messagesArea}>
-        {[...(messages || [])].reverse().map((message, index, array) => {
+        {messages.map((message, index) => {
           const isIncoming = message.ownerId !== currentUserId
-          const prevMsg = array[index - 1]
+          const prevMsg = messages[index - 1]
           const isPrevIncoming = prevMsg && prevMsg.ownerId !== currentUserId
           const showAvatar = isIncoming && !isPrevIncoming
 
@@ -83,6 +84,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             />
           )
         })}
+        <div ref={messagesEndRef} />
       </div>
 
       <MessageComposer
@@ -91,6 +93,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         onSend={handleSend}
         pending={isSending}
         error={sendError}
+        hasAttachment={hasAttachment}
       />
     </div>
   )

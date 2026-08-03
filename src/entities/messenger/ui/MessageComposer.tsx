@@ -15,6 +15,8 @@ interface MessageComposerProps {
   error?: string | null
   previewSlot?: React.ReactNode
   actionsSlot?: React.ReactNode
+  /** Image/voice attachments can be sent without text. */
+  hasAttachment?: boolean
 }
 
 export const MessageComposer: React.FC<MessageComposerProps> = ({
@@ -26,8 +28,9 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   error,
   previewSlot,
   actionsSlot,
+  hasAttachment = false,
 }) => {
-  const canSend = value.trim().length > 0
+  const canSend = value.trim().length > 0 || hasAttachment
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && canSend && !pending) {

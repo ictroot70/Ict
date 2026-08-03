@@ -79,6 +79,7 @@ export function useMessengerShell() {
     items,
     searchQuery,
     setSearchQuery,
+    currentUserId: currentUser?.userId ?? 0,
     isLoading:
       areDialoguesLoading ||
       areDialoguesFetching ||

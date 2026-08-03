@@ -6,7 +6,6 @@ import type {
   SendImageMessagePayload,
   SendVoiceMessagePayload,
   UpdateMessagesStatusDto,
-  SendMessagePayload,
   MessageViewModel,
 } from '@/entities/messenger/model'
 
@@ -15,18 +14,6 @@ import { baseApi } from '@/shared/api/base-api'
 
 export const messengerApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    sendMessage: builder.mutation<MessageViewModel, SendMessagePayload>({
-      query: ({ message, receiverId }) => ({
-        url: API_ROUTES.MESSENGER.DIALOGUE(String(receiverId)),
-        method: 'POST',
-        body: { messageText: message },
-      }),
-      invalidatesTags: (result, error, { receiverId }) => [
-        'MessengerDialogs',
-        { type: 'DialogueMessages', id: receiverId },
-      ],
-    }),
-
     getMessengerDialogs: builder.query<MessengerDialogsResponseDto, GetMessengerDialogsParams>({
       query: params => ({
         url: API_ROUTES.MESSENGER.BASE,
@@ -103,7 +90,6 @@ export const messengerApi = baseApi.injectEndpoints({
 })
 
 export const {
-  useSendMessageMutation,
   useDeleteMessageMutation,
   useGetDialogueMessagesQuery,
   useGetMessengerDialogsQuery,

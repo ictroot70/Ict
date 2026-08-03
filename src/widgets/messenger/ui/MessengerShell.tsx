@@ -2,6 +2,7 @@
 
 import React from 'react'
 
+import { MessengerRealtimeProvider } from '@/entities/messenger/model/MessengerRealtimeProvider'
 import { ChatList } from '@/entities/messenger/ui/ChatList'
 import { Avatar, LinearProgress } from '@/shared/composites'
 import { Typography, Input } from '@ictroot/ui-kit'
@@ -11,11 +12,11 @@ import styles from './MessengerShell.module.scss'
 import { useMessengerShell } from '../model'
 
 export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
-  const { activeProfile, items, searchQuery, setSearchQuery, isLoading, isError } =
+  const { activeProfile, items, searchQuery, setSearchQuery, isLoading, isError, currentUserId } =
     useMessengerShell()
 
   return (
-    <>
+    <MessengerRealtimeProvider currentUserId={currentUserId}>
       <LinearProgress active={isLoading} />
       <Typography variant={'h1'}>Messenger</Typography>
       <div className={styles.container}>
@@ -44,6 +45,6 @@ export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className={styles.main}>{children}</div>
       </div>
-    </>
+    </MessengerRealtimeProvider>
   )
 }

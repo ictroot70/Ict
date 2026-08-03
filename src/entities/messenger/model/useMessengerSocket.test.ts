@@ -48,6 +48,23 @@ vi.mock('@/shared/lib/logger', () => ({
   },
 }))
 
+vi.mock('@/shared/lib/restoreAccessToken', () => ({
+  restoreAccessToken: vi.fn(async () => ({
+    accessToken: 'refreshed-token',
+    isAuthenticated: true,
+  })),
+}))
+
+vi.mock('@/shared/lib/storage/auth-token', () => ({
+  authTokenStorage: {
+    setAccessToken: vi.fn(),
+    getAccessToken: vi.fn(() => 'access-token'),
+    hasToken: vi.fn(() => true),
+    clear: vi.fn(),
+    subscribe: vi.fn(() => () => {}),
+  },
+}))
+
 beforeEach(() => {
   handlers.clear()
   socketMock.connected = false
@@ -202,7 +219,7 @@ describe('useMessengerSocket', () => {
     })
   })
 
-  it('acknowledges a successfully processed message', async () => {
+  it('acknowledges a successfully processed message without DTO', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
 
@@ -211,10 +228,7 @@ describe('useMessengerSocket', () => {
     })
 
     await waitFor(() => {
-      expect(acknowledge).toHaveBeenCalledWith({
-        message: validMessage.messageText,
-        receiverId: validMessage.ownerId,
-      })
+      expect(acknowledge).toHaveBeenCalledWith()
     })
 
     expect(onMessage).toHaveBeenCalledWith(validMessage)
@@ -223,7 +237,7 @@ describe('useMessengerSocket', () => {
     )
   })
 
-  it('processes a media message without inventing an acknowledgement payload', async () => {
+  it('acknowledges a media message without DTO', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
     const imageMessage = {
@@ -243,9 +257,8 @@ describe('useMessengerSocket', () => {
 
     await waitFor(() => {
       expect(onMessage).toHaveBeenCalledWith(imageMessage)
+      expect(acknowledge).toHaveBeenCalledWith()
     })
-
-    expect(acknowledge).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid incoming payload', async () => {

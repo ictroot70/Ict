@@ -1,39 +1,40 @@
 'use client'
 
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { useAppDispatch } from '@/lib/hooks'
-import { useAccessToken } from '@/shared/auth/useAccessToken'
 import { logger } from '@/shared/lib/logger'
 
 import { messengerApi } from '../api/messenger.api'
-import { upsertMessageInHistory, mapMessageToDialoguePreview } from '../lib'
+import { upsertMessageInHistory } from '../lib'
+import { useMessengerRealtime } from './MessengerRealtimeProvider'
 import {
   MessageStatus,
   MessageType,
   type GetDialogueMessagesParams,
-  type GetMessengerDialogsParams,
-  type LastMessageViewDto,
   type MessageViewModel,
-  type MessengerError,
   type SendMessagePayload,
 } from './messenger.types'
 import { MESSENGER_DIALOGS_QUERY_ARGS } from './messenger-dialogs-query'
-import { useMessengerSocket } from './useMessengerSocket'
+
+const DEFAULT_MESSAGES_PAGE_SIZE = 50
+
+function sortMessagesByCreatedAtAsc(messages: MessageViewModel[]): MessageViewModel[] {
+  return [...messages].sort(
+    (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
+  )
+}
 
 export const useMessengerCenter = (
   dialoguePartnerId: number,
+  currentUserId: number,
   partnerPreview?: { userName?: string; avatarUrl?: string }
 ) => {
   const dispatch = useAppDispatch()
-  const { user } = useAuthUiState()
-  const currentUserId = user?.userId ?? 0
-  const accessToken = useAccessToken()
+  const { isConnected, sendMessage, subscribeMessages } = useMessengerRealtime()
 
-  const dialogsQueryArgs: GetMessengerDialogsParams = MESSENGER_DIALOGS_QUERY_ARGS
   const messagesQueryArgs: GetDialogueMessagesParams = useMemo(
-    () => ({ dialoguePartnerId }),
+    () => ({ dialoguePartnerId, pageSize: DEFAULT_MESSAGES_PAGE_SIZE }),
     [dialoguePartnerId]
   )
 
@@ -63,44 +64,24 @@ export const useMessengerCenter = (
     pendingTextRef.current = null
   }, [dispatch, messagesQueryArgs])
 
-  const handleIncomingMessage = useCallback(
-    async (message: MessageViewModel): Promise<void> => {
+  useEffect(() => {
+    return subscribeMessages(async (message: MessageViewModel) => {
       const isOwnMessage = message.ownerId === currentUserId
       const isForCurrentDialogue =
         message.ownerId === dialoguePartnerId || message.receiverId === dialoguePartnerId
 
-      if (isForCurrentDialogue) {
-        dispatch(
-          messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
-            if (isOwnMessage) {
-              draft.items = (draft.items || []).filter(
-                item => !(item.id < 0 && item.messageText === message.messageText)
-              )
-            }
-            draft.items = upsertMessageInHistory(draft.items || [], message)
-          })
-        )
+      if (!isForCurrentDialogue) {
+        return
       }
 
       dispatch(
-        messengerApi.util.updateQueryData('getMessengerDialogs', dialogsQueryArgs, draft => {
-          const currentItems = draft.items || []
-          const result = mapMessageToDialoguePreview(currentItems, message, currentUserId)
-
-          if (result.type === 'updated') {
-            draft.items = result.dialogues
-          } else if (result.type === 'dialogue-not-found') {
-            const newDialogue: LastMessageViewDto = {
-              ...message,
-              userName:
-                partnerPreview?.userName ??
-                `User ${message.ownerId === currentUserId ? message.receiverId : message.ownerId}`,
-              avatars: [],
-              notReadCount: isOwnMessage ? 0 : 1,
-            }
-
-            draft.items = [newDialogue, ...currentItems]
+        messengerApi.util.updateQueryData('getDialogueMessages', messagesQueryArgs, draft => {
+          if (isOwnMessage) {
+            draft.items = (draft.items || []).filter(
+              item => !(item.id < 0 && item.messageText === message.messageText)
+            )
           }
+          draft.items = upsertMessageInHistory(draft.items || [], message)
         })
       )
 
@@ -116,37 +97,8 @@ export const useMessengerCenter = (
         pendingTextRef.current = null
         dispatch(messengerApi.util.invalidateTags(['MessengerDialogs']))
       }
-    },
-    [
-      currentUserId,
-      dialoguePartnerId,
-      dispatch,
-      dialogsQueryArgs,
-      messagesQueryArgs,
-      partnerPreview,
-    ]
-  )
-
-  const handleSocketError = useCallback(
-    (error: MessengerError) => {
-      logger.error('[MessengerCenter] Socket error:', error)
-
-      if (pendingTextRef.current === null) {
-        return
-      }
-
-      setSendError(error.message)
-      setIsSending(false)
-      rollbackOptimisticSend()
-    },
-    [rollbackOptimisticSend]
-  )
-
-  const { isConnected, sendMessage } = useMessengerSocket({
-    accessToken,
-    onMessage: handleIncomingMessage,
-    onError: handleSocketError,
-  })
+    })
+  }, [currentUserId, dialoguePartnerId, dispatch, messagesQueryArgs, subscribeMessages])
 
   const sendTextMessage = useCallback(
     (text: string, receiverId: number): void => {
@@ -159,9 +111,7 @@ export const useMessengerCenter = (
       if (!isConnected) {
         logger.warn(
           '[MessengerCenter] Cannot send: Socket is not connected. isConnected=',
-          isConnected,
-          'token=',
-          !!accessToken
+          isConnected
         )
         setSendError('Нет соединения с сервером. Проверьте интернет или попробуйте позже.')
 
@@ -194,32 +144,36 @@ export const useMessengerCenter = (
       )
 
       dispatch(
-        messengerApi.util.updateQueryData('getMessengerDialogs', dialogsQueryArgs, draft => {
-          const currentItems = draft.items || []
-          const existingIdx = currentItems.findIndex(
-            d => d.ownerId === receiverId || d.receiverId === receiverId
-          )
+        messengerApi.util.updateQueryData(
+          'getMessengerDialogs',
+          MESSENGER_DIALOGS_QUERY_ARGS,
+          draft => {
+            const currentItems = draft.items || []
+            const existingIdx = currentItems.findIndex(
+              d => d.ownerId === receiverId || d.receiverId === receiverId
+            )
 
-          const updatedDialog: LastMessageViewDto = {
-            ...optimisticMessage,
-            userName:
-              currentItems[existingIdx]?.userName ??
-              partnerPreview?.userName ??
-              `User ${receiverId}`,
-            avatars: currentItems[existingIdx]?.avatars ?? [],
-            notReadCount: 0,
+            const updatedDialog = {
+              ...optimisticMessage,
+              userName:
+                currentItems[existingIdx]?.userName ??
+                partnerPreview?.userName ??
+                `User ${receiverId}`,
+              avatars: currentItems[existingIdx]?.avatars ?? [],
+              notReadCount: 0,
+            }
+
+            if (existingIdx >= 0) {
+              const updated = [...currentItems]
+
+              updated.splice(existingIdx, 1)
+              updated.unshift(updatedDialog)
+              draft.items = updated
+            } else {
+              draft.items = [updatedDialog, ...currentItems]
+            }
           }
-
-          if (existingIdx >= 0) {
-            const updated = [...currentItems]
-
-            updated.splice(existingIdx, 1)
-            updated.unshift(updatedDialog)
-            draft.items = updated
-          } else {
-            draft.items = [updatedDialog, ...currentItems]
-          }
-        })
+        )
       )
 
       const payload: SendMessagePayload = {
@@ -230,15 +184,14 @@ export const useMessengerCenter = (
       const sent = sendMessage(payload)
 
       if (!sent) {
-        // onError already rolled back optimistic UI for the pending send
-        return
+        setIsSending(false)
+        setSendError('Messenger socket is not connected')
+        rollbackOptimisticSend()
       }
     },
     [
-      accessToken,
       currentUserId,
       dispatch,
-      dialogsQueryArgs,
       isConnected,
       isSending,
       messagesQueryArgs,
@@ -249,7 +202,7 @@ export const useMessengerCenter = (
   )
 
   return {
-    messages: messagesData?.items ?? [],
+    messages: sortMessagesByCreatedAtAsc(messagesData?.items ?? []),
     isFetching,
     isConnected,
     draftText,
