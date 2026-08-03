@@ -15,6 +15,7 @@ interface MessageComposerProps {
   error?: string | null
   previewSlot?: React.ReactNode
   actionsSlot?: React.ReactNode
+  contentSlot?: React.ReactNode
 }
 
 export const MessageComposer: React.FC<MessageComposerProps> = ({
@@ -26,35 +27,40 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   error,
   previewSlot,
   actionsSlot,
+  contentSlot,
 }) => {
   return (
     <div className={styles.composer}>
       {previewSlot && <div className={styles.previewArea}>{previewSlot}</div>}
 
       <div className={styles.inputArea}>
-        <Input
-          inputType={'text'}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          placeholder={'Type Message'}
-          className={styles.input}
-          disabled={disabled}
-        />
+        {contentSlot ?? (
+          <>
+            <Input
+              inputType={'text'}
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              placeholder={'Type Message'}
+              className={styles.input}
+              disabled={disabled}
+            />
 
-        <div className={styles.controls}>
-          {actionsSlot}
+            <div className={styles.controls}>
+              {actionsSlot}
 
-          {(value || previewSlot) && (
-            <Button
-              onClick={onSend}
-              variant={'text'}
-              disabled={disabled || pending}
-              className={styles.sendBtn}
-            >
-              <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
-            </Button>
-          )}
-        </div>
+              {(value || previewSlot) && (
+                <Button
+                  onClick={onSend}
+                  variant={'text'}
+                  disabled={disabled || pending}
+                  className={styles.sendBtn}
+                >
+                  <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </div>
       {error && (
         <div className={styles.errorArea}>

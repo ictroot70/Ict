@@ -1,0 +1,27 @@
+.content {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.delivery {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 4px;
+  align-items: center;
+
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-s);
+  color: var(--color-primary-100);
+}
+
+.statusIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 16px;
+  height: 16px;
+}

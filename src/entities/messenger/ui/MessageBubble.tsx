@@ -1,12 +1,14 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React from 'react'
 
 import { Avatar } from '@/shared/composites'
-import { Button, Typography } from '@ictroot/ui-kit'
-import { Checkmark, DoneAll, PlayCircle, PauseCircle } from '@ictroot/ui-kit/icons'
+import { Typography } from '@ictroot/ui-kit'
+import { Checkmark, DoneAll } from '@ictroot/ui-kit/icons'
 
 import styles from './MessageBubble.module.scss'
+
+import { VoiceMessageBody } from './VoiceMessageBody'
 
 interface MessageBubbleProps {
   text: string
@@ -17,6 +19,11 @@ interface MessageBubbleProps {
   avatarUrl?: string
   showAvatar?: boolean
   isRead?: boolean
+  voiceWaveform?: readonly number[]
+  isVoicePlaybackRequested?: boolean
+  onVoicePlaybackEnded?: () => void
+  onVoicePlaybackPause?: () => void
+  onVoicePlaybackStart?: () => void
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -28,12 +35,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   avatarUrl,
   showAvatar,
   isRead,
+  voiceWaveform,
+  isVoicePlaybackRequested,
+  onVoicePlaybackEnded,
+  onVoicePlaybackPause,
+  onVoicePlaybackStart,
 }) => {
   const isIncoming = direction === 'incoming'
   const isImageOnly = type === 'image' && !text
   const isImageWithText = type === 'image' && text
-  const [isPlaying, setIsPlaying] = useState(false)
-  const waveformHeights = useMemo(() => [...Array(40)].map(() => Math.random() * 100), [])
+  const isVoice = type === 'voice'
 
   return (
     <div
@@ -47,7 +58,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         ))}
       <div
         className={
-          styles.bubble +
+          (isVoice ? styles.voiceBubble : styles.bubble) +
           ' ' +
           (isIncoming ? styles.incomingBubble : styles.outgoingBubble) +
           (isImageOnly ? ' ' + styles.imageOnly : '') +
@@ -65,37 +76,29 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             )}
           </div>
         )}
-        {type === 'voice' && (
-          <div className={styles.voiceContent}>
-            <Button
-              variant={'text'}
-              className={styles.voiceButton}
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? (
-                <PauseCircle className={styles.voiceIcon} size={40} />
-              ) : (
-                <PlayCircle className={styles.voiceIcon} size={40} />
-              )}
-            </Button>
-            <div className={styles.voiceWaveform}>
-              {waveformHeights.map((height, i) => (
-                <div key={i} className={styles.waveformBar} style={{ height: `${height}%` }} />
-              ))}
-            </div>
-            <div className={styles.voiceMeta}>
-              <span className={styles.duration}>02:31</span>
-            </div>
+        {isVoice && url && (
+          <VoiceMessageBody
+            source={url}
+            timestamp={timestamp}
+            isIncoming={isIncoming}
+            isRead={isRead}
+            waveform={voiceWaveform}
+            isPlaybackRequested={isVoicePlaybackRequested}
+            onPlaybackEnded={onVoicePlaybackEnded}
+            onPlaybackPause={onVoicePlaybackPause}
+            onPlaybackStart={onVoicePlaybackStart}
+          />
+        )}
+        {!isVoice && (
+          <div className={styles.footer}>
+            <Typography variant={'small_text'} className={styles.timestamp}>
+              {timestamp}
+            </Typography>
+            {!isIncoming && (
+              <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
+            )}
           </div>
         )}
-        <div className={styles.footer}>
-          <Typography variant={'small_text'} className={styles.timestamp}>
-            {timestamp}
-          </Typography>
-          {!isIncoming && (
-            <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
-          )}
-        </div>
       </div>
     </div>
   )

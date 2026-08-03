@@ -2,13 +2,19 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { type MessengerListItem, useGetMessengerDialogsQuery } from '@/entities/messenger'
+import {
+  type GetMessengerDialogsParams,
+  type MessengerListItem,
+  useGetMessengerDialogsQuery,
+} from '@/entities/messenger'
 import { useGetPublicProfileQuery } from '@/entities/profile'
 import { useSearchUsersQuery } from '@/entities/users/api'
 import { useMeQuery } from '@/features/auth'
 import { usePathname } from 'next/navigation'
 
 import { appendNewContactItems, buildDialogueItems } from './messenger-list'
+import { MESSENGER_DIALOGS_PAGE_SIZE } from './messenger-voice-realtime'
+import { useMessengerVoiceRealtime } from './useMessengerVoiceRealtime'
 
 const SEARCH_DEBOUNCE_MS = 200
 
@@ -25,6 +31,13 @@ export function useMessengerShell() {
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const search = debouncedSearch.trim()
   const { data: currentUser } = useMeQuery()
+  const dialogsQueryParams = useMemo<GetMessengerDialogsParams>(
+    () => ({
+      pageSize: MESSENGER_DIALOGS_PAGE_SIZE,
+      searchName: search || undefined,
+    }),
+    [search]
+  )
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setDebouncedSearch(searchQuery), SEARCH_DEBOUNCE_MS)
@@ -37,15 +50,9 @@ export function useMessengerShell() {
     isLoading: areDialoguesLoading,
     isFetching: areDialoguesFetching,
     isError: areDialoguesError,
-  } = useGetMessengerDialogsQuery(
-    {
-      pageSize: 50,
-      searchName: search || undefined,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  )
+  } = useGetMessengerDialogsQuery(dialogsQueryParams, {
+    refetchOnMountOrArgChange: true,
+  })
   const {
     data: users,
     isLoading: areUsersLoading,
@@ -56,6 +63,12 @@ export function useMessengerShell() {
     { profileId: partnerId ?? 0 },
     { skip: partnerId === null }
   )
+
+  useMessengerVoiceRealtime({
+    activePartnerId: partnerId,
+    currentUserId: currentUser?.userId ?? 0,
+    dialogsQueryParams,
+  })
 
   const dialogueItems = useMemo<MessengerListItem[]>(() => {
     if (!currentUser) {
