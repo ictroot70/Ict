@@ -20,6 +20,10 @@ export const APP_ROUTES = {
   LEGAL: {
     TERMS: '/legal/terms-of-service',
     PRIVACY: '/legal/privacy-policy',
+    FROM: {
+      EDIT_PROFILE: 'edit-profile',
+      SIGN_UP: 'signup',
+    },
   },
 
   PROFILE: {
