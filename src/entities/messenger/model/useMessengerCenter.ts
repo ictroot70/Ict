@@ -104,7 +104,6 @@ export const useMessengerCenter = (
         })
       )
 
-      // UC-1: clear input only after successful send confirmation
       if (
         isOwnMessage &&
         pendingTextRef.current !== null &&
@@ -115,11 +114,17 @@ export const useMessengerCenter = (
         setSendError(null)
         pendingOptimisticIdRef.current = null
         pendingTextRef.current = null
-        // Sync dialog list (incl. first-time dialogue) with backend preview/userName
         dispatch(messengerApi.util.invalidateTags(['MessengerDialogs']))
       }
     },
-    [currentUserId, dialoguePartnerId, dispatch, dialogsQueryArgs, messagesQueryArgs, partnerPreview]
+    [
+      currentUserId,
+      dialoguePartnerId,
+      dispatch,
+      dialogsQueryArgs,
+      messagesQueryArgs,
+      partnerPreview,
+    ]
   )
 
   const handleSocketError = useCallback(

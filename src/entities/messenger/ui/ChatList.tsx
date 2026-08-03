@@ -28,9 +28,9 @@ const formatTime = (value: string | null) => {
   return Number.isNaN(date.getTime())
     ? ''
     : new Intl.DateTimeFormat('en', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date)
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(date)
 }
 
 export const ChatList: React.FC<ChatListProps> = ({ items, searchQuery, isError }) => {
