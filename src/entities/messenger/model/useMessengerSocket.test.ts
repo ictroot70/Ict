@@ -202,10 +202,7 @@ describe('useMessengerSocket', () => {
     })
 
     await waitFor(() => {
-      expect(acknowledge).toHaveBeenCalledWith({
-        message: validMessage.messageText,
-        receiverId: validMessage.ownerId,
-      })
+      expect(acknowledge).toHaveBeenCalledWith()
     })
 
     expect(onMessage).toHaveBeenCalledWith(validMessage)
@@ -214,7 +211,7 @@ describe('useMessengerSocket', () => {
     )
   })
 
-  it('processes a media message without inventing an acknowledgement payload', async () => {
+  it('acknowledges a successfully processed media message', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
     const imageMessage = {
@@ -236,7 +233,7 @@ describe('useMessengerSocket', () => {
       expect(onMessage).toHaveBeenCalledWith(imageMessage)
     })
 
-    expect(acknowledge).not.toHaveBeenCalled()
+    expect(acknowledge).toHaveBeenCalledWith()
   })
 
   it('rejects an invalid incoming payload', async () => {
