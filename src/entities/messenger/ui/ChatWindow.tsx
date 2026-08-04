@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 
 import { LinearProgress } from '@/shared/composites'
+import { formatTime } from '@/shared/lib/formatters'
 
 import styles from './ChatWindow.module.scss'
 
@@ -30,12 +31,6 @@ const getBubbleType = (type: MessageType) => {
 
   return 'text'
 }
-
-const formatTime = (value: string) =>
-  new Intl.DateTimeFormat('en', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value))
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   dialoguePartnerId,
