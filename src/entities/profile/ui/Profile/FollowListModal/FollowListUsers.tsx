@@ -48,10 +48,10 @@ export const FollowListUsers = ({
             </Typography>
           </span>
         </Link>
-        {user.userId !== currentUserId && (
+        {currentUserId !== undefined && user.userId !== currentUserId && (
           <Button
             className={s.followButton}
-            disabled={pendingUserId === user.userId}
+            disabled={pendingUserId !== null}
             variant={user.isFollowing ? 'outlined' : 'primary'}
             onClick={() => onToggleFollow(user)}
           >

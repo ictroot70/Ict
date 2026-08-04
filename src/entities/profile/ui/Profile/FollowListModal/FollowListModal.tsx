@@ -45,6 +45,7 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isError, setIsError] = useState(false)
   const [pendingUserId, setPendingUserId] = useState<number | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [confirmUnfollowUser, setConfirmUnfollowUser] =
     useState<UserFollowingFollowersViewModel | null>(null)
   const { data: currentUser } = useMeQuery()
@@ -107,33 +108,16 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
   }, [triggerQuery])
 
   useEffect(() => {
-    if (!open) {
-      return
-    }
-
     loadFirstPage()
-  }, [loadFirstPage, open])
+  }, [loadFirstPage])
 
   useEffect(() => {
-    if (!open) {
-      setSearch('')
-      setDebouncedSearch('')
-
-      return
-    }
-
     const timeoutId = setTimeout(() => {
       setDebouncedSearch(search)
     }, SEARCH_DEBOUNCE_MS)
 
     return () => clearTimeout(timeoutId)
-  }, [open, search])
-
-  useEffect(() => {
-    setSearch('')
-    setDebouncedSearch('')
-    setConfirmUnfollowUser(null)
-  }, [mode])
+  }, [search])
 
   const loadMore = useCallback(() => {
     if (nextCursor === null || isLoadingMoreRef.current || isInitialLoading) {
@@ -176,7 +160,11 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
     user: UserFollowingFollowersViewModel,
     options?: { confirmed?: boolean }
   ) => {
-    if (pendingUserId !== null || user.userId === currentUser?.userId) {
+    if (
+      pendingUserId !== null ||
+      currentUser?.userId === undefined ||
+      user.userId === currentUser.userId
+    ) {
       return
     }
 
@@ -188,17 +176,18 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
 
     setConfirmUnfollowUser(null)
     setPendingUserId(user.userId)
+    setActionError(null)
 
     try {
       if (user.isFollowing) {
         await unfollowUser({
-          currentUserId: currentUser?.userId,
+          currentUserId: currentUser.userId,
           selectedUserId: user.userId,
           targetUserName: user.userName,
         }).unwrap()
       } else {
         await followUser({
-          currentUserId: currentUser?.userId,
+          currentUserId: currentUser.userId,
           selectedUserId: user.userId,
           targetUserName: user.userName,
         }).unwrap()
@@ -209,6 +198,8 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
           item.userId === user.userId ? { ...item, isFollowing: !user.isFollowing } : item
         )
       )
+    } catch {
+      setActionError('Could not update follow status. Try again please.')
     } finally {
       setPendingUserId(null)
     }
@@ -224,7 +215,9 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
     }
 
     if (!users.length) {
-      return <FollowListFeedback type={'empty'} emptyText={EMPTY_TEXT_BY_MODE[mode]} />
+      const emptyText = debouncedSearch.trim() ? 'No users found' : EMPTY_TEXT_BY_MODE[mode]
+
+      return <FollowListFeedback type={'empty'} emptyText={emptyText} />
     }
 
     return (
@@ -245,11 +238,7 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
   const modalTitle = `${countFormatter.format(count)} ${TITLE_BY_MODE[mode]}`
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      className={`${s.modal} ${confirmUnfollowUser ? s.modalConfirming : ''}`}
-    >
+    <Modal open={open} onClose={onClose} className={s.modal}>
       <div className={s.modalInner}>
         <div className={s.header}>
           <Typography className={s.title} variant={'h1'}>
@@ -269,10 +258,16 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
             />
           </div>
           {renderList()}
+          {actionError && (
+            <Typography className={s.actionError} variant={'danger'}>
+              {actionError}
+            </Typography>
+          )}
         </div>
         {confirmUnfollowUser && (
           <UnfollowConfirm
             isPending={pendingUserId === confirmUnfollowUser.userId}
+            open={confirmUnfollowUser !== null}
             user={confirmUnfollowUser}
             onCancel={() => setConfirmUnfollowUser(null)}
             onConfirm={() => void handleToggleFollow(confirmUnfollowUser, { confirmed: true })}
