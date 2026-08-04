@@ -5,7 +5,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
-import { MessageStatus, MessageType, type MessageViewModel } from './messenger.types'
+import { MediaFileType, MessageStatus, MessageType, type MessageViewModel } from './messenger.types'
 import { useMessengerSocket } from './useMessengerSocket'
 
 type SocketHandler = (...args: unknown[]) => void
@@ -41,6 +41,7 @@ vi.mock('socket.io-client', () => ({
 vi.mock('@/shared/lib/logger', () => ({
   logger: {
     error: vi.fn(),
+    warn: vi.fn(),
   },
 }))
 
@@ -84,6 +85,7 @@ const validMessage = {
   ownerId: 2,
   receiverId: 1,
   messageText: 'Hello',
+  mediaContent: null,
   status: MessageStatus.SENT,
   messageType: MessageType.TEXT,
   createdAt: '2026-07-12T10:00:00.000Z',
@@ -175,6 +177,22 @@ describe('useMessengerSocket', () => {
     })
   })
 
+  it('processes an array of status updates received after marking messages as read', async () => {
+    const { onMessage } = setupHook()
+    const readMessage = {
+      ...validMessage,
+      status: MessageStatus.READ,
+    }
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, [readMessage])
+    })
+
+    await waitFor(() => {
+      expect(onMessage).toHaveBeenCalledWith(readMessage)
+    })
+  })
+
   it('acknowledges a successfully processed message', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
@@ -186,7 +204,7 @@ describe('useMessengerSocket', () => {
     await waitFor(() => {
       expect(acknowledge).toHaveBeenCalledWith({
         message: validMessage.messageText,
-        receiverId: validMessage.receiverId,
+        receiverId: validMessage.ownerId,
       })
     })
 
@@ -194,6 +212,31 @@ describe('useMessengerSocket', () => {
     expect(onMessage.mock.invocationCallOrder[0]).toBeLessThan(
       acknowledge.mock.invocationCallOrder[0]
     )
+  })
+
+  it('processes a media message without inventing an acknowledgement payload', async () => {
+    const acknowledge = vi.fn()
+    const { onMessage } = setupHook()
+    const imageMessage = {
+      ...validMessage,
+      messageText: 'Caption',
+      messageType: MessageType.IMAGE,
+      mediaContent: {
+        fileType: MediaFileType.IMAGE,
+        fileUrl: 'https://example.com/message.png',
+        fileSize: 1024,
+      },
+    } satisfies MessageViewModel
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, imageMessage, acknowledge)
+    })
+
+    await waitFor(() => {
+      expect(onMessage).toHaveBeenCalledWith(imageMessage)
+    })
+
+    expect(acknowledge).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid incoming payload', async () => {
@@ -251,6 +294,26 @@ describe('useMessengerSocket', () => {
       source: 'socket',
       code: 'DELIVERY_FAILED',
       message: 'Cannot deliver message',
+    })
+  })
+
+  it('disconnects an authenticated socket after an authentication error', () => {
+    socketMock.connected = true
+    const { onError, result } = setupHook()
+
+    act(() => {
+      triggerSocketEvent('connect')
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.ERROR, {
+        message: 'Authentication error',
+      })
+    })
+
+    expect(result.current.isConnected).toBe(false)
+    expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(onError).toHaveBeenCalledWith({
+      source: 'socket',
+      code: 'SOCKET_ERROR',
+      message: 'Authentication error',
     })
   })
 

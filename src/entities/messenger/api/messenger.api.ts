@@ -3,6 +3,9 @@ import type {
   GetDialogueMessagesParams,
   GetMessengerDialogsParams,
   MessengerDialogsResponseDto,
+  MessageViewModel,
+  SendImageMessagePayload,
+  SendVoiceMessagePayload,
   UpdateMessagesStatusDto,
 } from '@/entities/messenger/model'
 
@@ -42,6 +45,44 @@ export const messengerApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['MessengerDialogs', 'DialogueMessages'],
     }),
+    sendImageMessage: builder.mutation<MessageViewModel, SendImageMessagePayload>({
+      query: ({ receiverId, file, message }) => {
+        const formData = new FormData()
+
+        formData.append('file', file)
+
+        if (message !== undefined) {
+          formData.append('message', message)
+        }
+
+        return {
+          url: API_ROUTES.MESSENGER.IMAGE(receiverId),
+          method: 'POST',
+          body: formData,
+        }
+      },
+      invalidatesTags: (result, error, { receiverId }) => [
+        'MessengerDialogs',
+        { type: 'DialogueMessages', id: receiverId },
+      ],
+    }),
+    sendVoiceMessage: builder.mutation<MessageViewModel, SendVoiceMessagePayload>({
+      query: ({ receiverId, file }) => {
+        const formData = new FormData()
+
+        formData.append('file', file)
+
+        return {
+          url: API_ROUTES.MESSENGER.VOICE(receiverId),
+          method: 'POST',
+          body: formData,
+        }
+      },
+      invalidatesTags: (result, error, { receiverId }) => [
+        'MessengerDialogs',
+        { type: 'DialogueMessages', id: receiverId },
+      ],
+    }),
   }),
 })
 
@@ -52,4 +93,6 @@ export const {
   useLazyGetDialogueMessagesQuery,
   useLazyGetMessengerDialogsQuery,
   useMarkMessagesAsReadMutation,
+  useSendImageMessageMutation,
+  useSendVoiceMessageMutation,
 } = messengerApi

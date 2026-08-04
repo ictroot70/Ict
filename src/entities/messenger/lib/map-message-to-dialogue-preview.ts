@@ -12,7 +12,10 @@ export type DialoguePreviewUpdateResult =
       type: 'not-participant'
     }
 
-function getDialoguePartnerId(message: MessageViewModel, currentUserId: number): number | null {
+export function getDialoguePartnerId(
+  message: MessageViewModel,
+  currentUserId: number
+): number | null {
   if (message.ownerId === currentUserId) {
     return message.receiverId
   }
