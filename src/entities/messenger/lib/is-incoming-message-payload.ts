@@ -49,9 +49,7 @@ export function isIncomingMessagePayload(payload: unknown): payload is MessageVi
     isInteger(payload.ownerId) &&
     isInteger(payload.receiverId) &&
     (typeof payload.messageText === 'string' || payload.messageText === null) &&
-    (payload.mediaContent === undefined ||
-      payload.mediaContent === null ||
-      isMediaContent(payload.mediaContent)) &&
+    (payload.mediaContent === null || isMediaContent(payload.mediaContent)) &&
     isMessageStatus(payload.status) &&
     isMessageType(payload.messageType) &&
     isDateString(payload.createdAt) &&

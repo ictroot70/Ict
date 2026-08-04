@@ -28,7 +28,7 @@ export interface MessageViewModel {
   ownerId: number
   receiverId: number
   messageText: string | null
-  mediaContent?: MediaContentViewModel | null
+  mediaContent: MediaContentViewModel | null
   status: MessageStatus
   messageType: MessageType
   createdAt: string
