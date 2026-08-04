@@ -1,16 +1,13 @@
-import { fetchProfileData } from '@/entities/profile/lib/profile-queries'
 import { MessengerDialogue } from '@/widgets/messenger/ui/MessengerDialogue'
+import { notFound } from 'next/navigation'
 
 export default async function DialoguePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: userIdStr } = await params
-  const dialoguePartnerId = Number(userIdStr)
+  const userId = Number(userIdStr)
 
-  if (!Number.isFinite(dialoguePartnerId)) {
-    return null
+  if (!Number.isInteger(userId) || userId <= 0) {
+    notFound()
   }
 
-  // Prefetch profile for SSR cache warmth; client shell also loads public profile.
-  await fetchProfileData(dialoguePartnerId).catch(() => null)
-
-  return <MessengerDialogue partnerId={dialoguePartnerId} />
+  return <MessengerDialogue partnerId={userId} />
 }

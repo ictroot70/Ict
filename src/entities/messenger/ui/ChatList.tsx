@@ -35,8 +35,6 @@ const formatTime = (value: string | null) => {
 
 export const ChatList: React.FC<ChatListProps> = ({ items, searchQuery, isError }) => {
   const pathname = usePathname()
-  const chatPartnerIdStr = pathname?.split('/').filter(Boolean).pop()
-  const chatPartnerId = chatPartnerIdStr ? Number(chatPartnerIdStr) : null
 
   const renderItems = () => {
     if (isError) {
