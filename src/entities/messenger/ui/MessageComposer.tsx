@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useRef } from 'react'
 
 import { Button, Input, Typography } from '@ictroot/ui-kit'
 
@@ -30,12 +30,22 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   actionsSlot,
   hasAttachment = false,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null)
   const canSend = value.trim().length > 0 || hasAttachment
+
+  const handleSend = () => {
+    if (!canSend || pending || disabled) {
+      return
+    }
+
+    onSend()
+    queueMicrotask(() => inputRef.current?.focus())
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey && canSend && !pending) {
       e.preventDefault()
-      onSend()
+      handleSend()
     }
   }
 
@@ -45,20 +55,21 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
       <div className={styles.inputArea}>
         <Input
+          ref={inputRef}
           inputType={'text'}
           value={value}
           onChange={e => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={'Type Message'}
           className={styles.input}
-          disabled={disabled || pending}
+          disabled={disabled}
         />
 
         <div className={styles.controls}>
           {actionsSlot}
 
           <Button
-            onClick={onSend}
+            onClick={handleSend}
             variant={'text'}
             disabled={disabled || pending || !canSend}
             className={styles.sendBtn}
