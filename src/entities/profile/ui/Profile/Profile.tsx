@@ -85,8 +85,10 @@ export function Profile({
       {followListMode && (
         <FollowListModal
           open
-          count={profile.userMetadata[followListMode]}
+          count={profileInfoActions.userMetadata[followListMode]}
+          canDeleteFollowers={isOwnProfile}
           mode={followListMode}
+          profileId={userId}
           userName={profile.userName}
           onClose={() => setFollowListMode(null)}
         />

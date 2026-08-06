@@ -23,6 +23,10 @@ type UnfollowUserArgs = {
   targetUserName?: string
 }
 
+type DeleteFollowerArgs = {
+  followerUserId: number
+}
+
 const getAffectedProfileTags = (
   currentUserId: number | undefined,
   selectedUserId: number,
@@ -162,7 +166,14 @@ export const usersFollowApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { currentUserId, selectedUserId, targetUserName }) =>
         error ? getAffectedProfileTags(currentUserId, selectedUserId, targetUserName) : [],
     }),
+    deleteFollower: builder.mutation<void, DeleteFollowerArgs>({
+      query: ({ followerUserId }) => ({
+        url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(followerUserId),
+        method: 'DELETE',
+      }),
+    }),
   }),
 })
 
-export const { useFollowUserMutation, useUnfollowUserMutation } = usersFollowApi
+export const { useDeleteFollowerMutation, useFollowUserMutation, useUnfollowUserMutation } =
+  usersFollowApi

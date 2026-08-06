@@ -7,4 +7,9 @@ export {
   useSearchUsersQuery,
   useGetUserByUserNameQuery,
 } from './publicUsers.api'
-export { usersFollowApi, useFollowUserMutation, useUnfollowUserMutation } from './usersFollow.api'
+export {
+  usersFollowApi,
+  useDeleteFollowerMutation,
+  useFollowUserMutation,
+  useUnfollowUserMutation,
+} from './usersFollow.api'

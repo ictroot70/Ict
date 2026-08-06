@@ -1,42 +1,47 @@
 'use client'
-
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
-  useFollowUserMutation,
   useLazyGetFollowersByUserNameQuery,
   useLazyGetFollowingByUserNameQuery,
-  useUnfollowUserMutation,
 } from '@/entities/users/api'
-import { useMeQuery } from '@/features/auth'
 import { Input, Modal, Typography } from '@/shared/ui'
 
 import s from './FollowListModal.module.scss'
 
-import { FollowListFeedback } from './FollowListFeedback'
-import { FollowListUsers } from './FollowListUsers'
+import { DeleteFollowerConfirm } from './DeleteFollowerConfirm'
+import { FollowListBody } from './FollowListBody'
 import { UnfollowConfirm } from './UnfollowConfirm'
+import { useFollowListActions } from './useFollowListActions'
 
 export type FollowListMode = 'following' | 'followers'
 
 type Props = {
+  canDeleteFollowers: boolean
   count: number
   mode: FollowListMode
   onClose: () => void
   open: boolean
+  profileId: number
   userName: string
 }
 
 const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 300
-
 const TITLE_BY_MODE = { followers: 'Followers', following: 'Following' } as const
-const EMPTY_TEXT_BY_MODE = { followers: 'No followers yet', following: 'No following yet' } as const
 const countFormatter = new Intl.NumberFormat('ru-RU')
 
-export const FollowListModal = ({ count, mode, onClose, open, userName }: Props) => {
+export const FollowListModal = ({
+  canDeleteFollowers,
+  count,
+  mode,
+  onClose,
+  open,
+  profileId,
+  userName,
+}: Props) => {
   const [users, setUsers] = useState<UserFollowingFollowersViewModel[]>([])
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
@@ -44,13 +49,6 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
   const [isInitialLoading, setIsInitialLoading] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isError, setIsError] = useState(false)
-  const [pendingUserId, setPendingUserId] = useState<number | null>(null)
-  const [actionError, setActionError] = useState<string | null>(null)
-  const [confirmUnfollowUser, setConfirmUnfollowUser] =
-    useState<UserFollowingFollowersViewModel | null>(null)
-  const { data: currentUser } = useMeQuery()
-  const [followUser] = useFollowUserMutation()
-  const [unfollowUser] = useUnfollowUserMutation()
   const [triggerFollowers] = useLazyGetFollowersByUserNameQuery()
   const [triggerFollowing] = useLazyGetFollowingByUserNameQuery()
   const requestIdRef = useRef(0)
@@ -62,6 +60,7 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
       const trimmedSearch = debouncedSearch.trim()
       const queryArgs = {
         userName,
+        _t: Date.now(),
         pageSize: PAGE_SIZE,
         ...(cursor ? { cursor } : {}),
         ...(trimmedSearch ? { search: trimmedSearch } : {}),
@@ -71,6 +70,26 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
     },
     [debouncedSearch, mode, triggerFollowers, triggerFollowing, userName]
   )
+
+  const {
+    actionError,
+    confirmDeleteFollowerUser,
+    confirmUnfollowUser,
+    currentUserId,
+    handleConfirmDeleteFollower,
+    handleToggleFollow,
+    pendingUserId,
+    setConfirmDeleteFollowerUser,
+    setConfirmUnfollowUser,
+  } = useFollowListActions({
+    debouncedSearch,
+    mode,
+    profileId,
+    setNextCursor,
+    setUsers,
+    userName,
+    usersLength: users.length,
+  })
 
   const loadFirstPage = useCallback(() => {
     const requestId = requestIdRef.current + 1
@@ -123,7 +142,6 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
     if (nextCursor === null || isLoadingMoreRef.current || isInitialLoading) {
       return
     }
-
     const requestId = requestIdRef.current
 
     isLoadingMoreRef.current = true
@@ -156,85 +174,6 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
       })
   }, [isInitialLoading, nextCursor, triggerQuery])
 
-  const handleToggleFollow = async (
-    user: UserFollowingFollowersViewModel,
-    options?: { confirmed?: boolean }
-  ) => {
-    if (
-      pendingUserId !== null ||
-      currentUser?.userId === undefined ||
-      user.userId === currentUser.userId
-    ) {
-      return
-    }
-
-    if (user.isFollowing && !options?.confirmed) {
-      setConfirmUnfollowUser(user)
-
-      return
-    }
-
-    setConfirmUnfollowUser(null)
-    setPendingUserId(user.userId)
-    setActionError(null)
-
-    try {
-      if (user.isFollowing) {
-        await unfollowUser({
-          currentUserId: currentUser.userId,
-          selectedUserId: user.userId,
-          targetUserName: user.userName,
-        }).unwrap()
-      } else {
-        await followUser({
-          currentUserId: currentUser.userId,
-          selectedUserId: user.userId,
-          targetUserName: user.userName,
-        }).unwrap()
-      }
-
-      setUsers(prev =>
-        prev.map(item =>
-          item.userId === user.userId ? { ...item, isFollowing: !user.isFollowing } : item
-        )
-      )
-    } catch {
-      setActionError('Could not update follow status. Try again please.')
-    } finally {
-      setPendingUserId(null)
-    }
-  }
-
-  const renderList = () => {
-    if (isInitialLoading) {
-      return <FollowListFeedback type={'loading'} />
-    }
-
-    if (isError) {
-      return <FollowListFeedback type={'error'} onRetry={loadFirstPage} />
-    }
-
-    if (!users.length) {
-      const emptyText = debouncedSearch.trim() ? 'No users found' : EMPTY_TEXT_BY_MODE[mode]
-
-      return <FollowListFeedback type={'empty'} emptyText={emptyText} />
-    }
-
-    return (
-      <FollowListUsers
-        currentUserId={currentUser?.userId}
-        hasNextPage={nextCursor !== null}
-        isLoadingMore={isLoadingMore}
-        listRootRef={listRootRef}
-        pendingUserId={pendingUserId}
-        users={users}
-        onClose={onClose}
-        onLoadMore={loadMore}
-        onToggleFollow={user => void handleToggleFollow(user)}
-      />
-    )
-  }
-
   const modalTitle = `${countFormatter.format(count)} ${TITLE_BY_MODE[mode]}`
 
   return (
@@ -257,7 +196,24 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
               onChange={event => setSearch(event.target.value)}
             />
           </div>
-          {renderList()}
+          <FollowListBody
+            canDeleteFollowers={canDeleteFollowers}
+            currentUserId={currentUserId}
+            debouncedSearch={debouncedSearch}
+            hasNextPage={nextCursor !== null}
+            isError={isError}
+            isInitialLoading={isInitialLoading}
+            isLoadingMore={isLoadingMore}
+            listRootRef={listRootRef}
+            mode={mode}
+            pendingUserId={pendingUserId}
+            users={users}
+            onClose={onClose}
+            onDeleteFollower={setConfirmDeleteFollowerUser}
+            onLoadMore={loadMore}
+            onRetry={loadFirstPage}
+            onToggleFollow={user => void handleToggleFollow(user)}
+          />
           {actionError && (
             <Typography className={s.actionError} variant={'danger'}>
               {actionError}
@@ -271,6 +227,15 @@ export const FollowListModal = ({ count, mode, onClose, open, userName }: Props)
             user={confirmUnfollowUser}
             onCancel={() => setConfirmUnfollowUser(null)}
             onConfirm={() => void handleToggleFollow(confirmUnfollowUser, { confirmed: true })}
+          />
+        )}
+        {confirmDeleteFollowerUser && (
+          <DeleteFollowerConfirm
+            isPending={pendingUserId === confirmDeleteFollowerUser.userId}
+            open={confirmDeleteFollowerUser !== null}
+            user={confirmDeleteFollowerUser}
+            onCancel={() => setConfirmDeleteFollowerUser(null)}
+            onConfirm={() => void handleConfirmDeleteFollower()}
           />
         )}
       </div>

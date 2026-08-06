@@ -204,4 +204,72 @@ describe('usersFollowApi cache contract', () => {
     expect(getTargetByUserName(store)?.isFollowing).toBe(false)
     expect(getTargetByUserName(store)?.followersCount).toBe(2)
   })
+
+  it('calls the follower DELETE endpoint without patching counters by HTTP success alone', async () => {
+    const deleteRequest = createDeferred<Response>()
+    const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
+      const request = asRequest(call)
+      const { pathname } = new URL(request.url)
+
+      if (request.method === 'DELETE') {
+        return deleteRequest.promise
+      }
+
+      if (pathname.endsWith('/v1/public-user/profile/8')) {
+        return Promise.resolve(asJsonResponse(currentProfile))
+      }
+
+      return Promise.resolve(asJsonResponse({}))
+    })
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+    await store.dispatch(profileApi.endpoints.getPublicProfile.initiate({ profileId: 8 })).unwrap()
+
+    const mutation = store.dispatch(
+      usersFollowApi.endpoints.deleteFollower.initiate({
+        followerUserId: 7,
+      })
+    )
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
+
+    deleteRequest.resolve(asJsonResponse({}))
+    await mutation
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
+    expect(getFetchPathNames(fetchMock)).toEqual([
+      '/api/v1/public-user/profile/8',
+      '/api/v1/users/follower/7',
+    ])
+  })
+
+  it('keeps follower counters unchanged when delete follower fails', async () => {
+    const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
+      const request = asRequest(call)
+      const { pathname } = new URL(request.url)
+
+      if (request.method === 'DELETE') {
+        return Promise.resolve(asJsonResponse({ message: 'failed' }, 500))
+      }
+
+      if (pathname.endsWith('/v1/public-user/profile/8')) {
+        return Promise.resolve(asJsonResponse(currentProfile))
+      }
+
+      return Promise.resolve(asJsonResponse({}))
+    })
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+    await store.dispatch(profileApi.endpoints.getPublicProfile.initiate({ profileId: 8 })).unwrap()
+
+    await store.dispatch(
+      usersFollowApi.endpoints.deleteFollower.initiate({
+        followerUserId: 7,
+      })
+    )
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
+  })
 })

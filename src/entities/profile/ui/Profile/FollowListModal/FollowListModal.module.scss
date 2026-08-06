@@ -99,9 +99,36 @@
   }
 }
 
+.followersActions {
+  display: grid;
+  grid-template-columns: 98px 99px;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.actionPlaceholder {
+  width: 98px;
+  height: 36px;
+}
+
 .followButton {
   flex-shrink: 0;
-  min-width: 120px;
+  width: 98px;
+  height: 36px;
+}
+
+.followingButton {
+  flex-shrink: 0;
+  width: 120px;
+  height: 36px;
+}
+
+.deleteButton {
+  flex-shrink: 0;
+  width: 99px;
+  height: 36px;
+  color: var(--color-light-100);
 }
 
 .avatar {

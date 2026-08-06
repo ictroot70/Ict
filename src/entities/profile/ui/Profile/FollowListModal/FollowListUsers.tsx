@@ -9,12 +9,17 @@ import Link from 'next/link'
 
 import s from './FollowListModal.module.scss'
 
+type FollowListMode = 'followers' | 'following'
+
 type Props = {
+  canDeleteFollowers: boolean
   currentUserId?: number
   hasNextPage: boolean
   isLoadingMore: boolean
   listRootRef: RefObject<HTMLDivElement | null>
+  mode: FollowListMode
   onClose: () => void
+  onDeleteFollower: (user: UserFollowingFollowersViewModel) => void
   onLoadMore: () => void
   onToggleFollow: (user: UserFollowingFollowersViewModel) => void
   pendingUserId: null | number
@@ -22,11 +27,14 @@ type Props = {
 }
 
 export const FollowListUsers = ({
+  canDeleteFollowers,
   currentUserId,
   hasNextPage,
   isLoadingMore,
   listRootRef,
+  mode,
   onClose,
+  onDeleteFollower,
   onLoadMore,
   onToggleFollow,
   pendingUserId,
@@ -48,14 +56,40 @@ export const FollowListUsers = ({
             </Typography>
           </span>
         </Link>
-        {currentUserId !== undefined && user.userId !== currentUserId && (
+        {mode === 'followers' && currentUserId !== undefined && (
+          <div className={s.followersActions}>
+            {!user.isFollowing && user.userId !== currentUserId ? (
+              <Button
+                className={s.followButton}
+                disabled={pendingUserId !== null}
+                variant={'primary'}
+                onClick={() => onToggleFollow(user)}
+              >
+                Follow
+              </Button>
+            ) : (
+              <span className={s.actionPlaceholder} />
+            )}
+            {canDeleteFollowers && (
+              <Button
+                className={s.deleteButton}
+                disabled={pendingUserId !== null}
+                variant={'text'}
+                onClick={() => onDeleteFollower(user)}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+        )}
+        {mode === 'following' && currentUserId !== undefined && user.userId !== currentUserId && (
           <Button
-            className={s.followButton}
+            className={s.followingButton}
             disabled={pendingUserId !== null}
-            variant={user.isFollowing ? 'outlined' : 'primary'}
+            variant={'outlined'}
             onClick={() => onToggleFollow(user)}
           >
-            {user.isFollowing ? 'Unfollow' : 'Follow'}
+            Unfollow
           </Button>
         )}
       </div>
