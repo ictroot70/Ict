@@ -16,8 +16,16 @@ import { AgreementLabel } from './AgreementLabel'
 import { SignUpConfirmModal } from './SignUpConfirmModal'
 
 export const SignUpForm = () => {
-  const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
-    useSignUp()
+  const {
+    form,
+    onSubmit,
+    isAgreementChecked,
+    isLoading,
+    serverError,
+    isSuccess,
+    setIsSuccess,
+    preserveSignUpDraft,
+  } = useSignUp()
 
   const {
     control,
@@ -89,7 +97,7 @@ export const SignUpForm = () => {
         <ControlledCheckbox
           name={'agreement'}
           control={control}
-          label={AgreementLabel}
+          label={<AgreementLabel onPolicyNavigate={preserveSignUpDraft} />}
           className={styles.agreement}
         />
         {serverError && (

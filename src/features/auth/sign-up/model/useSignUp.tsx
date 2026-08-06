@@ -8,8 +8,11 @@ import { APP_ROUTES, REGISTRATION_MESSAGES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+import { clearSignUpDraft, getSignUpDraft, saveSignUpDraft } from './signUpDraftStorage'
+
 export const useSignUp = () => {
   const [signup, { isLoading }] = useSignupMutation()
+  const signUpDraft = getSignUpDraft()
 
   const [serverError, setServerError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
@@ -18,15 +21,25 @@ export const useSignUp = () => {
     resolver: zodResolver(signUpSchema),
     mode: 'onTouched',
     defaultValues: {
-      username: '',
-      email: '',
+      username: signUpDraft?.username ?? '',
+      email: signUpDraft?.email ?? '',
       password: '',
       passwordConfirm: '',
-      agreement: false,
+      agreement: signUpDraft?.agreement ?? false,
     },
   })
 
   const isAgreementChecked = form.watch('agreement')
+
+  const preserveSignUpDraft = () => {
+    const values = form.getValues()
+
+    saveSignUpDraft({
+      username: values.username,
+      email: values.email,
+      agreement: values.agreement,
+    })
+  }
 
   const onSubmit = form.handleSubmit(async (data: SignUpFormData) => {
     setServerError('')
@@ -39,6 +52,7 @@ export const useSignUp = () => {
       }).unwrap()
 
       setIsSuccess(true)
+      clearSignUpDraft()
 
       showToastAlert({
         message: result?.message || `We have sent a link to confirm your email to ${data.email}`,
@@ -92,5 +106,6 @@ export const useSignUp = () => {
     serverError,
     isSuccess,
     setIsSuccess,
+    preserveSignUpDraft,
   }
 }
