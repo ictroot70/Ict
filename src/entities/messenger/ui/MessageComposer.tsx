@@ -39,11 +39,11 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
     }
 
     onSend()
-    queueMicrotask(() => inputRef.current?.focus())
+    inputRef.current?.focus()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && canSend && !pending) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
