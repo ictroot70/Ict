@@ -13,20 +13,13 @@ import { useMeQuery } from '@/features/auth'
 import { usePathname } from 'next/navigation'
 
 import { appendNewContactItems, buildDialogueItems } from './messenger-list'
-import { MESSENGER_DIALOGS_PAGE_SIZE } from './messenger-voice-realtime'
-import { useMessengerVoiceRealtime } from './useMessengerVoiceRealtime'
+import { getMessengerPartnerIdFromPath, MESSENGER_DIALOGS_PAGE_SIZE } from './messenger-realtime'
 
 const SEARCH_DEBOUNCE_MS = 200
 
-const getPartnerIdFromPath = (pathname: string) => {
-  const match = pathname.match(/^\/messenger\/(\d+)$/)
-
-  return match ? Number(match[1]) : null
-}
-
 export function useMessengerShell() {
   const pathname = usePathname()
-  const partnerId = getPartnerIdFromPath(pathname)
+  const partnerId = getMessengerPartnerIdFromPath(pathname)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const search = debouncedSearch.trim()
@@ -63,12 +56,6 @@ export function useMessengerShell() {
     { profileId: partnerId ?? 0 },
     { skip: partnerId === null }
   )
-
-  useMessengerVoiceRealtime({
-    activePartnerId: partnerId,
-    currentUserId: currentUser?.userId ?? 0,
-    dialogsQueryParams,
-  })
 
   const dialogueItems = useMemo<MessengerListItem[]>(() => {
     if (!currentUser) {

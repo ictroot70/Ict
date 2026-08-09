@@ -43,6 +43,22 @@ describe('upsertMessageInHistory', () => {
     expect(result[0].status).toBe(MessageStatus.RECEIVED)
   })
 
+  it('does not downgrade a newer delivery status', () => {
+    const readMessage = createMessage(10, MessageStatus.READ, 'Hello')
+    const staleReceivedMessage = {
+      ...readMessage,
+      status: MessageStatus.RECEIVED,
+      updatedAt: '2026-07-13T10:01:00.000Z',
+    }
+
+    const result = upsertMessageInHistory([readMessage], staleReceivedMessage)
+
+    expect(result[0]).toMatchObject({
+      ...staleReceivedMessage,
+      status: MessageStatus.READ,
+    })
+  })
+
   it('does not change messages with different ids', () => {
     const firstMessage = createMessage(1, MessageStatus.READ)
     const targetMessage = createMessage(2, MessageStatus.SENT)

@@ -4,13 +4,16 @@ import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './mess
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { normalizeMessengerError, isIncomingMessagePayload } from '@/entities/messenger/lib'
+import {
+  extractDeletedMessageId,
+  isIncomingMessagePayload,
+  normalizeMessengerError,
+} from '@/entities/messenger/lib'
 import { logger } from '@/shared/lib/logger'
 import { io, type Socket } from 'socket.io-client'
 
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
 import {
-  MessageType,
   type MessageAcknowledgement,
   type MessageViewModel,
   type MessengerError,
@@ -19,16 +22,58 @@ import {
 
 const WS_URL = 'https://inctagram.work'
 const AUTH_ERROR_PATTERN = /authentication|unauthorized|token|401|403/i
+const MESSENGER_DEBUG_STORAGE_KEY = 'messengerDebug'
+
+const isMessengerDebugEnabled = () => {
+  try {
+    return window.localStorage.getItem(MESSENGER_DEBUG_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+const getMessageDebugInfo = (message: MessageViewModel) => ({
+  id: message.id,
+  ownerId: message.ownerId,
+  receiverId: message.receiverId,
+  status: message.status,
+  messageType: message.messageType,
+  hasText: Boolean(message.messageText),
+  mediaType: message.mediaContent?.fileType ?? null,
+})
+
+const debugMessengerSocket = (message: string, details?: unknown) => {
+  if (!isMessengerDebugEnabled()) {
+    return
+  }
+
+  logger.info(`[MessengerSocketDebug] ${message}`, details ?? '')
+}
 
 export function useMessengerSocket({
   accessToken,
   onError,
   onMessage,
+  onMessageDeleted,
 }: UseMessengerSocketOptions): UseMessengerSocketResult {
   const socketRef = useRef<Socket | null>(null)
   const onErrorRef = useRef(onError)
   const onMessageRef = useRef(onMessage)
+  const onMessageDeletedRef = useRef(onMessageDeleted)
   const [isConnected, setIsConnected] = useState(false)
+
+  const disconnectSocket = useCallback(() => {
+    const socket = socketRef.current
+
+    if (!socket) {
+      return
+    }
+
+    socket.removeAllListeners()
+    socket.disconnect()
+    socketRef.current = null
+    setIsConnected(false)
+  }, [])
 
   useEffect(() => {
     onErrorRef.current = onError
@@ -37,6 +82,10 @@ export function useMessengerSocket({
   useEffect(() => {
     onMessageRef.current = onMessage
   }, [onMessage])
+
+  useEffect(() => {
+    onMessageDeletedRef.current = onMessageDeleted
+  }, [onMessageDeleted])
 
   const sendMessage = useCallback((payload: SendMessagePayload) => {
     const socket = socketRef.current
@@ -54,17 +103,38 @@ export function useMessengerSocket({
       return
     }
 
+    debugMessengerSocket('emit receive-message', payload)
     socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
   }, [])
 
   useEffect(() => {
     if (!accessToken) {
-      setIsConnected(false)
+      disconnectSocket()
+      debugMessengerSocket('skip connect: no access token')
+
+      return
+    }
+
+    if (socketRef.current) {
+      const existingSocket = socketRef.current
+
+      // Keep the same socket instance (avoids a disconnect/reconnect window right after
+      // token rotation), but the auth data used by Socket.IO for any FUTURE internal
+      // reconnect (network blip, server restart, sleep/wake, ping timeout, etc.) must be
+      // refreshed too — otherwise a reconnect after this point silently uses the stale
+      // token and gets rejected by the server with no automatic recovery.
+      existingSocket.auth = { accessToken }
+      existingSocket.io.opts.query = { accessToken }
+
+      debugMessengerSocket('updated access token on existing socket', {
+        connected: existingSocket.connected,
+      })
 
       return
     }
 
     setIsConnected(false)
+    debugMessengerSocket('connect requested', { hasAccessToken: true })
 
     const socket = io(WS_URL, {
       query: { accessToken },
@@ -109,6 +179,8 @@ export function useMessengerSocket({
     }
 
     const handleReceivedMessage = (payload: unknown) => {
+      debugMessengerSocket('event receive-message/update-message', payload)
+
       const payloads = Array.isArray(payload) ? payload : [payload]
 
       if (payloads.length === 0) {
@@ -125,40 +197,76 @@ export function useMessengerSocket({
     }
 
     const handleIncomingMessage = (payload: unknown, acknowledge?: MessageAcknowledgement) => {
+      debugMessengerSocket('event message-send', {
+        hasAcknowledgementCallback: typeof acknowledge === 'function',
+        payload,
+      })
+
       void processMessage(payload)
         .then(message => {
           if (!message) {
+            debugMessengerSocket('skip acknowledgement: invalid message payload', payload)
+
             return
           }
 
-          if (message.messageType !== MessageType.TEXT || message.messageText === null) {
-            return
-          }
-
-          acknowledge?.({
-            message: message.messageText,
-            receiverId: message.ownerId,
+          debugMessengerSocket('call acknowledgement', {
+            message: getMessageDebugInfo(message),
           })
+
+          // Per the documented WS contract, the acknowledgement callback must be called
+          // with NO payload — the server identifies the delivered message from its own
+          // handshake/event context and updates its status to RECEIVED itself.
+          acknowledge?.()
         })
         .catch(error => {
           reportError(normalizeMessengerError(error, 'socket'))
         })
     }
 
-    const handleConnect = () => {
-      setIsConnected(true)
+    const handleMessageDeleted = (payload: unknown) => {
+      debugMessengerSocket('event message-deleted', payload)
+
+      const messageId = extractDeletedMessageId(payload)
+
+      if (messageId === null) {
+        logger.warn('[MessengerSocket] Rejected message-deleted payload:', payload)
+        reportError({
+          source: 'socket',
+          code: 'INVALID_MESSAGE_DELETED_PAYLOAD',
+          message: 'Invalid message-deleted payload',
+        })
+
+        return
+      }
+
+      void Promise.resolve(onMessageDeletedRef.current(messageId)).catch(error => {
+        reportError(normalizeMessengerError(error, 'socket'))
+      })
     }
 
-    const handleDisconnect = () => {
+    const handleConnect = () => {
+      setIsConnected(true)
+      debugMessengerSocket('connected', { socketId: socket.id })
+    }
+
+    const handleDisconnect = (reason?: string) => {
       setIsConnected(false)
+      debugMessengerSocket('disconnected', { reason })
     }
 
     const handleSocketError = (error: unknown) => {
+      debugMessengerSocket('socket error event', error)
+
       const normalizedError = normalizeMessengerError(error, 'socket')
 
       if (AUTH_ERROR_PATTERN.test(normalizedError.message)) {
         setIsConnected(false)
         socket.disconnect()
+
+        if (socketRef.current === socket) {
+          socketRef.current = null
+        }
       }
 
       reportError(normalizedError)
@@ -167,24 +275,14 @@ export function useMessengerSocket({
     socket.on('connect', handleConnect)
     socket.on('disconnect', handleDisconnect)
     socket.on(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
+    socket.on(MESSENGER_SOCKET_EVENTS.UPDATE_MESSAGE, handleReceivedMessage)
     socket.on(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
+    socket.on(MESSENGER_SOCKET_EVENTS.MESSAGE_DELETED, handleMessageDeleted)
     socket.on(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
     socket.on('connect_error', handleSocketError)
+  }, [accessToken, disconnectSocket])
 
-    return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
-      socket.off(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
-      socket.off(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
-      socket.off(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
-      socket.off('connect_error', handleSocketError)
-      socket.disconnect()
-
-      if (socketRef.current === socket) {
-        socketRef.current = null
-      }
-    }
-  }, [accessToken])
+  useEffect(() => disconnectSocket, [disconnectSocket])
 
   return { isConnected, sendMessage }
 }

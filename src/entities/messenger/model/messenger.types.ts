@@ -47,6 +47,7 @@ export interface MessengerListItem {
   avatarUrl?: string
   lastMessage: string | null
   updatedAt: string | null
+  notReadCount: number
 }
 
 export interface UpdateMessagesStatusDto {
@@ -100,7 +101,10 @@ export interface UpdateMessagePayload {
   message: string
 }
 
-export type MessageAcknowledgement = (payload: SendMessagePayload) => void
+// Per the documented WS contract, the recipient must acknowledge a `message-send` event by
+// calling this callback with no arguments; the server identifies the delivered message from
+// its own event context and updates its status to RECEIVED itself.
+export type MessageAcknowledgement = () => void
 
 export interface MessengerSocketErrorDto {
   message: string

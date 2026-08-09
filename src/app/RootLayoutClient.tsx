@@ -5,6 +5,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import CreatePostWrapper from '@/features/posts/ui/CreatePostWrapper/CreatePostWrapper'
 import { useAuthUiState } from '@/features/posts/utils/useAuthUiState'
 import { Sidebar, SidebarSkeleton } from '@/widgets/Sidebar'
+import { MessengerRealtimeBridge } from '@/widgets/messenger/ui/MessengerRealtimeBridge'
 import { useSearchParams } from 'next/navigation'
 
 import s from './RootLayoutClient.module.scss'
@@ -50,6 +51,7 @@ export const RootLayoutClient = ({ children }: Props) => {
   return (
     <main>
       <div className={s.wrapper}>
+        {showSidebar && <MessengerRealtimeBridge />}
         {showSidebar && <Sidebar />}
         {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
         <div
