@@ -1,13 +1,9 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Virtuoso } from 'react-virtuoso'
 
-import {
-  isIncomingMessage,
-  MessageStatus,
-  MessageType,
-  type MessageViewModel,
-} from '@/entities/messenger'
+import { isIncomingMessage, MessageType, type MessageViewModel } from '@/entities/messenger'
 import { LinearProgress } from '@/shared/composites'
 
 import styles from './ChatWindow.module.scss'
@@ -15,6 +11,7 @@ import styles from './ChatWindow.module.scss'
 import { playVoiceTransitionTone } from '../lib/play-voice-transition-tone'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
+import { useChatWindowAutoScroll } from './useChatWindowAutoScroll'
 
 interface ChatWindowProps {
   currentUserId: number
@@ -25,6 +22,10 @@ interface ChatWindowProps {
   sendDisabled?: boolean
   error?: string | null
   isLoading?: boolean
+  firstItemIndex?: number
+  hasOlderMessages?: boolean
+  isLoadingOlderMessages?: boolean
+  onLoadOlderMessages?: () => void
   composerActionsSlot?: React.ReactNode
   composerContentSlot?: React.ReactNode
   composerError?: string | null
@@ -57,18 +58,23 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   sendDisabled,
   error,
   isLoading = false,
+  firstItemIndex = 0,
+  hasOlderMessages = false,
+  isLoadingOlderMessages = false,
+  onLoadOlderMessages,
   composerActionsSlot,
   composerContentSlot,
   composerError,
 }) => {
   const [text, setText] = useState('')
   const [activeVoiceMessageId, setActiveVoiceMessageId] = useState<number | null>(null)
-  const voiceTransitionIdRef = useRef(0)
+  const voiceTransitionIdRef = React.useRef(0)
   const playbackOrderedMessages = useMemo(() => messages || [], [messages])
-  const renderedMessages = useMemo(
-    () => [...playbackOrderedMessages].reverse(),
-    [playbackOrderedMessages]
-  )
+  const virtuosoRef = useChatWindowAutoScroll({
+    currentUserId,
+    firstItemIndex,
+    messages: playbackOrderedMessages,
+  })
 
   const getNextVoiceMessageId = useCallback(
     (messageId: number) => {
@@ -149,6 +155,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [activeVoiceMessageId, playbackOrderedMessages])
 
+  const handleStartReached = useCallback(() => {
+    if (!hasOlderMessages || isLoadingOlderMessages) {
+      return
+    }
+
+    onLoadOlderMessages?.()
+  }, [hasOlderMessages, isLoadingOlderMessages, onLoadOlderMessages])
+
   const handleSend = () => {
     const message = text.trim()
 
@@ -163,10 +177,33 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   return (
     <div className={styles.container}>
       <LinearProgress active={isLoading} />
-      <div className={styles.messagesArea}>
-        {renderedMessages.map((message, index, array) => {
+      <Virtuoso
+        ref={virtuosoRef}
+        className={styles.messagesArea}
+        style={{ overflowX: 'hidden' }}
+        data={playbackOrderedMessages}
+        firstItemIndex={firstItemIndex}
+        followOutput={'smooth'}
+        startReached={handleStartReached}
+        components={{
+          // CSS padding on the scroller itself isn't reliable for virtualized lists — Virtuoso
+          // positions rows against its own measured content box, so horizontal *and* vertical
+          // padding on the scroll container can end up not applying visually (content sticks to
+          // the edges). Header/Footer render as normal in-flow DOM nodes before the first and
+          // after the last item, so spacing added here is immune to that.
+          Header: () => (
+            <div className={styles.listEdgeSpacer}>
+              {isLoadingOlderMessages && (
+                <div className={styles.historyLoader}>Loading older messages...</div>
+              )}
+            </div>
+          ),
+          Footer: () => <div className={styles.listEdgeSpacer} />,
+        }}
+        computeItemKey={(index, message) => message.id}
+        itemContent={(index, message) => {
           const isIncoming = isIncomingMessage(message, currentUserId)
-          const prevMsg = array[index - 1]
+          const prevMsg = playbackOrderedMessages[index - 1]
           const isPrevIncoming = prevMsg && isIncomingMessage(prevMsg, currentUserId)
           const showAvatar = isIncoming && !isPrevIncoming
           const isVoiceMessage = message.messageType === MessageType.VOICE
@@ -174,7 +211,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
           return (
             <MessageBubble
-              key={message.id}
               text={message.messageText ?? ''}
               direction={isIncoming ? 'incoming' : 'outgoing'}
               timestamp={formatTime(message.createdAt)}
@@ -182,7 +218,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               url={message.mediaContent?.fileUrl}
               avatarUrl={partnerAvatarUrl}
               showAvatar={showAvatar}
-              isRead={message.status === MessageStatus.READ}
+              status={message.status}
               voiceWaveform={voiceWaveforms?.[message.id]}
               isVoicePlaybackRequested={hasVoiceSource && activeVoiceMessageId === message.id}
               onVoicePlaybackStart={
@@ -196,8 +232,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               }
             />
           )
-        })}
-      </div>
+        }}
+      />
 
       <MessageComposer
         value={text}

@@ -24,9 +24,13 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
     currentUserId,
     messages,
     messageWaveforms,
+    firstItemIndex,
+    hasOlderMessages,
+    isLoadingOlderMessages,
     partnerAvatarUrl,
     isLoading,
     error,
+    loadOlderMessages,
     upsertSentMessage,
     replaceSentMessage,
     removeSentMessage,
@@ -68,12 +72,17 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
 
   return (
     <ChatWindow
+      key={partnerId}
       currentUserId={currentUserId}
       messages={messages}
       voiceWaveforms={messageWaveforms}
+      firstItemIndex={firstItemIndex}
+      hasOlderMessages={hasOlderMessages}
+      isLoadingOlderMessages={isLoadingOlderMessages}
       partnerAvatarUrl={partnerAvatarUrl}
       isLoading={isLoading}
       error={error}
+      onLoadOlderMessages={() => void loadOlderMessages()}
       composerError={voiceError}
       composerActionsSlot={
         !isVoiceMode ? (

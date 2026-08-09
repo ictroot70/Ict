@@ -1,4 +1,6 @@
-import { act, render } from '@testing-library/react'
+import type { ReactNode } from 'react'
+
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MediaFileType, MessageStatus, MessageType, type MessageViewModel } from '../model'
@@ -20,6 +22,49 @@ const { playVoiceTransitionToneMock, voiceBodyPropsBySource } = vi.hoisted(() =>
 vi.mock('../lib/play-voice-transition-tone', () => ({
   playVoiceTransitionTone: playVoiceTransitionToneMock,
 }))
+
+vi.mock('react-virtuoso', async () => {
+  const React = await import('react')
+
+  return {
+    Virtuoso: React.forwardRef(
+      (
+        {
+          data,
+          components,
+          itemContent,
+          startReached,
+        }: {
+          components?: {
+            Header?: () => ReactNode
+          }
+          data: MessageViewModel[]
+          itemContent: (index: number, message: MessageViewModel) => ReactNode
+          startReached?: () => void
+        },
+        ref
+      ) => {
+        React.useImperativeHandle(ref, () => ({
+          scrollToIndex: vi.fn(),
+        }))
+
+        return React.createElement(
+          'div',
+          { 'data-testid': 'virtuoso' },
+          components?.Header?.(),
+          React.createElement('button', {
+            'data-testid': 'start-reached',
+            onClick: startReached,
+            type: 'button',
+          }),
+          data.map((message, index) =>
+            React.createElement('div', { key: message.id }, itemContent(index, message))
+          )
+        )
+      }
+    ),
+  }
+})
 
 vi.mock('./MessageComposer', async () => {
   const React = await import('react')
@@ -211,5 +256,23 @@ describe('ChatWindow voice autoplay', () => {
     expect(
       voiceBodyPropsBySource.get(thirdVoice.mediaContent?.fileUrl ?? '')?.isPlaybackRequested
     ).toBe(true)
+  })
+
+  it('requests older messages when the virtualized list reaches the start', () => {
+    const loadOlderMessages = vi.fn()
+    const message = createTextMessage(1, '2026-08-03T09:00:00.000Z')
+
+    render(
+      <ChatWindow
+        currentUserId={1}
+        hasOlderMessages
+        messages={[message]}
+        onLoadOlderMessages={loadOlderMessages}
+      />
+    )
+
+    fireEvent.click(screen.getByTestId('start-reached'))
+
+    expect(loadOlderMessages).toHaveBeenCalledOnce()
   })
 })

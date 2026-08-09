@@ -9,5 +9,10 @@ export default async function Dialogue({ params }: { params: Promise<{ id: strin
     notFound()
   }
 
-  return <MessengerDialogue partnerId={userId} />
+  // `key` forces React to remount the whole dialogue subtree (ChatWindow's scroll ref,
+  // Virtuoso's own internal state, voice playback state, etc.) whenever the user switches
+  // to a different conversation. Without it, React reuses the same component instance across
+  // navigations (this page persists inside MessengerShell's layout), so scroll-to-bottom and
+  // other "first mount" behavior would only ever run for the very first dialogue opened.
+  return <MessengerDialogue key={userId} partnerId={userId} />
 }
