@@ -69,9 +69,16 @@ export const ChatList: React.FC<ChatListProps> = ({ items, searchQuery, isError 
                 {formatTime(item.updatedAt)}
               </Typography>
             </div>
-            <Typography variant={'small_text'} className={styles.lastMsg}>
-              {item.lastMessage}
-            </Typography>
+            <div className={styles.previewRow}>
+              <Typography variant={'small_text'} className={styles.lastMsg}>
+                {item.lastMessage}
+              </Typography>
+              {item.notReadCount > 0 && (
+                <span className={styles.badge} aria-label={`${item.notReadCount} unread messages`}>
+                  {item.notReadCount > 99 ? '99+' : item.notReadCount}
+                </span>
+              )}
+            </div>
           </div>
         </Link>
       )

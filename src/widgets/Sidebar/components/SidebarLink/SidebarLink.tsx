@@ -11,6 +11,7 @@ type SidebarLinkProps = {
   active?: boolean
   disabled?: boolean
   href: LinkProps['href']
+  indicator?: ReactNode
   className?: string
   children: ReactNode
   onClick?: (event: MouseEvent<HTMLAnchorElement>) => void
@@ -22,6 +23,7 @@ export const SidebarLink = ({
   activeIcon,
   active = false,
   disabled = false,
+  indicator,
   className,
   href,
   onClick,
@@ -33,6 +35,7 @@ export const SidebarLink = ({
     <>
       {displayIcon}
       <span className={s.label}>{children}</span>
+      {indicator && <span className={s.indicator}>{indicator}</span>}
     </>
   )
 

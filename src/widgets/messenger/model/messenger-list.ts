@@ -2,6 +2,7 @@ import type { SearchUserItem } from '@/entities/users/api/api.types'
 
 import {
   getDialoguePartnerId,
+  isIncomingMessage,
   MessageType,
   type LastMessageViewDto,
   type MessengerListItem,
@@ -39,6 +40,7 @@ export function buildDialogueItems(
             avatarUrl: dialogue.avatars[0]?.url,
             lastMessage: getPreview(dialogue.messageType, dialogue.messageText),
             updatedAt: dialogue.updatedAt,
+            notReadCount: isIncomingMessage(dialogue, currentUserId) ? dialogue.notReadCount : 0,
           },
         ]
   })
@@ -58,6 +60,7 @@ export function appendNewContactItems(
       avatarUrl: user.avatars[0]?.url,
       lastMessage: 'Start a conversation',
       updatedAt: null,
+      notReadCount: 0,
     }))
 
   return [...dialogueItems, ...newContacts]
