@@ -1,17 +1,18 @@
 'use client'
 
-import { Checkmark, DoneAll } from '@ictroot/ui-kit/icons'
+import { MessageStatus } from '@/entities/messenger/model'
 import { useTranslations } from 'next-intl'
 
 import styles from './VoiceMessageBody.module.scss'
 
+import { MessageDeliveryStatus } from './MessageDeliveryStatus'
 import { VoiceMessagePlayer } from './VoiceMessagePlayer'
 
 interface VoiceMessageBodyProps {
   source: string
   timestamp: string
   isIncoming: boolean
-  isRead?: boolean
+  status?: MessageStatus
   waveform?: readonly number[]
   isPlaybackRequested?: boolean
   onPlaybackEnded?: () => void
@@ -23,7 +24,7 @@ export function VoiceMessageBody({
   source,
   timestamp,
   isIncoming,
-  isRead,
+  status,
   waveform,
   isPlaybackRequested,
   onPlaybackEnded,
@@ -46,9 +47,7 @@ export function VoiceMessageBody({
         afterTimeSlot={
           <span className={styles.delivery}>
             <span>{timestamp}</span>
-            {!isIncoming && (
-              <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
-            )}
+            {!isIncoming && status && <MessageDeliveryStatus status={status} />}
           </span>
         }
       />

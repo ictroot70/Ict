@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { MessageStatus } from '../model'
 import { VoiceMessageBody } from './VoiceMessageBody'
 
 const { playerState, useAudioWaveformMock } = vi.hoisted(() => ({
@@ -38,11 +39,19 @@ describe('VoiceMessageBody', () => {
   })
 
   it('renders the idle design with total duration and delivery metadata', () => {
-    render(<VoiceMessageBody source={'voice.wav'} timestamp={'12:53'} isIncoming={false} isRead />)
+    render(
+      <VoiceMessageBody
+        source={'voice.wav'}
+        timestamp={'12:53'}
+        isIncoming={false}
+        status={MessageStatus.READ}
+      />
+    )
 
     expect(screen.getByRole('button', { name: 'playMessage' })).toBeTruthy()
     expect(screen.getByText('02:31')).toBeTruthy()
     expect(screen.getByText('12:53')).toBeTruthy()
+    expect(screen.getByLabelText('Read')).toBeTruthy()
   })
 
   it('renders the playback design with current and total duration', () => {
@@ -50,10 +59,18 @@ describe('VoiceMessageBody', () => {
     playerState.isPlaying = true
     playerState.progress = 101 / 151
 
-    render(<VoiceMessageBody source={'voice.wav'} timestamp={'12:53'} isIncoming={false} isRead />)
+    render(
+      <VoiceMessageBody
+        source={'voice.wav'}
+        timestamp={'12:53'}
+        isIncoming={false}
+        status={MessageStatus.RECEIVED}
+      />
+    )
 
     expect(screen.getByRole('button', { name: 'pauseMessage' })).toBeTruthy()
     expect(screen.getByText('1:41 / 02:31')).toBeTruthy()
+    expect(screen.getByLabelText('Delivered')).toBeTruthy()
   })
 
   it('decodes the server waveform when a sent message already has a local fallback', () => {

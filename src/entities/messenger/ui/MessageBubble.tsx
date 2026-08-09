@@ -2,12 +2,13 @@
 
 import React from 'react'
 
+import { MessageStatus } from '@/entities/messenger/model'
 import { Avatar } from '@/shared/composites'
 import { Typography } from '@ictroot/ui-kit'
-import { Checkmark, DoneAll } from '@ictroot/ui-kit/icons'
 
 import styles from './MessageBubble.module.scss'
 
+import { MessageDeliveryStatus } from './MessageDeliveryStatus'
 import { VoiceMessageBody } from './VoiceMessageBody'
 
 interface MessageBubbleProps {
@@ -18,7 +19,7 @@ interface MessageBubbleProps {
   url?: string
   avatarUrl?: string
   showAvatar?: boolean
-  isRead?: boolean
+  status?: MessageStatus
   voiceWaveform?: readonly number[]
   isVoicePlaybackRequested?: boolean
   onVoicePlaybackEnded?: () => void
@@ -34,7 +35,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   url,
   avatarUrl,
   showAvatar,
-  isRead,
+  status,
   voiceWaveform,
   isVoicePlaybackRequested,
   onVoicePlaybackEnded,
@@ -81,7 +82,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             source={url}
             timestamp={timestamp}
             isIncoming={isIncoming}
-            isRead={isRead}
+            status={status}
             waveform={voiceWaveform}
             isPlaybackRequested={isVoicePlaybackRequested}
             onPlaybackEnded={onVoicePlaybackEnded}
@@ -94,9 +95,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             <Typography variant={'small_text'} className={styles.timestamp}>
               {timestamp}
             </Typography>
-            {!isIncoming && (
-              <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
-            )}
+            {!isIncoming && status && <MessageDeliveryStatus status={status} />}
           </div>
         )}
       </div>
