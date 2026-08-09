@@ -50,6 +50,10 @@ export function VoiceMessagePlayer({
       onPlaybackStart,
     }
   )
+  // Messages sent optimistically before the server responds carry a local `blob:` source and
+  // an already-computed local waveform preview — decoding that blob again is redundant and,
+  // once the object URL is revoked, would fail outright. Anything else (a persisted server
+  // URL, with or without a locally cached waveform) goes through the server-side decode.
   const shouldDecodeWaveform = !waveform || !source.startsWith('blob:')
   const decodedWaveform = useAudioWaveform(shouldDecodeWaveform ? source : '')
   const barHeights = decodedWaveform ?? waveform

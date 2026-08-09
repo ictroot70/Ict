@@ -2,23 +2,10 @@
 
 import { useEffect, useState } from 'react'
 
-import {
-  AUDIO_WAVEFORM_BAR_COUNT,
-  createAudioWaveformFromArrayBuffer,
-} from '@/shared/lib/media/audio-waveform'
+import { AUDIO_WAVEFORM_BAR_COUNT } from '@/shared/lib/media/audio-waveform'
 
 interface VoiceWaveformResponse {
   waveform?: number[]
-}
-
-const canRequestServerWaveform = (source: string) => {
-  try {
-    const url = new URL(source)
-
-    return url.protocol === 'https:'
-  } catch {
-    return false
-  }
 }
 
 const fetchServerWaveform = async (source: string, signal: AbortSignal) => {
@@ -49,42 +36,28 @@ export function useAudioWaveform(source: string, barCount = AUDIO_WAVEFORM_BAR_C
       return
     }
 
-    const controller = new AbortController()
+    const waveformController = new AbortController()
     let disposed = false
 
     setBarHeights(null)
 
-    void fetch(source, { signal: controller.signal })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Could not load audio waveform')
-        }
-
-        return response.arrayBuffer()
-      })
-      .then(buffer => createAudioWaveformFromArrayBuffer(buffer, barCount))
+    void fetchServerWaveform(source, waveformController.signal)
       .then(nextBarHeights => {
         if (!disposed) {
           setBarHeights(nextBarHeights)
         }
       })
-      .catch(() => {
-        if (!canRequestServerWaveform(source)) {
-          return undefined
+      .catch(error => {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return
         }
 
-        return fetchServerWaveform(source, controller.signal)
-          .then(nextBarHeights => {
-            if (!disposed) {
-              setBarHeights(nextBarHeights)
-            }
-          })
-          .catch(() => undefined)
+        console.error(error)
       })
 
     return () => {
       disposed = true
-      controller.abort()
+      waveformController.abort()
     }
   }, [barCount, source])
 
