@@ -10,6 +10,7 @@ import { io, type Socket } from 'socket.io-client'
 
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
 import {
+  MessageType,
   type MessageAcknowledgement,
   type MessageViewModel,
   type MessengerError,
@@ -130,7 +131,14 @@ export function useMessengerSocket({
             return
           }
 
-          acknowledge?.()
+          if (message.messageType !== MessageType.TEXT || message.messageText === null) {
+            return
+          }
+
+          acknowledge?.({
+            message: message.messageText,
+            receiverId: message.ownerId,
+          })
         })
         .catch(error => {
           reportError(normalizeMessengerError(error, 'socket'))

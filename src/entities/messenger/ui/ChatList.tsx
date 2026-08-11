@@ -6,6 +6,7 @@ import React from 'react'
 
 import { Avatar } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
+import { formatTime } from '@/shared/lib/formatters'
 import { Typography } from '@ictroot/ui-kit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -16,21 +17,6 @@ interface ChatListProps {
   items: MessengerListItem[]
   searchQuery: string
   isError?: boolean
-}
-
-const formatTime = (value: string | null) => {
-  if (!value) {
-    return ''
-  }
-
-  const date = new Date(value)
-
-  return Number.isNaN(date.getTime())
-    ? ''
-    : new Intl.DateTimeFormat('en', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(date)
 }
 
 export const ChatList: React.FC<ChatListProps> = ({ items, searchQuery, isError }) => {
