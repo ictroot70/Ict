@@ -57,8 +57,8 @@
 
 .imageOnly,
 .imageWithText {
-  width: min(360px, 70%);
-  max-width: 70%;
+  width: fit-content;
+  max-width: min(360px, 70%);
 }
 
 .imageOnly {
@@ -123,9 +123,10 @@
 .imageImg {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
   max-width: 100%;
-  object-fit: cover;
+  max-height: 480px;
+  height: auto;
+  object-fit: contain;
   border-radius: 2px;
 }
 
