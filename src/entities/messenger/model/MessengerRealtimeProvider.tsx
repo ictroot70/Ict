@@ -11,20 +11,22 @@ import type { MessengerMessageHandler } from './messenger-socket.types'
 import { createContext, useCallback, useContext, useMemo, useRef, type ReactNode } from 'react'
 
 import { useAppDispatch } from '@/lib/hooks'
-import { useAccessToken } from '@/shared/auth/useAccessToken'
 import { logger } from '@/shared/lib/logger'
 import { restoreAccessToken } from '@/shared/lib/restoreAccessToken'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
+import { authTokenStorage, useAccessToken } from '@/shared/lib/storage'
 
 import { messengerApi } from '../api/messenger.api'
 import { mapMessageToDialoguePreview } from '../lib'
 import { MESSENGER_DIALOGS_QUERY_ARGS } from './messenger-dialogs-query'
 import { useMessengerSocket } from './useMessengerSocket'
 
+type MessengerErrorHandler = (error: MessengerError) => void
+
 interface MessengerRealtimeContextValue {
   isConnected: boolean
   sendMessage: (payload: SendMessagePayload) => boolean
   subscribeMessages: (handler: MessengerMessageHandler) => () => void
+  subscribeErrors: (handler: MessengerErrorHandler) => () => void
 }
 
 const MessengerRealtimeContext = createContext<MessengerRealtimeContextValue | null>(null)
@@ -41,6 +43,7 @@ export function MessengerRealtimeProvider({
   const dispatch = useAppDispatch()
   const accessToken = useAccessToken()
   const handlersRef = useRef(new Set<MessengerMessageHandler>())
+  const errorHandlersRef = useRef(new Set<MessengerErrorHandler>())
 
   const handleIncomingMessage = useCallback(
     async (message: MessageViewModel): Promise<void> => {
@@ -84,6 +87,10 @@ export function MessengerRealtimeProvider({
   const handleSocketError = useCallback(async (error: MessengerError) => {
     logger.error('[MessengerRealtime] Socket error:', error)
 
+    for (const handler of errorHandlersRef.current) {
+      handler(error)
+    }
+
     if (!/authentication|unauthorized|token|401|403/i.test(error.message)) {
       return
     }
@@ -111,13 +118,22 @@ export function MessengerRealtimeProvider({
     }
   }, [])
 
+  const subscribeErrors = useCallback((handler: MessengerErrorHandler) => {
+    errorHandlersRef.current.add(handler)
+
+    return () => {
+      errorHandlersRef.current.delete(handler)
+    }
+  }, [])
+
   const value = useMemo(
     () => ({
       isConnected,
       sendMessage,
       subscribeMessages,
+      subscribeErrors,
     }),
-    [isConnected, sendMessage, subscribeMessages]
+    [isConnected, sendMessage, subscribeMessages, subscribeErrors]
   )
 
   return (

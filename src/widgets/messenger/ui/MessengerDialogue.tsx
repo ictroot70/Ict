@@ -9,13 +9,13 @@ interface MessengerDialogueProps {
 }
 
 export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
-  const { partnerAvatarUrl, currentUserId } = useMessengerDialogueData(partnerId)
+  const { partnerAvatarUrl, partnerUserName, currentUserId } = useMessengerDialogueData(partnerId)
 
   return (
     <ChatWindow
       dialoguePartnerId={partnerId}
       currentUserId={currentUserId}
-      partnerName={`User ${partnerId}`}
+      partnerName={partnerUserName ?? `User ${partnerId}`}
       partnerAvatarUrl={partnerAvatarUrl}
     />
   )

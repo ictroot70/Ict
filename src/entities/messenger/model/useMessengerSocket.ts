@@ -5,8 +5,6 @@ import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './mess
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { logger } from '@/shared/lib/logger'
-import { restoreAccessToken } from '@/shared/lib/restoreAccessToken'
-import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { io, type Socket } from 'socket.io-client'
 
 import { isIncomingMessagePayload, normalizeMessengerError } from '../lib'
@@ -129,16 +127,6 @@ export function useMessengerSocket({
         })
     }
 
-    const recoverAfterAuthError = async () => {
-      const restored = await restoreAccessToken()
-
-      if (!restored.isAuthenticated || !restored.accessToken) {
-        return
-      }
-
-      authTokenStorage.setAccessToken(restored.accessToken)
-    }
-
     const handleConnect = () => {
       logger.info('[MessengerSocket] Connected successfully!')
       setIsConnected(true)
@@ -163,7 +151,6 @@ export function useMessengerSocket({
 
       setIsConnected(false)
       socket.disconnect()
-      void recoverAfterAuthError()
     }
 
     const handleSocketError = (error: unknown) => {
@@ -172,7 +159,6 @@ export function useMessengerSocket({
       if (AUTH_ERROR_PATTERN.test(normalizedError.message)) {
         setIsConnected(false)
         socket.disconnect()
-        void recoverAfterAuthError()
       }
 
       reportError(normalizedError)

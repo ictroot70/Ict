@@ -6,24 +6,23 @@ import { useAppDispatch } from '@/lib/hooks'
 import { logger } from '@/shared/lib/logger'
 
 import { messengerApi } from '../api/messenger.api'
-import { upsertMessageInHistory } from '../lib'
+import {
+  applyOptimisticDialogPreview,
+  DEFAULT_MESSAGES_PAGE_SIZE,
+  SEND_CONFIRMATION_TIMEOUT_MS,
+  sortMessagesByCreatedAtAsc,
+  upsertMessageInHistory,
+} from '../lib'
 import { useMessengerRealtime } from './MessengerRealtimeProvider'
 import {
   MessageStatus,
   MessageType,
   type GetDialogueMessagesParams,
+  type LastMessageViewDto,
   type MessageViewModel,
   type SendMessagePayload,
 } from './messenger.types'
 import { MESSENGER_DIALOGS_QUERY_ARGS } from './messenger-dialogs-query'
-
-const DEFAULT_MESSAGES_PAGE_SIZE = 50
-
-function sortMessagesByCreatedAtAsc(messages: MessageViewModel[]): MessageViewModel[] {
-  return [...messages].sort(
-    (left, right) => new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime()
-  )
-}
 
 export const useMessengerCenter = (
   dialoguePartnerId: number,
@@ -31,21 +30,36 @@ export const useMessengerCenter = (
   partnerPreview?: { userName?: string; avatarUrl?: string }
 ) => {
   const dispatch = useAppDispatch()
-  const { isConnected, sendMessage, subscribeMessages } = useMessengerRealtime()
+  const { isConnected, sendMessage, subscribeMessages, subscribeErrors } = useMessengerRealtime()
 
   const messagesQueryArgs: GetDialogueMessagesParams = useMemo(
     () => ({ dialoguePartnerId, pageSize: DEFAULT_MESSAGES_PAGE_SIZE }),
     [dialoguePartnerId]
   )
 
-  const { data: messagesData, isFetching } =
-    messengerApi.useGetDialogueMessagesQuery(messagesQueryArgs)
+  const {
+    data: messagesData,
+    isFetching,
+    isLoading,
+    isError,
+  } = messengerApi.useGetDialogueMessagesQuery(messagesQueryArgs)
 
   const [draftText, setDraftText] = useState('')
   const [sendError, setSendError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
   const pendingOptimisticIdRef = useRef<number | null>(null)
   const pendingTextRef = useRef<string | null>(null)
+  const dialogsSnapshotRef = useRef<LastMessageViewDto[] | null>(null)
+  const sendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearSendTimeout = useCallback(() => {
+    if (sendTimeoutRef.current == null) {
+      return
+    }
+
+    clearTimeout(sendTimeoutRef.current)
+    sendTimeoutRef.current = null
+  }, [])
 
   const rollbackOptimisticSend = useCallback(() => {
     const optimisticId = pendingOptimisticIdRef.current
@@ -60,9 +74,58 @@ export const useMessengerCenter = (
       })
     )
 
+    const dialogsSnapshot = dialogsSnapshotRef.current
+
+    if (dialogsSnapshot) {
+      dispatch(
+        messengerApi.util.updateQueryData(
+          'getMessengerDialogs',
+          MESSENGER_DIALOGS_QUERY_ARGS,
+          draft => {
+            draft.items = dialogsSnapshot
+          }
+        )
+      )
+    }
+
     pendingOptimisticIdRef.current = null
     pendingTextRef.current = null
+    dialogsSnapshotRef.current = null
   }, [dispatch, messagesQueryArgs])
+
+  const failPendingSend = useCallback(
+    (message: string) => {
+      if (pendingOptimisticIdRef.current == null) {
+        return
+      }
+
+      clearSendTimeout()
+      rollbackOptimisticSend()
+      setIsSending(false)
+      setSendError(message)
+    },
+    [clearSendTimeout, rollbackOptimisticSend]
+  )
+
+  useEffect(() => {
+    return () => {
+      clearSendTimeout()
+    }
+  }, [clearSendTimeout])
+
+  useEffect(() => {
+    return subscribeErrors(error => {
+      if (pendingOptimisticIdRef.current == null) {
+        return
+      }
+
+      if (/authentication|unauthorized|token|401|403/i.test(error.message)) {
+        return
+      }
+
+      failPendingSend(error.message || 'Не удалось отправить сообщение. Попробуйте ещё раз.')
+    })
+  }, [failPendingSend, subscribeErrors])
 
   useEffect(() => {
     return subscribeMessages(async (message: MessageViewModel) => {
@@ -90,15 +153,24 @@ export const useMessengerCenter = (
         pendingTextRef.current !== null &&
         message.messageText === pendingTextRef.current
       ) {
+        clearSendTimeout()
         setDraftText('')
         setIsSending(false)
         setSendError(null)
         pendingOptimisticIdRef.current = null
         pendingTextRef.current = null
+        dialogsSnapshotRef.current = null
         dispatch(messengerApi.util.invalidateTags(['MessengerDialogs']))
       }
     })
-  }, [currentUserId, dialoguePartnerId, dispatch, messagesQueryArgs, subscribeMessages])
+  }, [
+    clearSendTimeout,
+    currentUserId,
+    dialoguePartnerId,
+    dispatch,
+    messagesQueryArgs,
+    subscribeMessages,
+  ])
 
   const sendTextMessage = useCallback(
     (text: string, receiverId: number): void => {
@@ -149,29 +221,18 @@ export const useMessengerCenter = (
           MESSENGER_DIALOGS_QUERY_ARGS,
           draft => {
             const currentItems = draft.items || []
-            const existingIdx = currentItems.findIndex(
-              d => d.ownerId === receiverId || d.receiverId === receiverId
-            )
 
-            const updatedDialog = {
-              ...optimisticMessage,
-              userName:
-                currentItems[existingIdx]?.userName ??
-                partnerPreview?.userName ??
-                `User ${receiverId}`,
-              avatars: currentItems[existingIdx]?.avatars ?? [],
-              notReadCount: 0,
-            }
-
-            if (existingIdx >= 0) {
-              const updated = [...currentItems]
-
-              updated.splice(existingIdx, 1)
-              updated.unshift(updatedDialog)
-              draft.items = updated
-            } else {
-              draft.items = [updatedDialog, ...currentItems]
-            }
+            dialogsSnapshotRef.current = currentItems.map(item => ({
+              ...item,
+              avatars: [...item.avatars],
+            }))
+            draft.items = applyOptimisticDialogPreview({
+              currentItems,
+              optimisticMessage,
+              receiverId,
+              partnerUserName: partnerPreview?.userName,
+              partnerAvatarUrl: partnerPreview?.avatarUrl,
+            })
           }
         )
       )
@@ -184,19 +245,26 @@ export const useMessengerCenter = (
       const sent = sendMessage(payload)
 
       if (!sent) {
-        setIsSending(false)
-        setSendError('Messenger socket is not connected')
-        rollbackOptimisticSend()
+        failPendingSend('Messenger socket is not connected')
+
+        return
       }
+
+      clearSendTimeout()
+      sendTimeoutRef.current = setTimeout(() => {
+        failPendingSend('Не удалось отправить сообщение. Попробуйте ещё раз.')
+      }, SEND_CONFIRMATION_TIMEOUT_MS)
     },
     [
+      clearSendTimeout,
       currentUserId,
       dispatch,
+      failPendingSend,
       isConnected,
       isSending,
       messagesQueryArgs,
+      partnerPreview?.avatarUrl,
       partnerPreview?.userName,
-      rollbackOptimisticSend,
       sendMessage,
     ]
   )
@@ -204,6 +272,8 @@ export const useMessengerCenter = (
   return {
     messages: sortMessagesByCreatedAtAsc(messagesData?.items ?? []),
     isFetching,
+    isLoading,
+    historyError: isError ? 'Could not load message history' : null,
     isConnected,
     draftText,
     setDraftText,

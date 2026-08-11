@@ -5,7 +5,9 @@ import React from 'react'
 import { MessengerRealtimeProvider } from '@/entities/messenger/model/MessengerRealtimeProvider'
 import { ChatList } from '@/entities/messenger/ui/ChatList'
 import { Avatar, LinearProgress } from '@/shared/composites'
+import { APP_ROUTES } from '@/shared/constant'
 import { Typography, Input } from '@ictroot/ui-kit'
+import Link from 'next/link'
 
 import styles from './MessengerShell.module.scss'
 
@@ -30,14 +32,17 @@ export const MessengerShell = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div className={styles.headerArea}>
           {activeProfile && (
-            <div className={styles.activeChatHeader}>
+            <Link
+              href={APP_ROUTES.PROFILE.ID(activeProfile.id)}
+              className={styles.activeChatHeader}
+            >
               <Avatar
                 image={activeProfile.avatars[0]?.url}
                 alt={activeProfile.userName}
                 size={48}
               />
               <Typography variant={'regular_16'}>{activeProfile.userName}</Typography>
-            </div>
+            </Link>
           )}
         </div>
         <div className={styles.sidebar}>
