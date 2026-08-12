@@ -1,4 +1,5 @@
 'use client'
+import type { FollowListMode } from './followListModal.types'
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -11,12 +12,10 @@ import { Input, Modal, Typography } from '@/shared/ui'
 
 import s from './FollowListModal.module.scss'
 
-import { DeleteFollowerConfirm } from './DeleteFollowerConfirm'
+import { FollowListConfirm } from './FollowListConfirm'
 import { FollowListBody } from './FollowListBody'
-import { UnfollowConfirm } from './UnfollowConfirm'
+import { FOLLOW_LIST_PAGE_SIZE } from './followListModal.constants'
 import { useFollowListActions } from './useFollowListActions'
-
-export type FollowListMode = 'following' | 'followers'
 
 type Props = {
   canDeleteFollowers: boolean
@@ -28,7 +27,6 @@ type Props = {
   userName: string
 }
 
-const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 300
 const TITLE_BY_MODE = { followers: 'Followers', following: 'Following' } as const
 const countFormatter = new Intl.NumberFormat('ru-RU')
@@ -60,7 +58,7 @@ export const FollowListModal = ({
       const trimmedSearch = debouncedSearch.trim()
       const queryArgs = {
         userName,
-        pageSize: PAGE_SIZE,
+        pageSize: FOLLOW_LIST_PAGE_SIZE,
         ...(cursor ? { cursor } : {}),
         ...(trimmedSearch ? { search: trimmedSearch } : {}),
       }
@@ -225,18 +223,23 @@ export const FollowListModal = ({
           )}
         </div>
         {confirmUnfollowUser && (
-          <UnfollowConfirm
+          <FollowListConfirm
             isPending={pendingUserId === confirmUnfollowUser.userId}
+            message={'Do you really want to Unfollow from this user'}
             open={confirmUnfollowUser !== null}
+            title={'Unfollow'}
             user={confirmUnfollowUser}
             onCancel={() => setConfirmUnfollowUser(null)}
             onConfirm={() => void handleToggleFollow(confirmUnfollowUser, { confirmed: true })}
           />
         )}
         {confirmDeleteFollowerUser && (
-          <DeleteFollowerConfirm
+          <FollowListConfirm
+            isCloseDisabled={pendingUserId === confirmDeleteFollowerUser.userId}
             isPending={pendingUserId === confirmDeleteFollowerUser.userId}
+            message={'Do you really want to delete follower'}
             open={confirmDeleteFollowerUser !== null}
+            title={'Delete follower'}
             user={confirmDeleteFollowerUser}
             onCancel={() => setConfirmDeleteFollowerUser(null)}
             onConfirm={() => void handleConfirmDeleteFollower()}

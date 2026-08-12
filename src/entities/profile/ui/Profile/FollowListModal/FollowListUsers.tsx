@@ -1,4 +1,5 @@
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
+import type { FollowListMode } from './followListModal.types'
 
 import type { RefObject } from 'react'
 
@@ -8,8 +9,6 @@ import { Button, Typography } from '@/shared/ui'
 import Link from 'next/link'
 
 import s from './FollowListModal.module.scss'
-
-type FollowListMode = 'followers' | 'following'
 
 type Props = {
   canDeleteFollowers: boolean

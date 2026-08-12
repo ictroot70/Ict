@@ -1,4 +1,4 @@
-import type { FollowListMode } from './FollowListModal'
+import type { FollowListMode } from './followListModal.types'
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
 
 import { type Dispatch, type SetStateAction, useCallback, useRef, useState } from 'react'
@@ -14,7 +14,8 @@ import {
 import { useMeQuery } from '@/features/auth'
 import { useAppDispatch } from '@/lib/hooks'
 
-const PAGE_SIZE = 10
+import { FOLLOW_LIST_PAGE_SIZE } from './followListModal.constants'
+
 const DELETE_FOLLOWER_ERROR = 'Could not delete follower. Try again please.'
 
 type Props = {
@@ -68,7 +69,7 @@ export const useFollowListActions = ({
       const trimmedSearch = debouncedSearch.trim()
       const queryArgs = {
         userName,
-        pageSize: Math.max(PAGE_SIZE, usersLength),
+        pageSize: Math.max(FOLLOW_LIST_PAGE_SIZE, usersLength),
         ...(trimmedSearch ? { search: trimmedSearch } : {}),
       }
 

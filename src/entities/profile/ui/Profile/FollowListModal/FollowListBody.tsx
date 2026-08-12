@@ -1,4 +1,4 @@
-import type { FollowListMode } from './FollowListModal'
+import type { FollowListMode } from './followListModal.types'
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
 
 import type { RefObject } from 'react'

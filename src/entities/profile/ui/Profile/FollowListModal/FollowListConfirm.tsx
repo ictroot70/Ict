@@ -6,20 +6,36 @@ import { Button, Modal, Typography } from '@/shared/ui'
 import s from './FollowListModal.module.scss'
 
 type Props = {
+  isCloseDisabled?: boolean
   isPending: boolean
+  message: string
   onCancel: () => void
   onConfirm: () => void
   open: boolean
+  title: string
   user: UserFollowingFollowersViewModel
 }
 
-export const UnfollowConfirm = ({ isPending, onCancel, onConfirm, open, user }: Props) => (
-  <Modal open={open} onClose={onCancel} modalTitle={'Unfollow'} className={s.confirmModal}>
+export const FollowListConfirm = ({
+  isCloseDisabled = false,
+  isPending,
+  message,
+  onCancel,
+  onConfirm,
+  open,
+  title,
+  user,
+}: Props) => (
+  <Modal
+    open={open}
+    onClose={isCloseDisabled ? () => {} : onCancel}
+    modalTitle={title}
+    className={s.confirmModal}
+  >
     <div className={s.confirmBody}>
       <Avatar className={s.confirmAvatar} image={user.avatars?.[0]?.url} alt={user.userName} />
       <Typography className={s.confirmText} variant={'regular_16'}>
-        Do you really want to Unfollow from this user{' '}
-        <span className={s.confirmUserName}>“{user.userName}”</span>?
+        {message} <span className={s.confirmUserName}>“{user.userName}”</span>?
       </Typography>
     </div>
     <div className={s.confirmActions}>
