@@ -12,8 +12,8 @@ import { Input, Modal, Typography } from '@/shared/ui'
 
 import s from './FollowListModal.module.scss'
 
-import { FollowListConfirm } from './FollowListConfirm'
 import { FollowListBody } from './FollowListBody'
+import { FollowListConfirm } from './FollowListConfirm'
 import { FOLLOW_LIST_PAGE_SIZE } from './followListModal.constants'
 import { useFollowListActions } from './useFollowListActions'
 
@@ -199,22 +199,26 @@ export const FollowListModal = ({
             />
           </div>
           <FollowListBody
-            canDeleteFollowers={canDeleteFollowers}
-            currentUserId={currentUserId}
+            actions={{
+              onClose,
+              onDeleteFollower: setConfirmDeleteFollowerUser,
+              onLoadMore: loadMore,
+              onToggleFollow: user => void handleToggleFollow(user),
+            }}
             debouncedSearch={debouncedSearch}
-            hasNextPage={nextCursor !== null}
             isError={isError}
             isInitialLoading={isInitialLoading}
-            isLoadingMore={isLoadingMore}
-            listRootRef={listRootRef}
-            mode={mode}
-            pendingUserId={pendingUserId}
-            users={users}
-            onClose={onClose}
-            onDeleteFollower={setConfirmDeleteFollowerUser}
-            onLoadMore={loadMore}
             onRetry={loadFirstPage}
-            onToggleFollow={user => void handleToggleFollow(user)}
+            state={{
+              canDeleteFollowers,
+              currentUserId,
+              hasNextPage: nextCursor !== null,
+              isLoadingMore,
+              listRootRef,
+              mode,
+              pendingUserId,
+              users,
+            }}
           />
           {actionError && (
             <Typography className={s.actionError} variant={'danger'}>

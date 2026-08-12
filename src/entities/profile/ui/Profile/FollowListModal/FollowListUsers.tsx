@@ -1,7 +1,4 @@
-import type { UserFollowingFollowersViewModel } from '@/shared/types'
-import type { FollowListMode } from './followListModal.types'
-
-import type { RefObject } from 'react'
+import type { FollowListUsersActions, FollowListUsersState } from './followListModal.types'
 
 import { Avatar, InfiniteScrollTrigger } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
@@ -11,45 +8,26 @@ import Link from 'next/link'
 import s from './FollowListModal.module.scss'
 
 type Props = {
-  canDeleteFollowers: boolean
-  currentUserId?: number
-  hasNextPage: boolean
-  isLoadingMore: boolean
-  listRootRef: RefObject<HTMLDivElement | null>
-  mode: FollowListMode
-  onClose: () => void
-  onDeleteFollower: (user: UserFollowingFollowersViewModel) => void
-  onLoadMore: () => void
-  onToggleFollow: (user: UserFollowingFollowersViewModel) => void
-  pendingUserId: null | number
-  users: UserFollowingFollowersViewModel[]
+  actions: FollowListUsersActions
+  state: FollowListUsersState
 }
 
-export const FollowListUsers = ({
-  canDeleteFollowers,
-  currentUserId,
-  hasNextPage,
-  isLoadingMore,
-  listRootRef,
-  mode,
-  onClose,
-  onDeleteFollower,
-  onLoadMore,
-  onToggleFollow,
-  pendingUserId,
-  users,
-}: Props) => (
-  <div className={s.list} ref={listRootRef}>
-    {users.map(user => {
+export const FollowListUsers = ({ actions, state }: Props) => (
+  <div className={s.list} ref={state.listRootRef}>
+    {state.users.map(user => {
       const canShowFollowingUnfollow =
-        mode === 'following' &&
-        currentUserId !== undefined &&
-        user.userId !== currentUserId &&
+        state.mode === 'following' &&
+        state.currentUserId !== undefined &&
+        user.userId !== state.currentUserId &&
         user.isFollowing
 
       return (
         <div key={user.userId} className={s.userRow}>
-          <Link className={s.userLink} href={APP_ROUTES.PROFILE.ID(user.userId)} onClick={onClose}>
+          <Link
+            className={s.userLink}
+            href={APP_ROUTES.PROFILE.ID(user.userId)}
+            onClick={actions.onClose}
+          >
             <Avatar
               className={s.avatar}
               image={user.avatars?.[0]?.url}
@@ -62,26 +40,26 @@ export const FollowListUsers = ({
               </Typography>
             </span>
           </Link>
-          {mode === 'followers' && currentUserId !== undefined && (
+          {state.mode === 'followers' && state.currentUserId !== undefined && (
             <div className={s.followersActions}>
-              {!user.isFollowing && user.userId !== currentUserId ? (
+              {!user.isFollowing && user.userId !== state.currentUserId ? (
                 <Button
                   className={s.followButton}
-                  disabled={pendingUserId !== null}
+                  disabled={state.pendingUserId !== null}
                   variant={'primary'}
-                  onClick={() => onToggleFollow(user)}
+                  onClick={() => actions.onToggleFollow(user)}
                 >
                   Follow
                 </Button>
               ) : (
                 <span className={s.actionPlaceholder} />
               )}
-              {canDeleteFollowers && (
+              {state.canDeleteFollowers && (
                 <Button
                   className={s.deleteButton}
-                  disabled={pendingUserId !== null}
+                  disabled={state.pendingUserId !== null}
                   variant={'text'}
-                  onClick={() => onDeleteFollower(user)}
+                  onClick={() => actions.onDeleteFollower(user)}
                 >
                   Delete
                 </Button>
@@ -91,9 +69,9 @@ export const FollowListUsers = ({
           {canShowFollowingUnfollow && (
             <Button
               className={s.followingButton}
-              disabled={pendingUserId !== null}
+              disabled={state.pendingUserId !== null}
               variant={'outlined'}
-              onClick={() => onToggleFollow(user)}
+              onClick={() => actions.onToggleFollow(user)}
             >
               Unfollow
             </Button>
@@ -101,15 +79,15 @@ export const FollowListUsers = ({
         </div>
       )
     })}
-    {isLoadingMore && (
+    {state.isLoadingMore && (
       <Typography className={s.loadingMore} variant={'regular_14'}>
         Loading more...
       </Typography>
     )}
     <InfiniteScrollTrigger
-      hasNextPage={hasNextPage}
-      onLoadMore={onLoadMore}
-      rootRef={listRootRef}
+      hasNextPage={state.hasNextPage}
+      onLoadMore={actions.onLoadMore}
+      rootRef={state.listRootRef}
     />
   </div>
 )
