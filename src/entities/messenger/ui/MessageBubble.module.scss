@@ -120,6 +120,15 @@
   max-width: 100%;
 }
 
+.imageButton {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
 .imageImg {
   display: block;
   width: 100%;

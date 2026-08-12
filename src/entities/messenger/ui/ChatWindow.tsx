@@ -14,6 +14,7 @@ import { formatTime } from '@/shared/lib/formatters'
 
 import styles from './ChatWindow.module.scss'
 
+import { ImageMessageModal } from './ImageMessageModal'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 
@@ -64,6 +65,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
   const [text, setText] = useState('')
   const [sendError, setSendError] = useState<string | null>(null)
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
 
   const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
 
@@ -144,6 +146,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               avatarUrl={partnerAvatarUrl}
               showAvatar={showAvatar}
               isRead={message.status === MessageStatus.READ}
+              onImageClick={setPreviewImageUrl}
             />
           )
         })}
@@ -160,6 +163,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         actionsSlot={actionsSlot}
         error={composerError}
       />
+      {previewImageUrl && (
+        <ImageMessageModal imageUrl={previewImageUrl} onClose={() => setPreviewImageUrl(null)} />
+      )}
     </div>
   )
 }
