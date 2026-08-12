@@ -15,7 +15,6 @@ export type SearchUsersRequest = {
 
 export type FollowListRequest = {
   userName: string
-  _t?: number
   pageSize?: number
   cursor?: number
   search?: string

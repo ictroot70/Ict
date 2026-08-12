@@ -245,7 +245,9 @@ describe('Feed', () => {
     fireEvent.click(screen.getByText('Toggle 1'))
     fireEvent.click(screen.getByText('Copy 2'))
 
-    expect(useFollowUserStateMock).toHaveBeenCalledWith('user-2', 2, 30, { enabled: true })
+    expect(useFollowUserStateMock).toHaveBeenCalledWith('user-2', 2, 30, 'current-user', {
+      enabled: true,
+    })
     expect(handleToggleFollow).toHaveBeenCalledTimes(1)
     expect(copyPostLink).toHaveBeenCalledWith(3, 2)
   })

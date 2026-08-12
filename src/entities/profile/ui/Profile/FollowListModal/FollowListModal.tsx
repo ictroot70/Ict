@@ -60,7 +60,6 @@ export const FollowListModal = ({
       const trimmedSearch = debouncedSearch.trim()
       const queryArgs = {
         userName,
-        _t: Date.now(),
         pageSize: PAGE_SIZE,
         ...(cursor ? { cursor } : {}),
         ...(trimmedSearch ? { search: trimmedSearch } : {}),
@@ -92,6 +91,18 @@ export const FollowListModal = ({
   })
 
   const loadFirstPage = useCallback(() => {
+    if (count === 0) {
+      requestIdRef.current += 1
+      setUsers([])
+      setNextCursor(null)
+      setIsError(false)
+      setIsInitialLoading(false)
+      setIsLoadingMore(false)
+      isLoadingMoreRef.current = false
+
+      return
+    }
+
     const requestId = requestIdRef.current + 1
 
     requestIdRef.current = requestId
@@ -124,7 +135,7 @@ export const FollowListModal = ({
           setIsInitialLoading(false)
         }
       })
-  }, [triggerQuery])
+  }, [count, triggerQuery])
 
   useEffect(() => {
     loadFirstPage()
@@ -177,20 +188,13 @@ export const FollowListModal = ({
   const modalTitle = `${countFormatter.format(count)} ${TITLE_BY_MODE[mode]}`
 
   return (
-    <Modal open={open} onClose={onClose} className={s.modal}>
+    <Modal open={open} onClose={onClose} modalTitle={modalTitle} className={s.modal}>
       <div className={s.modalInner}>
-        <div className={s.header}>
-          <Typography className={s.title} variant={'h1'}>
-            {modalTitle}
-          </Typography>
-          <button className={s.closeButton} type={'button'} aria-label={'Close'} onClick={onClose}>
-            ×
-          </button>
-        </div>
         <div className={s.content}>
           <div className={s.searchWrapper}>
             <Input
               inputType={'search'}
+              disabled={count === 0}
               placeholder={'Search'}
               value={search}
               onChange={event => setSearch(event.target.value)}

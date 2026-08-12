@@ -12,6 +12,9 @@ import {
   UserByUserNameResponse,
 } from './api.types'
 
+export const getFollowersListTag = (userName: string) => `FOLLOWERS-${userName}`
+export const getFollowingListTag = (userName: string) => `FOLLOWING-${userName}`
+
 export const publicUsersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
     // Authenticated lookup that returns the per-viewer follow status (isFollowing).
@@ -37,12 +40,18 @@ export const publicUsersApi = baseApi.injectEndpoints({
         params,
         url: API_ROUTES.USERS_FOLLOW.FOLLOWERS_BY_USERNAME(userName),
       }),
+      providesTags: (result, error, { userName }) => [
+        { type: 'FollowList', id: getFollowersListTag(userName) },
+      ],
     }),
     getFollowingByUserName: builder.query<FollowListResponse, FollowListRequest>({
       query: ({ userName, ...params }) => ({
         params,
         url: API_ROUTES.USERS_FOLLOW.FOLLOWING_BY_USERNAME(userName),
       }),
+      providesTags: (result, error, { userName }) => [
+        { type: 'FollowList', id: getFollowingListTag(userName) },
+      ],
     }),
     getPublicPosts: builder.query<GetPublicPostsResponse, GetPublicPostsRequest>({
       query: ({ endCursorPostId = 0, ...params }) => ({

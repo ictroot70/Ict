@@ -1,7 +1,7 @@
 import type { FollowListMode } from './FollowListModal'
 import type { UserFollowingFollowersViewModel } from '@/shared/types'
 
-import { type Dispatch, type SetStateAction, useCallback, useState } from 'react'
+import { type Dispatch, type SetStateAction, useCallback, useRef, useState } from 'react'
 
 import { profileApi } from '@/entities/profile/api/profileApi'
 import {
@@ -35,6 +35,8 @@ const getMutationStatus = (error: unknown) => {
   return null
 }
 
+const getNextCursor = (nextCursor: number) => (nextCursor > 0 ? nextCursor : null)
+
 export const useFollowListActions = ({
   debouncedSearch,
   mode,
@@ -45,6 +47,7 @@ export const useFollowListActions = ({
   usersLength,
 }: Props) => {
   const [pendingUserId, setPendingUserId] = useState<number | null>(null)
+  const pendingUserIdRef = useRef<number | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [confirmUnfollowUser, setConfirmUnfollowUser] =
     useState<UserFollowingFollowersViewModel | null>(null)
@@ -58,12 +61,13 @@ export const useFollowListActions = ({
   const [triggerFollowers] = useLazyGetFollowersByUserNameQuery()
   const [triggerFollowing] = useLazyGetFollowingByUserNameQuery()
 
+  const isOwnProfileList = currentUser?.userId === profileId
+
   const refetchListPage = useCallback(
     (listMode: FollowListMode) => {
       const trimmedSearch = debouncedSearch.trim()
       const queryArgs = {
         userName,
-        _t: Date.now(),
         pageSize: Math.max(PAGE_SIZE, usersLength),
         ...(trimmedSearch ? { search: trimmedSearch } : {}),
       }
@@ -84,25 +88,29 @@ export const useFollowListActions = ({
     [dispatch, profileId]
   )
 
-  const refetchAffectedProfiles = useCallback(
-    (selectedUser: UserFollowingFollowersViewModel) => {
-      dispatch(
-        profileApi.util.invalidateTags([
-          { type: 'Profile', id: profileId },
-          { type: 'Profile', id: selectedUser.userId },
-          { type: 'Profile', id: `USERNAME-${selectedUser.userName}` },
-        ])
-      )
+  const applyVerifiedList = useCallback(
+    (items: UserFollowingFollowersViewModel[], nextCursor: number) => {
+      setUsers(items)
+      setNextCursor(getNextCursor(nextCursor))
     },
-    [dispatch, profileId]
+    [setNextCursor, setUsers]
   )
+
+  const setPendingUser = useCallback((userId: number | null) => {
+    pendingUserIdRef.current = userId
+    setPendingUserId(userId)
+  }, [])
+
+  const clearPendingUser = useCallback(() => {
+    setPendingUser(null)
+  }, [setPendingUser])
 
   const handleToggleFollow = async (
     user: UserFollowingFollowersViewModel,
     options?: { confirmed?: boolean }
   ) => {
     if (
-      pendingUserId !== null ||
+      pendingUserIdRef.current !== null ||
       currentUser?.userId === undefined ||
       user.userId === currentUser.userId
     ) {
@@ -116,58 +124,77 @@ export const useFollowListActions = ({
     }
 
     setConfirmUnfollowUser(null)
-    setPendingUserId(user.userId)
+    setPendingUser(user.userId)
     setActionError(null)
 
     try {
       if (mode === 'following') {
         await unfollowUser({
           currentUserId: currentUser.userId,
+          currentUserName: currentUser.name,
           selectedUserId: user.userId,
           targetUserName: user.userName,
         }).unwrap()
 
         const verifiedData = await refetchListPage('following').unwrap()
+        const verifiedUser = verifiedData.items.find(item => item.userId === user.userId)
 
-        if (verifiedData.items.some(item => item.userId === user.userId)) {
-          refetchAffectedProfiles(user)
+        if (verifiedUser?.isFollowing) {
           setActionError('Could not unfollow user. Try again please.')
 
           return
         }
 
-        setUsers(verifiedData.items)
-        setNextCursor(verifiedData.nextCursor > 0 ? verifiedData.nextCursor : null)
+        if (isOwnProfileList) {
+          applyVerifiedList(verifiedData.items, verifiedData.nextCursor)
+        } else {
+          setUsers(prev =>
+            prev.map(item => (item.userId === user.userId ? { ...item, isFollowing: false } : item))
+          )
+        }
       } else {
         await followUser({
           currentUserId: currentUser.userId,
+          currentUserName: currentUser.name,
           selectedUserId: user.userId,
           targetUserName: user.userName,
         }).unwrap()
 
-        setUsers(prev =>
-          prev.map(item => (item.userId === user.userId ? { ...item, isFollowing: true } : item))
-        )
+        const verifiedData = await refetchListPage('followers').unwrap()
+        const verifiedUser = verifiedData.items.find(item => item.userId === user.userId)
+
+        if (!verifiedUser?.isFollowing) {
+          setActionError('Could not update follow status. Try again please.')
+
+          return
+        }
+
+        applyVerifiedList(verifiedData.items, verifiedData.nextCursor)
       }
     } catch {
       setActionError('Could not update follow status. Try again please.')
     } finally {
-      setPendingUserId(null)
+      clearPendingUser()
     }
   }
 
   const handleConfirmDeleteFollower = async () => {
-    if (!confirmDeleteFollowerUser || pendingUserId !== null) {
+    if (!confirmDeleteFollowerUser || pendingUserIdRef.current !== null) {
       return
     }
 
     const followerUserId = confirmDeleteFollowerUser.userId
 
-    setPendingUserId(followerUserId)
+    setPendingUser(followerUserId)
     setActionError(null)
 
     try {
-      await deleteFollower({ followerUserId }).unwrap()
+      await deleteFollower({
+        currentUserId: currentUser?.userId,
+        currentUserName: currentUser?.name,
+        followerUserId,
+        followerUserName: confirmDeleteFollowerUser.userName,
+      }).unwrap()
 
       const verifiedData = await refetchListPage('followers').unwrap()
 
@@ -178,8 +205,7 @@ export const useFollowListActions = ({
         return
       }
 
-      setUsers(verifiedData.items)
-      setNextCursor(verifiedData.nextCursor > 0 ? verifiedData.nextCursor : null)
+      applyVerifiedList(verifiedData.items, verifiedData.nextCursor)
       syncCurrentProfileCount('followers', -1)
       setConfirmDeleteFollowerUser(null)
     } catch (error) {
@@ -190,7 +216,7 @@ export const useFollowListActions = ({
         status ? `${DELETE_FOLLOWER_ERROR} Backend status: ${status}.` : DELETE_FOLLOWER_ERROR
       )
     } finally {
-      setPendingUserId(null)
+      clearPendingUser()
     }
   }
 

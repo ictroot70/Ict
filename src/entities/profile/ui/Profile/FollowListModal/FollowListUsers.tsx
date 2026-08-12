@@ -41,59 +41,67 @@ export const FollowListUsers = ({
   users,
 }: Props) => (
   <div className={s.list} ref={listRootRef}>
-    {users.map(user => (
-      <div key={user.userId} className={s.userRow}>
-        <Link className={s.userLink} href={APP_ROUTES.PROFILE.ID(user.userId)} onClick={onClose}>
-          <Avatar
-            className={s.avatar}
-            image={user.avatars?.[0]?.url}
-            alt={user.userName}
-            size={48}
-          />
-          <span className={s.userInfo}>
-            <Typography className={s.userName} variant={'bold_14'}>
-              {user.userName}
-            </Typography>
-          </span>
-        </Link>
-        {mode === 'followers' && currentUserId !== undefined && (
-          <div className={s.followersActions}>
-            {!user.isFollowing && user.userId !== currentUserId ? (
-              <Button
-                className={s.followButton}
-                disabled={pendingUserId !== null}
-                variant={'primary'}
-                onClick={() => onToggleFollow(user)}
-              >
-                Follow
-              </Button>
-            ) : (
-              <span className={s.actionPlaceholder} />
-            )}
-            {canDeleteFollowers && (
-              <Button
-                className={s.deleteButton}
-                disabled={pendingUserId !== null}
-                variant={'text'}
-                onClick={() => onDeleteFollower(user)}
-              >
-                Delete
-              </Button>
-            )}
-          </div>
-        )}
-        {mode === 'following' && currentUserId !== undefined && user.userId !== currentUserId && (
-          <Button
-            className={s.followingButton}
-            disabled={pendingUserId !== null}
-            variant={'outlined'}
-            onClick={() => onToggleFollow(user)}
-          >
-            Unfollow
-          </Button>
-        )}
-      </div>
-    ))}
+    {users.map(user => {
+      const canShowFollowingUnfollow =
+        mode === 'following' &&
+        currentUserId !== undefined &&
+        user.userId !== currentUserId &&
+        user.isFollowing
+
+      return (
+        <div key={user.userId} className={s.userRow}>
+          <Link className={s.userLink} href={APP_ROUTES.PROFILE.ID(user.userId)} onClick={onClose}>
+            <Avatar
+              className={s.avatar}
+              image={user.avatars?.[0]?.url}
+              alt={user.userName}
+              size={48}
+            />
+            <span className={s.userInfo}>
+              <Typography className={s.userName} variant={'bold_14'}>
+                {user.userName}
+              </Typography>
+            </span>
+          </Link>
+          {mode === 'followers' && currentUserId !== undefined && (
+            <div className={s.followersActions}>
+              {!user.isFollowing && user.userId !== currentUserId ? (
+                <Button
+                  className={s.followButton}
+                  disabled={pendingUserId !== null}
+                  variant={'primary'}
+                  onClick={() => onToggleFollow(user)}
+                >
+                  Follow
+                </Button>
+              ) : (
+                <span className={s.actionPlaceholder} />
+              )}
+              {canDeleteFollowers && (
+                <Button
+                  className={s.deleteButton}
+                  disabled={pendingUserId !== null}
+                  variant={'text'}
+                  onClick={() => onDeleteFollower(user)}
+                >
+                  Delete
+                </Button>
+              )}
+            </div>
+          )}
+          {canShowFollowingUnfollow && (
+            <Button
+              className={s.followingButton}
+              disabled={pendingUserId !== null}
+              variant={'outlined'}
+              onClick={() => onToggleFollow(user)}
+            >
+              Unfollow
+            </Button>
+          )}
+        </div>
+      )
+    })}
     {isLoadingMore && (
       <Typography className={s.loadingMore} variant={'regular_14'}>
         Loading more...

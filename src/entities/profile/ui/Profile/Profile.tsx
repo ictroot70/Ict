@@ -68,7 +68,7 @@ export function Profile({
           shouldShowAuthActionSkeleton={shouldShowAuthActionSkeleton}
           authActionSkeletonVariant={authActionSkeletonVariant}
           isOwnProfile={isOwnProfile}
-          onStatClick={setFollowListMode}
+          onStatClick={isAuthenticated ? setFollowListMode : undefined}
           {...profileInfoActions}
         />
         <ProfilePosts

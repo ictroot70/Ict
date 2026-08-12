@@ -22,21 +22,27 @@ export const ProfileStats = ({ onStatClick, stats }: Props) => {
 
   return (
     <ul className={s.stats}>
-      {statsData.map(({ label, type, value }) => (
-        <li key={label}>
-          {type ? (
-            <button className={s.statButton} type={'button'} onClick={() => onStatClick?.(type)}>
-              <Typography variant={'bold_14'}>{value}</Typography>
-              <Typography variant={'regular_14'}>{label}</Typography>
-            </button>
-          ) : (
+      {statsData.map(({ label, type, value }) => {
+        if (type && value > 0 && onStatClick) {
+          return (
+            <li key={label}>
+              <button className={s.statButton} type={'button'} onClick={() => onStatClick(type)}>
+                <Typography variant={'bold_14'}>{value}</Typography>
+                <Typography variant={'regular_14'}>{label}</Typography>
+              </button>
+            </li>
+          )
+        }
+
+        return (
+          <li key={label}>
             <div className={s.statStatic}>
               <Typography variant={'bold_14'}>{value}</Typography>
               <Typography variant={'regular_14'}>{label}</Typography>
             </div>
-          )}
-        </li>
-      ))}
+          </li>
+        )
+      })}
     </ul>
   )
 }

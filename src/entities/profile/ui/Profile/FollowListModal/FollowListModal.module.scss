@@ -1,5 +1,24 @@
 .modal {
-  width: min(644px, calc(100vw - 32px));
+  --follow-list-modal-left: max(16px, calc((100vw - 1280px) / 2 + 408px));
+
+  top: 96px;
+  right: auto;
+  left: var(--follow-list-modal-left);
+  transform: none;
+  width: 644px;
+  height: min(564px, calc(100vh - 156px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  animation: none;
+
+  @media (max-width: 1023px), (max-height: 680px) {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(644px, calc(100vw - 32px));
+    height: auto;
+  }
 }
 
 .modalInner {
@@ -8,49 +27,11 @@
   flex-direction: column;
 }
 
-.header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 72px;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--color-dark-100);
-}
-
-.title {
-  padding: 0;
-}
-
-.closeButton {
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  color: var(--color-light-100);
-  background: transparent;
-  font-family: Arial, sans-serif;
-  font-size: 30px;
-  line-height: 0;
-
-  &:hover {
-    background-color: var(--color-dark-100);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--color-primary-500);
-  }
-}
-
 .content {
   display: flex;
   flex-direction: column;
-  min-height: 360px;
-  max-height: min(480px, calc(100vh - 190px));
+  min-height: 0;
+  height: calc(100% - 73px);
   padding: 24px 24px 36px;
 }
 
@@ -168,16 +149,26 @@
 }
 
 .confirmModal {
-  width: min(378px, calc(100% - 32px));
+  top: 252px;
+  left: calc(50% + 36px);
+  transform: translateX(-50%);
+  width: min(378px, calc(100vw - 32px));
   min-height: 240px;
   border: 1px solid var(--color-dark-100);
   background-color: var(--color-dark-300);
+  animation: none;
+
+  @media (max-height: 560px) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .confirmBody {
   display: flex;
   gap: 16px;
-  padding: 24px 24px 0;
+  padding: 24px 0 0;
 }
 
 .confirmAvatar {
@@ -187,7 +178,7 @@
 }
 
 .confirmText {
-  max-width: 260px;
+  max-width: 282px;
 }
 
 .confirmUserName {
@@ -198,7 +189,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 24px;
-  padding: 32px 24px 0;
+  padding: 32px 0 0;
 }
 
 .confirmButton {
