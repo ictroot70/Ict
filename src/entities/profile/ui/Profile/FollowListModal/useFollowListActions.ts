@@ -118,7 +118,7 @@ export const useFollowListActions = ({
       return
     }
 
-    if (mode === 'following' && !options?.confirmed) {
+    if (mode === 'following' && user.isFollowing && !options?.confirmed) {
       setConfirmUnfollowUser(user)
 
       return
@@ -130,7 +130,9 @@ export const useFollowListActions = ({
 
     try {
       if (mode === 'following') {
-        await unfollowUser({
+        const toggleUser = user.isFollowing ? unfollowUser : followUser
+
+        await toggleUser({
           currentUserId: currentUser.userId,
           currentUserName: currentUser.name,
           selectedUserId: user.userId,
@@ -140,8 +142,12 @@ export const useFollowListActions = ({
         const verifiedData = await refetchListPage('following').unwrap()
         const verifiedUser = verifiedData.items.find(item => item.userId === user.userId)
 
-        if (verifiedUser?.isFollowing) {
-          setActionError('Could not unfollow user. Try again please.')
+        if (verifiedUser?.isFollowing === user.isFollowing) {
+          setActionError(
+            user.isFollowing
+              ? 'Could not unfollow user. Try again please.'
+              : 'Could not update follow status. Try again please.'
+          )
 
           return
         }
@@ -150,7 +156,11 @@ export const useFollowListActions = ({
           applyVerifiedList(verifiedData.items, verifiedData.nextCursor)
         } else {
           setUsers(prev =>
-            prev.map(item => (item.userId === user.userId ? { ...item, isFollowing: false } : item))
+            prev.map(item =>
+              item.userId === user.userId
+                ? { ...item, isFollowing: verifiedUser?.isFollowing ?? !user.isFollowing }
+                : item
+            )
           )
         }
       } else {

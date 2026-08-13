@@ -15,11 +15,10 @@ type Props = {
 export const FollowListUsers = ({ actions, state }: Props) => (
   <div className={s.list} ref={state.listRootRef}>
     {state.users.map(user => {
-      const canShowFollowingUnfollow =
+      const canShowFollowingAction =
         state.mode === 'following' &&
         state.currentUserId !== undefined &&
-        user.userId !== state.currentUserId &&
-        user.isFollowing
+        user.userId !== state.currentUserId
 
       return (
         <div key={user.userId} className={s.userRow}>
@@ -66,14 +65,14 @@ export const FollowListUsers = ({ actions, state }: Props) => (
               )}
             </div>
           )}
-          {canShowFollowingUnfollow && (
+          {canShowFollowingAction && (
             <Button
               className={s.followingButton}
               disabled={state.pendingUserId !== null}
-              variant={'outlined'}
+              variant={user.isFollowing ? 'outlined' : 'primary'}
               onClick={() => actions.onToggleFollow(user)}
             >
-              Unfollow
+              {user.isFollowing ? 'Unfollow' : 'Follow'}
             </Button>
           )}
         </div>
