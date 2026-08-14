@@ -108,7 +108,7 @@ afterEach(() => {
 })
 
 describe('usersFollowApi cache contract', () => {
-  it('optimistically patches target and current-user follow counters', async () => {
+  it('does not optimistically patch follow counters before the server confirms toggle state', async () => {
     const followRequest = createDeferred<Response>()
     const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
       const request = asRequest(call)
@@ -145,11 +145,11 @@ describe('usersFollowApi cache contract', () => {
       })
     )
 
-    expect(getTargetProfile(store)?.isFollowing).toBe(true)
-    expect(getTargetProfile(store)?.userMetadata.followers).toBe(3)
-    expect(getCurrentProfile(store)?.userMetadata.following).toBe(6)
-    expect(getTargetByUserName(store)?.isFollowing).toBe(true)
-    expect(getTargetByUserName(store)?.followersCount).toBe(3)
+    expect(getTargetProfile(store)?.isFollowing).toBe(false)
+    expect(getTargetProfile(store)?.userMetadata.followers).toBe(2)
+    expect(getCurrentProfile(store)?.userMetadata.following).toBe(5)
+    expect(getTargetByUserName(store)?.isFollowing).toBe(false)
+    expect(getTargetByUserName(store)?.followersCount).toBe(2)
 
     followRequest.resolve(asJsonResponse({}))
     await mutation
@@ -159,10 +159,13 @@ describe('usersFollowApi cache contract', () => {
       '/api/v1/public-user/profile/8',
       '/api/v1/users/john',
       '/api/v1/users/following',
+      '/api/v1/public-user/profile/8',
+      '/api/v1/public-user/profile/7',
+      '/api/v1/users/john',
     ])
   })
 
-  it('rolls back exactly the patched caches when follow fails', async () => {
+  it('keeps cached follow state unchanged when follow fails', async () => {
     const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
       const request = asRequest(call)
       const { pathname } = new URL(request.url)
@@ -203,5 +206,94 @@ describe('usersFollowApi cache contract', () => {
     expect(getCurrentProfile(store)?.userMetadata.following).toBe(5)
     expect(getTargetByUserName(store)?.isFollowing).toBe(false)
     expect(getTargetByUserName(store)?.followersCount).toBe(2)
+  })
+
+  it('uses the following toggle endpoint for unfollow', async () => {
+    const fetchMock = vi.fn(() => Promise.resolve(asJsonResponse({})))
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+
+    await store.dispatch(
+      usersFollowApi.endpoints.unfollowUser.initiate({
+        currentUserId: 8,
+        selectedUserId: 7,
+        targetUserName: 'john',
+      })
+    )
+
+    const request = asRequest(fetchMock.mock.calls[0])
+
+    expect(request.method).toBe('POST')
+    expect(new URL(request.url).pathname).toBe('/api/v1/users/following')
+    await expect(request.json()).resolves.toEqual({ selectedUserId: 7 })
+  })
+
+  it('calls the follower DELETE endpoint without patching counters by HTTP success alone', async () => {
+    const deleteRequest = createDeferred<Response>()
+    const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
+      const request = asRequest(call)
+      const { pathname } = new URL(request.url)
+
+      if (request.method === 'DELETE') {
+        return deleteRequest.promise
+      }
+
+      if (pathname.endsWith('/v1/public-user/profile/8')) {
+        return Promise.resolve(asJsonResponse(currentProfile))
+      }
+
+      return Promise.resolve(asJsonResponse({}))
+    })
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+    await store.dispatch(profileApi.endpoints.getPublicProfile.initiate({ profileId: 8 })).unwrap()
+
+    const mutation = store.dispatch(
+      usersFollowApi.endpoints.deleteFollower.initiate({
+        followerUserId: 7,
+      })
+    )
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
+
+    deleteRequest.resolve(asJsonResponse({}))
+    await mutation
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
+    expect(getFetchPathNames(fetchMock)).toEqual([
+      '/api/v1/public-user/profile/8',
+      '/api/v1/users/follower/7',
+    ])
+  })
+
+  it('keeps follower counters unchanged when delete follower fails', async () => {
+    const fetchMock = vi.fn().mockImplementation((...call: unknown[]) => {
+      const request = asRequest(call)
+      const { pathname } = new URL(request.url)
+
+      if (request.method === 'DELETE') {
+        return Promise.resolve(asJsonResponse({ message: 'failed' }, 500))
+      }
+
+      if (pathname.endsWith('/v1/public-user/profile/8')) {
+        return Promise.resolve(asJsonResponse(currentProfile))
+      }
+
+      return Promise.resolve(asJsonResponse({}))
+    })
+    const store = createTestStore()
+
+    vi.stubGlobal('fetch', fetchMock as typeof fetch)
+    await store.dispatch(profileApi.endpoints.getPublicProfile.initiate({ profileId: 8 })).unwrap()
+
+    await store.dispatch(
+      usersFollowApi.endpoints.deleteFollower.initiate({
+        followerUserId: 7,
+      })
+    )
+
+    expect(getCurrentProfile(store)?.userMetadata.followers).toBe(1)
   })
 })

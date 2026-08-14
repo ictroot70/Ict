@@ -3,3 +3,30 @@
   gap: 80px;
   margin-bottom: 1.5rem;
 }
+
+.statButton,
+.statStatic {
+  display: grid;
+  gap: 2px;
+  min-width: 70px;
+  padding: 0;
+  color: var(--color-light-100);
+  text-align: left;
+}
+
+.statButton {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-primary-500);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 4px;
+  }
+}

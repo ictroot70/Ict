@@ -214,6 +214,7 @@ export const usePostModal = (
     ownerUserName || '',
     postData?.ownerId ?? 0,
     user?.userId,
+    user?.name,
     {
       enabled: Boolean(isAuthenticatedUi && !isOwnProfile),
     }

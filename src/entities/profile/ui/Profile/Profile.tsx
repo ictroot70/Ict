@@ -3,6 +3,8 @@
 import type { PaginatedPosts, PostViewModel } from '@/entities/posts/api'
 import type { PostOpenSource } from '@/shared/constant'
 
+import { useState } from 'react'
+
 import {
   PostModalAuthState,
   RenderPostLikeAction,
@@ -13,6 +15,7 @@ import { InfiniteScrollTrigger, Loading } from '@/shared/composites'
 
 import s from './Profile.module.scss'
 
+import { FollowListModal, type FollowListMode } from './FollowListModal'
 import { ProfileInfo } from './ProfileInfo'
 import { ProfilePosts } from './ProfilePosts'
 
@@ -50,6 +53,7 @@ export function Profile({
     profileInfoActions,
     loadMorePostsHandler,
   } = useProfile(profileDataServer, postsDataServer, resolvedUserId)
+  const [followListMode, setFollowListMode] = useState<FollowListMode | null>(null)
 
   if (isLoading) {
     return <Loading />
@@ -64,6 +68,7 @@ export function Profile({
           shouldShowAuthActionSkeleton={shouldShowAuthActionSkeleton}
           authActionSkeletonVariant={authActionSkeletonVariant}
           isOwnProfile={isOwnProfile}
+          onStatClick={isAuthenticated ? setFollowListMode : undefined}
           {...profileInfoActions}
         />
         <ProfilePosts
@@ -77,6 +82,17 @@ export function Profile({
           renderPostLikeAction={renderPostLikeAction}
         />
       </div>
+      {followListMode && (
+        <FollowListModal
+          open
+          count={profileInfoActions.userMetadata[followListMode]}
+          canDeleteFollowers={isOwnProfile}
+          mode={followListMode}
+          profileId={userId}
+          userName={profile.userName}
+          onClose={() => setFollowListMode(null)}
+        />
+      )}
       <InfiniteScrollTrigger hasNextPage={hasNextPage} onLoadMore={loadMorePostsHandler} />
     </>
   )

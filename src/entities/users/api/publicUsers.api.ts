@@ -5,10 +5,15 @@ import { baseApi } from '@/shared/api/base-api'
 import {
   GetPublicPostsRequest,
   GetPublicPostsResponse,
+  FollowListRequest,
+  FollowListResponse,
   SearchUsersRequest,
   SearchUsersResponse,
   UserByUserNameResponse,
 } from './api.types'
+
+export const getFollowersListTag = (userName: string) => `FOLLOWERS-${userName}`
+export const getFollowingListTag = (userName: string) => `FOLLOWING-${userName}`
 
 export const publicUsersApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -30,6 +35,24 @@ export const publicUsersApi = baseApi.injectEndpoints({
         url: API_ROUTES.USERS_FOLLOW.SEARCH,
       }),
     }),
+    getFollowersByUserName: builder.query<FollowListResponse, FollowListRequest>({
+      query: ({ userName, ...params }) => ({
+        params,
+        url: API_ROUTES.USERS_FOLLOW.FOLLOWERS_BY_USERNAME(userName),
+      }),
+      providesTags: (result, error, { userName }) => [
+        { type: 'FollowList', id: getFollowersListTag(userName) },
+      ],
+    }),
+    getFollowingByUserName: builder.query<FollowListResponse, FollowListRequest>({
+      query: ({ userName, ...params }) => ({
+        params,
+        url: API_ROUTES.USERS_FOLLOW.FOLLOWING_BY_USERNAME(userName),
+      }),
+      providesTags: (result, error, { userName }) => [
+        { type: 'FollowList', id: getFollowingListTag(userName) },
+      ],
+    }),
     getPublicPosts: builder.query<GetPublicPostsResponse, GetPublicPostsRequest>({
       query: ({ endCursorPostId = 0, ...params }) => ({
         params,
@@ -42,6 +65,8 @@ export const publicUsersApi = baseApi.injectEndpoints({
 export const {
   useGetPublicUsersCounterQuery,
   useGetPublicPostsQuery,
+  useLazyGetFollowersByUserNameQuery,
+  useLazyGetFollowingByUserNameQuery,
   useSearchUsersQuery,
   useGetUserByUserNameQuery,
 } = publicUsersApi

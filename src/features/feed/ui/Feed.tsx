@@ -32,6 +32,7 @@ function FeedPostItem({ currentUser, onCopyLink, post }: FeedPostItemProps) {
     post.userName,
     post.ownerId,
     currentUser?.userId,
+    currentUser?.userName,
     { enabled: Boolean(currentUser && currentUser.userId !== post.ownerId) }
   )
 

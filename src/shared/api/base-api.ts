@@ -22,6 +22,7 @@ export const baseApi = createApi({
     'Countries',
     'Notifications',
     'FollowersFeed',
+    'FollowList',
   ],
 })
 

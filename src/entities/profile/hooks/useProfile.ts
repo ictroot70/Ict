@@ -62,7 +62,7 @@ export const useProfile = (
     isFollowPending,
     handleFollow,
     handleUnfollow,
-  } = useFollowUserState(profile.userName, profile.id, user?.userId, {
+  } = useFollowUserState(profile.userName, profile.id, user?.userId, user?.name, {
     enabled: Boolean(user && !isViewerOwnProfile),
   })
 
