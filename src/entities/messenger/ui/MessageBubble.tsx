@@ -17,6 +17,7 @@ interface MessageBubbleProps {
   avatarUrl?: string
   showAvatar?: boolean
   isRead?: boolean
+  onImageClick?: (url: string) => void
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -28,6 +29,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   avatarUrl,
   showAvatar,
   isRead,
+  onImageClick,
 }) => {
   const isIncoming = direction === 'incoming'
   const isImageOnly = type === 'image' && !text
@@ -57,7 +59,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         {type === 'text' && <Typography variant={'regular_14'}>{text}</Typography>}
         {type === 'image' && (
           <div className={styles.image}>
-            <img src={url} alt={'Sent image'} className={styles.imageImg} />
+            {url && (
+              <button
+                className={styles.imageButton}
+                type={'button'}
+                aria-label={'Open image preview'}
+                onClick={() => onImageClick?.(url)}
+              >
+                <img src={url} alt={'Sent image'} className={styles.imageImg} />
+              </button>
+            )}
             {text && (
               <Typography variant={'regular_14'} className={styles.imageCaption}>
                 {text}

@@ -1,7 +1,13 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
+import { useSendImageMessageMutation } from '@/entities/messenger'
+import {
+  ImageAttachButton,
+  ImagePreview,
+  useImageMessageDraft,
+} from '@/features/messenger/image-message'
 import { LinearProgress } from '@/shared/composites'
 import { formatTime } from '@/shared/lib/formatters'
 import { Typography } from '@ictroot/ui-kit'
@@ -10,6 +16,7 @@ import styles from './ChatWindow.module.scss'
 
 import { MessageStatus, MessageType } from '../model/messenger.types'
 import { useMessengerCenter } from '../model/useMessengerCenter'
+import { ImageMessageModal } from './ImageMessageModal'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 
@@ -33,6 +40,18 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
+const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
+  if (error === 'invalidType') {
+    return 'Only PNG or JPEG images are allowed'
+  }
+
+  if (error === 'tooLarge') {
+    return 'Image must be less than 1 MB'
+  }
+
+  return null
+}
+
 const NEAR_BOTTOM_PX = 80
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -46,6 +65,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const messagesAreaRef = useRef<HTMLDivElement | null>(null)
   const shouldStickToBottomRef = useRef(true)
   const isInitialScrollRef = useRef(true)
+  const [imageSendError, setImageSendError] = useState<string | null>(null)
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
+
   const {
     messages,
     isFetching,
@@ -61,9 +83,55 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     avatarUrl: partnerAvatarUrl,
   })
 
-  const handleSend = () => {
+  const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+  const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
+
+  const imageErrorText = getImageErrorText(imageError)
+  const composerError = imageErrorText ?? imageSendError ?? sendError
+
+  const handleSend = async () => {
+    const message = draftText.trim()
+
+    if (file) {
+      try {
+        setImageSendError(null)
+
+        await sendImageMessage({
+          receiverId: dialoguePartnerId,
+          file,
+          message: message || undefined,
+        }).unwrap()
+
+        removeImage()
+        setDraftText('')
+      } catch {
+        setImageSendError('Could not send image. Try again later')
+      }
+
+      return
+    }
+
     sendTextMessage(draftText, dialoguePartnerId)
   }
+
+  const addImageButton = (
+    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage}>
+      <span className={styles.addImageButton}>+</span>
+    </ImageAttachButton>
+  )
+
+  const previewSlot = previewUrl ? (
+    <ImagePreview
+      previewUrl={previewUrl}
+      onRemove={removeImage}
+      disabled={isImageSending}
+      addSlot={addImageButton}
+    />
+  ) : null
+
+  const actionsSlot = previewUrl ? null : (
+    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage} />
+  )
 
   const handleMessagesScroll = () => {
     const area = messagesAreaRef.current
@@ -127,6 +195,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               avatarUrl={partnerAvatarUrl}
               showAvatar={showAvatar}
               isRead={message.status === MessageStatus.READ}
+              onImageClick={setPreviewImageUrl}
             />
           )
         })}
@@ -137,10 +206,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         value={draftText}
         onChange={setDraftText}
         onSend={handleSend}
-        pending={isSending}
-        error={sendError}
-        hasAttachment={hasAttachment}
+        disabled={isImageSending}
+        pending={isSending || isImageSending}
+        error={composerError}
+        hasAttachment={hasAttachment || Boolean(file)}
+        previewSlot={previewSlot}
+        actionsSlot={actionsSlot}
       />
+      {previewImageUrl && (
+        <ImageMessageModal imageUrl={previewImageUrl} onClose={() => setPreviewImageUrl(null)} />
+      )}
     </div>
   )
 }
