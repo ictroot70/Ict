@@ -100,7 +100,12 @@ export interface UpdateMessagePayload {
   message: string
 }
 
-export type MessageAcknowledgement = (payload: SendMessagePayload) => void
+export interface MessageAcknowledgementPayload {
+  message: string
+  receiverId: number
+}
+
+export type MessageAcknowledgement = (payload: MessageAcknowledgementPayload) => void
 
 export interface MessengerSocketErrorDto {
   message: string
