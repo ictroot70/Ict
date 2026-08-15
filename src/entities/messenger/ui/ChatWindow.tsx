@@ -47,7 +47,7 @@ const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
   }
 
   if (error === 'tooLarge') {
-    return 'Image must be less than 1 MB'
+    return 'Image is too large and could not be compressed below 1 MB'
   }
 
   return null
@@ -67,9 +67,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const [sendError, setSendError] = useState<string | null>(null)
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
 
-  const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+  const {
+    file,
+    previewUrl,
+    error: imageError,
+    selectImage,
+    removeImage,
+    isCompressing,
+  } = useImageMessageDraft()
 
   const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
+
+  const isImagePending = isImageSending || isCompressing
 
   const imageErrorText = getImageErrorText(imageError)
   const composerError = imageErrorText ?? sendError ?? error
@@ -106,7 +115,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   const addImageButton = (
-    <ImageAttachButton disabled={sendDisabled || isImageSending} onImageSelect={selectImage}>
+    <ImageAttachButton disabled={sendDisabled || isImagePending} onImageSelect={selectImage}>
       <span className={styles.addImageButton}>+</span>
     </ImageAttachButton>
   )
@@ -115,18 +124,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     <ImagePreview
       previewUrl={previewUrl}
       onRemove={removeImage}
-      disabled={sendDisabled || isImageSending}
+      disabled={sendDisabled || isImagePending}
       addSlot={addImageButton}
     />
   ) : null
 
   const actionsSlot = previewUrl ? null : (
-    <ImageAttachButton disabled={sendDisabled || isImageSending} onImageSelect={selectImage} />
+    <ImageAttachButton disabled={sendDisabled || isImagePending} onImageSelect={selectImage} />
   )
 
   return (
     <div className={styles.container}>
-      <LinearProgress active={isLoading} />
+      <LinearProgress active={isLoading || isCompressing} />
       {/* Messages Area */}
       <div className={styles.messagesArea}>
         {[...(messages || [])].reverse().map((message, index, array) => {
@@ -157,8 +166,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         value={text}
         onChange={setText}
         onSend={handleSend}
-        disabled={sendDisabled || isImageSending}
-        pending={isImageSending}
+        disabled={sendDisabled || isImagePending}
+        pending={isImagePending}
         previewSlot={previewSlot}
         actionsSlot={actionsSlot}
         error={composerError}

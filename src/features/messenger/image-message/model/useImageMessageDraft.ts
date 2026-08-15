@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { ImageValidationError, validateImageMessageFile } from '../lib/validateImageMessageFile'
+import { compressImageMessageFile } from '../lib/compressImageMessageFile'
+import { ImageValidationError, isAllowedImageMessageType } from '../lib/validateImageMessageFile'
 
 export function useImageMessageDraft() {
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [error, setError] = useState<ImageValidationError | null>(null)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   const previewUrlRef = useRef<string | null>(null)
 
@@ -16,16 +18,8 @@ export function useImageMessageDraft() {
     }
   }, [])
 
-  const selectImage = useCallback(
+  const setSelectedImage = useCallback(
     (file: File) => {
-      const validationError = validateImageMessageFile(file)
-
-      if (validationError) {
-        setError(validationError)
-
-        return
-      }
-
       revokePreviewUrl()
 
       const newUrl = URL.createObjectURL(file)
@@ -38,12 +32,43 @@ export function useImageMessageDraft() {
     [revokePreviewUrl]
   )
 
+  const selectImage = useCallback(
+    async (file: File) => {
+      if (!isAllowedImageMessageType(file)) {
+        setError('invalidType')
+
+        return
+      }
+
+      setError(null)
+      setIsCompressing(true)
+
+      try {
+        const compressedFile = await compressImageMessageFile(file)
+
+        if (!compressedFile) {
+          setError('tooLarge')
+
+          return
+        }
+
+        setSelectedImage(compressedFile)
+      } catch {
+        setError('tooLarge')
+      } finally {
+        setIsCompressing(false)
+      }
+    },
+    [setSelectedImage]
+  )
+
   const removeImage = useCallback(() => {
     revokePreviewUrl()
 
     setFile(null)
     setPreviewUrl(null)
     setError(null)
+    setIsCompressing(false)
   }, [revokePreviewUrl])
 
   useEffect(() => {
@@ -64,5 +89,6 @@ export function useImageMessageDraft() {
     selectImage,
     removeImage,
     clearError,
+    isCompressing,
   }
 }
