@@ -6,7 +6,7 @@ import React from 'react'
 
 import { Avatar } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
-import { formatTime } from '@/shared/lib/formatters'
+import { formatDialogueActivity } from '@/shared/lib/formatters'
 import { Typography } from '@ictroot/ui-kit'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -52,7 +52,7 @@ export const ChatList: React.FC<ChatListProps> = ({ items, searchQuery, isError 
                 {item.userName}
               </Typography>
               <Typography variant={'small_text'} className={styles.time}>
-                {formatTime(item.updatedAt)}
+                {formatDialogueActivity(item.updatedAt)}
               </Typography>
             </div>
             <Typography variant={'small_text'} className={styles.lastMsg}>

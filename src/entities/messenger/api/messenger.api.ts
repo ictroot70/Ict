@@ -3,10 +3,10 @@ import type {
   GetDialogueMessagesParams,
   GetMessengerDialogsParams,
   MessengerDialogsResponseDto,
-  MessageViewModel,
   SendImageMessagePayload,
   SendVoiceMessagePayload,
   UpdateMessagesStatusDto,
+  MessageViewModel,
 } from '@/entities/messenger/model'
 
 import { API_ROUTES } from '@/shared/api'
@@ -21,6 +21,7 @@ export const messengerApi = baseApi.injectEndpoints({
       }),
       providesTags: ['MessengerDialogs'],
     }),
+
     getDialogueMessages: builder.query<DialogueMessagesResponseDto, GetDialogueMessagesParams>({
       query: ({ dialoguePartnerId, ...params }) => ({
         url: API_ROUTES.MESSENGER.DIALOGUE(String(dialoguePartnerId)),
@@ -30,6 +31,7 @@ export const messengerApi = baseApi.injectEndpoints({
         { type: 'DialogueMessages', id: dialoguePartnerId },
       ],
     }),
+
     markMessagesAsRead: builder.mutation<void, UpdateMessagesStatusDto>({
       query: body => ({
         url: API_ROUTES.MESSENGER.BASE,
@@ -38,6 +40,7 @@ export const messengerApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['MessengerDialogs', 'DialogueMessages'],
     }),
+
     deleteMessage: builder.mutation<void, number>({
       query: id => ({
         url: API_ROUTES.MESSENGER.DELETE_MESSAGE(id),

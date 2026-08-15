@@ -40,8 +40,28 @@ vi.mock('socket.io-client', () => ({
 
 vi.mock('@/shared/lib/logger', () => ({
   logger: {
+    info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
+    debug: vi.fn(),
+    log: vi.fn(),
+  },
+}))
+
+vi.mock('@/shared/lib/restoreAccessToken', () => ({
+  restoreAccessToken: vi.fn(async () => ({
+    accessToken: 'refreshed-token',
+    isAuthenticated: true,
+  })),
+}))
+
+vi.mock('@/shared/lib/storage/auth-token', () => ({
+  authTokenStorage: {
+    setAccessToken: vi.fn(),
+    getAccessToken: vi.fn(() => 'access-token'),
+    hasToken: vi.fn(() => true),
+    clear: vi.fn(),
+    subscribe: vi.fn(() => () => {}),
   },
 }))
 
@@ -140,23 +160,29 @@ describe('useMessengerSocket', () => {
       receiverId: 2,
     }
 
+    let sent = false
+
     act(() => {
-      result.current.sendMessage(payload)
+      sent = result.current.sendMessage(payload)
     })
 
+    expect(sent).toBe(true)
     expect(socketMock.emit).toHaveBeenCalledWith(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
   })
 
   it('reports an error when sending while disconnected', () => {
     const { onError, result } = setupHook()
 
+    let sent = true
+
     act(() => {
-      result.current.sendMessage({
+      sent = result.current.sendMessage({
         message: 'Hello',
         receiverId: 2,
       })
     })
 
+    expect(sent).toBe(false)
     expect(socketMock.emit).not.toHaveBeenCalled()
     expect(onError).toHaveBeenCalledWith({
       source: 'socket',
@@ -193,7 +219,7 @@ describe('useMessengerSocket', () => {
     })
   })
 
-  it('acknowledges a successfully processed message', async () => {
+  it('acknowledges a successfully processed message without DTO', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
 
@@ -202,10 +228,7 @@ describe('useMessengerSocket', () => {
     })
 
     await waitFor(() => {
-      expect(acknowledge).toHaveBeenCalledWith({
-        message: validMessage.messageText,
-        receiverId: validMessage.ownerId,
-      })
+      expect(acknowledge).toHaveBeenCalledWith()
     })
 
     expect(onMessage).toHaveBeenCalledWith(validMessage)
@@ -214,7 +237,7 @@ describe('useMessengerSocket', () => {
     )
   })
 
-  it('processes a media message without inventing an acknowledgement payload', async () => {
+  it('acknowledges a media message without DTO', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
     const imageMessage = {
@@ -234,9 +257,8 @@ describe('useMessengerSocket', () => {
 
     await waitFor(() => {
       expect(onMessage).toHaveBeenCalledWith(imageMessage)
+      expect(acknowledge).toHaveBeenCalledWith()
     })
-
-    expect(acknowledge).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid incoming payload', async () => {
@@ -320,11 +342,11 @@ describe('useMessengerSocket', () => {
   it('removes listeners and disconnects on unmount', () => {
     const { unmount } = setupHook()
 
-    expect(handlers.size).toBe(6)
+    expect(handlers.size).toBe(7)
 
     unmount()
 
-    expect(socketMock.off).toHaveBeenCalledTimes(6)
+    expect(socketMock.off).toHaveBeenCalledTimes(7)
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
     expect(handlers.size).toBe(0)
   })

@@ -11,7 +11,7 @@ interface ImageMessageModalProps {
 
 export const ImageMessageModal = ({ imageUrl, onClose }: ImageMessageModalProps) => {
   return (
-    <Modal open={true} onClose={onClose} closeBtnOutside className={styles.modal}>
+    <Modal open onClose={onClose} closeBtnOutside className={styles.modal}>
       <img className={styles.image} src={imageUrl} alt={'Selected message image'} />
     </Modal>
   )

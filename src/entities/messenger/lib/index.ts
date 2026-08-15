@@ -1,4 +1,5 @@
 export * from './map-message-to-dialogue-preview'
+export * from './messenger-center.helpers'
 export * from './normalize-messenger-error'
 export * from './is-incoming-message-payload'
 export * from './upsert-message-in-history'

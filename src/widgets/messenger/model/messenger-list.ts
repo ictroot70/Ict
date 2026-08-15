@@ -30,17 +30,23 @@ export function buildDialogueItems(
   return dialogues.flatMap(dialogue => {
     const userId = getDialoguePartnerId(dialogue, currentUserId)
 
-    return userId === null
-      ? []
-      : [
-          {
-            userId,
-            userName: dialogue.userName,
-            avatarUrl: dialogue.avatars[0]?.url,
-            lastMessage: getPreview(dialogue.messageType, dialogue.messageText),
-            updatedAt: dialogue.updatedAt,
-          },
-        ]
+    if (userId === null) {
+      return []
+    }
+
+    const preview = getPreview(dialogue.messageType, dialogue.messageText)
+    const isOwnLastMessage = dialogue.ownerId === currentUserId
+    const lastMessage = preview && isOwnLastMessage ? `You: ${preview}` : preview
+
+    return [
+      {
+        userId,
+        userName: dialogue.userName,
+        avatarUrl: dialogue.avatars[0]?.url,
+        lastMessage,
+        updatedAt: dialogue.updatedAt,
+      },
+    ]
   })
 }
 

@@ -42,7 +42,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       className={styles.bubbleContainer + ' ' + (isIncoming ? styles.incoming : styles.outgoing)}
     >
       {isIncoming &&
-        (avatarUrl && showAvatar ? (
+        (showAvatar ? (
           <Avatar image={avatarUrl} alt={'Avatar'} size={36} className={styles.avatar} />
         ) : (
           <div className={styles.avatarSpacer} />

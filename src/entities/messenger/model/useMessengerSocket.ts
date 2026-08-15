@@ -4,13 +4,12 @@ import type { UseMessengerSocketOptions, UseMessengerSocketResult } from './mess
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { normalizeMessengerError, isIncomingMessagePayload } from '@/entities/messenger/lib'
 import { logger } from '@/shared/lib/logger'
 import { io, type Socket } from 'socket.io-client'
 
+import { isIncomingMessagePayload, normalizeMessengerError } from '../lib'
 import { MESSENGER_SOCKET_EVENTS } from './messenger.events'
 import {
-  MessageType,
   type MessageAcknowledgement,
   type MessageViewModel,
   type MessengerError,
@@ -25,46 +24,30 @@ export function useMessengerSocket({
   onError,
   onMessage,
 }: UseMessengerSocketOptions): UseMessengerSocketResult {
-  const socketRef = useRef<Socket | null>(null)
-  const onErrorRef = useRef(onError)
-  const onMessageRef = useRef(onMessage)
   const [isConnected, setIsConnected] = useState(false)
+  const socketRef = useRef<Socket | null>(null)
+
+  const onMessageRef = useRef(onMessage)
+  const onErrorRef = useRef(onError)
+
+  useEffect(() => {
+    onMessageRef.current = onMessage
+  }, [onMessage])
 
   useEffect(() => {
     onErrorRef.current = onError
   }, [onError])
 
   useEffect(() => {
-    onMessageRef.current = onMessage
-  }, [onMessage])
+    logger.info('[MessengerSocket] useEffect triggered. Token present:', !!accessToken)
 
-  const sendMessage = useCallback((payload: SendMessagePayload) => {
-    const socket = socketRef.current
-
-    if (!socket?.connected) {
-      const error: MessengerError = {
-        source: 'socket',
-        code: 'SOCKET_NOT_CONNECTED',
-        message: 'Messenger socket is not connected',
-      }
-
-      logger.error('[MessengerSocket]', error.message)
-      onErrorRef.current(error)
-
-      return
-    }
-
-    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
-  }, [])
-
-  useEffect(() => {
     if (!accessToken) {
-      setIsConnected(false)
+      logger.warn('[MessengerSocket] No accessToken, skipping socket initialization')
 
       return
     }
 
-    setIsConnected(false)
+    logger.info('[MessengerSocket] Initializing socket connection to', WS_URL)
 
     const socket = io(WS_URL, {
       query: { accessToken },
@@ -74,6 +57,11 @@ export function useMessengerSocket({
     })
 
     socketRef.current = socket
+
+    // Socket.IO may already be connected by the time listeners are attached
+    if (socket.connected) {
+      setIsConnected(true)
+    }
 
     const reportError = (error: MessengerError) => {
       if (AUTH_ERROR_PATTERN.test(error.message)) {
@@ -131,14 +119,8 @@ export function useMessengerSocket({
             return
           }
 
-          if (message.messageType !== MessageType.TEXT || message.messageText === null) {
-            return
-          }
-
-          acknowledge?.({
-            message: message.messageText,
-            receiverId: message.ownerId,
-          })
+          // Server ACK contract: callback() without DTO — server uses sent message id.
+          acknowledge?.()
         })
         .catch(error => {
           reportError(normalizeMessengerError(error, 'socket'))
@@ -146,11 +128,29 @@ export function useMessengerSocket({
     }
 
     const handleConnect = () => {
+      logger.info('[MessengerSocket] Connected successfully!')
       setIsConnected(true)
     }
 
     const handleDisconnect = () => {
+      logger.warn('[MessengerSocket] Disconnected')
       setIsConnected(false)
+    }
+
+    const handleConnectError = (err: Error) => {
+      logger.error('[MessengerSocket] Connection error:', err.message, err)
+      reportError({
+        source: 'socket',
+        code: 'CONNECTION_ERROR',
+        message: err.message || 'Ошибка подключения к сокету',
+      })
+
+      if (!AUTH_ERROR_PATTERN.test(err.message)) {
+        return
+      }
+
+      setIsConnected(false)
+      socket.disconnect()
     }
 
     const handleSocketError = (error: unknown) => {
@@ -166,25 +166,50 @@ export function useMessengerSocket({
 
     socket.on('connect', handleConnect)
     socket.on('disconnect', handleDisconnect)
+    socket.on('connect_error', handleConnectError)
     socket.on(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
     socket.on(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
+    socket.on(MESSENGER_SOCKET_EVENTS.UPDATE_MESSAGE, handleReceivedMessage)
     socket.on(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
-    socket.on('connect_error', handleSocketError)
 
     return () => {
+      logger.info('[MessengerSocket] Cleaning up socket connection')
       socket.off('connect', handleConnect)
       socket.off('disconnect', handleDisconnect)
+      socket.off('connect_error', handleConnectError)
       socket.off(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, handleReceivedMessage)
       socket.off(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, handleIncomingMessage)
+      socket.off(MESSENGER_SOCKET_EVENTS.UPDATE_MESSAGE, handleReceivedMessage)
       socket.off(MESSENGER_SOCKET_EVENTS.ERROR, handleSocketError)
-      socket.off('connect_error', handleSocketError)
       socket.disconnect()
-
-      if (socketRef.current === socket) {
-        socketRef.current = null
-      }
+      socketRef.current = null
+      setIsConnected(false)
     }
   }, [accessToken])
+
+  const sendMessage = useCallback((payload: SendMessagePayload): boolean => {
+    const socket = socketRef.current
+    const connected = Boolean(socket?.connected)
+
+    if (!connected || !socket) {
+      const error = {
+        source: 'socket' as const,
+        code: 'SOCKET_NOT_CONNECTED',
+        message: 'Messenger socket is not connected',
+      }
+
+      logger.error('[MessengerSocket] Cannot send:', error.message, 'connected:', connected)
+      onErrorRef.current(error)
+
+      return false
+    }
+
+    logger.info('[MessengerSocket] Emitting RECEIVE_MESSAGE:', payload)
+
+    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
+
+    return true
+  }, [])
 
   return { isConnected, sendMessage }
 }
