@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 import { useGoogleAuthMutation } from '@/features/auth'
+import { consumeGoogleOAuthState } from '@/features/auth/lib/google-oauth-state'
 import { APP_ROUTES } from '@/shared/constant'
 import { showToastAlert } from '@/shared/lib'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -16,16 +17,30 @@ export const useGoogleAuth = ({ enabled = true, redirectUrl }: UseGoogleAuthOpti
   const params = useSearchParams()
   const router = useRouter()
   const code = params.get('code')
+  const callbackError = params.get('error')
+  const returnedState = params.get('state')
   const startedRef = useRef(false)
 
   const [googleAuth, { isLoading }] = useGoogleAuthMutation()
 
   useEffect(() => {
-    if (!enabled || !code || startedRef.current) {
+    if (!enabled || (!code && !callbackError) || startedRef.current) {
       return
     }
 
     startedRef.current = true
+
+    if (!consumeGoogleOAuthState(returnedState) || callbackError || !code) {
+      showToastAlert({
+        message: 'Google authorization failed. Try again please',
+        type: 'error',
+        duration: 4000,
+      })
+      router.replace(APP_ROUTES.AUTH.LOGIN)
+
+      return
+    }
+
     const resolvedRedirectUrl = redirectUrl ?? window.location.origin
 
     void googleAuth({
@@ -44,7 +59,7 @@ export const useGoogleAuth = ({ enabled = true, redirectUrl }: UseGoogleAuthOpti
         })
         router.replace(APP_ROUTES.AUTH.LOGIN)
       })
-  }, [code, enabled, googleAuth, redirectUrl, router])
+  }, [callbackError, code, enabled, googleAuth, redirectUrl, returnedState, router])
 
   return { isLoading }
 }

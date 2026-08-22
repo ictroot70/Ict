@@ -1,12 +1,13 @@
 import { API_ROUTES } from '@/shared/api'
 
-export const buildGoogleAuthUrl = (origin: string) => {
+export const buildGoogleAuthUrl = (origin: string, state: string) => {
   const params = new URLSearchParams({
     redirect_uri: origin.replace(/\/+$/, ''),
     response_type: 'code',
     client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
     scope: 'email profile',
     prompt: 'consent',
+    state,
   })
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`

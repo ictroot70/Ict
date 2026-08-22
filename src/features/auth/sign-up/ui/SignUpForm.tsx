@@ -2,7 +2,7 @@
 
 import { useWatch } from 'react-hook-form'
 
-import { buildGitHubAuthUrl, buildGoogleAuthUrl, useSignUp } from '@/features/auth'
+import { buildGitHubAuthUrl, createGoogleOAuthRedirectUrl, useSignUp } from '@/features/auth'
 import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
 import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { OAuthIcons } from '@/shared/composites'
@@ -34,7 +34,7 @@ export const SignUpForm = () => {
   }
 
   const handleGoogleSignIn = () => {
-    window.location.href = buildGoogleAuthUrl(window.location.origin)
+    window.location.href = createGoogleOAuthRedirectUrl(window.location.origin)
   }
 
   const handleGitHubSignIn = () => {

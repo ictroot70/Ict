@@ -2,7 +2,7 @@
 
 import { ReactElement } from 'react'
 
-import { buildGitHubAuthUrl, buildGoogleAuthUrl, useSignIn } from '@/features/auth'
+import { buildGitHubAuthUrl, createGoogleOAuthRedirectUrl, useSignIn } from '@/features/auth'
 import { ControlledInput } from '@/features/formControls'
 import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { Loading, OAuthIcons } from '@/shared/composites'
@@ -31,7 +31,7 @@ export const SignInForm = ({ router }: SignInFormProps): ReactElement => {
   }
 
   const handleGoogleSignIn = () => {
-    window.location.href = buildGoogleAuthUrl(window.location.origin)
+    window.location.href = createGoogleOAuthRedirectUrl(window.location.origin)
   }
 
   const handleGitHubSignIn = () => {
