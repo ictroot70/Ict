@@ -7,6 +7,7 @@ import { buildApiUrl } from '@/shared/api/get-api-base-url'
 import { logger } from '@/shared/lib/logger'
 import { safeSsrFetchJson } from '@/shared/lib/ssr/safeSsrFetch'
 
+import { GitHubOAuth } from './GitHubOAuth'
 import { GoogleOAuth } from './GoogleOAuth'
 
 const PUBLIC_POSTS_PAGE_SIZE = 4
@@ -44,6 +45,7 @@ export default async function HomePage() {
   return (
     <>
       <Suspense fallback={null}>
+        <GitHubOAuth />
         <GoogleOAuth />
       </Suspense>
       <Public postsData={data} />
