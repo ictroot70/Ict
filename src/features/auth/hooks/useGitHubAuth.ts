@@ -11,7 +11,11 @@ import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export const useGitHubAuth = () => {
+type Props = {
+  enabled?: boolean
+}
+
+export const useGitHubAuth = ({ enabled = false }: Props = {}) => {
   const params = useSearchParams()
   const router = useRouter()
   const dispatch = useAppDispatch()
@@ -20,9 +24,27 @@ export const useGitHubAuth = () => {
   const [triggerProfile] = useLazyGetMyProfileQuery()
 
   const accessToken = params.get('accessToken')
+  const callbackError = params.get('error')
+  const googleState = params.get('state')
 
   useEffect(() => {
-    if (!accessToken || startedRef.current) {
+    if (!enabled || startedRef.current) {
+      return
+    }
+
+    if (callbackError && !googleState) {
+      startedRef.current = true
+      showToastAlert({
+        message: 'GitHub authorization failed. Try again please',
+        type: 'error',
+        duration: 4000,
+      })
+      router.replace(APP_ROUTES.AUTH.LOGIN)
+
+      return
+    }
+
+    if (!accessToken) {
       return
     }
 
@@ -55,7 +77,7 @@ export const useGitHubAuth = () => {
         setIsLoading(false)
       }
     })()
-  }, [accessToken, dispatch, router, triggerProfile])
+  }, [accessToken, callbackError, dispatch, enabled, googleState, router, triggerProfile])
 
   return { isLoading }
 }

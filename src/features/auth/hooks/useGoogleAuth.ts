@@ -13,7 +13,7 @@ type UseGoogleAuthOptions = {
   redirectUrl?: string
 }
 
-export const useGoogleAuth = ({ enabled = true, redirectUrl }: UseGoogleAuthOptions = {}) => {
+export const useGoogleAuth = ({ enabled = false, redirectUrl }: UseGoogleAuthOptions = {}) => {
   const params = useSearchParams()
   const router = useRouter()
   const code = params.get('code')
