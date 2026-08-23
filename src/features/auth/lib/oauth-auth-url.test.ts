@@ -21,7 +21,9 @@ describe('oauth-auth-url', () => {
     const url = new URL(buildGitHubAuthUrl('https://api.example.com', 'https://app.example.com'))
 
     expect(url.origin + url.pathname).toBe('https://api.example.com/v1/auth/github/login')
-    expect(url.searchParams.get('redirect_url')).toBe('https://app.example.com/')
+    expect(url.searchParams.get('redirect_url')).toBe(
+      'https://app.example.com/auth/github/callback'
+    )
     expect(url.searchParams.has('redirectUrl')).toBe(false)
   })
 })

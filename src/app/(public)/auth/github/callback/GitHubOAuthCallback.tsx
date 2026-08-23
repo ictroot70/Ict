@@ -2,7 +2,7 @@
 
 import { useGitHubAuth } from '@/features/auth/hooks'
 
-export const GitHubOAuth = () => {
+export const GitHubOAuthCallback = () => {
   useGitHubAuth({ enabled: true })
 
   return null
