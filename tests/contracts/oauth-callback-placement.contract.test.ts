@@ -6,18 +6,31 @@ import { describe, expect, it } from 'vitest'
 const readSource = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), 'utf8')
 
+const findAppSourceFilesUsing = (needle: string) => {
+  const appDirectory = path.join(process.cwd(), 'src', 'app')
+
+  return fs
+    .readdirSync(appDirectory, { recursive: true })
+    .filter((entry): entry is string => typeof entry === 'string' && /\.(ts|tsx)$/.test(entry))
+    .map(entry => path.join(appDirectory, entry))
+    .filter(absolutePath => fs.readFileSync(absolutePath, 'utf8').includes(needle))
+    .map(absolutePath => path.relative(process.cwd(), absolutePath))
+}
+
 describe('OAuth callback placement', () => {
   it('mounts the GitHub callback handler only on the dedicated callback route', () => {
-    const homePageSource = readSource('src/app/page.tsx')
-    const rootLayoutSource = readSource('src/app/RootLayoutClient.tsx')
-    const callbackPageSource = readSource('src/app/(public)/auth/github/callback/page.tsx')
-    const callbackComponentSource = readSource(
-      'src/app/(public)/auth/github/callback/GitHubOAuthCallback.tsx'
+    const callbackComponentPath = path.join(
+      'src',
+      'app',
+      '(public)',
+      'auth',
+      'github',
+      'callback',
+      'GitHubOAuthCallback.tsx'
     )
+    const callbackPageSource = readSource('src/app/(public)/auth/github/callback/page.tsx')
 
-    expect(homePageSource).not.toContain('GitHubOAuth')
-    expect(rootLayoutSource).not.toContain('useGitHubAuth')
     expect(callbackPageSource).toContain('<GitHubOAuthCallback />')
-    expect(callbackComponentSource).toContain('useGitHubAuth({ enabled: true })')
+    expect(findAppSourceFilesUsing('useGitHubAuth')).toEqual([callbackComponentPath])
   })
 })
