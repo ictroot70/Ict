@@ -40,13 +40,17 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
-const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
+const getImageErrorText = (error: 'invalidType' | 'tooLarge' | 'processingFailed' | null) => {
   if (error === 'invalidType') {
     return 'Only PNG or JPEG images are allowed'
   }
 
   if (error === 'tooLarge') {
     return 'Image is too large and could not be compressed below 1 MB'
+  }
+
+  if (error === 'processingFailed') {
+    return 'Could not process image. Choose another file'
   }
 
   return null

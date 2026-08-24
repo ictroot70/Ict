@@ -18,6 +18,14 @@ export function useImageMessageDraft() {
     }
   }, [])
 
+  const clearSelectedImage = useCallback(() => {
+    revokePreviewUrl()
+
+    setFile(null)
+    setPreviewUrl(null)
+    setError(null)
+  }, [revokePreviewUrl])
+
   const setSelectedImage = useCallback(
     (file: File) => {
       revokePreviewUrl()
@@ -34,13 +42,14 @@ export function useImageMessageDraft() {
 
   const selectImage = useCallback(
     async (file: File) => {
+      clearSelectedImage()
+
       if (!isAllowedImageMessageType(file)) {
         setError('invalidType')
 
         return
       }
 
-      setError(null)
       setIsCompressing(true)
 
       try {
@@ -54,12 +63,12 @@ export function useImageMessageDraft() {
 
         setSelectedImage(compressedFile)
       } catch {
-        setError('tooLarge')
+        setError('processingFailed')
       } finally {
         setIsCompressing(false)
       }
     },
-    [setSelectedImage]
+    [clearSelectedImage, setSelectedImage]
   )
 
   const removeImage = useCallback(() => {
@@ -85,10 +94,8 @@ export function useImageMessageDraft() {
     file,
     previewUrl,
     error,
-    hasImage: Boolean(file && previewUrl),
     selectImage,
     removeImage,
-    clearError,
     isCompressing,
   }
 }
