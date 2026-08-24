@@ -62,6 +62,10 @@ export function useMessengerSocket({
   const onMessageDeletedRef = useRef(onMessageDeleted)
   const [isConnected, setIsConnected] = useState(false)
 
+  useEffect(() => {
+    onMessageRef.current = onMessage
+  }, [onMessage])
+
   const disconnectSocket = useCallback(() => {
     const socket = socketRef.current
 
@@ -80,32 +84,8 @@ export function useMessengerSocket({
   }, [onError])
 
   useEffect(() => {
-    onMessageRef.current = onMessage
-  }, [onMessage])
-
-  useEffect(() => {
     onMessageDeletedRef.current = onMessageDeleted
   }, [onMessageDeleted])
-
-  const sendMessage = useCallback((payload: SendMessagePayload) => {
-    const socket = socketRef.current
-
-    if (!socket?.connected) {
-      const error: MessengerError = {
-        source: 'socket',
-        code: 'SOCKET_NOT_CONNECTED',
-        message: 'Messenger socket is not connected',
-      }
-
-      logger.error('[MessengerSocket]', error.message)
-      onErrorRef.current(error)
-
-      return
-    }
-
-    debugMessengerSocket('emit receive-message', payload)
-    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
-  }, [])
 
   useEffect(() => {
     if (!accessToken) {
@@ -145,6 +125,11 @@ export function useMessengerSocket({
 
     socketRef.current = socket
 
+    // Socket.IO may already be connected by the time listeners are attached
+    if (socket.connected) {
+      setIsConnected(true)
+    }
+
     const reportError = (error: MessengerError) => {
       if (AUTH_ERROR_PATTERN.test(error.message)) {
         logger.warn(`[MessengerSocket] Recovering after ${error.code}:`, error.message)
@@ -180,7 +165,6 @@ export function useMessengerSocket({
 
     const handleReceivedMessage = (payload: unknown) => {
       debugMessengerSocket('event receive-message/update-message', payload)
-
       const payloads = Array.isArray(payload) ? payload : [payload]
 
       if (payloads.length === 0) {
@@ -257,7 +241,6 @@ export function useMessengerSocket({
 
     const handleSocketError = (error: unknown) => {
       debugMessengerSocket('socket error event', error)
-
       const normalizedError = normalizeMessengerError(error, 'socket')
 
       if (AUTH_ERROR_PATTERN.test(normalizedError.message)) {
@@ -283,6 +266,29 @@ export function useMessengerSocket({
   }, [accessToken, disconnectSocket])
 
   useEffect(() => disconnectSocket, [disconnectSocket])
+
+  const sendMessage = useCallback((payload: SendMessagePayload): boolean => {
+    const socket = socketRef.current
+    const connected = Boolean(socket?.connected)
+
+    if (!connected || !socket) {
+      const error = {
+        source: 'socket' as const,
+        code: 'SOCKET_NOT_CONNECTED',
+        message: 'Messenger socket is not connected',
+      }
+
+      logger.error('[MessengerSocket] Cannot send:', error.message, 'connected:', connected)
+      onErrorRef.current(error)
+
+      return false
+    }
+
+    debugMessengerSocket('emit receive-message', payload)
+    socket.emit(MESSENGER_SOCKET_EVENTS.RECEIVE_MESSAGE, payload)
+
+    return true
+  }, [])
 
   return { isConnected, sendMessage }
 }

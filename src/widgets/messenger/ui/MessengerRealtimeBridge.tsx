@@ -1,21 +1,34 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 
 import { useMeQuery } from '@/features/auth'
 import { usePathname } from 'next/navigation'
 
-import { getMessengerPartnerIdFromPath, useMessengerRealtime } from '../model'
+import {
+  getMessengerPartnerIdFromPath,
+  MessengerRealtimeContext,
+  useMessengerRealtime,
+} from '../model'
 
-export function MessengerRealtimeBridge() {
+interface MessengerRealtimeBridgeProps {
+  children: ReactNode
+  enabled: boolean
+}
+
+export function MessengerRealtimeBridge({ children, enabled }: MessengerRealtimeBridgeProps) {
   const pathname = usePathname()
-  const { data: currentUser } = useMeQuery()
+  const { data: currentUser } = useMeQuery(undefined, { skip: !enabled })
   const activePartnerId = useMemo(() => getMessengerPartnerIdFromPath(pathname), [pathname])
 
-  useMessengerRealtime({
+  const realtime = useMessengerRealtime({
     activePartnerId,
-    currentUserId: currentUser?.userId ?? 0,
+    currentUserId: enabled ? (currentUser?.userId ?? 0) : 0,
   })
 
-  return null
+  return (
+    <MessengerRealtimeContext.Provider value={realtime}>
+      {children}
+    </MessengerRealtimeContext.Provider>
+  )
 }

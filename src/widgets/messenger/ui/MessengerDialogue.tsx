@@ -1,8 +1,14 @@
 'use client'
 
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
+import { useSendImageMessageMutation } from '@/entities/messenger'
 import { ChatWindow } from '@/entities/messenger/ui/ChatWindow'
+import {
+  ImageAttachButton,
+  ImagePreview,
+  useImageMessageDraft,
+} from '@/features/messenger/image-message'
 import {
   useVoiceMessageDraft,
   VoicePreview,
@@ -12,14 +18,16 @@ import {
 } from '@/features/messenger/voice-message'
 import { useTranslations } from 'next-intl'
 
-import { useMessengerDialogueData } from '../model'
+import { useMessengerDialogueData, useMessengerTextDraft } from '../model'
 
 interface MessengerDialogueProps {
   partnerId: number
 }
 
 export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
-  const t = useTranslations('messenger.voice')
+  const voiceT = useTranslations('messenger.voice')
+  const imageT = useTranslations('messenger.image')
+  const textT = useTranslations('messenger.text')
   const {
     currentUserId,
     messages,
@@ -35,6 +43,16 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
     replaceSentMessage,
     removeSentMessage,
   } = useMessengerDialogueData(partnerId)
+  const text = useMessengerTextDraft({
+    messages,
+    receiverId: partnerId,
+    senderId: currentUserId,
+    onRemoveOptimistic: removeSentMessage,
+    onSendStarted: upsertSentMessage,
+  })
+  const image = useImageMessageDraft()
+  const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
+  const [imageSendFailed, setImageSendFailed] = useState(false)
   const voice = useVoiceMessageDraft({
     receiverId: partnerId,
     senderId: currentUserId,
@@ -42,7 +60,11 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
     onSent: replaceSentMessage,
     onSendFailed: removeSentMessage,
   })
-  const voiceError = voice.error ? t(`errors.${voice.error}`) : null
+  const voiceError = voice.error ? voiceT(`errors.${voice.error}`) : null
+  const imageError = image.error ? imageT(`errors.${image.error}`) : null
+  const textError = text.error ? textT(`errors.${text.error}`) : null
+  const composerError =
+    voiceError ?? imageError ?? (imageSendFailed ? imageT('errors.sendFailed') : null) ?? textError
   const isVoiceMode =
     voice.status === 'recording' || voice.status === 'processing' || voice.status === 'preview'
   let voiceContent: ReactNode = null
@@ -70,6 +92,54 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
     )
   }
 
+  const handleImageSelect = (file: File) => {
+    setImageSendFailed(false)
+    image.selectImage(file)
+  }
+
+  const handleImageRemove = () => {
+    setImageSendFailed(false)
+    image.removeImage()
+  }
+
+  const imageAttachButton = (
+    <ImageAttachButton
+      disabled={isImageSending || text.isSending || voice.status === 'requesting'}
+      onImageSelect={handleImageSelect}
+    />
+  )
+  const imagePreview = image.previewUrl ? (
+    <ImagePreview
+      previewUrl={image.previewUrl}
+      onRemove={handleImageRemove}
+      disabled={isImageSending}
+      addSlot={imageAttachButton}
+    />
+  ) : null
+
+  const handleSend = async () => {
+    if (!image.file) {
+      text.send()
+
+      return
+    }
+
+    try {
+      setImageSendFailed(false)
+      const message = await sendImageMessage({
+        receiverId: partnerId,
+        file: image.file,
+        message: text.draftText.trim() || undefined,
+      }).unwrap()
+
+      upsertSentMessage(message)
+      image.removeImage()
+      text.setDraftText('')
+    } catch {
+      setImageSendFailed(true)
+    }
+  }
+
   return (
     <ChatWindow
       key={partnerId}
@@ -80,16 +150,26 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
       hasOlderMessages={hasOlderMessages}
       isLoadingOlderMessages={isLoadingOlderMessages}
       partnerAvatarUrl={partnerAvatarUrl}
+      composerValue={text.draftText}
+      onComposerChange={text.setDraftText}
+      onSend={() => void handleSend()}
+      sendDisabled={isImageSending || voice.status === 'requesting'}
+      pending={text.isSending || isImageSending}
+      hasAttachment={image.hasImage}
       isLoading={isLoading}
       error={error}
       onLoadOlderMessages={() => void loadOlderMessages()}
-      composerError={voiceError}
+      composerError={composerError}
+      composerPreviewSlot={!isVoiceMode ? imagePreview : null}
       composerActionsSlot={
         !isVoiceMode ? (
-          <VoiceRecordButton
-            disabled={voice.status === 'requesting'}
-            onClick={() => void voice.startRecording()}
-          />
+          <>
+            {!image.previewUrl && imageAttachButton}
+            <VoiceRecordButton
+              disabled={voice.status === 'requesting' || image.hasImage || text.isSending}
+              onClick={() => void voice.startRecording()}
+            />
+          </>
         ) : null
       }
       composerContentSlot={voiceContent}

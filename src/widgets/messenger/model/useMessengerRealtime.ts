@@ -176,7 +176,7 @@ export function useMessengerRealtime({
     [dispatch, store]
   )
 
-  useMessengerSocket({
+  return useMessengerSocket({
     accessToken: currentUserId > 0 ? accessToken : null,
     onError: () => undefined,
     onMessage: handleMessage,

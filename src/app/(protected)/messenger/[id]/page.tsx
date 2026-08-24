@@ -1,7 +1,7 @@
 import { MessengerDialogue } from '@/widgets/messenger/ui/MessengerDialogue'
 import { notFound } from 'next/navigation'
 
-export default async function Dialogue({ params }: { params: Promise<{ id: string }> }) {
+export default async function DialoguePage({ params }: { params: Promise<{ id: string }> }) {
   const { id: userIdStr } = await params
   const userId = Number(userIdStr)
 

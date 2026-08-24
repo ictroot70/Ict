@@ -25,6 +25,7 @@ interface MessageBubbleProps {
   onVoicePlaybackEnded?: () => void
   onVoicePlaybackPause?: () => void
   onVoicePlaybackStart?: () => void
+  onImageClick?: (url: string) => void
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -41,6 +42,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   onVoicePlaybackEnded,
   onVoicePlaybackPause,
   onVoicePlaybackStart,
+  onImageClick,
 }) => {
   const isIncoming = direction === 'incoming'
   const isImageOnly = type === 'image' && !text
@@ -52,7 +54,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       className={styles.bubbleContainer + ' ' + (isIncoming ? styles.incoming : styles.outgoing)}
     >
       {isIncoming &&
-        (avatarUrl && showAvatar ? (
+        (showAvatar ? (
           <Avatar image={avatarUrl} alt={'Avatar'} size={36} className={styles.avatar} />
         ) : (
           <div className={styles.avatarSpacer} />
@@ -69,7 +71,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         {type === 'text' && <Typography variant={'regular_14'}>{text}</Typography>}
         {type === 'image' && (
           <div className={styles.image}>
-            <img src={url} alt={'Sent image'} className={styles.imageImg} />
+            {url && (
+              <button
+                className={styles.imageButton}
+                type={'button'}
+                aria-label={'Open image preview'}
+                onClick={() => onImageClick?.(url)}
+              >
+                <img src={url} alt={'Sent image'} className={styles.imageImg} />
+              </button>
+            )}
             {text && (
               <Typography variant={'regular_14'} className={styles.imageCaption}>
                 {text}

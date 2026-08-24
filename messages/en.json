@@ -19,6 +19,19 @@
         "unsupported": "Voice recording is not supported in this browser.",
         "sendFailed": "Could not send the voice message. Please try again."
       }
+    },
+    "image": {
+      "errors": {
+        "invalidType": "Only PNG or JPEG images are allowed.",
+        "tooLarge": "Image must be less than 1 MB.",
+        "sendFailed": "Could not send the image. Please try again."
+      }
+    },
+    "text": {
+      "errors": {
+        "connection": "No connection to the messenger server. Please try again later.",
+        "sendFailed": "Could not send the message. Please try again."
+      }
     }
   },
   "subscriptions": {

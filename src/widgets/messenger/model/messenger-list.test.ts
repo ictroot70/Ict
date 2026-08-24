@@ -44,7 +44,7 @@ describe('messenger list mapping', () => {
         userId: 2,
         userName: 'receiver',
         avatarUrl: undefined,
-        lastMessage: 'Image',
+        lastMessage: 'You: Image',
         updatedAt: dialogue.updatedAt,
         notReadCount: 0,
       },
@@ -55,6 +55,12 @@ describe('messenger list mapping', () => {
     expect(
       buildDialogueItems([{ ...dialogue, ownerId: 2, receiverId: 1 }], 1)[0].notReadCount
     ).toBe(3)
+  })
+
+  it('does not prefix You: for incoming last messages', () => {
+    const incoming = { ...dialogue, ownerId: 2, receiverId: 1 }
+
+    expect(buildDialogueItems([incoming], 1)[0]?.lastMessage).toBe('Image')
   })
 
   it('adds only users without an existing dialogue and excludes the current user', () => {

@@ -48,18 +48,21 @@ export const RootLayoutClient = ({ children }: Props) => {
 
   const isCreatePostOpen = isHydrated && status === 'authenticated'
 
+  const layoutContent = (
+    <div className={s.wrapper}>
+      {showSidebar && <Sidebar />}
+      {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
+      <div
+        className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
+      >
+        {children}
+      </div>
+    </div>
+  )
+
   return (
     <main>
-      <div className={s.wrapper}>
-        {showSidebar && <MessengerRealtimeBridge />}
-        {showSidebar && <Sidebar />}
-        {shouldRenderSidebarSkeleton && <SidebarSkeleton />}
-        <div
-          className={`${s.content} ${shouldReserveSidebarSpace ? s['content--withSidebar'] : s['content--withoutSidebar']}`}
-        >
-          {children}
-        </div>
-      </div>
+      <MessengerRealtimeBridge enabled={showSidebar}>{layoutContent}</MessengerRealtimeBridge>
       {isCreatePostOpen && <CreatePostWrapper />}
     </main>
   )

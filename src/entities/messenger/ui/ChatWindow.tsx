@@ -5,10 +5,12 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { isIncomingMessage, MessageType, type MessageViewModel } from '@/entities/messenger'
 import { LinearProgress } from '@/shared/composites'
+import { formatTime } from '@/shared/lib/formatters'
 
 import styles from './ChatWindow.module.scss'
 
 import { playVoiceTransitionTone } from '../lib/play-voice-transition-tone'
+import { ImageMessageModal } from './ImageMessageModal'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
 import { useChatWindowAutoScroll } from './useChatWindowAutoScroll'
@@ -18,14 +20,19 @@ interface ChatWindowProps {
   messages?: MessageViewModel[]
   voiceWaveforms?: Readonly<Record<number, readonly number[]>>
   partnerAvatarUrl?: string
-  onSend?: (message: string) => void
+  composerValue?: string
+  onComposerChange?: (value: string) => void
+  onSend?: () => void
   sendDisabled?: boolean
+  pending?: boolean
+  hasAttachment?: boolean
   error?: string | null
   isLoading?: boolean
   firstItemIndex?: number
   hasOlderMessages?: boolean
   isLoadingOlderMessages?: boolean
   onLoadOlderMessages?: () => void
+  composerPreviewSlot?: React.ReactNode
   composerActionsSlot?: React.ReactNode
   composerContentSlot?: React.ReactNode
   composerError?: string | null
@@ -43,31 +50,30 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
-const formatTime = (value: string) =>
-  new Intl.DateTimeFormat('en', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value))
-
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   currentUserId,
   messages,
   voiceWaveforms,
   partnerAvatarUrl,
+  composerValue = '',
+  onComposerChange,
   onSend,
   sendDisabled,
+  pending,
+  hasAttachment,
   error,
   isLoading = false,
   firstItemIndex = 0,
   hasOlderMessages = false,
   isLoadingOlderMessages = false,
   onLoadOlderMessages,
+  composerPreviewSlot,
   composerActionsSlot,
   composerContentSlot,
   composerError,
 }) => {
-  const [text, setText] = useState('')
   const [activeVoiceMessageId, setActiveVoiceMessageId] = useState<number | null>(null)
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
   const voiceTransitionIdRef = React.useRef(0)
   const playbackOrderedMessages = useMemo(() => messages || [], [messages])
   const virtuosoRef = useChatWindowAutoScroll({
@@ -163,17 +169,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     onLoadOlderMessages?.()
   }, [hasOlderMessages, isLoadingOlderMessages, onLoadOlderMessages])
 
-  const handleSend = () => {
-    const message = text.trim()
-
-    if (!message || !onSend) {
-      return
-    }
-
-    onSend(message)
-    setText('')
-  }
-
   return (
     <div className={styles.container}>
       <LinearProgress active={isLoading} />
@@ -186,11 +181,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         followOutput={'smooth'}
         startReached={handleStartReached}
         components={{
-          // CSS padding on the scroller itself isn't reliable for virtualized lists — Virtuoso
-          // positions rows against its own measured content box, so horizontal *and* vertical
-          // padding on the scroll container can end up not applying visually (content sticks to
-          // the edges). Header/Footer render as normal in-flow DOM nodes before the first and
-          // after the last item, so spacing added here is immune to that.
           Header: () => (
             <div className={styles.listEdgeSpacer}>
               {isLoadingOlderMessages && (
@@ -219,6 +209,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               avatarUrl={partnerAvatarUrl}
               showAvatar={showAvatar}
               status={message.status}
+              onImageClick={setPreviewImageUrl}
               voiceWaveform={voiceWaveforms?.[message.id]}
               isVoicePlaybackRequested={hasVoiceSource && activeVoiceMessageId === message.id}
               onVoicePlaybackStart={
@@ -236,14 +227,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       />
 
       <MessageComposer
-        value={text}
-        onChange={setText}
-        onSend={handleSend}
+        value={composerValue}
+        onChange={onComposerChange ?? (() => undefined)}
+        onSend={onSend ?? (() => undefined)}
         disabled={!onSend || sendDisabled}
+        pending={pending}
+        hasAttachment={hasAttachment}
         error={composerError ?? error}
+        previewSlot={composerPreviewSlot}
         actionsSlot={composerActionsSlot}
         contentSlot={composerContentSlot}
       />
+      {previewImageUrl && (
+        <ImageMessageModal imageUrl={previewImageUrl} onClose={() => setPreviewImageUrl(null)} />
+      )}
     </div>
   )
 }

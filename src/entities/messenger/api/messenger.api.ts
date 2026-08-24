@@ -21,6 +21,7 @@ export const messengerApi = baseApi.injectEndpoints({
       }),
       providesTags: ['MessengerDialogs'],
     }),
+
     getDialogueMessages: builder.query<DialogueMessagesResponseDto, GetDialogueMessagesParams>({
       query: ({ dialoguePartnerId, ...params }) => ({
         url: API_ROUTES.MESSENGER.DIALOGUE(String(dialoguePartnerId)),
@@ -52,6 +53,7 @@ export const messengerApi = baseApi.injectEndpoints({
         { type: 'DialogueMessages', id: dialoguePartnerId },
       ],
     }),
+
     deleteMessage: builder.mutation<void, number>({
       query: id => ({
         url: API_ROUTES.MESSENGER.DELETE_MESSAGE(id),

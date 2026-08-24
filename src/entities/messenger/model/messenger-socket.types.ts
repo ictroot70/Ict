@@ -13,5 +13,5 @@ export interface UseMessengerSocketOptions {
 
 export interface UseMessengerSocketResult {
   isConnected: boolean
-  sendMessage: (payload: SendMessagePayload) => void
+  sendMessage: (payload: SendMessagePayload) => boolean
 }
