@@ -70,16 +70,18 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
             />
 
             <div className={styles.controls}>
-              {actionsSlot}
+              {!canSend && actionsSlot}
 
-              <Button
-                onClick={handleSend}
-                variant={'text'}
-                disabled={disabled || pending || !canSend}
-                className={styles.sendBtn}
-              >
-                <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
-              </Button>
+              {canSend && (
+                <Button
+                  onClick={handleSend}
+                  variant={'text'}
+                  disabled={disabled || pending}
+                  className={styles.sendBtn}
+                >
+                  <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
+                </Button>
+              )}
             </div>
           </>
         )}

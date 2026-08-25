@@ -16,6 +16,7 @@ import {
   VoiceRecordButton,
   VoiceRecordingPanel,
 } from '@/features/messenger/voice-message'
+import { PlusCircleOutline } from '@/shared/ui'
 import { useTranslations } from 'next-intl'
 
 import { useMessengerDialogueData, useMessengerTextDraft } from '../model'
@@ -108,12 +109,20 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
       onImageSelect={handleImageSelect}
     />
   )
+  const previewImageAttachButton = (
+    <ImageAttachButton
+      disabled={isImageSending || text.isSending}
+      onImageSelect={handleImageSelect}
+    >
+      <PlusCircleOutline size={24} />
+    </ImageAttachButton>
+  )
   const imagePreview = image.previewUrl ? (
     <ImagePreview
       previewUrl={image.previewUrl}
       onRemove={handleImageRemove}
       disabled={isImageSending}
-      addSlot={imageAttachButton}
+      addSlot={previewImageAttachButton}
     />
   ) : null
 
@@ -164,11 +173,11 @@ export function MessengerDialogue({ partnerId }: MessengerDialogueProps) {
       composerActionsSlot={
         !isVoiceMode ? (
           <>
-            {!image.previewUrl && imageAttachButton}
             <VoiceRecordButton
               disabled={voice.status === 'requesting' || image.hasImage || text.isSending}
               onClick={() => void voice.startRecording()}
             />
+            {!image.previewUrl && imageAttachButton}
           </>
         ) : null
       }

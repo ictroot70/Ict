@@ -13,6 +13,7 @@ export const ArrowBack = Icons.ArrowBack
 export const ArrowForwardSimple = Icons.ArrowForwardSimple
 export const ArrowBackSimple = Icons.ArrowBackSimple
 export const PlusCircle = Icons.PlusCircle
+export const PlusCircleOutline = Icons.PlusCircleOutline
 export const Expand = Icons.Expand
 export const TrendingUp = Icons.TrendingUp
 export const Bookmark = Icons.Bookmark
