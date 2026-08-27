@@ -1,5 +1,5 @@
-/* @vitest-environment jsdom */
 /* eslint-disable max-lines */
+/* @vitest-environment jsdom */
 
 import React from 'react'
 

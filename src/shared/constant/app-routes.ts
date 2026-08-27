@@ -13,8 +13,7 @@ export const APP_ROUTES = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     NEW_PASSWORD: '/auth/new-password',
     EMAIL_EXPIRED: '/auth/email-expired',
-    GITHUB_LOGIN: '/auth/github/login',
-    GOOGLE_LOGIN: '/auth/google/login',
+    GITHUB_CALLBACK: '/auth/github/callback',
   },
 
   LEGAL: {
