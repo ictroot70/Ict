@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { ImageValidationError, validateImageMessageFile } from '../lib/validateImageMessageFile'
+import { compressImageMessageFile } from '../lib/compressImageMessageFile'
+import { ImageValidationError, isAllowedImageMessageType } from '../lib/validateImageMessageFile'
 
 export function useImageMessageDraft() {
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [error, setError] = useState<ImageValidationError | null>(null)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   const previewUrlRef = useRef<string | null>(null)
 
@@ -16,16 +18,16 @@ export function useImageMessageDraft() {
     }
   }, [])
 
-  const selectImage = useCallback(
+  const clearSelectedImage = useCallback(() => {
+    revokePreviewUrl()
+
+    setFile(null)
+    setPreviewUrl(null)
+    setError(null)
+  }, [revokePreviewUrl])
+
+  const setSelectedImage = useCallback(
     (file: File) => {
-      const validationError = validateImageMessageFile(file)
-
-      if (validationError) {
-        setError(validationError)
-
-        return
-      }
-
       revokePreviewUrl()
 
       const newUrl = URL.createObjectURL(file)
@@ -38,13 +40,41 @@ export function useImageMessageDraft() {
     [revokePreviewUrl]
   )
 
-  const removeImage = useCallback(() => {
-    revokePreviewUrl()
+  const selectImage = useCallback(
+    async (file: File) => {
+      clearSelectedImage()
 
-    setFile(null)
-    setPreviewUrl(null)
-    setError(null)
-  }, [revokePreviewUrl])
+      if (!isAllowedImageMessageType(file)) {
+        setError('invalidType')
+
+        return
+      }
+
+      setIsCompressing(true)
+
+      try {
+        const compressedFile = await compressImageMessageFile(file)
+
+        if (!compressedFile) {
+          setError('tooLarge')
+
+          return
+        }
+
+        setSelectedImage(compressedFile)
+      } catch {
+        setError('processingFailed')
+      } finally {
+        setIsCompressing(false)
+      }
+    },
+    [clearSelectedImage, setSelectedImage]
+  )
+
+  const removeImage = useCallback(() => {
+    clearSelectedImage()
+    setIsCompressing(false)
+  }, [clearSelectedImage])
 
   useEffect(() => {
     return () => {
@@ -52,17 +82,12 @@ export function useImageMessageDraft() {
     }
   }, [revokePreviewUrl])
 
-  const clearError = useCallback(() => {
-    setError(null)
-  }, [])
-
   return {
     file,
     previewUrl,
     error,
-    hasImage: Boolean(file && previewUrl),
     selectImage,
     removeImage,
-    clearError,
+    isCompressing,
   }
 }

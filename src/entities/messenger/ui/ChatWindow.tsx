@@ -6,6 +6,7 @@ import { useSendImageMessageMutation } from '@/entities/messenger'
 import {
   ImageAttachButton,
   ImagePreview,
+  type ImageValidationError,
   useImageMessageDraft,
 } from '@/features/messenger/image-message'
 import { LinearProgress } from '@/shared/composites'
@@ -40,13 +41,17 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
-const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
+const getImageErrorText = (error: ImageValidationError | null) => {
   if (error === 'invalidType') {
     return 'Only PNG or JPEG images are allowed'
   }
 
   if (error === 'tooLarge') {
-    return 'Image must be less than 1 MB'
+    return 'Image is too large and could not be compressed below 1 MB'
+  }
+
+  if (error === 'processingFailed') {
+    return 'Could not process image. Choose another file'
   }
 
   return null
@@ -83,8 +88,17 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     avatarUrl: partnerAvatarUrl,
   })
 
-  const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
+  const {
+    file,
+    previewUrl,
+    error: imageError,
+    selectImage,
+    removeImage,
+    isCompressing,
+  } = useImageMessageDraft()
   const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
+
+  const isImagePending = isImageSending || isCompressing
 
   const imageErrorText = getImageErrorText(imageError)
   const composerError = imageErrorText ?? imageSendError ?? sendError
@@ -115,7 +129,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   const addImageButton = (
-    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage}>
+    <ImageAttachButton disabled={isImagePending} onImageSelect={selectImage}>
       <span className={styles.addImageButton}>+</span>
     </ImageAttachButton>
   )
@@ -124,13 +138,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     <ImagePreview
       previewUrl={previewUrl}
       onRemove={removeImage}
-      disabled={isImageSending}
+      disabled={isImagePending}
       addSlot={addImageButton}
     />
   ) : null
 
   const actionsSlot = previewUrl ? null : (
-    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage} />
+    <ImageAttachButton disabled={isImagePending} onImageSelect={selectImage} />
   )
 
   const handleMessagesScroll = () => {
@@ -163,7 +177,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className={styles.container}>
-      <LinearProgress active={isFetching} />
+      <LinearProgress active={isFetching || isCompressing} />
 
       <div className={styles.messagesArea} ref={messagesAreaRef} onScroll={handleMessagesScroll}>
         {historyError && (
@@ -206,8 +220,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         value={draftText}
         onChange={setDraftText}
         onSend={handleSend}
-        disabled={isImageSending}
-        pending={isSending || isImageSending}
+        disabled={isImagePending}
+        pending={isSending || isImagePending}
         error={composerError}
         hasAttachment={hasAttachment || Boolean(file)}
         previewSlot={previewSlot}
