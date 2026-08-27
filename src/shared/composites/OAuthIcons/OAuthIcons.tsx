@@ -1,22 +1,19 @@
-import { GitHub, Google } from '@/shared/ui'
+import { Button, GitHub, Google } from '@/shared/ui'
 
 import styles from './OAuthIcons.module.scss'
 
-type OAuthIconsProps = {
+type Props = {
   onSignInGoogle?: () => void
   onSignInGithub?: () => void
 }
 
-// const Google = dynamic(() => import('@/shared/ui').then(m => m.Google), { ssr: false })
-// const GitHub = dynamic(() => import('@/shared/ui').then(m => m.GitHub), { ssr: false })
-
-export const OAuthIcons = ({ onSignInGoogle, onSignInGithub }: OAuthIconsProps) => (
+export const OAuthIcons = ({ onSignInGoogle, onSignInGithub }: Props) => (
   <div className={styles.oauthProviders}>
-    <button onClick={onSignInGoogle} type={'button'}>
+    <Button variant={'text'} onClick={onSignInGoogle} type={'button'} className={styles.btn}>
       <Google size={36} />
-    </button>
-    <button onClick={onSignInGithub} type={'button'}>
+    </Button>
+    <Button variant={'text'} onClick={onSignInGithub} type={'button'} className={styles.btn}>
       <GitHub size={36} />
-    </button>
+    </Button>
   </div>
 )

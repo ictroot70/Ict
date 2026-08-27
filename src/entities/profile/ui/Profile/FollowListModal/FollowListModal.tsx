@@ -1,0 +1,255 @@
+'use client'
+import type { FollowListMode } from './followListModal.types'
+import type { UserFollowingFollowersViewModel } from '@/shared/types'
+
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+import {
+  useLazyGetFollowersByUserNameQuery,
+  useLazyGetFollowingByUserNameQuery,
+} from '@/entities/users/api'
+import { Input, Modal, Typography } from '@/shared/ui'
+
+import s from './FollowListModal.module.scss'
+
+import { FollowListBody } from './FollowListBody'
+import { FollowListConfirm } from './FollowListConfirm'
+import { FOLLOW_LIST_PAGE_SIZE } from './followListModal.constants'
+import { useFollowListActions } from './useFollowListActions'
+
+type Props = {
+  canDeleteFollowers: boolean
+  count: number
+  mode: FollowListMode
+  onClose: () => void
+  open: boolean
+  profileId: number
+  userName: string
+}
+
+const SEARCH_DEBOUNCE_MS = 300
+const TITLE_BY_MODE = { followers: 'Followers', following: 'Following' } as const
+const countFormatter = new Intl.NumberFormat('ru-RU')
+
+export const FollowListModal = ({
+  canDeleteFollowers,
+  count,
+  mode,
+  onClose,
+  open,
+  profileId,
+  userName,
+}: Props) => {
+  const [users, setUsers] = useState<UserFollowingFollowersViewModel[]>([])
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [nextCursor, setNextCursor] = useState<number | null>(null)
+  const [isInitialLoading, setIsInitialLoading] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [isError, setIsError] = useState(false)
+  const [triggerFollowers] = useLazyGetFollowersByUserNameQuery()
+  const [triggerFollowing] = useLazyGetFollowingByUserNameQuery()
+  const requestIdRef = useRef(0)
+  const isLoadingMoreRef = useRef(false)
+  const listRootRef = useRef<HTMLDivElement | null>(null)
+
+  const triggerQuery = useCallback(
+    (cursor?: number) => {
+      const trimmedSearch = debouncedSearch.trim()
+      const queryArgs = {
+        userName,
+        pageSize: FOLLOW_LIST_PAGE_SIZE,
+        ...(cursor ? { cursor } : {}),
+        ...(trimmedSearch ? { search: trimmedSearch } : {}),
+      }
+
+      return mode === 'followers' ? triggerFollowers(queryArgs) : triggerFollowing(queryArgs)
+    },
+    [debouncedSearch, mode, triggerFollowers, triggerFollowing, userName]
+  )
+
+  const {
+    actionError,
+    confirmDeleteFollowerUser,
+    confirmUnfollowUser,
+    currentUserId,
+    handleConfirmDeleteFollower,
+    handleToggleFollow,
+    pendingUserId,
+    setConfirmDeleteFollowerUser,
+    setConfirmUnfollowUser,
+  } = useFollowListActions({
+    debouncedSearch,
+    mode,
+    profileId,
+    setNextCursor,
+    setUsers,
+    userName,
+    usersLength: users.length,
+  })
+
+  const loadFirstPage = useCallback(() => {
+    if (count === 0) {
+      requestIdRef.current += 1
+      setUsers([])
+      setNextCursor(null)
+      setIsError(false)
+      setIsInitialLoading(false)
+      setIsLoadingMore(false)
+      isLoadingMoreRef.current = false
+
+      return
+    }
+
+    const requestId = requestIdRef.current + 1
+
+    requestIdRef.current = requestId
+    setUsers([])
+    setNextCursor(null)
+    setIsError(false)
+    setIsInitialLoading(true)
+    setIsLoadingMore(false)
+    isLoadingMoreRef.current = false
+
+    triggerQuery()
+      .unwrap()
+      .then(data => {
+        if (requestIdRef.current !== requestId) {
+          return
+        }
+        setUsers(data.items)
+        setNextCursor(data.nextCursor > 0 ? data.nextCursor : null)
+      })
+      .catch(() => {
+        if (requestIdRef.current !== requestId) {
+          return
+        }
+        setUsers([])
+        setNextCursor(null)
+        setIsError(true)
+      })
+      .finally(() => {
+        if (requestIdRef.current === requestId) {
+          setIsInitialLoading(false)
+        }
+      })
+  }, [count, triggerQuery])
+
+  useEffect(() => {
+    loadFirstPage()
+  }, [loadFirstPage])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => clearTimeout(timeoutId)
+  }, [search])
+
+  const loadMore = useCallback(() => {
+    if (nextCursor === null || isLoadingMoreRef.current || isInitialLoading) {
+      return
+    }
+    const requestId = requestIdRef.current
+
+    isLoadingMoreRef.current = true
+    setIsLoadingMore(true)
+
+    triggerQuery(nextCursor)
+      .unwrap()
+      .then(data => {
+        if (requestIdRef.current !== requestId) {
+          return
+        }
+        setUsers(prev => {
+          const existingIds = new Set(prev.map(user => user.userId))
+          const newUsers = data.items.filter(user => !existingIds.has(user.userId))
+
+          return [...prev, ...newUsers]
+        })
+        setNextCursor(data.nextCursor > 0 ? data.nextCursor : null)
+      })
+      .catch(() => {
+        if (requestIdRef.current === requestId) {
+          setNextCursor(null)
+        }
+      })
+      .finally(() => {
+        if (requestIdRef.current === requestId) {
+          setIsLoadingMore(false)
+          isLoadingMoreRef.current = false
+        }
+      })
+  }, [isInitialLoading, nextCursor, triggerQuery])
+
+  const modalTitle = `${countFormatter.format(count)} ${TITLE_BY_MODE[mode]}`
+
+  return (
+    <Modal open={open} onClose={onClose} modalTitle={modalTitle} className={s.modal}>
+      <div className={s.modalInner}>
+        <div className={s.content}>
+          <div className={s.searchWrapper}>
+            <Input
+              inputType={'search'}
+              disabled={count === 0}
+              placeholder={'Search'}
+              value={search}
+              onChange={event => setSearch(event.target.value)}
+            />
+          </div>
+          <FollowListBody
+            actions={{
+              onClose,
+              onDeleteFollower: setConfirmDeleteFollowerUser,
+              onLoadMore: loadMore,
+              onToggleFollow: user => void handleToggleFollow(user),
+            }}
+            debouncedSearch={debouncedSearch}
+            isError={isError}
+            isInitialLoading={isInitialLoading}
+            onRetry={loadFirstPage}
+            state={{
+              canDeleteFollowers,
+              currentUserId,
+              hasNextPage: nextCursor !== null,
+              isLoadingMore,
+              listRootRef,
+              mode,
+              pendingUserId,
+              users,
+            }}
+          />
+          {actionError && (
+            <Typography className={s.actionError} variant={'danger'}>
+              {actionError}
+            </Typography>
+          )}
+        </div>
+        {confirmUnfollowUser && (
+          <FollowListConfirm
+            isPending={pendingUserId === confirmUnfollowUser.userId}
+            message={'Do you really want to Unfollow from this user'}
+            open={confirmUnfollowUser !== null}
+            title={'Unfollow'}
+            user={confirmUnfollowUser}
+            onCancel={() => setConfirmUnfollowUser(null)}
+            onConfirm={() => void handleToggleFollow(confirmUnfollowUser, { confirmed: true })}
+          />
+        )}
+        {confirmDeleteFollowerUser && (
+          <FollowListConfirm
+            isCloseDisabled={pendingUserId === confirmDeleteFollowerUser.userId}
+            isPending={pendingUserId === confirmDeleteFollowerUser.userId}
+            message={'Do you really want to delete follower'}
+            open={confirmDeleteFollowerUser !== null}
+            title={'Delete follower'}
+            user={confirmDeleteFollowerUser}
+            onCancel={() => setConfirmDeleteFollowerUser(null)}
+            onConfirm={() => void handleConfirmDeleteFollower()}
+          />
+        )}
+      </div>
+    </Modal>
+  )
+}

@@ -1,3 +1,5 @@
+export type PostOpenSource = 'home' | 'profile' | 'direct'
+
 export const APP_ROUTES = {
   ROOT: '/',
 
@@ -11,24 +13,33 @@ export const APP_ROUTES = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     NEW_PASSWORD: '/auth/new-password',
     EMAIL_EXPIRED: '/auth/email-expired',
-    GITHUB_LOGIN: '/auth/github/login',
-    GOOGLE_LOGIN: '/auth/google/login',
+    GITHUB_CALLBACK: '/auth/github/callback',
   },
 
   LEGAL: {
     TERMS: '/legal/terms-of-service',
     PRIVACY: '/legal/privacy-policy',
+    FROM: {
+      EDIT_PROFILE: 'edit-profile',
+      SIGN_UP: 'signup',
+    },
   },
 
   PROFILE: {
+    BY_USERNAME: (userName: string) => `/profile/${encodeURIComponent(userName)}`,
     ID: (id: number) => `/profile/${id}`,
-    EDIT: `/settings`,
-  },
+    WITH_POST: (id: number, postId: number, from?: PostOpenSource) => {
+      const params = new URLSearchParams({ postId: String(postId) })
 
-  // PUBLIC_USERS: {
-  //   PROFILE: '/public-users/profile',
-  //   EDIT_PROFILE: (id: number) => `/public-users/profile/${id}/edit`,
-  // },
+      if (from) {
+        params.set('from', from)
+      }
+
+      return `/profile/${id}?${params.toString()}`
+    },
+    EDIT: (id: number) => `/profile/${id}/settings/general`,
+    ACCOUNT: (id: number) => `/profile/${id}/settings/account`,
+  },
 
   POSTS: {
     POST_BY_ID: (postId: string) => `/posts/${postId}`,
@@ -37,7 +48,7 @@ export const APP_ROUTES = {
 
   MESSENGER: {
     BASE: '/messenger',
-    DIALOGUE: (userId: string) => `/messenger/${userId}`,
+    DIALOGUE: (userId: number) => `/messenger/${userId}`,
   },
 
   NOTIFICATIONS: {

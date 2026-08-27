@@ -1,0 +1,9 @@
+.placeholderLike {
+  color: var(--color-light-700);
+}
+.placeholderLike:focus {
+}
+
+input:not(.placeholderLike) {
+  color: currentColor;
+}

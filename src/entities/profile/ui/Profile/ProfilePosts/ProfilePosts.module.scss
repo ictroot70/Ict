@@ -1,0 +1,16 @@
+.wrapper {
+  display: flex;
+  text-align: center;
+}
+
+.posts {
+  width: 100%;
+  display: grid;
+  gap: 1rem 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 234px), 1fr));
+}
+
+.message {
+  text-align: center;
+  width: 100%;
+}

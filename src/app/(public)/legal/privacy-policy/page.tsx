@@ -1,5 +1,12 @@
+import { Suspense } from 'react'
+
 import { PrivacyOfPolicy } from '@/features/legal'
+import { Loading } from '@/shared/composites/Loading'
 
 export default function PrivacyOfPolicyPage() {
-  return <PrivacyOfPolicy />
+  return (
+    <Suspense fallback={<Loading />}>
+      <PrivacyOfPolicy />
+    </Suspense>
+  )
 }

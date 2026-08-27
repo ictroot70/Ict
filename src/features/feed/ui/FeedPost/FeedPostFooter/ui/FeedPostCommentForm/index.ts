@@ -1,0 +1,1 @@
+export { FeedPostCommentForm } from './FeedPostCommentForm'

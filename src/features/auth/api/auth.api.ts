@@ -1,7 +1,8 @@
 import {
   API_ROUTES,
-  baseQueryWithReauth,
   CheckRecoveryCodeRequest,
+  GoogleAuthRequest,
+  GoogleAuthResponse,
   LoginRequest,
   MeResponse,
   NewPasswordRequest,
@@ -10,8 +11,59 @@ import {
   RefreshTokenResponse,
 } from '@/shared/api'
 import { baseApi } from '@/shared/api/base-api'
-import { authTokenStorage } from '@/shared/lib'
-import { createApi } from '@reduxjs/toolkit/query/react'
+import { logout, setAuthenticated } from '@/shared/auth/authSlice'
+import { authTokenStorage, logger } from '@/shared/lib'
+import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
+import { jwtDecode } from 'jwt-decode'
+
+type AuthLifecycleDispatch = ThunkDispatch<unknown, unknown, UnknownAction>
+
+const applyAuthSuccess = (
+  dispatch: AuthLifecycleDispatch,
+  data: RefreshTokenResponse | GoogleAuthResponse,
+  source: 'login' | 'googleAuth'
+) => {
+  if (!data.accessToken) {
+    return
+  }
+
+  let userId: number | undefined
+
+  try {
+    const decoded = jwtDecode<{ userId?: number }>(data.accessToken)
+
+    userId = typeof decoded.userId === 'number' ? decoded.userId : undefined
+  } catch (decodeError) {
+    logger.warn(`[${source}] Failed to decode userId from accessToken:`, decodeError)
+  }
+
+  authTokenStorage.setAccessToken(data.accessToken)
+  markAuthSessionHint(userId)
+  dispatch(setAuthenticated())
+  dispatch(authApi.util.invalidateTags(['Me']))
+}
+
+const createAuthSuccessHandler =
+  (source: 'login' | 'googleAuth') =>
+  async (
+    _: unknown,
+    {
+      dispatch,
+      queryFulfilled,
+    }: {
+      dispatch: AuthLifecycleDispatch
+      queryFulfilled: Promise<{ data: RefreshTokenResponse | GoogleAuthResponse }>
+    }
+  ) => {
+    try {
+      const { data } = await queryFulfilled
+
+      applyAuthSuccess(dispatch, data, source)
+    } catch (error) {
+      logger.error(`[${source}] Failed:`, error)
+    }
+  }
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -22,8 +74,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
         credentials: 'include',
       }),
-
-      invalidatesTags: ['Me'],
+      onQueryStarted: createAuthSuccessHandler('login'),
     }),
     me: builder.query<MeResponse, void>({
       query: () => {
@@ -34,6 +85,17 @@ export const authApi = baseApi.injectEndpoints({
       providesTags: ['Me'],
       transformResponse: (user: MeResponse) => {
         return user
+      },
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          markAuthSessionHint(data.userId)
+          dispatch(setAuthenticated())
+        } catch (error) {
+          clearAuthSessionHint()
+          dispatch(logout())
+        }
       },
     }),
     logout: builder.mutation<void, void>({
@@ -47,11 +109,15 @@ export const authApi = baseApi.injectEndpoints({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
-          authTokenStorage.removeAccessToken()
+
+          authTokenStorage.clear()
+          clearAuthSessionHint()
+
+          dispatch(logout())
           dispatch(authApi.util.invalidateTags(['Me']))
           dispatch(authApi.util.resetApiState())
         } catch (error) {
-          console.error('Logout failed:', error)
+          logger.error('Logout failed:', error)
         }
       },
     }),
@@ -65,7 +131,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
-    confirmRegistration: builder.mutation<any, { confirmationCode: string }>({
+    confirmRegistration: builder.mutation<unknown, { confirmationCode: string }>({
       query: body => ({
         url: API_ROUTES.AUTH.REGISTRATION_CONFIRMATION,
         method: 'POST',
@@ -109,6 +175,15 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    googleAuth: builder.mutation<GoogleAuthResponse, GoogleAuthRequest>({
+      query: body => ({
+        url: API_ROUTES.AUTH.GOOGLE_LOGIN,
+        method: 'POST',
+        body,
+        credentials: 'include',
+      }),
+      onQueryStarted: createAuthSuccessHandler('googleAuth'),
+    }),
   }),
 })
 
@@ -123,4 +198,5 @@ export const {
   usePasswordRecoveryMutation,
   useCheckRecoveryCodeMutation,
   useNewPasswordMutation,
+  useGoogleAuthMutation,
 } = authApi

@@ -1,6 +1,9 @@
 import { RefreshTokenResponse } from '@/shared/api/api.types'
 import { API_ROUTES } from '@/shared/api/api-routes'
+import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
+import { logout } from '@/shared/auth/authSlice'
 import { isBrowser } from '@/shared/environment/is-browser'
+import { logger } from '@/shared/lib/logger'
 import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import {
   BaseQueryFn,
@@ -13,13 +16,15 @@ import { Mutex } from 'async-mutex'
 
 const mutex = new Mutex()
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  baseUrl: getApiBaseUrl(),
+
   prepareHeaders: headers => {
-    let token
+    let token: null | string = null
 
     if (isBrowser()) {
       token = authTokenStorage.getAccessToken()
     }
+
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
@@ -37,6 +42,30 @@ function isRefreshTokenResponse(data: unknown): data is RefreshTokenResponse {
   )
 }
 
+async function tryRefreshToken(
+  api: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[1],
+  extraOptions: Parameters<BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError>>[2]
+) {
+  const refreshEndpoints = [
+    API_ROUTES.AUTH.UPDATE_TOKENS,
+    API_ROUTES.AUTH.GITHUB_UPDATE_TOKENS,
+  ] as const
+
+  for (const url of refreshEndpoints) {
+    const refreshResult = (await baseQuery(
+      { url, method: 'POST', credentials: 'include' },
+      api,
+      extraOptions
+    )) as QueryReturnValue<unknown, FetchBaseQueryError>
+
+    if (isRefreshTokenResponse(refreshResult.data)) {
+      return refreshResult
+    }
+  }
+
+  return null
+}
+
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -44,45 +73,31 @@ export const baseQueryWithReauth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   const url = typeof args === 'string' ? args : args.url
 
-  console.log('Making request to:', url)
+  logger.debug('[baseQuery] Making request to:', url)
   await mutex.waitForUnlock()
   let result = await baseQuery(args, api, extraOptions)
 
-  console.log('Request result:', result)
+  logger.debug('[baseQuery] Request result:', result)
   if (result.error && result.error.status === 401) {
-    // checking whether the mutex is locked
     if (!mutex.isLocked()) {
       const release = await mutex.acquire()
 
       try {
-        const refreshResult = (await baseQuery(
-          { url: API_ROUTES.AUTH.UPDATE_TOKENS, method: 'POST', credentials: 'include' },
-          api,
-          extraOptions
-        )) as QueryReturnValue<unknown, FetchBaseQueryError>
-        // console.log('refreshResult', refreshResult)
+        const refreshResult = await tryRefreshToken(api, extraOptions)
 
-        if (isRefreshTokenResponse(refreshResult.data)) {
+        if (refreshResult?.data && isRefreshTokenResponse(refreshResult.data)) {
           authTokenStorage.setAccessToken(refreshResult.data.accessToken)
-          // retry the initial query
           result = await baseQuery(args, api, extraOptions)
-
-          // console.log(result)
         } else {
           authTokenStorage.clear()
-          // you can make logout, redirect, or show the message
-          console.warn('Invalid refresh token. Logging out.')
+          api.dispatch(logout())
 
-          return refreshResult.error
-            ? { error: refreshResult.error }
-            : { error: { status: 401, data: 'Unauthorized' } }
+          return { error: { status: 401, data: 'Session expired' } }
         }
       } finally {
-        // release must be called once the mutex should be released again.
         release()
       }
     } else {
-      // wait until the mutex is available without locking it
       await mutex.waitForUnlock()
       result = await baseQuery(args, api, extraOptions)
     }
