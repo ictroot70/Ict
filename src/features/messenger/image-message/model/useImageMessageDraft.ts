@@ -72,23 +72,15 @@ export function useImageMessageDraft() {
   )
 
   const removeImage = useCallback(() => {
-    revokePreviewUrl()
-
-    setFile(null)
-    setPreviewUrl(null)
-    setError(null)
+    clearSelectedImage()
     setIsCompressing(false)
-  }, [revokePreviewUrl])
+  }, [clearSelectedImage])
 
   useEffect(() => {
     return () => {
       revokePreviewUrl()
     }
   }, [revokePreviewUrl])
-
-  const clearError = useCallback(() => {
-    setError(null)
-  }, [])
 
   return {
     file,

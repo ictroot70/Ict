@@ -6,6 +6,7 @@ import { useSendImageMessageMutation } from '@/entities/messenger'
 import {
   ImageAttachButton,
   ImagePreview,
+  type ImageValidationError,
   useImageMessageDraft,
 } from '@/features/messenger/image-message'
 import { LinearProgress } from '@/shared/composites'
@@ -40,7 +41,7 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
-const getImageErrorText = (error: 'invalidType' | 'tooLarge' | 'processingFailed' | null) => {
+const getImageErrorText = (error: ImageValidationError | null) => {
   if (error === 'invalidType') {
     return 'Only PNG or JPEG images are allowed'
   }
