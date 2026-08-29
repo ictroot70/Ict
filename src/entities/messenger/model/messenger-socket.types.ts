@@ -6,6 +6,7 @@ export type MessengerMessageDeletionHandler = (messageId: number) => Promise<voi
 
 export interface UseMessengerSocketOptions {
   accessToken: null | string
+  onAuthenticationError: () => Promise<void> | void
   onError: (error: MessengerError) => void
   onMessage: MessengerMessageHandler
   onMessageDeleted: MessengerMessageDeletionHandler
@@ -13,5 +14,6 @@ export interface UseMessengerSocketOptions {
 
 export interface UseMessengerSocketResult {
   isConnected: boolean
+  isRecoveringAuthentication: boolean
   sendMessage: (payload: SendMessagePayload) => boolean
 }

@@ -9,7 +9,10 @@ import {
   type MessageViewModel,
   useMessengerSocket,
 } from '@/entities/messenger'
+import { logout } from '@/shared/auth/authSlice'
 import { logger } from '@/shared/lib/logger'
+import { refreshAccessToken } from '@/shared/lib/refresh-access-token'
+import { authTokenStorage } from '@/shared/lib/storage/auth-token'
 import { useAccessToken } from '@/shared/lib/storage/use-access-token'
 
 import {
@@ -176,8 +179,24 @@ export function useMessengerRealtime({
     [dispatch, store]
   )
 
+  const handleAuthenticationError = useCallback(async () => {
+    debugMessengerRealtime('refresh access token after socket authentication error')
+    const refreshResult = await refreshAccessToken()
+
+    if (refreshResult.isAuthenticated) {
+      debugMessengerRealtime('access token refreshed; socket will reconnect')
+
+      return
+    }
+
+    debugMessengerRealtime('access token refresh failed; clear authenticated session')
+    authTokenStorage.clear()
+    dispatch(logout())
+  }, [dispatch])
+
   return useMessengerSocket({
     accessToken: currentUserId > 0 ? accessToken : null,
+    onAuthenticationError: handleAuthenticationError,
     onError: () => undefined,
     onMessage: handleMessage,
     onMessageDeleted: handleMessageDeleted,

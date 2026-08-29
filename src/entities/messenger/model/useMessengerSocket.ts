@@ -52,19 +52,26 @@ const debugMessengerSocket = (message: string, details?: unknown) => {
 
 export function useMessengerSocket({
   accessToken,
+  onAuthenticationError,
   onError,
   onMessage,
   onMessageDeleted,
 }: UseMessengerSocketOptions): UseMessengerSocketResult {
   const socketRef = useRef<Socket | null>(null)
+  const onAuthenticationErrorRef = useRef(onAuthenticationError)
   const onErrorRef = useRef(onError)
   const onMessageRef = useRef(onMessage)
   const onMessageDeletedRef = useRef(onMessageDeleted)
   const [isConnected, setIsConnected] = useState(false)
+  const [isRecoveringAuthentication, setIsRecoveringAuthentication] = useState(false)
 
   useEffect(() => {
     onMessageRef.current = onMessage
   }, [onMessage])
+
+  useEffect(() => {
+    onAuthenticationErrorRef.current = onAuthenticationError
+  }, [onAuthenticationError])
 
   const disconnectSocket = useCallback(() => {
     const socket = socketRef.current
@@ -90,27 +97,15 @@ export function useMessengerSocket({
   useEffect(() => {
     if (!accessToken) {
       disconnectSocket()
+      setIsRecoveringAuthentication(false)
       debugMessengerSocket('skip connect: no access token')
 
       return
     }
 
     if (socketRef.current) {
-      const existingSocket = socketRef.current
-
-      // Keep the same socket instance (avoids a disconnect/reconnect window right after
-      // token rotation), but the auth data used by Socket.IO for any FUTURE internal
-      // reconnect (network blip, server restart, sleep/wake, ping timeout, etc.) must be
-      // refreshed too — otherwise a reconnect after this point silently uses the stale
-      // token and gets rejected by the server with no automatic recovery.
-      existingSocket.auth = { accessToken }
-      existingSocket.io.opts.query = { accessToken }
-
-      debugMessengerSocket('updated access token on existing socket', {
-        connected: existingSocket.connected,
-      })
-
-      return
+      // A rotated access token needs a fresh authenticated handshake.
+      disconnectSocket()
     }
 
     setIsConnected(false)
@@ -231,6 +226,7 @@ export function useMessengerSocket({
 
     const handleConnect = () => {
       setIsConnected(true)
+      setIsRecoveringAuthentication(false)
       debugMessengerSocket('connected', { socketId: socket.id })
     }
 
@@ -242,9 +238,12 @@ export function useMessengerSocket({
     const handleSocketError = (error: unknown) => {
       debugMessengerSocket('socket error event', error)
       const normalizedError = normalizeMessengerError(error, 'socket')
+      const isAuthenticationError = AUTH_ERROR_PATTERN.test(normalizedError.message)
 
-      if (AUTH_ERROR_PATTERN.test(normalizedError.message)) {
+      if (isAuthenticationError) {
         setIsConnected(false)
+        setIsRecoveringAuthentication(true)
+        socket.removeAllListeners()
         socket.disconnect()
 
         if (socketRef.current === socket) {
@@ -253,6 +252,13 @@ export function useMessengerSocket({
       }
 
       reportError(normalizedError)
+
+      if (isAuthenticationError) {
+        void Promise.resolve(onAuthenticationErrorRef.current()).catch(refreshError => {
+          setIsRecoveringAuthentication(false)
+          reportError(normalizeMessengerError(refreshError, 'socket'))
+        })
+      }
     }
 
     socket.on('connect', handleConnect)
@@ -290,5 +296,5 @@ export function useMessengerSocket({
     return true
   }, [])
 
-  return { isConnected, sendMessage }
+  return { isConnected, isRecoveringAuthentication, sendMessage }
 }

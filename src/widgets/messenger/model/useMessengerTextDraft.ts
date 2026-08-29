@@ -19,6 +19,7 @@ interface UseMessengerTextDraftOptions {
 }
 
 interface PendingTextMessage {
+  authenticationRetryCount: number
   createdAt: number
   id: number
   text: string
@@ -31,11 +32,12 @@ export function useMessengerTextDraft({
   onRemoveOptimistic,
   onSendStarted,
 }: UseMessengerTextDraftOptions) {
-  const { isConnected, sendMessage } = useMessengerRealtimeConnection()
+  const { isConnected, isRecoveringAuthentication, sendMessage } = useMessengerRealtimeConnection()
   const [draftText, setDraftText] = useState('')
   const [error, setError] = useState<TextSendError | null>(null)
   const [isSending, setIsSending] = useState(false)
   const pendingRef = useRef<PendingTextMessage | null>(null)
+  const retryAfterAuthenticationRef = useRef(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const clearConfirmationTimeout = useCallback(() => {
@@ -56,6 +58,7 @@ export function useMessengerTextDraft({
       clearConfirmationTimeout()
       onRemoveOptimistic(pending.id)
       pendingRef.current = null
+      retryAfterAuthenticationRef.current = false
       setIsSending(false)
       setError(nextError)
     },
@@ -63,6 +66,14 @@ export function useMessengerTextDraft({
   )
 
   useEffect(() => () => clearConfirmationTimeout(), [clearConfirmationTimeout])
+
+  const scheduleConfirmationTimeout = useCallback(() => {
+    clearConfirmationTimeout()
+    timeoutRef.current = setTimeout(
+      () => failPendingSend('sendFailed'),
+      SEND_CONFIRMATION_TIMEOUT_MS
+    )
+  }, [clearConfirmationTimeout, failPendingSend])
 
   useEffect(() => {
     const pending = pendingRef.current
@@ -91,10 +102,49 @@ export function useMessengerTextDraft({
     clearConfirmationTimeout()
     onRemoveOptimistic(pending.id)
     pendingRef.current = null
+    retryAfterAuthenticationRef.current = false
     setDraftText('')
     setIsSending(false)
     setError(null)
   }, [clearConfirmationTimeout, messages, onRemoveOptimistic, receiverId, senderId])
+
+  useEffect(() => {
+    const pending = pendingRef.current
+
+    if (isRecoveringAuthentication && pending) {
+      if (pending.authenticationRetryCount > 0) {
+        failPendingSend('sendFailed')
+
+        return
+      }
+
+      retryAfterAuthenticationRef.current = true
+
+      return
+    }
+
+    if (!isConnected || !retryAfterAuthenticationRef.current || !pending) {
+      return
+    }
+
+    retryAfterAuthenticationRef.current = false
+    pending.authenticationRetryCount += 1
+
+    if (!sendMessage({ message: pending.text, receiverId })) {
+      failPendingSend('connection')
+
+      return
+    }
+
+    scheduleConfirmationTimeout()
+  }, [
+    failPendingSend,
+    isConnected,
+    isRecoveringAuthentication,
+    receiverId,
+    scheduleConfirmationTimeout,
+    sendMessage,
+  ])
 
   const send = useCallback(() => {
     const text = draftText.trim()
@@ -122,7 +172,13 @@ export function useMessengerTextDraft({
       updatedAt: new Date(createdAt).toISOString(),
     }
 
-    pendingRef.current = { createdAt, id: optimisticMessage.id, text }
+    pendingRef.current = {
+      authenticationRetryCount: 0,
+      createdAt,
+      id: optimisticMessage.id,
+      text,
+    }
+    retryAfterAuthenticationRef.current = false
     setError(null)
     setIsSending(true)
     onSendStarted(optimisticMessage)
@@ -133,19 +189,15 @@ export function useMessengerTextDraft({
       return
     }
 
-    clearConfirmationTimeout()
-    timeoutRef.current = setTimeout(
-      () => failPendingSend('sendFailed'),
-      SEND_CONFIRMATION_TIMEOUT_MS
-    )
+    scheduleConfirmationTimeout()
   }, [
-    clearConfirmationTimeout,
     draftText,
     failPendingSend,
     isConnected,
     isSending,
     onSendStarted,
     receiverId,
+    scheduleConfirmationTimeout,
     sendMessage,
     senderId,
   ])

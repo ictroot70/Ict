@@ -8,6 +8,7 @@ import { useMessengerTextDraft } from './useMessengerTextDraft'
 
 const realtime = vi.hoisted(() => ({
   isConnected: true,
+  isRecoveringAuthentication: false,
   sendMessage: vi.fn(() => true),
 }))
 
@@ -32,6 +33,7 @@ describe('useMessengerTextDraft', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-24T10:00:00.000Z'))
     realtime.isConnected = true
+    realtime.isRecoveringAuthentication = false
     realtime.sendMessage.mockReset().mockReturnValue(true)
   })
 
@@ -108,6 +110,71 @@ describe('useMessengerTextDraft', () => {
     act(() => vi.advanceTimersByTime(10_000))
 
     expect(onRemoveOptimistic).toHaveBeenCalledWith(optimisticId)
+    expect(result.current.error).toBe('sendFailed')
+    expect(result.current.isSending).toBe(false)
+  })
+
+  it('waits for authentication recovery and retries the pending message after reconnect', () => {
+    const onRemoveOptimistic = vi.fn()
+    const { result, rerender } = renderHook(() =>
+      useMessengerTextDraft({
+        messages: [],
+        receiverId: 2,
+        senderId: 1,
+        onRemoveOptimistic,
+        onSendStarted: vi.fn(),
+      })
+    )
+
+    act(() => result.current.setDraftText('Hello'))
+    act(() => result.current.send())
+
+    realtime.isConnected = false
+    realtime.isRecoveringAuthentication = true
+    rerender()
+
+    expect(onRemoveOptimistic).not.toHaveBeenCalled()
+    expect(result.current.draftText).toBe('Hello')
+    expect(result.current.error).toBeNull()
+    expect(result.current.isSending).toBe(true)
+
+    realtime.isConnected = true
+    realtime.isRecoveringAuthentication = false
+    rerender()
+
+    expect(realtime.sendMessage).toHaveBeenCalledTimes(2)
+    expect(realtime.sendMessage).toHaveBeenLastCalledWith({ message: 'Hello', receiverId: 2 })
+    expect(result.current.error).toBeNull()
+    expect(result.current.isSending).toBe(true)
+  })
+
+  it('fails instead of retrying forever when the refreshed token is rejected again', () => {
+    const onRemoveOptimistic = vi.fn()
+    const { result, rerender } = renderHook(() =>
+      useMessengerTextDraft({
+        messages: [],
+        receiverId: 2,
+        senderId: 1,
+        onRemoveOptimistic,
+        onSendStarted: vi.fn(),
+      })
+    )
+
+    act(() => result.current.setDraftText('Hello'))
+    act(() => result.current.send())
+
+    realtime.isConnected = false
+    realtime.isRecoveringAuthentication = true
+    rerender()
+    realtime.isConnected = true
+    realtime.isRecoveringAuthentication = false
+    rerender()
+
+    realtime.isConnected = false
+    realtime.isRecoveringAuthentication = true
+    rerender()
+
+    expect(onRemoveOptimistic).toHaveBeenCalledWith(-Date.now())
     expect(result.current.error).toBe('sendFailed')
     expect(result.current.isSending).toBe(false)
   })

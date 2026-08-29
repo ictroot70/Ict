@@ -15,6 +15,7 @@ describe('MessengerRealtimeFallbackProvider', () => {
     })
 
     expect(result.current.isConnected).toBe(false)
+    expect(result.current.isRecoveringAuthentication).toBe(false)
     expect(result.current.sendMessage({ message: 'Hello', receiverId: 71 })).toBe(false)
   })
 

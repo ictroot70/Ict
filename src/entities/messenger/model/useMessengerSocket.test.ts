@@ -70,6 +70,7 @@ const triggerSocketEvent = (event: string, ...args: unknown[]) => {
 }
 
 const setupHook = (accessToken: null | string = 'access-token') => {
+  const onAuthenticationError = vi.fn()
   const onError = vi.fn()
   const onMessage = vi.fn()
   const onMessageDeleted = vi.fn()
@@ -77,6 +78,7 @@ const setupHook = (accessToken: null | string = 'access-token') => {
   const hook = renderHook(() =>
     useMessengerSocket({
       accessToken,
+      onAuthenticationError,
       onError,
       onMessage,
       onMessageDeleted,
@@ -85,6 +87,7 @@ const setupHook = (accessToken: null | string = 'access-token') => {
 
   return {
     ...hook,
+    onAuthenticationError,
     onError,
     onMessage,
     onMessageDeleted,
@@ -408,7 +411,7 @@ describe('useMessengerSocket', () => {
   })
   it('disconnects an authenticated socket after an authentication error', () => {
     socketMock.connected = true
-    const { onError, result } = setupHook()
+    const { onAuthenticationError, onError, result } = setupHook()
 
     act(() => {
       triggerSocketEvent('connect')
@@ -418,7 +421,9 @@ describe('useMessengerSocket', () => {
     })
 
     expect(result.current.isConnected).toBe(false)
+    expect(result.current.isRecoveringAuthentication).toBe(true)
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(onAuthenticationError).toHaveBeenCalledOnce()
     expect(onError).toHaveBeenCalledWith({
       source: 'socket',
       code: 'SOCKET_ERROR',
@@ -438,7 +443,8 @@ describe('useMessengerSocket', () => {
     expect(handlers.size).toBe(0)
   })
 
-  it('keeps the existing socket when the access token refreshes', () => {
+  it('reconnects the socket when the access token refreshes', () => {
+    const onAuthenticationError = vi.fn()
     const onError = vi.fn()
     const onMessage = vi.fn()
     const onMessageDeleted = vi.fn()
@@ -447,6 +453,7 @@ describe('useMessengerSocket', () => {
       ({ accessToken }: { accessToken: string }) =>
         useMessengerSocket({
           accessToken,
+          onAuthenticationError,
           onError,
           onMessage,
           onMessageDeleted,
@@ -462,11 +469,16 @@ describe('useMessengerSocket', () => {
       accessToken: 'new-token',
     })
 
-    expect(socketMock.disconnect).not.toHaveBeenCalled()
-    expect(ioMock).toHaveBeenCalledOnce()
+    expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(ioMock).toHaveBeenCalledTimes(2)
+    expect(ioMock).toHaveBeenLastCalledWith(
+      'https://inctagram.work',
+      expect.objectContaining({ query: { accessToken: 'new-token' } })
+    )
   })
 
-  it('updates auth and query on the existing socket when the access token refreshes', () => {
+  it('uses a fresh handshake when the access token refreshes', () => {
+    const onAuthenticationError = vi.fn()
     const onError = vi.fn()
     const onMessage = vi.fn()
     const onMessageDeleted = vi.fn()
@@ -475,6 +487,7 @@ describe('useMessengerSocket', () => {
       ({ accessToken }: { accessToken: string }) =>
         useMessengerSocket({
           accessToken,
+          onAuthenticationError,
           onError,
           onMessage,
           onMessageDeleted,
@@ -495,16 +508,16 @@ describe('useMessengerSocket', () => {
       accessToken: 'new-token',
     })
 
-    // The socket instance itself must not be recreated (no disconnect/reconnect window),
-    // but any FUTURE internal reconnect (network blip, server restart, sleep/wake) must
-    // use the fresh token, not the one baked in at initial `io()` call time.
-    expect(socketMock.disconnect).not.toHaveBeenCalled()
-    expect(ioMock).toHaveBeenCalledOnce()
-    expect(socketMock.auth).toEqual({ accessToken: 'new-token' })
-    expect(socketMock.io.opts.query).toEqual({ accessToken: 'new-token' })
+    expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(ioMock).toHaveBeenCalledTimes(2)
+    expect(ioMock).toHaveBeenLastCalledWith(
+      'https://inctagram.work',
+      expect.objectContaining({ query: { accessToken: 'new-token' } })
+    )
   })
 
   it('does not touch auth/query when the access token is unchanged on rerender', () => {
+    const onAuthenticationError = vi.fn()
     const onError = vi.fn()
     const onMessage = vi.fn()
     const onMessageDeleted = vi.fn()
@@ -513,6 +526,7 @@ describe('useMessengerSocket', () => {
       ({ accessToken }: { accessToken: string }) =>
         useMessengerSocket({
           accessToken,
+          onAuthenticationError,
           onError,
           onMessage,
           onMessageDeleted,

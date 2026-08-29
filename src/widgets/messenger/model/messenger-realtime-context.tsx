@@ -6,6 +6,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 
 export interface MessengerRealtimeContextValue {
   isConnected: boolean
+  isRecoveringAuthentication: boolean
   sendMessage: (payload: SendMessagePayload) => boolean
 }
 
@@ -13,6 +14,7 @@ export const MessengerRealtimeContext = createContext<MessengerRealtimeContextVa
 
 const unavailableRealtime: MessengerRealtimeContextValue = {
   isConnected: false,
+  isRecoveringAuthentication: false,
   sendMessage: () => false,
 }
 
