@@ -1,7 +1,9 @@
 .bubbleContainer {
   display: flex;
-  margin-bottom: 1rem;
+  box-sizing: border-box;
   min-width: 0;
+  padding: 0 24px;
+  margin-bottom: 1rem;
 }
 
 .incoming {
@@ -65,15 +67,13 @@
   background: none;
   padding: 0;
 
-  .timestamp,
-  .statusIcon {
+  .timestamp {
     color: var(--color-light-100);
   }
 }
 
 .imageWithText {
-  padding: 2px;
-  padding-bottom: 8px;
+  padding: 2px 2px 8px;
 
   .image {
     gap: 0;
@@ -95,21 +95,29 @@
   }
 }
 
+.voiceBubble {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+
+  width: 404px;
+  max-width: calc(100% - 16px);
+  min-width: 0;
+  min-height: 80px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.incomingBubble.voiceBubble {
+  max-width: calc(100% - 64px);
+}
+
 .footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.25rem;
   margin-top: 0.25rem;
-}
-
-.statusIcon {
-  height: 16px;
-  width: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-primary-100);
 }
 
 .image {
@@ -137,54 +145,4 @@
   height: auto;
   object-fit: contain;
   border-radius: 2px;
-}
-
-.voiceContent {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-}
-
-.voiceButton {
-  color: var(--color-light-100);
-  min-width: 0;
-
-  padding: 0;
-}
-
-.voiceIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.voiceWaveform {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: 30px;
-}
-
-.waveformBar {
-  flex: 1;
-  background-color: var(--color-light-100);
-  border-radius: 1px;
-  min-width: 2px;
-}
-
-.voiceMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.7rem;
-  opacity: 0.7;
-  flex-shrink: 0;
-}
-
-.duration {
-  font-weight: 500;
 }

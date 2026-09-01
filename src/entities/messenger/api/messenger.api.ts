@@ -3,10 +3,10 @@ import type {
   GetDialogueMessagesParams,
   GetMessengerDialogsParams,
   MessengerDialogsResponseDto,
+  MessageViewModel,
   SendImageMessagePayload,
   SendVoiceMessagePayload,
   UpdateMessagesStatusDto,
-  MessageViewModel,
 } from '@/entities/messenger/model'
 
 import { API_ROUTES } from '@/shared/api'
@@ -31,14 +31,27 @@ export const messengerApi = baseApi.injectEndpoints({
         { type: 'DialogueMessages', id: dialoguePartnerId },
       ],
     }),
-
-    markMessagesAsRead: builder.mutation<void, UpdateMessagesStatusDto>({
-      query: body => ({
+    // The mutation arg carries `dialoguePartnerId` for cache-tag scoping only — it's stripped
+    // out before building the request body, which must match the documented `{ ids }` contract
+    // exactly. Scoping the invalidation to this one partner (instead of the whole
+    // 'DialogueMessages' tag type) matters in practice: this mutation fires on essentially
+    // every incoming message while a dialogue is open, and an unscoped invalidation was
+    // refetching — and therefore jittering — the currently open conversation's first page on
+    // every read receipt, even though nothing about its content actually needed a network
+    // round-trip to know.
+    markMessagesAsRead: builder.mutation<
+      void,
+      UpdateMessagesStatusDto & { dialoguePartnerId: number }
+    >({
+      query: ({ dialoguePartnerId: _dialoguePartnerId, ...body }) => ({
         url: API_ROUTES.MESSENGER.BASE,
         method: 'PUT',
         body,
       }),
-      invalidatesTags: ['MessengerDialogs', 'DialogueMessages'],
+      invalidatesTags: (result, error, { dialoguePartnerId }) => [
+        'MessengerDialogs',
+        { type: 'DialogueMessages', id: dialoguePartnerId },
+      ],
     }),
 
     deleteMessage: builder.mutation<void, number>({

@@ -1,6 +1,4 @@
 export * from './messenger.events'
 export * from './messenger.types'
-export * from './messenger-dialogs-query'
 export * from './messenger-socket.types'
-export * from './MessengerRealtimeProvider'
 export * from './useMessengerSocket'

@@ -26,7 +26,7 @@ const dialogue = {
   updatedAt: '2026-07-30T10:00:00.000Z',
   userName: 'receiver',
   avatars: [],
-  notReadCount: 0,
+  notReadCount: 3,
 } satisfies LastMessageViewDto
 
 const user = (id: number, userName: string): SearchUserItem => ({
@@ -46,8 +46,15 @@ describe('messenger list mapping', () => {
         avatarUrl: undefined,
         lastMessage: 'You: Image',
         updatedAt: dialogue.updatedAt,
+        notReadCount: 0,
       },
     ])
+  })
+
+  it('keeps the unread count only for an incoming dialogue message', () => {
+    expect(
+      buildDialogueItems([{ ...dialogue, ownerId: 2, receiverId: 1 }], 1)[0].notReadCount
+    ).toBe(3)
   })
 
   it('does not prefix You: for incoming last messages', () => {
@@ -69,6 +76,7 @@ describe('messenger list mapping', () => {
         avatarUrl: undefined,
         lastMessage: 'Start a conversation',
         updatedAt: null,
+        notReadCount: 0,
       },
     ])
   })

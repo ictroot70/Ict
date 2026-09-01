@@ -7,6 +7,7 @@ import StoreProvider from '@/app/providers/StoreProvider'
 import { ToastWrapper } from '@/app/providers/ToastWrapper'
 import { AuthSessionHintProvider } from '@/shared/auth'
 import { AppHeader } from '@/widgets/Header'
+import { MessengerRealtimeFallbackProvider } from '@/widgets/messenger/model'
 import { Inter } from 'next/font/google'
 import Script from 'next/script'
 import { NextIntlClientProvider } from 'next-intl'
@@ -102,15 +103,17 @@ const AUTH_HINT_BOOTSTRAP_SCRIPT = `
 
 function RootLayoutFallback({ children }: { children: ReactNode }) {
   return (
-    <main>
-      <div className={layoutShellStyles.wrapper}>
-        <div
-          className={`${layoutShellStyles.content} ${layoutShellStyles['content--withoutSidebar']}`}
-        >
-          {children}
+    <MessengerRealtimeFallbackProvider>
+      <main>
+        <div className={layoutShellStyles.wrapper}>
+          <div
+            className={`${layoutShellStyles.content} ${layoutShellStyles['content--withoutSidebar']}`}
+          >
+            {children}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </MessengerRealtimeFallbackProvider>
   )
 }
 

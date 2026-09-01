@@ -1,12 +1,15 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React from 'react'
 
+import { MessageStatus } from '@/entities/messenger/model'
 import { Avatar } from '@/shared/composites'
-import { Button, Typography } from '@ictroot/ui-kit'
-import { Checkmark, DoneAll, PlayCircle, PauseCircle } from '@ictroot/ui-kit/icons'
+import { Typography } from '@ictroot/ui-kit'
 
 import styles from './MessageBubble.module.scss'
+
+import { MessageDeliveryStatus } from './MessageDeliveryStatus'
+import { VoiceMessageBody } from './VoiceMessageBody'
 
 interface MessageBubbleProps {
   text: string
@@ -16,7 +19,12 @@ interface MessageBubbleProps {
   url?: string
   avatarUrl?: string
   showAvatar?: boolean
-  isRead?: boolean
+  status?: MessageStatus
+  voiceWaveform?: readonly number[]
+  isVoicePlaybackRequested?: boolean
+  onVoicePlaybackEnded?: () => void
+  onVoicePlaybackPause?: () => void
+  onVoicePlaybackStart?: () => void
   onImageClick?: (url: string) => void
 }
 
@@ -28,14 +36,18 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   url,
   avatarUrl,
   showAvatar,
-  isRead,
+  status,
+  voiceWaveform,
+  isVoicePlaybackRequested,
+  onVoicePlaybackEnded,
+  onVoicePlaybackPause,
+  onVoicePlaybackStart,
   onImageClick,
 }) => {
   const isIncoming = direction === 'incoming'
   const isImageOnly = type === 'image' && !text
   const isImageWithText = type === 'image' && text
-  const [isPlaying, setIsPlaying] = useState(false)
-  const waveformHeights = useMemo(() => [...Array(40)].map(() => Math.random() * 100), [])
+  const isVoice = type === 'voice'
 
   return (
     <div
@@ -49,7 +61,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         ))}
       <div
         className={
-          styles.bubble +
+          (isVoice ? styles.voiceBubble : styles.bubble) +
           ' ' +
           (isIncoming ? styles.incomingBubble : styles.outgoingBubble) +
           (isImageOnly ? ' ' + styles.imageOnly : '') +
@@ -76,37 +88,27 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
             )}
           </div>
         )}
-        {type === 'voice' && (
-          <div className={styles.voiceContent}>
-            <Button
-              variant={'text'}
-              className={styles.voiceButton}
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? (
-                <PauseCircle className={styles.voiceIcon} size={40} />
-              ) : (
-                <PlayCircle className={styles.voiceIcon} size={40} />
-              )}
-            </Button>
-            <div className={styles.voiceWaveform}>
-              {waveformHeights.map((height, i) => (
-                <div key={i} className={styles.waveformBar} style={{ height: `${height}%` }} />
-              ))}
-            </div>
-            <div className={styles.voiceMeta}>
-              <span className={styles.duration}>02:31</span>
-            </div>
+        {isVoice && url && (
+          <VoiceMessageBody
+            source={url}
+            timestamp={timestamp}
+            isIncoming={isIncoming}
+            status={status}
+            waveform={voiceWaveform}
+            isPlaybackRequested={isVoicePlaybackRequested}
+            onPlaybackEnded={onVoicePlaybackEnded}
+            onPlaybackPause={onVoicePlaybackPause}
+            onPlaybackStart={onVoicePlaybackStart}
+          />
+        )}
+        {!isVoice && (
+          <div className={styles.footer}>
+            <Typography variant={'small_text'} className={styles.timestamp}>
+              {timestamp}
+            </Typography>
+            {!isIncoming && status && <MessageDeliveryStatus status={status} />}
           </div>
         )}
-        <div className={styles.footer}>
-          <Typography variant={'small_text'} className={styles.timestamp}>
-            {timestamp}
-          </Typography>
-          {!isIncoming && (
-            <span className={styles.statusIcon}>{isRead ? <DoneAll /> : <Checkmark />}</span>
-          )}
-        </div>
       </div>
     </div>
   )

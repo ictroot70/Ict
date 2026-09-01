@@ -106,6 +106,7 @@ describe('messengerApi', () => {
 
     await store.dispatch(
       messengerApi.endpoints.markMessagesAsRead.initiate({
+        dialoguePartnerId: 7,
         ids: [1, 2, 3],
       })
     )

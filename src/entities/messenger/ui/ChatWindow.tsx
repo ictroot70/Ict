@@ -1,31 +1,41 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Virtuoso } from 'react-virtuoso'
 
-import { useSendImageMessageMutation } from '@/entities/messenger'
-import {
-  ImageAttachButton,
-  ImagePreview,
-  useImageMessageDraft,
-} from '@/features/messenger/image-message'
+import { isIncomingMessage, MessageType, type MessageViewModel } from '@/entities/messenger'
 import { LinearProgress } from '@/shared/composites'
 import { formatTime } from '@/shared/lib/formatters'
-import { Typography } from '@ictroot/ui-kit'
 
 import styles from './ChatWindow.module.scss'
 
-import { MessageStatus, MessageType } from '../model/messenger.types'
-import { useMessengerCenter } from '../model/useMessengerCenter'
+import { playVoiceTransitionTone } from '../lib/play-voice-transition-tone'
 import { ImageMessageModal } from './ImageMessageModal'
 import { MessageBubble } from './MessageBubble'
 import { MessageComposer } from './MessageComposer'
+import { useChatWindowAutoScroll } from './useChatWindowAutoScroll'
 
 interface ChatWindowProps {
-  dialoguePartnerId: number
   currentUserId: number
-  partnerName: string
+  messages?: MessageViewModel[]
+  voiceWaveforms?: Readonly<Record<number, readonly number[]>>
   partnerAvatarUrl?: string
+  composerValue?: string
+  onComposerChange?: (value: string) => void
+  onSend?: () => void
+  sendDisabled?: boolean
+  pending?: boolean
   hasAttachment?: boolean
+  error?: string | null
+  isLoading?: boolean
+  firstItemIndex?: number
+  hasOlderMessages?: boolean
+  isLoadingOlderMessages?: boolean
+  onLoadOlderMessages?: () => void
+  composerPreviewSlot?: React.ReactNode
+  composerActionsSlot?: React.ReactNode
+  composerContentSlot?: React.ReactNode
+  composerError?: string | null
 }
 
 const getBubbleType = (type: MessageType) => {
@@ -40,153 +50,157 @@ const getBubbleType = (type: MessageType) => {
   return 'text'
 }
 
-const getImageErrorText = (error: 'invalidType' | 'tooLarge' | null) => {
-  if (error === 'invalidType') {
-    return 'Only PNG or JPEG images are allowed'
-  }
-
-  if (error === 'tooLarge') {
-    return 'Image must be less than 1 MB'
-  }
-
-  return null
-}
-
-const NEAR_BOTTOM_PX = 80
-
 export const ChatWindow: React.FC<ChatWindowProps> = ({
-  dialoguePartnerId,
   currentUserId,
-  partnerName,
+  messages,
+  voiceWaveforms,
   partnerAvatarUrl,
-  hasAttachment = false,
+  composerValue = '',
+  onComposerChange,
+  onSend,
+  sendDisabled,
+  pending,
+  hasAttachment,
+  error,
+  isLoading = false,
+  firstItemIndex = 0,
+  hasOlderMessages = false,
+  isLoadingOlderMessages = false,
+  onLoadOlderMessages,
+  composerPreviewSlot,
+  composerActionsSlot,
+  composerContentSlot,
+  composerError,
 }) => {
-  const messagesEndRef = useRef<HTMLDivElement | null>(null)
-  const messagesAreaRef = useRef<HTMLDivElement | null>(null)
-  const shouldStickToBottomRef = useRef(true)
-  const isInitialScrollRef = useRef(true)
-  const [imageSendError, setImageSendError] = useState<string | null>(null)
+  const [activeVoiceMessageId, setActiveVoiceMessageId] = useState<number | null>(null)
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
-
-  const {
-    messages,
-    isFetching,
-    isLoading,
-    historyError,
-    draftText,
-    setDraftText,
-    sendTextMessage,
-    isSending,
-    sendError,
-  } = useMessengerCenter(dialoguePartnerId, currentUserId, {
-    userName: partnerName,
-    avatarUrl: partnerAvatarUrl,
+  const voiceTransitionIdRef = React.useRef(0)
+  const playbackOrderedMessages = useMemo(() => messages || [], [messages])
+  const virtuosoRef = useChatWindowAutoScroll({
+    currentUserId,
+    firstItemIndex,
+    messages: playbackOrderedMessages,
   })
 
-  const { file, previewUrl, error: imageError, selectImage, removeImage } = useImageMessageDraft()
-  const [sendImageMessage, { isLoading: isImageSending }] = useSendImageMessageMutation()
+  const getNextVoiceMessageId = useCallback(
+    (messageId: number) => {
+      const currentIndex = playbackOrderedMessages.findIndex(message => message.id === messageId)
+      const nextMessage = playbackOrderedMessages[currentIndex + 1]
 
-  const imageErrorText = getImageErrorText(imageError)
-  const composerError = imageErrorText ?? imageSendError ?? sendError
-
-  const handleSend = async () => {
-    const message = draftText.trim()
-
-    if (file) {
-      try {
-        setImageSendError(null)
-
-        await sendImageMessage({
-          receiverId: dialoguePartnerId,
-          file,
-          message: message || undefined,
-        }).unwrap()
-
-        removeImage()
-        setDraftText('')
-      } catch {
-        setImageSendError('Could not send image. Try again later')
+      if (
+        currentIndex === -1 ||
+        !nextMessage ||
+        nextMessage.messageType !== MessageType.VOICE ||
+        !nextMessage.mediaContent?.fileUrl
+      ) {
+        return null
       }
 
-      return
-    }
-
-    sendTextMessage(draftText, dialoguePartnerId)
-  }
-
-  const addImageButton = (
-    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage}>
-      <span className={styles.addImageButton}>+</span>
-    </ImageAttachButton>
+      return nextMessage.id
+    },
+    [playbackOrderedMessages]
   )
 
-  const previewSlot = previewUrl ? (
-    <ImagePreview
-      previewUrl={previewUrl}
-      onRemove={removeImage}
-      disabled={isImageSending}
-      addSlot={addImageButton}
-    />
-  ) : null
+  const handleVoicePlaybackStart = useCallback((messageId: number) => {
+    voiceTransitionIdRef.current += 1
+    setActiveVoiceMessageId(messageId)
+  }, [])
 
-  const actionsSlot = previewUrl ? null : (
-    <ImageAttachButton disabled={isImageSending} onImageSelect={selectImage} />
+  const handleVoicePlaybackPause = useCallback((messageId: number) => {
+    voiceTransitionIdRef.current += 1
+    setActiveVoiceMessageId(currentMessageId =>
+      currentMessageId === messageId ? null : currentMessageId
+    )
+  }, [])
+
+  const handleVoicePlaybackEnded = useCallback(
+    (messageId: number) => {
+      const nextVoiceMessageId = getNextVoiceMessageId(messageId)
+
+      if (nextVoiceMessageId === null) {
+        setActiveVoiceMessageId(null)
+
+        return
+      }
+
+      const transitionId = voiceTransitionIdRef.current + 1
+
+      voiceTransitionIdRef.current = transitionId
+      setActiveVoiceMessageId(null)
+
+      void playVoiceTransitionTone()
+        .finally(() => {
+          setActiveVoiceMessageId(currentMessageId => {
+            if (voiceTransitionIdRef.current !== transitionId) {
+              return currentMessageId
+            }
+
+            return nextVoiceMessageId
+          })
+        })
+        .catch(() => undefined)
+    },
+    [getNextVoiceMessageId]
   )
 
-  const handleMessagesScroll = () => {
-    const area = messagesAreaRef.current
-
-    if (!area) {
+  useEffect(() => {
+    if (activeVoiceMessageId === null) {
       return
     }
 
-    const distanceToBottom = area.scrollHeight - area.scrollTop - area.clientHeight
+    const activeMessage = playbackOrderedMessages.find(
+      message => message.id === activeVoiceMessageId
+    )
 
-    shouldStickToBottomRef.current = distanceToBottom <= NEAR_BOTTOM_PX
-  }
+    if (
+      !activeMessage ||
+      activeMessage.messageType !== MessageType.VOICE ||
+      !activeMessage.mediaContent?.fileUrl
+    ) {
+      setActiveVoiceMessageId(null)
+    }
+  }, [activeVoiceMessageId, playbackOrderedMessages])
 
-  useEffect(() => {
-    isInitialScrollRef.current = true
-    shouldStickToBottomRef.current = true
-  }, [dialoguePartnerId])
-
-  useEffect(() => {
-    if (!shouldStickToBottomRef.current) {
+  const handleStartReached = useCallback(() => {
+    if (!hasOlderMessages || isLoadingOlderMessages) {
       return
     }
 
-    messagesEndRef.current?.scrollIntoView({
-      behavior: isInitialScrollRef.current ? 'auto' : 'smooth',
-    })
-    isInitialScrollRef.current = false
-  }, [messages])
+    onLoadOlderMessages?.()
+  }, [hasOlderMessages, isLoadingOlderMessages, onLoadOlderMessages])
 
   return (
     <div className={styles.container}>
-      <LinearProgress active={isFetching} />
-
-      <div className={styles.messagesArea} ref={messagesAreaRef} onScroll={handleMessagesScroll}>
-        {historyError && (
-          <Typography variant={'regular_14'} className={styles.historyError}>
-            {historyError}
-          </Typography>
-        )}
-
-        {!historyError && isLoading && messages.length === 0 && (
-          <Typography variant={'regular_14'} className={styles.historyStatus}>
-            Loading messages...
-          </Typography>
-        )}
-
-        {messages.map((message, index) => {
-          const isIncoming = message.ownerId !== currentUserId
-          const prevMsg = messages[index - 1]
-          const isPrevIncoming = prevMsg && prevMsg.ownerId !== currentUserId
+      <LinearProgress active={isLoading} />
+      <Virtuoso
+        ref={virtuosoRef}
+        className={styles.messagesArea}
+        style={{ overflowX: 'hidden' }}
+        data={playbackOrderedMessages}
+        firstItemIndex={firstItemIndex}
+        followOutput={'smooth'}
+        startReached={handleStartReached}
+        components={{
+          Header: () => (
+            <div className={styles.listEdgeSpacer}>
+              {isLoadingOlderMessages && (
+                <div className={styles.historyLoader}>Loading older messages...</div>
+              )}
+            </div>
+          ),
+          Footer: () => <div className={styles.listEdgeSpacer} />,
+        }}
+        computeItemKey={(index, message) => message.id}
+        itemContent={(index, message) => {
+          const isIncoming = isIncomingMessage(message, currentUserId)
+          const prevMsg = playbackOrderedMessages[index - 1]
+          const isPrevIncoming = prevMsg && isIncomingMessage(prevMsg, currentUserId)
           const showAvatar = isIncoming && !isPrevIncoming
+          const isVoiceMessage = message.messageType === MessageType.VOICE
+          const hasVoiceSource = isVoiceMessage && Boolean(message.mediaContent?.fileUrl)
 
           return (
             <MessageBubble
-              key={message.id}
               text={message.messageText ?? ''}
               direction={isIncoming ? 'incoming' : 'outgoing'}
               timestamp={formatTime(message.createdAt)}
@@ -194,24 +208,35 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               url={message.mediaContent?.fileUrl}
               avatarUrl={partnerAvatarUrl}
               showAvatar={showAvatar}
-              isRead={message.status === MessageStatus.READ}
+              status={message.status}
               onImageClick={setPreviewImageUrl}
+              voiceWaveform={voiceWaveforms?.[message.id]}
+              isVoicePlaybackRequested={hasVoiceSource && activeVoiceMessageId === message.id}
+              onVoicePlaybackStart={
+                hasVoiceSource ? () => handleVoicePlaybackStart(message.id) : undefined
+              }
+              onVoicePlaybackPause={
+                hasVoiceSource ? () => handleVoicePlaybackPause(message.id) : undefined
+              }
+              onVoicePlaybackEnded={
+                hasVoiceSource ? () => handleVoicePlaybackEnded(message.id) : undefined
+              }
             />
           )
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+        }}
+      />
 
       <MessageComposer
-        value={draftText}
-        onChange={setDraftText}
-        onSend={handleSend}
-        disabled={isImageSending}
-        pending={isSending || isImageSending}
-        error={composerError}
-        hasAttachment={hasAttachment || Boolean(file)}
-        previewSlot={previewSlot}
-        actionsSlot={actionsSlot}
+        value={composerValue}
+        onChange={onComposerChange ?? (() => undefined)}
+        onSend={onSend ?? (() => undefined)}
+        disabled={!onSend || sendDisabled}
+        pending={pending}
+        hasAttachment={hasAttachment}
+        error={composerError ?? error}
+        previewSlot={composerPreviewSlot}
+        actionsSlot={composerActionsSlot}
+        contentSlot={composerContentSlot}
       />
       {previewImageUrl && (
         <ImageMessageModal imageUrl={previewImageUrl} onClose={() => setPreviewImageUrl(null)} />

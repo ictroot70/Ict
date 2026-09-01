@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 import s from './Sidebar.module.scss'
 
+import { useMessengerUnreadIndicator } from '../messenger/model'
 import { SidebarGroup, SidebarLink } from './components'
 import { LogOutButton } from './components/LogoutButton/LogOutButton'
 import { useLinkGroups, type SidebarLinkItem } from './model/useLinkGroups'
@@ -14,6 +15,7 @@ export const Sidebar = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const linkGroupsData = useLinkGroups()
+  const { unreadCount: messengerUnreadCount } = useMessengerUnreadIndicator()
 
   const action = searchParams.get('action')
   const isCreateModalOpen = action === 'create'
@@ -88,6 +90,15 @@ export const Sidebar = () => {
                 href={getLinkHref(link)}
                 icon={link.icon}
                 activeIcon={link.activeIcon}
+                indicator={
+                  link.href === '/messenger' && messengerUnreadCount > 0 ? (
+                    <span
+                      className={s.unreadDot}
+                      aria-label={`${messengerUnreadCount} unread messenger messages`}
+                      title={`${messengerUnreadCount} unread messenger messages`}
+                    />
+                  ) : undefined
+                }
                 disabled={link.disabled}
                 active={isLinkActive(link)}
                 onClick={getLinkClickHandler(link)}

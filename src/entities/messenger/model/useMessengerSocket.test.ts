@@ -14,9 +14,11 @@ const { handlers, ioMock, socketMock } = vi.hoisted(() => {
   const handlers = new Map<string, SocketHandler>()
 
   const socketMock = {
+    auth: {} as Record<string, unknown>,
     connected: false,
     disconnect: vi.fn(),
     emit: vi.fn(),
+    io: { opts: { query: {} as Record<string, unknown> } },
     off: vi.fn((event: string, handler: SocketHandler) => {
       if (handlers.get(event) === handler) {
         handlers.delete(event)
@@ -24,6 +26,9 @@ const { handlers, ioMock, socketMock } = vi.hoisted(() => {
     }),
     on: vi.fn((event: string, handler: SocketHandler) => {
       handlers.set(event, handler)
+    }),
+    removeAllListeners: vi.fn(() => {
+      handlers.clear()
     }),
   }
 
@@ -43,31 +48,14 @@ vi.mock('@/shared/lib/logger', () => ({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
-    debug: vi.fn(),
-    log: vi.fn(),
-  },
-}))
-
-vi.mock('@/shared/lib/restoreAccessToken', () => ({
-  restoreAccessToken: vi.fn(async () => ({
-    accessToken: 'refreshed-token',
-    isAuthenticated: true,
-  })),
-}))
-
-vi.mock('@/shared/lib/storage/auth-token', () => ({
-  authTokenStorage: {
-    setAccessToken: vi.fn(),
-    getAccessToken: vi.fn(() => 'access-token'),
-    hasToken: vi.fn(() => true),
-    clear: vi.fn(),
-    subscribe: vi.fn(() => () => {}),
   },
 }))
 
 beforeEach(() => {
   handlers.clear()
   socketMock.connected = false
+  socketMock.auth = {}
+  socketMock.io.opts.query = {}
   vi.clearAllMocks()
 })
 
@@ -82,21 +70,27 @@ const triggerSocketEvent = (event: string, ...args: unknown[]) => {
 }
 
 const setupHook = (accessToken: null | string = 'access-token') => {
+  const onAuthenticationError = vi.fn()
   const onError = vi.fn()
   const onMessage = vi.fn()
+  const onMessageDeleted = vi.fn()
 
   const hook = renderHook(() =>
     useMessengerSocket({
       accessToken,
+      onAuthenticationError,
       onError,
       onMessage,
+      onMessageDeleted,
     })
   )
 
   return {
     ...hook,
+    onAuthenticationError,
     onError,
     onMessage,
+    onMessageDeleted,
   }
 }
 
@@ -219,7 +213,23 @@ describe('useMessengerSocket', () => {
     })
   })
 
-  it('acknowledges a successfully processed message without DTO', async () => {
+  it('processes update-message events as status updates', async () => {
+    const { onMessage } = setupHook()
+    const receivedMessage = {
+      ...validMessage,
+      status: MessageStatus.RECEIVED,
+    }
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.UPDATE_MESSAGE, receivedMessage)
+    })
+
+    await waitFor(() => {
+      expect(onMessage).toHaveBeenCalledWith(receivedMessage)
+    })
+  })
+
+  it('acknowledges a successfully processed message with no payload', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
 
@@ -228,6 +238,8 @@ describe('useMessengerSocket', () => {
     })
 
     await waitFor(() => {
+      // Per the documented WS contract, the acknowledgement callback is called with NO
+      // arguments — the server identifies the delivered message from its own event context.
       expect(acknowledge).toHaveBeenCalledWith()
     })
 
@@ -237,7 +249,7 @@ describe('useMessengerSocket', () => {
     )
   })
 
-  it('acknowledges a media message without DTO', async () => {
+  it('acknowledges a media message delivery with no payload', async () => {
     const acknowledge = vi.fn()
     const { onMessage } = setupHook()
     const imageMessage = {
@@ -257,8 +269,34 @@ describe('useMessengerSocket', () => {
 
     await waitFor(() => {
       expect(onMessage).toHaveBeenCalledWith(imageMessage)
-      expect(acknowledge).toHaveBeenCalledWith()
     })
+
+    expect(acknowledge).toHaveBeenCalledWith()
+  })
+
+  it('acknowledges a voice message delivery with no payload', async () => {
+    const acknowledge = vi.fn()
+    const { onMessage } = setupHook()
+    const voiceMessage = {
+      ...validMessage,
+      messageText: null,
+      messageType: MessageType.VOICE,
+      mediaContent: {
+        fileType: MediaFileType.VOICE,
+        fileUrl: 'https://example.com/message.wav',
+        fileSize: 1024,
+      },
+    } satisfies MessageViewModel
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_SEND, voiceMessage, acknowledge)
+    })
+
+    await waitFor(() => {
+      expect(onMessage).toHaveBeenCalledWith(voiceMessage)
+    })
+
+    expect(acknowledge).toHaveBeenCalledWith()
   })
 
   it('rejects an invalid incoming payload', async () => {
@@ -319,9 +357,61 @@ describe('useMessengerSocket', () => {
     })
   })
 
+  it('handles a message-deleted event with a raw numeric id', () => {
+    const { onMessageDeleted } = setupHook()
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_DELETED, 42)
+    })
+
+    expect(onMessageDeleted).toHaveBeenCalledWith(42)
+  })
+
+  it('handles a message-deleted event with an { id } object', () => {
+    const { onMessageDeleted } = setupHook()
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_DELETED, { id: 42 })
+    })
+
+    expect(onMessageDeleted).toHaveBeenCalledWith(42)
+  })
+
+  it('rejects an invalid message-deleted payload', () => {
+    const { onError, onMessageDeleted } = setupHook()
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_DELETED, { notAnId: true })
+    })
+
+    expect(onMessageDeleted).not.toHaveBeenCalled()
+    expect(onError).toHaveBeenCalledWith({
+      source: 'socket',
+      code: 'INVALID_MESSAGE_DELETED_PAYLOAD',
+      message: 'Invalid message-deleted payload',
+    })
+  })
+
+  it('reports an error when the onMessageDeleted handler rejects', async () => {
+    const { onError, onMessageDeleted } = setupHook()
+
+    onMessageDeleted.mockRejectedValueOnce(new Error('Cache update failed'))
+
+    act(() => {
+      triggerSocketEvent(MESSENGER_SOCKET_EVENTS.MESSAGE_DELETED, 42)
+    })
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith({
+        source: 'socket',
+        code: 'SOCKET_ERROR',
+        message: 'Cache update failed',
+      })
+    })
+  })
   it('disconnects an authenticated socket after an authentication error', () => {
     socketMock.connected = true
-    const { onError, result } = setupHook()
+    const { onAuthenticationError, onError, result } = setupHook()
 
     act(() => {
       triggerSocketEvent('connect')
@@ -331,7 +421,9 @@ describe('useMessengerSocket', () => {
     })
 
     expect(result.current.isConnected).toBe(false)
+    expect(result.current.isRecoveringAuthentication).toBe(true)
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(onAuthenticationError).toHaveBeenCalledOnce()
     expect(onError).toHaveBeenCalledWith({
       source: 'socket',
       code: 'SOCKET_ERROR',
@@ -342,25 +434,29 @@ describe('useMessengerSocket', () => {
   it('removes listeners and disconnects on unmount', () => {
     const { unmount } = setupHook()
 
-    expect(handlers.size).toBe(7)
+    expect(handlers.size).toBe(8)
 
     unmount()
 
-    expect(socketMock.off).toHaveBeenCalledTimes(7)
+    expect(socketMock.removeAllListeners).toHaveBeenCalledOnce()
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
     expect(handlers.size).toBe(0)
   })
 
-  it('reconnects when the access token changes', () => {
+  it('reconnects the socket when the access token refreshes', () => {
+    const onAuthenticationError = vi.fn()
     const onError = vi.fn()
     const onMessage = vi.fn()
+    const onMessageDeleted = vi.fn()
 
     const { rerender } = renderHook(
       ({ accessToken }: { accessToken: string }) =>
         useMessengerSocket({
           accessToken,
+          onAuthenticationError,
           onError,
           onMessage,
+          onMessageDeleted,
         }),
       {
         initialProps: {
@@ -375,14 +471,78 @@ describe('useMessengerSocket', () => {
 
     expect(socketMock.disconnect).toHaveBeenCalledOnce()
     expect(ioMock).toHaveBeenCalledTimes(2)
-    expect(ioMock).toHaveBeenNthCalledWith(
-      2,
+    expect(ioMock).toHaveBeenLastCalledWith(
       'https://inctagram.work',
-      expect.objectContaining({
-        query: {
-          accessToken: 'new-token',
-        },
-      })
+      expect.objectContaining({ query: { accessToken: 'new-token' } })
     )
+  })
+
+  it('uses a fresh handshake when the access token refreshes', () => {
+    const onAuthenticationError = vi.fn()
+    const onError = vi.fn()
+    const onMessage = vi.fn()
+    const onMessageDeleted = vi.fn()
+
+    const { rerender } = renderHook(
+      ({ accessToken }: { accessToken: string }) =>
+        useMessengerSocket({
+          accessToken,
+          onAuthenticationError,
+          onError,
+          onMessage,
+          onMessageDeleted,
+        }),
+      {
+        initialProps: {
+          accessToken: 'old-token',
+        },
+      }
+    )
+
+    expect(ioMock).toHaveBeenCalledWith(
+      'https://inctagram.work',
+      expect.objectContaining({ query: { accessToken: 'old-token' } })
+    )
+
+    rerender({
+      accessToken: 'new-token',
+    })
+
+    expect(socketMock.disconnect).toHaveBeenCalledOnce()
+    expect(ioMock).toHaveBeenCalledTimes(2)
+    expect(ioMock).toHaveBeenLastCalledWith(
+      'https://inctagram.work',
+      expect.objectContaining({ query: { accessToken: 'new-token' } })
+    )
+  })
+
+  it('does not touch auth/query when the access token is unchanged on rerender', () => {
+    const onAuthenticationError = vi.fn()
+    const onError = vi.fn()
+    const onMessage = vi.fn()
+    const onMessageDeleted = vi.fn()
+
+    const { rerender } = renderHook(
+      ({ accessToken }: { accessToken: string }) =>
+        useMessengerSocket({
+          accessToken,
+          onAuthenticationError,
+          onError,
+          onMessage,
+          onMessageDeleted,
+        }),
+      {
+        initialProps: {
+          accessToken: 'stable-token',
+        },
+      }
+    )
+
+    rerender({ accessToken: 'stable-token' })
+
+    // React bails out of re-running the effect when the dependency value is unchanged,
+    // so io() is still called exactly once and no redundant auth/query write happens.
+    expect(ioMock).toHaveBeenCalledOnce()
+    expect(socketMock.io.opts.query).toEqual({})
   })
 })

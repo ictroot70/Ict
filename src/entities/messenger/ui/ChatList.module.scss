@@ -52,14 +52,43 @@
 }
 
 .time {
+  flex-shrink: 0;
   color: var(--color-light-900);
 }
 
+.previewRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .lastMsg {
+  flex: 1;
+  min-width: 0;
+
   color: var(--color-light-900);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.badge {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  color: var(--color-light-100);
+
+  background-color: var(--color-primary-500);
 }
 
 .noResults {

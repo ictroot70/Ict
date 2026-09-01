@@ -15,6 +15,7 @@ interface MessageComposerProps {
   error?: string | null
   previewSlot?: React.ReactNode
   actionsSlot?: React.ReactNode
+  contentSlot?: React.ReactNode
   /** Image/voice attachments can be sent without text. */
   hasAttachment?: boolean
 }
@@ -28,6 +29,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
   error,
   previewSlot,
   actionsSlot,
+  contentSlot,
   hasAttachment = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -54,29 +56,35 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
       {previewSlot && <div className={styles.previewArea}>{previewSlot}</div>}
 
       <div className={styles.inputArea}>
-        <Input
-          ref={inputRef}
-          inputType={'text'}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={'Type Message'}
-          className={styles.input}
-          disabled={disabled}
-        />
+        {contentSlot ?? (
+          <>
+            <Input
+              ref={inputRef}
+              inputType={'text'}
+              value={value}
+              onChange={e => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={'Type Message'}
+              className={styles.input}
+              disabled={disabled}
+            />
 
-        <div className={styles.controls}>
-          {actionsSlot}
+            <div className={styles.controls}>
+              {!canSend && actionsSlot}
 
-          <Button
-            onClick={handleSend}
-            variant={'text'}
-            disabled={disabled || pending || !canSend}
-            className={styles.sendBtn}
-          >
-            <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
-          </Button>
-        </div>
+              {canSend && (
+                <Button
+                  onClick={handleSend}
+                  variant={'text'}
+                  disabled={disabled || pending}
+                  className={styles.sendBtn}
+                >
+                  <Typography variant={'h3'}>{pending ? 'Sending...' : 'Send Message'}</Typography>
+                </Button>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {error && (

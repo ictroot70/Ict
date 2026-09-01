@@ -2,30 +2,35 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { type MessengerListItem, useGetMessengerDialogsQuery } from '@/entities/messenger'
-import { MESSENGER_DIALOGS_QUERY_ARGS } from '@/entities/messenger/model/messenger-dialogs-query'
+import {
+  type GetMessengerDialogsParams,
+  type MessengerListItem,
+  useGetMessengerDialogsQuery,
+} from '@/entities/messenger'
 import { useGetPublicProfileQuery } from '@/entities/profile'
 import { useSearchUsersQuery } from '@/entities/users/api'
 import { useMeQuery } from '@/features/auth'
 import { usePathname } from 'next/navigation'
 
 import { appendNewContactItems, buildDialogueItems } from './messenger-list'
+import { getMessengerPartnerIdFromPath, MESSENGER_DIALOGS_PAGE_SIZE } from './messenger-realtime'
 
 const SEARCH_DEBOUNCE_MS = 200
 
-const getPartnerIdFromPath = (pathname: string) => {
-  const match = pathname.match(/^\/messenger\/(\d+)$/)
-
-  return match ? Number(match[1]) : null
-}
-
 export function useMessengerShell() {
   const pathname = usePathname()
-  const partnerId = getPartnerIdFromPath(pathname)
+  const partnerId = getMessengerPartnerIdFromPath(pathname)
   const [searchQuery, setSearchQuery] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const search = debouncedSearch.trim()
   const { data: currentUser } = useMeQuery()
+  const dialogsQueryParams = useMemo<GetMessengerDialogsParams>(
+    () => ({
+      pageSize: MESSENGER_DIALOGS_PAGE_SIZE,
+      searchName: search || undefined,
+    }),
+    [search]
+  )
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setDebouncedSearch(searchQuery), SEARCH_DEBOUNCE_MS)
@@ -38,15 +43,9 @@ export function useMessengerShell() {
     isLoading: areDialoguesLoading,
     isFetching: areDialoguesFetching,
     isError: areDialoguesError,
-  } = useGetMessengerDialogsQuery(
-    {
-      ...MESSENGER_DIALOGS_QUERY_ARGS,
-      searchName: search || undefined,
-    },
-    {
-      refetchOnMountOrArgChange: true,
-    }
-  )
+  } = useGetMessengerDialogsQuery(dialogsQueryParams, {
+    refetchOnMountOrArgChange: true,
+  })
   const {
     data: users,
     isLoading: areUsersLoading,
@@ -79,7 +78,6 @@ export function useMessengerShell() {
     items,
     searchQuery,
     setSearchQuery,
-    currentUserId: currentUser?.userId ?? 0,
     isLoading:
       areDialoguesLoading ||
       areDialoguesFetching ||
