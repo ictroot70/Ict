@@ -23,29 +23,44 @@ const isAccessTokenResponse = (value: unknown): value is AccessTokenResponse =>
 
 async function requestAccessTokenRefresh(): Promise<AccessTokenRefreshResult> {
   try {
-    const response = await fetch(buildApiUrl(API_ROUTES.AUTH.UPDATE_TOKENS), {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    const refreshEndpoints = [
+      API_ROUTES.AUTH.UPDATE_TOKENS,
+      API_ROUTES.AUTH.GITHUB_UPDATE_TOKENS,
+    ] as const
 
-    if (!response.ok) {
-      return { accessToken: null, isAuthenticated: false }
+    for (const endpoint of refreshEndpoints) {
+      const response = await fetch(buildApiUrl(endpoint), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const data: unknown = await response.json()
+
+        if (!isAccessTokenResponse(data)) {
+          logger.error(`[refreshAccessToken] No accessToken in response from ${endpoint}`)
+
+          return { accessToken: null, isAuthenticated: false }
+        }
+
+        authTokenStorage.setAccessToken(data.accessToken)
+
+        return { accessToken: data.accessToken, isAuthenticated: true }
+      }
+
+      if (response.status !== 401) {
+        logger.error(
+          `[refreshAccessToken] Unexpected response from ${endpoint}: ${response.status}`
+        )
+
+        return { accessToken: null, isAuthenticated: false }
+      }
     }
 
-    const data: unknown = await response.json()
-
-    if (!isAccessTokenResponse(data)) {
-      logger.error('[refreshAccessToken] No accessToken in response')
-
-      return { accessToken: null, isAuthenticated: false }
-    }
-
-    authTokenStorage.setAccessToken(data.accessToken)
-
-    return { accessToken: data.accessToken, isAuthenticated: true }
+    return { accessToken: null, isAuthenticated: false }
   } catch (error) {
     logger.error('[refreshAccessToken] Failed to refresh auth:', error)
 

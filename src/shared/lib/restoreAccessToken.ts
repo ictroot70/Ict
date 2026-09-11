@@ -6,7 +6,7 @@ import { refreshAccessToken } from './refresh-access-token'
  * Restores access token via refresh token cookie
  *
  * Business logic is separated from the React hook
- * Pure async function – easy to test
+ * Pure async function - easy to test
  *
  * @returns {Object} result
  * @returns {string | null} result.accessToken - New access token or null

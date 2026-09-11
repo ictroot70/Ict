@@ -1,26 +1,27 @@
-import { profileApi } from '@/entities/profile/api/profileApi'
-import { publicUsersApi } from '@/entities/users/api/publicUsers.api'
 import { API_ROUTES } from '@/shared/api/api-routes'
 import { baseApi } from '@/shared/api/base-api'
 import { UserSubscriptionInputDto } from '@/shared/types'
 
-import {
-  CachePatchResult,
-  isValidUserId,
-  patchPublicProfileFollowers,
-  patchPublicProfileFollowing,
-  patchUserByUserNameFollowState,
-} from './follow-cache'
+import { getFollowersListTag, getFollowingListTag } from './publicUsers.api'
 
 type FollowUserArgs = UserSubscriptionInputDto & {
   currentUserId?: number
+  currentUserName?: string
   targetUserName?: string
 }
 
 type UnfollowUserArgs = {
   currentUserId?: number
+  currentUserName?: string
   selectedUserId: number
   targetUserName?: string
+}
+
+type DeleteFollowerArgs = {
+  currentUserId?: number
+  currentUserName?: string
+  followerUserId: number
+  followerUserName?: string
 }
 
 const getAffectedProfileTags = (
@@ -33,136 +34,72 @@ const getAffectedProfileTags = (
   ...(targetUserName ? [{ type: 'Profile' as const, id: `USERNAME-${targetUserName}` }] : []),
 ]
 
+const getFollowListTags = (currentUserName?: string, targetUserName?: string) => [
+  ...(currentUserName
+    ? [{ type: 'FollowList' as const, id: getFollowingListTag(currentUserName) }]
+    : []),
+  ...(targetUserName
+    ? [{ type: 'FollowList' as const, id: getFollowersListTag(targetUserName) }]
+    : []),
+]
+
 export const usersFollowApi = baseApi.injectEndpoints({
   endpoints: builder => ({
     followUser: builder.mutation<void, FollowUserArgs>({
-      query: ({ currentUserId, targetUserName, ...body }) => ({
+      query: ({ currentUserId, currentUserName, targetUserName, ...body }) => ({
         url: API_ROUTES.USERS_FOLLOW.FOLLOWING,
         method: 'POST',
         body,
       }),
-      async onQueryStarted(
-        { currentUserId, selectedUserId, targetUserName },
-        { dispatch, queryFulfilled }
-      ) {
-        const patch = {
-          followersDelta: 1,
-          followingDelta: 1,
-          isFollowing: true,
-        }
-        const patches: CachePatchResult[] = []
-
-        if (targetUserName) {
-          patches.push(
-            dispatch(
-              publicUsersApi.util.updateQueryData('getUserByUserName', targetUserName, draft => {
-                patchUserByUserNameFollowState(draft, patch)
-              })
-            )
-          )
-        }
-
-        if (isValidUserId(selectedUserId)) {
-          patches.push(
-            dispatch(
-              profileApi.util.updateQueryData(
-                'getPublicProfile',
-                { profileId: selectedUserId },
-                draft => {
-                  patchPublicProfileFollowers(draft, patch)
-                }
-              )
-            )
-          )
-        }
-
-        if (isValidUserId(currentUserId)) {
-          patches.push(
-            dispatch(
-              profileApi.util.updateQueryData(
-                'getPublicProfile',
-                { profileId: currentUserId },
-                draft => {
-                  patchPublicProfileFollowing(draft, patch)
-                }
-              )
-            )
-          )
-        }
-
-        try {
-          await queryFulfilled
-        } catch {
-          patches.forEach(patch => patch.undo())
-        }
-      },
-      invalidatesTags: (result, error, { currentUserId, selectedUserId, targetUserName }) =>
-        error ? getAffectedProfileTags(currentUserId, selectedUserId, targetUserName) : [],
+      invalidatesTags: (
+        result,
+        error,
+        { currentUserId, currentUserName, selectedUserId, targetUserName }
+      ) => [
+        ...getAffectedProfileTags(currentUserId, selectedUserId, targetUserName),
+        ...getFollowListTags(currentUserName, targetUserName),
+      ],
     }),
     unfollowUser: builder.mutation<void, UnfollowUserArgs>({
-      query: ({ currentUserId, targetUserName, selectedUserId }) => ({
-        url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(selectedUserId),
+      query: ({ currentUserId, currentUserName, targetUserName, selectedUserId }) => ({
+        url: API_ROUTES.USERS_FOLLOW.FOLLOWING,
+        method: 'POST',
+        body: { selectedUserId },
+      }),
+      invalidatesTags: (
+        result,
+        error,
+        { currentUserId, currentUserName, selectedUserId, targetUserName }
+      ) => [
+        ...getAffectedProfileTags(currentUserId, selectedUserId, targetUserName),
+        ...getFollowListTags(currentUserName, targetUserName),
+      ],
+    }),
+    deleteFollower: builder.mutation<void, DeleteFollowerArgs>({
+      query: ({ currentUserId, currentUserName, followerUserId, followerUserName }) => ({
+        url: API_ROUTES.USERS_FOLLOW.DELETE_FOLLOWER(followerUserId),
         method: 'DELETE',
       }),
-      async onQueryStarted(
-        { currentUserId, selectedUserId, targetUserName },
-        { dispatch, queryFulfilled }
-      ) {
-        const patch = {
-          followersDelta: -1,
-          followingDelta: -1,
-          isFollowing: false,
-        }
-        const patches: CachePatchResult[] = []
-
-        if (targetUserName) {
-          patches.push(
-            dispatch(
-              publicUsersApi.util.updateQueryData('getUserByUserName', targetUserName, draft => {
-                patchUserByUserNameFollowState(draft, patch)
-              })
-            )
-          )
-        }
-
-        if (isValidUserId(selectedUserId)) {
-          patches.push(
-            dispatch(
-              profileApi.util.updateQueryData(
-                'getPublicProfile',
-                { profileId: selectedUserId },
-                draft => {
-                  patchPublicProfileFollowers(draft, patch)
-                }
-              )
-            )
-          )
-        }
-
-        if (isValidUserId(currentUserId)) {
-          patches.push(
-            dispatch(
-              profileApi.util.updateQueryData(
-                'getPublicProfile',
-                { profileId: currentUserId },
-                draft => {
-                  patchPublicProfileFollowing(draft, patch)
-                }
-              )
-            )
-          )
-        }
-
-        try {
-          await queryFulfilled
-        } catch {
-          patches.forEach(patch => patch.undo())
-        }
-      },
-      invalidatesTags: (result, error, { currentUserId, selectedUserId, targetUserName }) =>
-        error ? getAffectedProfileTags(currentUserId, selectedUserId, targetUserName) : [],
+      invalidatesTags: (
+        result,
+        error,
+        { currentUserId, currentUserName, followerUserId, followerUserName }
+      ) => [
+        ...(currentUserId ? [{ type: 'Profile' as const, id: currentUserId }] : []),
+        { type: 'Profile' as const, id: followerUserId },
+        ...(followerUserName
+          ? [
+              { type: 'Profile' as const, id: `USERNAME-${followerUserName}` },
+              { type: 'FollowList' as const, id: getFollowingListTag(followerUserName) },
+            ]
+          : []),
+        ...(currentUserName
+          ? [{ type: 'FollowList' as const, id: getFollowersListTag(currentUserName) }]
+          : []),
+      ],
     }),
   }),
 })
 
-export const { useFollowUserMutation, useUnfollowUserMutation } = usersFollowApi
+export const { useDeleteFollowerMutation, useFollowUserMutation, useUnfollowUserMutation } =
+  usersFollowApi

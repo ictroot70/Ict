@@ -1,0 +1,211 @@
+.modal {
+  --follow-list-modal-left: max(16px, calc((100vw - 1280px) / 2 + 408px));
+
+  top: 96px;
+  right: auto;
+  left: var(--follow-list-modal-left);
+  transform: none;
+  width: 644px;
+  height: min(564px, calc(100vh - 156px));
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  animation: none;
+
+  @media (max-width: 1023px), (max-height: 680px) {
+    top: 50%;
+    right: auto;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(644px, calc(100vw - 32px));
+    height: auto;
+  }
+}
+
+.modalInner {
+  position: relative;
+
+  height: 100%;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 24px 24px 36px;
+}
+
+.searchWrapper {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+}
+
+.list {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  overflow-y: auto;
+  min-height: 0;
+
+  padding-right: 4px;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 58px;
+  padding: 2px 4px;
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--color-light-100);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--color-dark-500);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-primary-500);
+  }
+}
+
+.followersActions {
+  display: grid;
+  grid-template-columns: 98px 99px;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.actionPlaceholder {
+  width: 98px;
+  height: 36px;
+}
+
+.followButton {
+  flex-shrink: 0;
+  width: 98px;
+  height: 36px;
+}
+
+.followingButton {
+  flex-shrink: 0;
+  width: 120px;
+  height: 36px;
+}
+
+.deleteButton {
+  flex-shrink: 0;
+  width: 99px;
+  height: 36px;
+  color: var(--color-light-100);
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stateText {
+  color: var(--color-light-900);
+}
+
+.state {
+  display: grid;
+  gap: 8px;
+  place-items: center;
+  min-height: 220px;
+  text-align: center;
+}
+
+.loadingMore {
+  padding: 12px 0;
+  text-align: center;
+  color: var(--color-light-900);
+}
+
+.confirmModal {
+  top: 252px;
+  left: calc(50% + 36px);
+  transform: translateX(-50%);
+  width: min(378px, calc(100vw - 32px));
+  min-height: 240px;
+  border: 1px solid var(--color-dark-100);
+  background-color: var(--color-dark-300);
+  animation: none;
+
+  @media (max-height: 560px) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.confirmBody {
+  display: flex;
+  gap: 16px;
+  padding: 24px 0 0;
+}
+
+.confirmAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+}
+
+.confirmText {
+  max-width: 282px;
+}
+
+.confirmUserName {
+  font-weight: var(--font-weight-bold);
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 32px 0 0;
+}
+
+.confirmButton {
+  min-width: 96px;
+}
+
+.actionError {
+  margin-top: 12px;
+}

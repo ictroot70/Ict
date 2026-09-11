@@ -13,7 +13,7 @@ export const PrivacyOfPolicy = () => {
 
   const getBackLink = (source: string | null) => {
     switch (source) {
-      case 'edit-profile':
+      case APP_ROUTES.LEGAL.FROM.EDIT_PROFILE:
         if (profileId) {
           const id = parseInt(profileId, 10)
 
@@ -21,7 +21,7 @@ export const PrivacyOfPolicy = () => {
         }
 
         return APP_ROUTES.ROOT
-      case 'signup':
+      case APP_ROUTES.LEGAL.FROM.SIGN_UP:
         return APP_ROUTES.AUTH.REGISTRATION
       default:
         return APP_ROUTES.AUTH.REGISTRATION
@@ -30,9 +30,9 @@ export const PrivacyOfPolicy = () => {
 
   const getBackText = (source: string | null) => {
     switch (source) {
-      case 'edit-profile':
+      case APP_ROUTES.LEGAL.FROM.EDIT_PROFILE:
         return 'Back to Edit Profile'
-      case 'signup':
+      case APP_ROUTES.LEGAL.FROM.SIGN_UP:
         return 'Back to Sign Up'
       default:
         return 'Back'

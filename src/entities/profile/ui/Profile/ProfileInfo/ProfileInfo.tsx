@@ -7,7 +7,7 @@ import s from './ProfileInfo.module.scss'
 
 import { ProfileActions } from '../ProfileActions'
 import { ProfileBio } from '../ProfileBio'
-import { ProfileStats } from '../ProfileStats'
+import { ProfileStats, type ProfileStatsType } from '../ProfileStats'
 
 type Props = {
   profile: PublicProfileData
@@ -22,6 +22,7 @@ type Props = {
   onUnfollow?: () => void
   onEditProfile?: () => void
   onSendMessage?: () => void
+  onStatClick?: (type: ProfileStatsType) => void
 }
 
 export function ProfileInfo({
@@ -37,6 +38,7 @@ export function ProfileInfo({
   onUnfollow,
   onEditProfile,
   onSendMessage,
+  onStatClick,
 }: Props) {
   const { userName, avatars, aboutMe } = profile
   const isFollowing = isFollowingProp ?? profile.isFollowing
@@ -72,7 +74,7 @@ export function ProfileInfo({
             </div>
           )}
         </div>
-        <ProfileStats stats={userMetadata} />
+        <ProfileStats stats={userMetadata} onStatClick={onStatClick} />
         <ProfileBio message={aboutMe} />
       </div>
     </div>

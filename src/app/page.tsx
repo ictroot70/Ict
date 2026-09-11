@@ -1,9 +1,13 @@
+import { Suspense } from 'react'
+
 import { GetPublicPostsResponse } from '@/entities/users/api/api.types'
 import { Public } from '@/entities/users/ui'
 import { API_ROUTES } from '@/shared/api'
 import { buildApiUrl } from '@/shared/api/get-api-base-url'
 import { logger } from '@/shared/lib/logger'
 import { safeSsrFetchJson } from '@/shared/lib/ssr/safeSsrFetch'
+
+import { GoogleOAuth } from './GoogleOAuth'
 
 const PUBLIC_POSTS_PAGE_SIZE = 4
 const INITIAL_PUBLIC_POST_CURSOR = 0
@@ -37,5 +41,12 @@ const fetchPublicPostsForSSR = async () => {
 export default async function HomePage() {
   const data = await fetchPublicPostsForSSR()
 
-  return <Public postsData={data} />
+  return (
+    <>
+      <Suspense fallback={null}>
+        <GoogleOAuth />
+      </Suspense>
+      <Public postsData={data} />
+    </>
+  )
 }

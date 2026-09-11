@@ -2,8 +2,9 @@
 
 import { useWatch } from 'react-hook-form'
 
-import { useSignUp } from '@/features/auth'
+import { buildGitHubAuthUrl, createGoogleOAuthRedirectUrl, useSignUp } from '@/features/auth'
 import { ControlledCheckbox, ControlledInput } from '@/features/formControls'
+import { getApiBaseUrl } from '@/shared/api/get-api-base-url'
 import { OAuthIcons } from '@/shared/composites'
 import { APP_ROUTES } from '@/shared/constant'
 import { Button, Card, Typography } from '@/shared/ui'
@@ -16,8 +17,16 @@ import { AgreementLabel } from './AgreementLabel'
 import { SignUpConfirmModal } from './SignUpConfirmModal'
 
 export const SignUpForm = () => {
-  const { form, onSubmit, isAgreementChecked, isLoading, serverError, isSuccess, setIsSuccess } =
-    useSignUp()
+  const {
+    form,
+    onSubmit,
+    isAgreementChecked,
+    isLoading,
+    serverError,
+    isSuccess,
+    setIsSuccess,
+    preserveSignUpDraft,
+  } = useSignUp()
 
   const {
     control,
@@ -32,6 +41,14 @@ export const SignUpForm = () => {
     router.replace(APP_ROUTES.AUTH.LOGIN)
   }
 
+  const handleGoogleSignIn = () => {
+    window.location.href = createGoogleOAuthRedirectUrl(window.location.origin)
+  }
+
+  const handleGitHubSignIn = () => {
+    window.location.href = buildGitHubAuthUrl(getApiBaseUrl(), window.location.origin)
+  }
+
   if (isSuccess) {
     return <SignUpConfirmModal open={isSuccess} onClose={handleModalClose} userEmail={email} />
   }
@@ -42,7 +59,7 @@ export const SignUpForm = () => {
         Sign Up
       </Typography>
 
-      <OAuthIcons onSignInGoogle={() => {}} onSignInGithub={() => {}} />
+      <OAuthIcons onSignInGoogle={handleGoogleSignIn} onSignInGithub={handleGitHubSignIn} />
 
       <form className={styles.form} autoComplete={'off'} onSubmit={onSubmit}>
         <div className={styles.fields}>
@@ -89,7 +106,7 @@ export const SignUpForm = () => {
         <ControlledCheckbox
           name={'agreement'}
           control={control}
-          label={AgreementLabel}
+          label={<AgreementLabel onPolicyNavigate={preserveSignUpDraft} />}
           className={styles.agreement}
         />
         {serverError && (

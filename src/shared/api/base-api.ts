@@ -24,6 +24,7 @@ export const baseApi = createApi({
     'FollowersFeed',
     'MessengerDialogs',
     'DialogueMessages',
+    'FollowList',
   ],
 })
 

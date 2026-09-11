@@ -1,6 +1,8 @@
 import {
   API_ROUTES,
   CheckRecoveryCodeRequest,
+  GoogleAuthRequest,
+  GoogleAuthResponse,
   LoginRequest,
   MeResponse,
   NewPasswordRequest,
@@ -12,7 +14,56 @@ import { baseApi } from '@/shared/api/base-api'
 import { logout, setAuthenticated } from '@/shared/auth/authSlice'
 import { authTokenStorage, logger } from '@/shared/lib'
 import { clearAuthSessionHint, markAuthSessionHint } from '@/shared/lib/storage'
+import { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit'
 import { jwtDecode } from 'jwt-decode'
+
+type AuthLifecycleDispatch = ThunkDispatch<unknown, unknown, UnknownAction>
+
+const applyAuthSuccess = (
+  dispatch: AuthLifecycleDispatch,
+  data: RefreshTokenResponse | GoogleAuthResponse,
+  source: 'login' | 'googleAuth'
+) => {
+  if (!data.accessToken) {
+    return
+  }
+
+  let userId: number | undefined
+
+  try {
+    const decoded = jwtDecode<{ userId?: number }>(data.accessToken)
+
+    userId = typeof decoded.userId === 'number' ? decoded.userId : undefined
+  } catch (decodeError) {
+    logger.warn(`[${source}] Failed to decode userId from accessToken:`, decodeError)
+  }
+
+  authTokenStorage.setAccessToken(data.accessToken)
+  markAuthSessionHint(userId)
+  dispatch(setAuthenticated())
+  dispatch(authApi.util.invalidateTags(['Me']))
+}
+
+const createAuthSuccessHandler =
+  (source: 'login' | 'googleAuth') =>
+  async (
+    _: unknown,
+    {
+      dispatch,
+      queryFulfilled,
+    }: {
+      dispatch: AuthLifecycleDispatch
+      queryFulfilled: Promise<{ data: RefreshTokenResponse | GoogleAuthResponse }>
+    }
+  ) => {
+    try {
+      const { data } = await queryFulfilled
+
+      applyAuthSuccess(dispatch, data, source)
+    } catch (error) {
+      logger.error(`[${source}] Failed:`, error)
+    }
+  }
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -23,31 +74,7 @@ export const authApi = baseApi.injectEndpoints({
         body,
         credentials: 'include',
       }),
-
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          if (data.accessToken) {
-            let userId: number | undefined
-
-            try {
-              const decoded = jwtDecode<{ userId?: number }>(data.accessToken)
-
-              userId = typeof decoded.userId === 'number' ? decoded.userId : undefined
-            } catch (decodeError) {
-              logger.warn('[login] Failed to decode userId from accessToken:', decodeError)
-            }
-
-            authTokenStorage.setAccessToken(data.accessToken)
-            markAuthSessionHint(userId)
-            dispatch(setAuthenticated())
-            dispatch(authApi.util.invalidateTags(['Me']))
-          }
-        } catch (error) {
-          logger.error('[login] Failed:', error)
-        }
-      },
+      onQueryStarted: createAuthSuccessHandler('login'),
     }),
     me: builder.query<MeResponse, void>({
       query: () => {
@@ -148,6 +175,15 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    googleAuth: builder.mutation<GoogleAuthResponse, GoogleAuthRequest>({
+      query: body => ({
+        url: API_ROUTES.AUTH.GOOGLE_LOGIN,
+        method: 'POST',
+        body,
+        credentials: 'include',
+      }),
+      onQueryStarted: createAuthSuccessHandler('googleAuth'),
+    }),
   }),
 })
 
@@ -162,4 +198,5 @@ export const {
   usePasswordRecoveryMutation,
   useCheckRecoveryCodeMutation,
   useNewPasswordMutation,
+  useGoogleAuthMutation,
 } = authApi
