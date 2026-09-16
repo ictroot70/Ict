@@ -1,1 +1,4 @@
 export { usePostModal } from './usePostModal'
+export { usePostComments } from './usePostComments'
+export { useCommentAnswers } from './useCommentAnswers'
+export { useCommentLikeToggle } from './useCommentLikeToggle'

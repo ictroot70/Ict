@@ -1,0 +1,20 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 16px;
+  height: 16px;
+}
+
+.sent {
+  color: var(--color-light-900);
+}
+
+.received {
+  color: var(--color-light-700);
+}
+
+.read {
+  color: var(--color-primary-100);
+}

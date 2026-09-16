@@ -1,0 +1,41 @@
+.commentForm {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3rem;
+  border-bottom: 1px solid var(--color-dark-100);
+
+  input {
+    border: 0;
+  }
+}
+
+.commentInputWrapper {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.input {
+  width: 100%;
+  padding-right: 2rem;
+}
+
+.replyLoader {
+  position: absolute;
+  right: 0.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid var(--color-light-900);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: reply-loader-spin 0.8s linear infinite;
+}
+
+@keyframes reply-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

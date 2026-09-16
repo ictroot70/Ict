@@ -1,13 +1,14 @@
 import { useMeQuery } from '@/features/auth'
 
 export const useAuth = () => {
-  const { data: user, isLoading, isError } = useMeQuery()
+  const { data: user, isLoading, isFetching, isUninitialized, isError } = useMeQuery()
+  const isAuthPending = isLoading || isFetching || isUninitialized
 
   return {
     user,
-    isLoading,
+    isLoading: isAuthPending,
     isError,
     isAuthenticated: !!user,
-    isOwnContent: (ownerId: number) => user?.userId === ownerId,
+    isOwnProfile: (ownerId: number) => user?.userId === ownerId,
   }
 }

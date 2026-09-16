@@ -4,6 +4,7 @@ import { toast } from 'react-toastify/unstyled'
 import styles from './Toast.module.scss'
 
 type ToastParams = {
+  containerId?: string
   message: string
   type?: 'success' | 'error' | 'info' | 'warning'
   duration?: number
@@ -17,6 +18,7 @@ export const showToastAlert = ({
   type = 'info',
   duration = 3000,
   closeable = true,
+  containerId,
   progressBar = true,
   typographyVariant = 'regular_16',
 }: ToastParams) => {
@@ -30,6 +32,7 @@ export const showToastAlert = ({
       closeable={closeable}
     />,
     {
+      containerId,
       autoClose: duration,
       closeButton: false,
       className: styles.Toastify__toast,

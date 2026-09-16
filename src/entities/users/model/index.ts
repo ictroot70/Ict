@@ -1,3 +1,7 @@
 export * from './user.types'
-// export * from './userSlice'
-export * from './userSelectors'
+export {
+  markUserFollowed,
+  markUserUnfollowed,
+  selectUnfollowedUserIds,
+  userFollowReducer,
+} from './userFollow.slice'

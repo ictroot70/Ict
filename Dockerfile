@@ -15,6 +15,7 @@ RUN npm run build:production
 
 #Стейдж запуска
 FROM node:20.11-alpine as runner
+USER node
 WORKDIR /app
 ENV NODE_ENV production
 COPY --from=builder /app/ ./

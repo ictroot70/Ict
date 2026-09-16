@@ -1,0 +1,13 @@
+.footer {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentsToggle {
+  width: max-content;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  color: var(--color-light-900);
+  text-align: left;
+  font-size: 14px;
+}

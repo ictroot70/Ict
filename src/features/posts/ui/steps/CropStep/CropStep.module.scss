@@ -27,7 +27,7 @@
 .separator {
   margin: 12px 0;
   height: 10px;
-  background-color: #333;
+  background-color: var(--color-dark-300);
 }
 .emptyState {
   display: grid;
@@ -48,24 +48,23 @@
   position: relative;
   width: 490px;
   height: 503px;
-  background: #333;
+  background: var(--color-dark-300);
   overflow: hidden;
 }
 
 .cropper {
   background-color: transparent;
-  img {
-    min-width: 100%;
-    object-fit: contain;
-  }
+  transform: none;
+  height: 100%;
+  width: 100%;
 }
 
 .tools {
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  background: #333;
-  color: #fff;
+  background: var(--color-dark-300);
+  color: var(--color-light-100);
 }
 
 .zoomControl {
@@ -104,7 +103,6 @@
 
 .aspectIcon {
   border-radius: 3px;
-  //border: 2px solid var(--color-light-900);
   border: 2px solid currentColor;
 
   &.oneToOne {
@@ -154,7 +152,7 @@
 
 .dropdown {
   z-index: 1000;
-  background-color: #0d0d0d;
+  background-color: var(--color-dark-700);
 }
 
 .thumbs {
@@ -187,7 +185,7 @@
   }
 
   &.active {
-    border-color: #0077ff;
+    border-color: var(--color-primary-500);
   }
 
   &:hover .deleteBtn {
@@ -228,16 +226,16 @@
   position: absolute;
   font-size: 10px;
   line-height: 5px;
-  color: yellow;
+  color: var(--color-light-100);
   width: 15px;
   box-sizing: border-box;
   padding: 1px;
   height: 15px;
-  border: 1px solid blue;
+  border: 1px solid var(--color-primary-500);
   border-radius: 50%;
   top: -8px;
   right: -8px;
-  background: #0000007a;
+  background: var(--color-dark-500-transparent);
 }
 
 .iconBtn {
@@ -296,7 +294,7 @@
   border: none;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  color: var(--color-light-100);
   font-size: 12px;
   line-height: 1;
   display: flex;

@@ -1,0 +1,42 @@
+'use client'
+
+import React from 'react'
+
+import { Button, HeartFilled, HeartOutline } from '@/shared/ui'
+
+import s from './PostCommentsList.module.scss'
+
+interface CommentLikeButtonProps {
+  isLiked: boolean
+  isAuthenticated: boolean
+  onToggle: () => void
+  disabled?: boolean
+}
+
+export const CommentLikeButton: React.FC<CommentLikeButtonProps> = ({
+  isLiked,
+  isAuthenticated,
+  onToggle,
+  disabled = false,
+}) => {
+  if (!isAuthenticated) {
+    return null
+  }
+
+  return (
+    <Button
+      variant={'text'}
+      className={s.commentLikeButton}
+      onClick={onToggle}
+      disabled={disabled}
+      aria-label={isLiked ? 'Unlike' : 'Like'}
+      aria-pressed={isLiked}
+    >
+      {isLiked ? (
+        <HeartFilled size={16} color={'var(--color-danger-500)'} />
+      ) : (
+        <HeartOutline size={16} color={'var(--color-light-100)'} />
+      )}
+    </Button>
+  )
+}

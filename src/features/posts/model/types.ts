@@ -5,6 +5,7 @@ export interface UploadedFile {
   blob?: Blob
   original: string
   preview: string
+  previewBlob?: Blob
   id: string
   isModified: boolean
   uploadId?: string

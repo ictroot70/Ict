@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Instagramm Web App
 
-## Getting Started
+Instagram-like social network built with Next.js App Router, React and TypeScript.
 
-First, run the development server:
+## Stack
+
+- Next.js 15 (App Router)
+- React 19
+- TypeScript (strict)
+- Redux Toolkit + RTK Query
+- pnpm
+
+## Requirements
+
+- Node.js LTS
+- pnpm
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API Mode
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Default mode (recommended): direct API URL (no proxy).
+- Tunnel mode (optional): run `pnpm dev:proxy` to enable `/api/proxy` rewrites for local tunnel scenarios only.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Canonical checks
 
-## Learn More
+Before PR/merge, run:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm run ci:check
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Governance model
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Architecture and invariants: `.ai/policy.md` (single source of truth)
+- Quality gates: `.ai/quality-gates.md`
+- Anti-patterns: `.ai/anti-patterns.md`
+- Playbooks: `.ai/playbooks/*`
+- Agent hints (without new rules): `AGENTS.md`
 
-## Deploy on Vercel
+## Contribution
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contribution process and mandatory PR checklist:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `CONTRIBUTING.md`
