@@ -1,0 +1,148 @@
+.bubbleContainer {
+  display: flex;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 0 24px;
+  margin-bottom: 1rem;
+}
+
+.incoming {
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+.outgoing {
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.avatar {
+  margin-right: 0.75rem;
+}
+
+.avatarSpacer {
+  width: 2.5rem;
+  margin-right: 0.75rem;
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.incomingBubble {
+  background-color: var(--color-dark-300);
+  color: var(--color-light-100);
+
+  .timestamp {
+    color: var(--color-light-900);
+  }
+}
+
+.outgoingBubble {
+  background-color: var(--color-primary-900);
+  color: var(--color-light-100);
+
+  .timestamp {
+    color: var(--color-primary-100);
+  }
+}
+
+.imageOnly,
+.imageWithText {
+  width: fit-content;
+  max-width: min(360px, 70%);
+}
+
+.imageOnly {
+  background: none;
+  padding: 0;
+
+  .timestamp {
+    color: var(--color-light-100);
+  }
+}
+
+.imageWithText {
+  padding: 2px 2px 8px;
+
+  .image {
+    gap: 0;
+  }
+
+  .imageImg {
+    border-radius: 6px 6px 2px 2px;
+  }
+
+  .imageCaption {
+    padding: 0 10px;
+    margin-top: 7px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .footer {
+    padding: 0 10px;
+  }
+}
+
+.voiceBubble {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+
+  width: 404px;
+  max-width: calc(100% - 16px);
+  min-width: 0;
+  min-height: 80px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.incomingBubble.voiceBubble {
+  max-width: calc(100% - 64px);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.image {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.imageButton {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.imageImg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: 480px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 2px;
+}

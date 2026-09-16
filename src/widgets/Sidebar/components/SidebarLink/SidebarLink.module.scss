@@ -37,3 +37,12 @@
     font-weight: var(--font-weight-bold);
   }
 }
+
+.indicator {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: auto;
+}

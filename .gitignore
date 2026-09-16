@@ -47,5 +47,8 @@ next-env.d.ts
 
 # local ai/ide artifacts
 .cursor/
+.pnpm-store/
+.ai/cache/
+test-results/
 .ai/reports/*
 certificates

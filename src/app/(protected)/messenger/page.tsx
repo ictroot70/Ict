@@ -1,7 +1,5 @@
+import { MessengerEmptyState } from '@/widgets/messenger/ui/MessengerEmptyState'
+
 export default function Messenger() {
-  return (
-    <>
-      <h2>Messenger Page</h2>
-    </>
-  )
+  return <MessengerEmptyState />
 }

@@ -1,15 +1,3 @@
-export enum MessageType {
-  TEXT = 'TEXT',
-  IMAGE = 'IMAGE',
-  VOICE = 'VOICE',
-}
-
-export enum MessageStatus {
-  SENT = 'SENT',
-  RECEIVED = 'RECEIVED',
-  READ = 'READ',
-}
-
 export enum LikeStatus {
   NONE = 'NONE',
   LIKE = 'LIKE',

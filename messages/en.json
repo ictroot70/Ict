@@ -1,4 +1,39 @@
 {
+  "messenger": {
+    "voice": {
+      "record": "Record voice message",
+      "stop": "Stop recording",
+      "review": "Review",
+      "cancel": "Cancel recording",
+      "delete": "Delete recording",
+      "play": "Play recording",
+      "pause": "Pause recording",
+      "playMessage": "Play voice message",
+      "pauseMessage": "Pause voice message",
+      "send": "Send voice",
+      "processing": "Preparing voice message...",
+      "errors": {
+        "permissionDenied": "Microphone access was denied. Allow it in your browser settings.",
+        "recordingFailed": "Could not record audio. Please try again.",
+        "sizeExceeded": "Voice message must not exceed 3 MB.",
+        "unsupported": "Voice recording is not supported in this browser.",
+        "sendFailed": "Could not send the voice message. Please try again."
+      }
+    },
+    "image": {
+      "errors": {
+        "invalidType": "Only PNG or JPEG images are allowed.",
+        "tooLarge": "Image must be less than 1 MB.",
+        "sendFailed": "Could not send the image. Please try again."
+      }
+    },
+    "text": {
+      "errors": {
+        "connection": "No connection to the messenger server. Please try again later.",
+        "sendFailed": "Could not send the message. Please try again."
+      }
+    }
+  },
   "subscriptions": {
     "account": {
       "stripe": "Stripe",

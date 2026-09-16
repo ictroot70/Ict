@@ -1,0 +1,88 @@
+.player {
+  display: flex;
+  flex: 1;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.history {
+  gap: 16px;
+}
+
+.composer {
+  gap: 12px;
+}
+
+.playButton {
+  cursor: pointer;
+
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+
+  color: var(--color-light-100);
+  background: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-100);
+    outline-offset: 2px;
+  }
+}
+
+.history .playButton {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+}
+
+.composer .playButton {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.waveform {
+  width: 100%;
+  min-width: 0;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.timer {
+  flex-shrink: 0;
+
+  font-size: var(--font-size-s);
+  line-height: var(--line-height-m);
+  color: var(--color-light-100);
+  white-space: nowrap;
+}
+
+.metaEnd {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+
+  margin-left: auto;
+}

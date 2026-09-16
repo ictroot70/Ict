@@ -16,6 +16,11 @@ import { logger } from '@/shared/lib/logger'
 // Access Token is stored in memory (closure)
 let accessToken: string | null = null
 let migrated = false
+const listeners = new Set<() => void>()
+
+function notifyListeners() {
+  listeners.forEach(listener => listener())
+}
 
 export const authTokenStorage = {
   /**
@@ -24,8 +29,14 @@ export const authTokenStorage = {
    */
   setAccessToken(token: string) {
     migrateFromLocalStorage()
+
+    if (accessToken === token) {
+      return
+    }
+
     accessToken = token
     logger.debug('[authTokenStorage] Access token updated')
+    notifyListeners()
   },
 
   /**
@@ -46,7 +57,20 @@ export const authTokenStorage = {
    * For full logout use POST /auth/logout
    */
   clear() {
+    if (accessToken === null) {
+      return
+    }
+
     accessToken = null
+    notifyListeners()
+  },
+
+  subscribe(listener: () => void) {
+    listeners.add(listener)
+
+    return () => {
+      listeners.delete(listener)
+    }
   },
 }
 
