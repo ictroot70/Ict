@@ -7,10 +7,13 @@ interface AccessTokenResponse {
   accessToken: string
 }
 
-export interface AccessTokenRefreshResult {
-  accessToken: string | null
-  isAuthenticated: boolean
-}
+export type RefreshAccessTokenError =
+  | { status: number; data: unknown }
+  | { status: 'FETCH_ERROR'; error: string }
+
+export type AccessTokenRefreshResult =
+  | { accessToken: string; isAuthenticated: true }
+  | { accessToken: null; isAuthenticated: false; error?: RefreshAccessTokenError }
 
 let refreshRequest: Promise<AccessTokenRefreshResult> | null = null
 
@@ -56,7 +59,14 @@ async function requestAccessTokenRefresh(): Promise<AccessTokenRefreshResult> {
           `[refreshAccessToken] Unexpected response from ${endpoint}: ${response.status}`
         )
 
-        return { accessToken: null, isAuthenticated: false }
+        return {
+          accessToken: null,
+          isAuthenticated: false,
+          error: {
+            status: response.status,
+            data: await response.json().catch(() => null),
+          },
+        }
       }
     }
 
@@ -64,7 +74,14 @@ async function requestAccessTokenRefresh(): Promise<AccessTokenRefreshResult> {
   } catch (error) {
     logger.error('[refreshAccessToken] Failed to refresh auth:', error)
 
-    return { accessToken: null, isAuthenticated: false }
+    return {
+      accessToken: null,
+      isAuthenticated: false,
+      error: {
+        status: 'FETCH_ERROR',
+        error: error instanceof Error ? error.message : 'Failed to refresh access token',
+      },
+    }
   }
 }
 

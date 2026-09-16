@@ -55,7 +55,9 @@ export const baseQueryWithReauth: BaseQueryFn<
           authTokenStorage.clear()
           api.dispatch(logout())
 
-          return { error: { status: 401, data: 'Session expired' } }
+          return refreshResult.error
+            ? { error: refreshResult.error }
+            : { error: { status: 401, data: 'Session expired' } }
         }
       } finally {
         release()
